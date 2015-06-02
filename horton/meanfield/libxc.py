@@ -25,7 +25,8 @@ import numpy as np
 
 from horton.log import log, timer
 from horton.utils import doc_inherit
-from horton.meanfield.gridgroup import GridObservable
+from horton.meanfield.gridgroup import GridObservable, DF_LEVEL_LDA, \
+    DF_LEVEL_GGA
 from horton.meanfield.cext import RLibXCWrapper, ULibXCWrapper
 
 
@@ -63,6 +64,7 @@ class LibXCEnergy(GridObservable):
 class RLibXCLDA(LibXCEnergy):
     '''Any LDA functional from LibXC for restricted wavefunctions'''
 
+    df_level = DF_LEVEL_LDA
     prefix = 'lda'
     LibXCWrapper = RLibXCWrapper
 
@@ -81,7 +83,7 @@ class RLibXCLDA(LibXCEnergy):
 
     @timer.with_section('LDA pot')
     @doc_inherit(LibXCEnergy)
-    def add_pot(self, cache, grid, dpot_alpha):
+    def add_pot(self, cache, grid, lda_pot_alpha):
         # LibXC expects the following input:
         #   - total density
         # LibXC computes:
@@ -89,11 +91,13 @@ class RLibXCLDA(LibXCEnergy):
         pot, new = cache.load('pot_libxc_%s_alpha' % self._name, alloc=grid.size)
         if new:
             self._libxc_wrapper.compute_lda_vxc(cache['rho_full'], pot)
-        dpot_alpha += pot
+        lda_pot_alpha += pot
 
 
 class ULibXCLDA(LibXCEnergy):
     '''Any LDA functional from LibXC for unrestricted wavefunctions'''
+
+    df_level = DF_LEVEL_LDA
     prefix = 'lda'
     LibXCWrapper = ULibXCWrapper
 
@@ -115,7 +119,7 @@ class ULibXCLDA(LibXCEnergy):
 
     @timer.with_section('LDA pot')
     @doc_inherit(LibXCEnergy)
-    def add_pot(self, cache, grid, dpot_alpha, dpot_beta):
+    def add_pot(self, cache, grid, lda_pot_alpha, lda_pot_beta):
         # LibXC expects the following input:
         #   - alpha density
         #   - beta density
@@ -125,12 +129,12 @@ class ULibXCLDA(LibXCEnergy):
         pot_both, new = cache.load('pot_libxc_%s_both' % self._name, alloc=(grid.size, 2))
         if new:
             self._libxc_wrapper.compute_lda_vxc(cache['rho_both'], pot_both)
-        dpot_alpha += pot_both[:,0]
-        dpot_beta += pot_both[:,1]
+        lda_pot_alpha += pot_both[:,0]
+        lda_pot_beta += pot_both[:,1]
 
 
 class RLibXCGGA(LibXCEnergy):
-    gga = True
+    df_level = DF_LEVEL_GGA
     prefix = 'gga'
     LibXCWrapper = RLibXCWrapper
 
@@ -151,7 +155,7 @@ class RLibXCGGA(LibXCEnergy):
 
     @timer.with_section('GGA pot')
     @doc_inherit(LibXCEnergy)
-    def add_pot(self, cache, grid, dpot_alpha, gpot_alpha):
+    def add_pot(self, cache, grid, gga_pot_alpha):
         # LibXC expects the following input:
         #   - total density
         #   - norm of the gradient of the total density
@@ -165,18 +169,21 @@ class RLibXCGGA(LibXCEnergy):
             sigma_full = cache['sigma_full']
             self._libxc_wrapper.compute_gga_vxc(rho_full, sigma_full, dpot, spot)
 
-        gpot, new = cache.load('gpot_libxc_%s_alpha' % self._name, alloc=(grid.size,3))
+        # Chain rule: convert derivative toward sigma into a derivative toward
+        # the gradients.
+        my_gga_pot_alpha, new = cache.load('gga_pot_libxc_%s_alpha' % self._name, alloc=(grid.size,4))
         if new:
+            my_gga_pot_alpha[:,0] = dpot
             grad_rho = cache['grad_rho_full']
-            np.multiply(grad_rho, spot.reshape(-1,1), out=gpot)
-            gpot *= 2
+            np.multiply(grad_rho, spot.reshape(-1,1), out=my_gga_pot_alpha[:,1:4])
+            my_gga_pot_alpha[:,1:4] *= 2
 
-        dpot_alpha += dpot
-        gpot_alpha += gpot
+        # Add to the output argument
+        gga_pot_alpha += my_gga_pot_alpha
 
 
 class ULibXCGGA(LibXCEnergy):
-    gga = True
+    df_level = DF_LEVEL_GGA
     prefix = 'gga'
     LibXCWrapper = ULibXCWrapper
 
@@ -199,9 +206,9 @@ class ULibXCGGA(LibXCEnergy):
         rho_full = cache['rho_full']
         return grid.integrate(edens, rho_full)
 
-    @doc_inherit(LibXCEnergy)
     @timer.with_section('GGA pot')
-    def add_pot(self, cache, grid, dpot_alpha, dpot_beta, gpot_alpha, gpot_beta):
+    @doc_inherit(LibXCEnergy)
+    def add_pot(self, cache, grid, gga_pot_alpha, gga_pot_beta):
         # LibXC expects the following input:
         #   - alpha density
         #   - beta density
@@ -221,20 +228,25 @@ class ULibXCGGA(LibXCEnergy):
             sigma_all = cache['sigma_all']
             self._libxc_wrapper.compute_gga_vxc(rho_both, sigma_all, dpot_both, spot_all)
 
-        gpot_xc_alpha, new = cache.load('gpot_libxc_%s_alpha' % self._name, alloc=(grid.size,3))
-        if new:
-            gpot_xc_alpha[:] = (2*spot_all[:,0].reshape(-1,1))*cache['grad_rho_alpha']
-            gpot_xc_alpha[:] += (spot_all[:,1].reshape(-1,1))*cache['grad_rho_beta']
+        # Chain rules: convert derivatives toward sigma into a derivative toward
+        # the gradients.
+        grad_alpha = cache['all_alpha'][:,1:4]
+        grad_beta = cache['all_beta'][:,1:4]
 
-        gpot_xc_beta, new = cache.load('gpot_libxc_%s_beta' % self._name, alloc=(grid.size,3))
+        my_gga_pot_alpha, new = cache.load('gga_pot_libxc_%s_alpha' % self._name, alloc=(grid.size,4))
         if new:
-            gpot_xc_beta[:] = (2*spot_all[:,2].reshape(-1,1))*cache['grad_rho_beta']
-            gpot_xc_beta[:] += (spot_all[:,1].reshape(-1,1))*cache['grad_rho_alpha']
+            my_gga_pot_alpha[:,0] = dpot_both[:,0]
+            my_gga_pot_alpha[:,1:4] = (2*spot_all[:,0].reshape(-1,1))*grad_alpha
+            my_gga_pot_alpha[:,1:4] += (spot_all[:,1].reshape(-1,1))*grad_beta
 
-        dpot_alpha += dpot_both[:,0]
-        dpot_beta += dpot_both[:,1]
-        gpot_alpha += gpot_xc_alpha
-        gpot_beta += gpot_xc_beta
+        my_gga_pot_beta, new = cache.load('gga_pot_libxc_%s_beta' % self._name, alloc=(grid.size,4))
+        if new:
+            my_gga_pot_beta[:,0] = dpot_both[:,1]
+            my_gga_pot_beta[:,1:4] = (2*spot_all[:,2].reshape(-1,1))*grad_beta
+            my_gga_pot_beta[:,1:4] += (spot_all[:,1].reshape(-1,1))*grad_alpha
+
+        gga_pot_alpha += my_gga_pot_alpha
+        gga_pot_beta += my_gga_pot_beta
 
 
 class RLibXCHybridGGA(RLibXCGGA):

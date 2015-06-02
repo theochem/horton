@@ -975,6 +975,44 @@ cdef class GOBasis(GBasis):
         self._compute_grid1_dm(dm, points, GB1DMGridGradientFn(self.max_shell_type), output, epsilon)
         return output
 
+    def compute_grid_gga_dm(self, dm,
+                            np.ndarray[double, ndim=2] points not None,
+                            np.ndarray[double, ndim=2] output=None,
+                            double epsilon=0):
+        '''Compute the electron density and gradient on a grid for a given density matrix.
+
+           **Arguments:**
+
+           dm
+                A density matrix. For now, this must be a DenseTwoIndex object.
+
+           points
+                A Numpy array with grid points, shape (npoint,3).
+
+           **Optional arguments:**
+
+           output
+                A Numpy array for the output, shape (npoint,4). When not given,
+                it will be allocated.
+
+           epsilon
+                Allow errors on the density of this magnitude for the sake of
+                efficiency.
+
+           **Warning:** the results are added to the output array! This may
+           be useful to combine results from different spin components.
+        '''
+        if output is None:
+            output = np.zeros((points.shape[0], 4), float)
+        # This is to be replaced by something more efficient
+        rho = np.zeros(points.shape[0], float)
+        self._compute_grid1_dm(dm, points, GB1DMGridDensityFn(self.max_shell_type), rho, epsilon)
+        output[:,0] = rho
+        grad = np.zeros((points.shape[0],3), float)
+        self._compute_grid1_dm(dm, points, GB1DMGridGradientFn(self.max_shell_type), grad, epsilon)
+        output[:,1:4] = grad
+        return output
+
     def compute_grid_kinetic_dm(self, dm,
                                 np.ndarray[double, ndim=2] points not None,
                                 np.ndarray[double, ndim=1] output=None):
@@ -1215,6 +1253,32 @@ cdef class GOBasis(GBasis):
            **Warning:** the results are added to the fock operator!
         '''
         self._compute_grid1_fock(points, weights, pots, GB1DMGridGradientFn(self.max_shell_type), fock)
+
+    def compute_grid_gga_fock(self, np.ndarray[double, ndim=2] points not None,
+                                    np.ndarray[double, ndim=1] weights not None,
+                                    np.ndarray[double, ndim=2] pots not None, fock):
+        '''Compute a two-index operator based on GGA potential data in real-space
+
+           **Arguments:**
+
+           points
+                A Numpy array with grid points, shape (npoint,3).
+
+           weights
+                A Numpy array with integration weights, shape (npoint,).
+
+           pots
+                A Numpy array with GGA potential data, shape (npoint, 4).
+
+           fock
+                A two-index operator. For now, this must be a DenseTwoIndex
+                object.
+
+           **Warning:** the results are added to the fock operator!
+        '''
+        # To be replaced by something more efficient
+        self._compute_grid1_fock(points, weights, pots[:,0].copy(), GB1DMGridDensityFn(self.max_shell_type), fock)
+        self._compute_grid1_fock(points, weights, pots[:,1:4].copy(), GB1DMGridGradientFn(self.max_shell_type), fock)
 
     def compute_grid_kinetic_fock(self, np.ndarray[double, ndim=2] points not None,
                                   np.ndarray[double, ndim=1] weights not None,
