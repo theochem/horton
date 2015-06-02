@@ -550,6 +550,104 @@ void GB1DMGridHessianFn::compute_fock_from_pot(double* pot, double* work_basis, 
 
 
 /*
+    GB1DMGridMGGAFn
+*/
+
+void GB1DMGridMGGAFn::reset(long _shell_type0, const double* _r0, const double* _point) {
+    GB1GridFn::reset(_shell_type0, _r0, _point);
+    poly_work[0] = 1.0;
+    poly_work[1] = point[0] - r0[0];
+    poly_work[2] = point[1] - r0[1];
+    poly_work[3] = point[2] - r0[2];
+    // One order higher polynomials are required because of first derivative.
+    offset_h2 = fill_cartesian_polynomials(poly_work+1, abs(shell_type0)+2)+1;
+    offset_h1 = offset_h2 - ((abs(shell_type0)+2)*(abs(shell_type0)+3))/2;
+    offset = offset_h1 - ((abs(shell_type0)+1)*(abs(shell_type0)+2))/2;
+    offset_l1 = offset - ((abs(shell_type0))*(abs(shell_type0)+1))/2;
+    offset_l2 = offset_l1 - ((abs(shell_type0)-1)*(abs(shell_type0)))/2;
+}
+
+void GB1DMGridMGGAFn::add(double coeff, double alpha0, const double* scales0) {
+    double pre = coeff*exp(-alpha0*dist_sq(r0, point));
+    i1p.reset(abs(shell_type0));
+    do {
+        double pre0 = pre*scales0[i1p.ibasis0];
+        double pre0_h = -pre0*2.0*alpha0;
+        double pre0_hh = -pre0_h*2.0*alpha0;
+        long nnotx = i1p.n0[1] + i1p.n0[2];
+
+        // Orbital
+        work_cart[5*i1p.ibasis0] += pre0*poly_work[i1p.ibasis0+offset];
+
+        // Orbital derived toward x
+        work_cart[5*i1p.ibasis0+1] += pre0_h*poly_work[i1p.ibasis0+offset_h1];
+        if (i1p.n0[0] > 0)
+            work_cart[5*i1p.ibasis0+1] += i1p.n0[0]*pre0*poly_work[i1p.ibasis0+offset_l1];
+
+        // Orbital derived toward y
+        work_cart[5*i1p.ibasis0+2] += pre0_h*poly_work[i1p.ibasis0+1+nnotx+offset_h1];
+        if (i1p.n0[1] > 0)
+            work_cart[5*i1p.ibasis0+2] += i1p.n0[1]*pre0*poly_work[i1p.ibasis0-nnotx+offset_l1];
+
+        // Orbital derived toward z
+        work_cart[5*i1p.ibasis0+3] += pre0_h*poly_work[i1p.ibasis0+2+nnotx+offset_h1];
+        if (i1p.n0[2] > 0)
+            work_cart[5*i1p.ibasis0+3] += i1p.n0[2]*pre0*poly_work[i1p.ibasis0-nnotx-1+offset_l1];
+
+        // Laplacian of the orbital
+        work_cart[5*i1p.ibasis0+4] += pre0_hh*poly_work[i1p.ibasis0+offset_h2];
+        work_cart[5*i1p.ibasis0+4] += (2*i1p.n0[0]+1)*pre0_h*poly_work[i1p.ibasis0+offset];
+        if (i1p.n0[0] > 1)
+            work_cart[5*i1p.ibasis0+4] += i1p.n0[0]*(i1p.n0[0]-1)*pre0*poly_work[i1p.ibasis0+offset_l2];
+        work_cart[5*i1p.ibasis0+4] += pre0_hh*poly_work[i1p.ibasis0+3+2*nnotx+offset_h2];
+        work_cart[5*i1p.ibasis0+4] += (2*i1p.n0[1]+1)*pre0_h*poly_work[i1p.ibasis0+offset];
+        if (i1p.n0[1] > 1)
+            work_cart[5*i1p.ibasis0+4] += i1p.n0[1]*(i1p.n0[1]-1)*pre0*poly_work[i1p.ibasis0+1-2*nnotx+offset_l2];
+        work_cart[5*i1p.ibasis0+4] += pre0_hh*poly_work[i1p.ibasis0+5+2*nnotx+offset_h2];
+        work_cart[5*i1p.ibasis0+4] += (2*i1p.n0[2]+1)*pre0_h*poly_work[i1p.ibasis0+offset];
+        if (i1p.n0[2] > 1)
+            work_cart[5*i1p.ibasis0+4] += i1p.n0[2]*(i1p.n0[2]-1)*pre0*poly_work[i1p.ibasis0-1-2*nnotx+offset_l2];
+
+    } while (i1p.inc());
+}
+
+void GB1DMGridMGGAFn::compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double epsilon, double* dmmaxrow) {
+    double rho = 0, rho_x = 0, rho_y = 0, rho_z = 0;
+    double tau2 = 0.0, lapl_part = 0;
+    for (long ibasis0=0; ibasis0<nbasis; ibasis0++) {
+        double row = 0;
+        double tmp_x = 0;
+        double tmp_y = 0;
+        double tmp_z = 0;
+        for (long ibasis1=0; ibasis1<nbasis; ibasis1++) {
+            row += work_basis[ibasis1*5]*dm[ibasis0*nbasis+ibasis1];
+            tmp_x += work_basis[ibasis1*5+1]*dm[ibasis0*nbasis+ibasis1];
+            tmp_y += work_basis[ibasis1*5+2]*dm[ibasis0*nbasis+ibasis1];
+            tmp_z += work_basis[ibasis1*5+3]*dm[ibasis0*nbasis+ibasis1];
+        }
+        rho += row*work_basis[ibasis0*5];
+        rho_x += row*work_basis[ibasis0*5+1];
+        rho_y += row*work_basis[ibasis0*5+2];
+        rho_z += row*work_basis[ibasis0*5+3];
+        tau2 += tmp_x*work_basis[ibasis0*5+1] +
+                tmp_y*work_basis[ibasis0*5+2] +
+                tmp_z*work_basis[ibasis0*5+3];
+        lapl_part += row*work_basis[ibasis0*5+4];
+    }
+    output[0] += rho;
+    output[1] += 2*rho_x;
+    output[2] += 2*rho_y;
+    output[3] += 2*rho_z;
+    output[4] += 0.5*tau2;
+    output[5] += 2*lapl_part + 2*tau2;
+}
+
+void GB1DMGridMGGAFn::compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output) {
+    throw std::runtime_error("Gak!");
+}
+
+
+/*
     GB2DMGridFn
 */
 

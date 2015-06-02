@@ -748,3 +748,41 @@ def test_gga_fock_co_ccpv5z_cart():
 def test_gga_fock_co_ccpv5z_pure():
     fn_fchk = context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk')
     check_gga_fock(fn_fchk)
+
+
+def check_mgga_evaluation(fn):
+    # Tests density and gradient by comparing with separate density and gradient
+    # evaluation.
+    points = np.random.uniform(-5, 5, (1000, 3))
+    mol = IOData.from_file(fn)
+    dm_full = mol.get_dm_full()
+
+    for i in xrange(5):
+        # combined computation of density and gradient
+        mgga = mol.obasis.compute_grid_mgga_dm(dm_full, points)
+
+        # separate computation of density and gradient
+        rho = mol.obasis.compute_grid_density_dm(dm_full, points)
+        grad = mol.obasis.compute_grid_gradient_dm(dm_full, points)
+        kin = mol.obasis.compute_grid_kinetic_dm(dm_full, points)
+        hess = mol.obasis.compute_grid_hessian_dm(dm_full, points)
+        lapl = hess[:,0] + hess[:,3] + hess[:,5]
+
+        assert np.allclose(rho, mgga[:,0], atol=1e-10)
+        assert np.allclose(grad, mgga[:,1:4], atol=1e-10)
+        assert np.allclose(kin, mgga[:,4], atol=1e-10)
+        assert np.allclose(lapl, mgga[:,5], atol=1e-10)
+
+        # fill the density matrix with random numbers, symmetrize
+        dm_full.randomize()
+        dm_full.symmetrize()
+
+
+def test_mgga_evaluation_co_ccpv5z_cart():
+    fn_fchk = context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk')
+    check_mgga_evaluation(fn_fchk)
+
+
+def test_mgga_evaluation_co_ccpv5z_pure():
+    fn_fchk = context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk')
+    check_mgga_evaluation(fn_fchk)
