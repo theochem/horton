@@ -484,8 +484,8 @@ Conversion of density and Fock matrix to orbitals
 
 The :py:class:`~horton.meanfield.scf.PlainSCFSolver` iteratively updates the
 orbitals. Hence, for this SCF solver, there is no need to reconstruct the orbitals
-after SCF convergence. All other SCF algorithms, however, iteratively update the
-density matrix and you need to explicitly reconstruct the orbitals after SCF
+after SCF convergence. For all other SCF algorithms, however, you need to iteratively
+update the density matrix and explicitly reconstruct the orbitals after SCF
 convergence.
 
 .. note::
