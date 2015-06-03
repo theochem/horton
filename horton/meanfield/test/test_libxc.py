@@ -35,7 +35,6 @@ def test_cubic_interpolation_c_pbe_cs():
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         RGridGroup(mol.obasis, grid, [
             RLibXCGGA('c_pbe'),
@@ -53,7 +52,6 @@ def test_cubic_interpolation_x_pbe_cs():
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         RGridGroup(mol.obasis, grid, [
             RLibXCGGA('x_pbe'),
@@ -71,7 +69,6 @@ def test_cubic_interpolation_hfs_cs():
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         RGridGroup(mol.obasis, grid, [
             RLibXCLDA('x'),
@@ -143,7 +140,6 @@ def test_cubic_interpolation_x_tpss_cs():
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         RGridGroup(mol.obasis, grid, [RLibXCMGGA('x_tpss')]),
     ]
@@ -159,7 +155,6 @@ def test_cubic_interpolation_c_pbe_os():
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         UGridGroup(mol.obasis, grid, [
             ULibXCGGA('c_pbe'),
@@ -177,7 +172,6 @@ def test_cubic_interpolation_x_pbe_os():
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         UGridGroup(mol.obasis, grid, [
             ULibXCGGA('x_pbe'),
@@ -195,7 +189,6 @@ def test_cubic_interpolation_hfs_os():
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         UGridGroup(mol.obasis, grid, [
             ULibXCLDA('x'),
@@ -214,7 +207,6 @@ def test_cubic_interpolation_x_pbe_c_vwn_os():
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         UGridGroup(mol.obasis, grid, [
             ULibXCGGA('x_pbe'),
@@ -252,7 +244,6 @@ def test_cubic_interpolation_x_tpss_os():
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
     terms = [
         UGridGroup(mol.obasis, grid, [ULibXCMGGA('x_tpss'),]),
     ]
