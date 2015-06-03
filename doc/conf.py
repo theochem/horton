@@ -1,26 +1,6 @@
 # -*- coding: utf-8 -*-
-# Horton is a development platform for electronic structure methods.
-# Copyright (C) 2011-2015 The Horton Development Team
 #
-# This file is part of Horton.
-#
-# Horton is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 3
-# of the License, or (at your option) any later version.
-#
-# Horton is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, see <http://www.gnu.org/licenses/>
-#
-#--
-# -*- coding: utf-8 -*-
-#
-# Horton documentation build configuration file, created by
+# HORTON documentation build configuration file, created by
 # sphinx-quickstart on Sun Jul 17 11:14:50 2011.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -61,8 +41,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Horton'
-copyright = u'2011-2015, The Horton Development Team'
+project = u'HORTON'
+copyright = u'2011-2015, The HORTON Development Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -185,7 +165,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Hortondoc'
+htmlhelp_basename = 'HORTONdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -199,8 +179,8 @@ htmlhelp_basename = 'Hortondoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Horton.tex', u'Horton Documentation',
-   u'Toon Verstraelen, Matthew Chan', 'manual'),
+  ('index', 'Horton.tex', u'HORTON Documentation',
+   u'The HORTON Development Team', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -232,11 +212,11 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'horton', u'Horton Documentation',
-     [u'Toon Verstraelen'], 1)
+    ('index', 'horton', u'HORTON Documentation',
+     [u'The HORTON Development Team'], 1)
 ]
 
-# -- Custom Horton-specific settings -------------------------------------------
+# -- Custom HORTON-specific settings -------------------------------------------
 
 breathe_projects = { "horton": "doxyxml" }
 breathe_default_project = "horton"

@@ -19,19 +19,30 @@
     :
     : --
 
-Horton's Website
-################
+HORTON
+######
 
-Our manifesto comes right here.
+Motivated by our frustration with the difficulty of adding new features to
+existing quantum chemistry programs, we decided to create our own *H*\ elpful
+*O*\ pen-source *R*\ esearch *TO*\ ol for *N*\ -fermion systems (HORTON). The
+emphasis here is on the world *helpful*. HORTON is not intended to be a
+replacement for existing quantum chemistry software, but a helpful supplement to
+it. Our ambition is to provide a research tool that is computationally-efficient
+enough to be helpful, without compromising code-readability and
+user-friendliness. Our hope is that users will find HORTON helpful for
+developing and exploring new methods, for interpreting the results of electronic
+structure calculations, and for interacting with other computational modeling
+software packages. Our vision on HORTON is explained furher in the full
+:ref:`manifesto`.
 
-In anticipation of the first announcement of Horton in a scientific journal,
-please refer to Horton as follows:
+In anticipation of the first announcement of HORTON in a scientific journal,
+please refer to HORTON as follows:
 
-    T. Verstraelen, S. Vandenbrande, M. Chan, F. H. Zadeh, C. González, P. A. Limacher, A. Malek;
-    Horton 2.0.0, http://theochem.github.com/horton/,
-    **2013**
+    T. Verstraelen, S. Vandenbrande, M. Chan, F. H. Zadeh, C. González, P. A.
+    Limacher, A. Malek; HORTON 2.0.0, http://theochem.github.com/horton/,
+    **2015**
 
-Horton is distributed under the conditions of the GPL License version 3. See
+HORTON is distributed under the conditions of the GPL License version 3. See
 :ref:`license_information` for more details.
 
 
