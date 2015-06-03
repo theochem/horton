@@ -43,7 +43,7 @@ DF_LEVEL_MGGA = 2
 
 class GridGroup(Observable):
     '''A group of terms for the effective Hamiltonian that use numerical integration'''
-    def __init__(self, obasis, grid, grid_terms, label='grid_group'):
+    def __init__(self, obasis, grid, grid_terms, label='grid_group', density_cutoff=1e-9):
         '''
            **Arguments:**
 
@@ -63,10 +63,17 @@ class GridGroup(Observable):
 
            label
                 A label for the group.
+
+           density_cutoff
+                Whenever the density on a grid point falls below this threshold,
+                all data for that grid point is set to zero. This is mainly
+                relevant for functionals that use derivatives of the density
+                or the orbitals, i.e. GGA and MGGA functionals.
         '''
         self.grid_terms = grid_terms
         self.obasis = obasis
         self.grid = grid
+        self.density_cutoff = density_cutoff
         Observable.__init__(self, label)
 
     def _get_df_level(self):
@@ -103,6 +110,8 @@ class GridGroup(Observable):
            select
                 'alpha' or 'beta'.
         '''
+        # Compute the density (and optionally derivatives, etc.) on all the grid
+        # points.
         if self.df_level == DF_LEVEL_LDA:
             all_basics, new = cache.load('all_%s' % select, alloc=(self.grid.size,1))
             if new:
@@ -120,6 +129,11 @@ class GridGroup(Observable):
                 self.obasis.compute_grid_mgga_dm(dm, self.grid.points, all_basics)
         else:
             raise ValueError('Internal error: non-existent DF level.')
+
+        # Prune grid data where the density is lower than the threshold
+        if self.density_cutoff > 0:
+            mask = all_basics[:,0] < self.density_cutoff
+            all_basics[mask,:] = 0.0
         return all_basics
 
     def _update_grid_data(self, cache):
