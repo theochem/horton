@@ -693,6 +693,7 @@ cdef class GOBasis(GBasis):
         return output
 
     def compute_electron_repulsion(self, output):
+        log.cite('valeev2014', 'the efficient implementation of four-center electron repulsion integrals')
         # prepare the output array
         if isinstance(output, CholeskyLinalgFactory):
             lf = output
