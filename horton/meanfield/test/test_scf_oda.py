@@ -28,7 +28,8 @@ from nose.plugins.attrib import attr
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf, \
     check_water_cs_hfs, check_n2_cs_hfs, check_h3_os_hfs, check_h3_os_pbe, \
-    check_co_cs_pbe, check_scandium_sc_hf, check_water_cs_m05
+    check_co_cs_pbe, check_scandium_sc_hf, check_water_cs_m05, \
+    check_methyl_os_tpss
 
 
 def test_hf_cs_hf():
@@ -70,6 +71,10 @@ def test_vanadium_sc_hf():
 
 def test_water_cs_m05():
     check_water_cs_m05(ODASCFSolver(threshold=1e-6))
+
+
+def test_methyl_os_tpss():
+    check_methyl_os_tpss(ODASCFSolver(threshold=1e-4))
 
 
 def test_find_min_cubic():
