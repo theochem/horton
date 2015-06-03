@@ -24,8 +24,8 @@ Gaussian basis sets
 
 .. _ref_gaussian_basis_standard_sets:
 
-Standard basis sets supported in Horton
-=======================================
+Standard basis sets
+===================
 
 A list of currently supported built-in basis sets is tabulated below.
 

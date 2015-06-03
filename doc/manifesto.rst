@@ -1,4 +1,0 @@
-.. _manifesto:
-
-HORTON Manifesto
-################

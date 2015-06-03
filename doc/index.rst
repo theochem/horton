@@ -32,8 +32,7 @@ enough to be helpful, without compromising code-readability and
 user-friendliness. Our hope is that users will find HORTON helpful for
 developing and exploring new methods, for interpreting the results of electronic
 structure calculations, and for interacting with other computational modeling
-software packages. Our vision on HORTON is explained furher in the full
-:ref:`manifesto`.
+software packages. Further reading is provided in the :ref:`overview`.
 
 In anticipation of the first announcement of HORTON in a scientific journal,
 please refer to HORTON as follows:
