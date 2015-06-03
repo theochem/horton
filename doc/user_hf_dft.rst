@@ -24,30 +24,35 @@
 How to use Horton as a Hartree-Fock/DFT program
 ###############################################
 
-**Disclaimer.** The relevant Hartree-Fock and DFT features in Horton are
-explained below. This is all very different from a regular quantum chemistry
-code where you just prepare an input file with a molecular geometry and some
-control options. Instead, Horton is designed to allow you to tinker with most
-of the internals, and, in that way, make interesting fundamental research easy
-and enjoyable.
+This section explains how the relevant Hartree-Fock and DFT features in Horton
+are used with Python scripts. This is different from most regular quantum
+chemistry codes, where you just prepare an input file with a molecular geometry
+and some control options. Such an input-file interface for Horton is under
+construction. The script interface, explained here, is more expressive and
+laborsome than a regular input file, because you basically have to write the
+main program. It also offers the advantage that you can to tinker more with the
+internals.
 
 Horton can do restricted and unrestricted HF/DFT SCF calculations in various
 different ways. The following sections cover the typical steps of a calculation:
 
-1) Setting up the (molecular electronic) Hamiltonian
-2) Generating an initial guess of the orbitals
-3) Defining the effective Hamiltonian
-4) Choose an orbital occupation scheme
-5) Run an SCF algorithm
+1) :ref:`user_hf_dft_setup_hamiltonian`
+2) :ref:`user_hf_dft_initial_guess`
+3) :ref:`user_hf_dft_effective_ham`
+4) :ref:`user_hf_dft_occupation`
+5) :ref:`user_hf_dft_scf`
+6) Optional (if needed for 7 or 8): :ref:`user_hf_dft_get_orbitals`
+7) Optional :ref:`user_hf_dft_to_file`
+8) Optional :ref:`user_hf_dft_preparing_posthf`
 
-The last section contains an overview of complete examples
+The last section contains an overview of :ref:`hf_dft_complete_examples`
 that are shipped (and tested) with Horton. These may be convenient as a starting
 point when preparing your own scripts. You may also just dive straight
 into these examples and consult the first five sections to better understand how
 each example works.
 
 The code snippets below use the following conventions for variable names. The
-following are defined by setting up the Hamiltonian (see next section):
+following are defined by setting up the Hamiltonian:
 
 * ``olp``: two-index object with the overlap integrals.
 * ``kin``: two-index object with the kinetic energy integrals.
@@ -60,6 +65,8 @@ The following names are also used systematically:
   orbitals in a (local) basis.
 
 
+.. _user_hf_dft_setup_hamiltonian:
+
 Setting up the (molecular electronic) Hamiltonian
 =================================================
 
@@ -69,6 +76,8 @@ You first have to compute/load the two- and four-index objects for the one- and
 two-body terms in the Hamiltonian. Some DFT implementations in Horton do not
 require pre-computed four-center integrals.
 
+
+.. _user_hf_dft_initial_guess:
 
 Generating an initial guess of the wavefunction
 ===============================================
@@ -207,8 +216,11 @@ and a set of orbitals in that basis for the ``IOData`` instance ``mol``.
 
 Note that all of these basis must be available in your Horton data directory.
 
-Effective Hamiltonians
-======================
+
+.. _user_hf_dft_effective_ham:
+
+Defining the effective Hamiltonian
+==================================
 
 Horton implements spin-restricted and spin-unrestricted effective Hamiltonians.
 Mathematically, these are models for the energy as function of a set of
@@ -361,8 +373,10 @@ repulsion energy to the total energy reported by the effective Hamiltonian.
       :caption: data/examples/hf_dft/uks_methyl_numlda.py, lines 38--48
 
 
-Models for orbital occupations
-==============================
+.. _user_hf_dft_occupation:
+
+Choose an orbital occupation scheme
+===================================
 
 Before calling an SCF solver, you have to select a scheme to set the orbital
 occupations after each SCF iteration, even when the occuption numbers are to
@@ -405,8 +419,10 @@ three options:
       occ_model = AufbauOccModel(2.0, 3.0, temperature=500)
 
 
-Self-consistent field algorithms
-================================
+.. _user_hf_dft_scf:
+
+Optimize the wavefunction with a self-consistent field algorithm
+================================================================
 
 Horton supports the following SCF algorithms:
 
@@ -479,6 +495,8 @@ Click on the links of the SCF solver classes above for more optional arguments
 and their default values.
 
 
+.. _user_hf_dft_get_orbitals:
+
 Conversion of density and Fock matrix to orbitals
 =================================================
 
@@ -508,6 +526,8 @@ convergence.
       :lines: 62-70
       :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 62--71
 
+
+.. _user_hf_dft_to_file:
 
 Writing SCF results to a file
 =============================
