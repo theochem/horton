@@ -53,39 +53,39 @@ Here are some basic MacPort commands:
 
 * updating ports (recommended):
 
-.. code-block:: bash
+  .. code-block:: bash
 
-    sudo port -v selfupdate
+      sudo port -v selfupdate
 
 * upgrade ports:
 
-.. code-block:: bash
+  .. code-block:: bash
 
-    sudo port upgrade outdated
+      sudo port upgrade outdated
 
 * finding ports (e.g, port_name = python27):
 
-.. code-block:: bash
+  .. code-block:: bash
 
-    sudo port list python27
+      sudo port list python27
 
 * searching ports (e.g, port_name = python27):
 
-.. code-block:: bash
+  .. code-block:: bash
 
-    port search python27
+      port search python27
 
 * installing ports (e.g, port_name = python27):
 
-.. code-block:: bash
+  .. code-block:: bash
 
-    sudo port install python27
+      sudo port install python27
 
 * selecting ports (e.g, select python27 as python):
 
-.. code-block:: bash
+  .. code-block:: bash
 
-    sudo port select --set python python27
+      sudo port select --set python python27
 
 
 Download the code
