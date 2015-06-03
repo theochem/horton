@@ -12,6 +12,8 @@ lf = DenseLinalgFactory(obasis.nbasis)
 
 # Construct Hamiltonian
 # ---------------------
+# The one-body operator is first created and then the kinetic energy and
+# nuclear attraction integrals are added in-place.
 one_mo = lf.create_two_index()
 obasis.compute_kinetic(one_mo)
 obasis.compute_nuclear_attraction(coordinates, numbers.astype(float), one_mo)

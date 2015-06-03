@@ -132,7 +132,8 @@ Dumping
 The FCIDUMP format is useful when exchanging Hamiltonians with different codes.
 Unlike the internal format, there are some restrictions:
 
-1. The one-body terms must all be added into a single operator.
+1. The one-body operators (usually kinetic energy and nuclear attraction)
+   must all be added into a single two-index object.
 2. The integrals can only be stored in a restricted (MO) basis set, i.e. using
    different basis sets for the alpha and beta orbitals is not possible.
 3. The two-electron integrals must be stored as a ``DenseFourIndex`` object, so
@@ -199,8 +200,9 @@ and the core energy in the following order:
    on the last line with all orbital indices equal 0.
 
 If the value of an integral is zero, the corresponding line is not included in
-the the FCIDUMP file. It's important to note that Horton does not support symmetry,
-so all the dumped files will assume symmetry of 1, or point group C1.
+the the FCIDUMP file. It's important to note that Horton does not (yet) support
+geometric symmetries, so all the orbitals will be assigned a symmetry label 1,
+which corresponds to the point group C1 in the FCIDUMP format.
 
 Loading
 -------
