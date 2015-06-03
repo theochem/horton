@@ -27,7 +27,7 @@ How to use Horton for numerical integration?
 .. _user_integration_grids_specify:
 
 Building an integration grid
-===============================
+============================
 
 Horton primarily makes use of Becke-Lebedev grids for numerical integrations over
 molecular volumes. It can automatically construct Becke-Lebedev integration grids for a given
@@ -48,8 +48,8 @@ contributions:
 
 where :math:`w_A(\mathbf{r})` is the atomic weight function for atom A. This function is
 1 close to the nucleus of atom A, and goes to zero upon leaving the domain of atom A. Every
-atomic integral is then computed on a grid in spherical coordinate system centered on
-the nucleus of the corresponding atom. This is typically a product grid, where different
+atomic integral is then computed on a grid in a spherical coordinate system centered on
+the nucleus of the corresponding atom. This atomic grid is typically a product grid, where different
 one-dimensional radial grids are possible, and the Lebedev-Laikov grids are always used
 for the angular part. Putting all these together, one can always approximate the numerical
 integration as follows:
@@ -68,13 +68,12 @@ The default Becke-Lebedev grid is constructed by specifying three non-optional a
     grid = BeckeMolGrid(coordinates, numbers, pseudo_numbers)
 
 where ``coordinates`` is an array containing the Cartesian coordinates of the atoms,
-``numbers`` is an array containing the (integer) atomic numbers of atoms, and ``pseudo_numbers``
-is an array containing the (float) effective core charges of atoms. These arrays are always
+``numbers`` is an array containing the (integer) atomic numbers of the atoms, and ``pseudo_numbers``
+is an array containing the (float) effective core charges of the atoms. These arrays are always
 available when one loads a molecule from a file. For example:
 
 .. code-block:: python
 
-    from horton import *
     mol = IOData.from_file('water.xyz')
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers)
 
@@ -93,7 +92,7 @@ and :py:class:`horton.grid.atgrid.AtomicGridSpec`.
 
 
 Computing an integral involving the electron density
-=============================================================
+====================================================
 
 This section assumes that the following objects are already available:
 
@@ -107,7 +106,7 @@ respectively. Note that the density matrix can also be loaded from a file
 instead of being computed by Horton. This is demonstrated in an example at the
 end of this section.
 
-First, one must evaluate the integrand on all the points building the integration grid.
+First, one must evaluate the integrand on all the points of the integration grid.
 In case of the electron density, this can be done as follows:
 
 .. code-block:: python
