@@ -26,24 +26,24 @@ How to use Horton as a Hartree-Fock/DFT program
 
 **Disclaimer.** The relevant Hartree-Fock and DFT features in Horton are
 explained below. This is all very different from a regular quantum chemistry
-code where one just prepares an input file with a molecular geometry and some
-control options. Instead, Horton is designed to allow one to interfer with most
-of the internals, and, in that way, make intersting fundamental research easy
+code where you just prepare an input file with a molecular geometry and some
+control options. Instead, Horton is designed to allow you to tinker with most
+of the internals, and, in that way, make interesting fundamental research easy
 and enjoyable.
 
 Horton can do restricted and unrestricted HF/DFT SCF calculations in various
 different ways. The following sections cover the typical steps of a calculation:
 
-1) Definition of the (molecular electronic) Hamiltonian
-2) An initial guess of the orbitals
-3) A definition of the effective Hamiltonian
-4) Choose an orbital occupations scheme
+1) Setting up the (molecular electronic) Hamiltonian
+2) Generating an initial guess of the orbitals
+3) Defining the effective Hamiltonian
+4) Choose an orbital occupation scheme
 5) Run an SCF algorithm
 
 The last section contains an overview of complete examples
 that are shipped (and tested) with Horton. These may be convenient as a starting
-point for the preparation of your own scripts. One may also just dive straight
-into these examples and consult to first five sections to better understand how
+point when preparing your own scripts. You may also just dive straight
+into these examples and consult the first five sections to better understand how
 each example works.
 
 The code snippets below use the following conventions for variable names. The
@@ -65,7 +65,7 @@ Setting up the (molecular electronic) Hamiltonian
 
 See :ref:`user_hamiltonian`.
 
-One first has to compute/load the two- and four-index objects for the one- and
+You first have to compute/load the two- and four-index objects for the one- and
 two-body terms in the Hamiltonian. Some DFT implementations in Horton do not
 require pre-computed four-center integrals.
 
@@ -83,7 +83,7 @@ completely neglects electron-electron interactions. The orbitals for such a
 one-body Hamiltonian can be computed without any prior guess.
 
 The function :py:func:`horton.meanfield.guess.guess_core_hamiltonian` can be
-used to compute core hamiltonian guess. This type of guess does only relies on a
+used to compute the core hamiltonian guess. This type of guess does only relies on a
 simple one-body Hamiltonian, usually consisting of the kinetic energy and the
 interaction with the external field. In case of an unrestricted calculation,
 this means that the same initial orbital guess is made for the alpha and beta
@@ -95,14 +95,14 @@ The guess for a restricted wavefunction is done as follows:
     :lines: 27-31
     :caption: data/examples/hf_dft/rhf_water_dense.py, lines 27--31
 
-For a unrestricted wavefunction, the procedure is very similar:
+For an unrestricted wavefunction, the procedure is very similar:
 
 .. literalinclude:: ../data/examples/hf_dft/uhf_methyl_dense.py
     :lines: 27-32
     :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 27--32
 
 The arguments ``exp_alpha`` and ``exp_beta`` are treated as output arguments.
-Instead of ``kin`` and ``na``, one may provide just any set of one-body
+Instead of ``kin`` and ``na``, you may provide just any set of one-body
 operators to construct different types of guesses.
 
 
@@ -110,7 +110,7 @@ Randomizing an initial guess
 ----------------------------
 
 The method :py:meth:`horton.matrix.dense.DenseExpansion.rotate_random` can be
-used to apply a random unitary rotation to all orbitals (occupied and virtual).
+used to apply a random unitary rotation to all the orbitals (occupied and virtual).
 The orbital energies and occupation numbers are not affected. For example, after
 constructing a :ref:`user_hf_dft_core_guess`, the following line randomizes the
 orbitals:
@@ -124,12 +124,12 @@ orbitals:
 Modifying the initial guess
 ---------------------------
 
-If needed, one may fine-tune the initial guess by making fine-grained
+If needed, you may fine-tune the initial guess by making fine-grained
 modifications to the orbitals. (These may also be useful for fixing the orbitals
 that come out of a failed SCF.)
 
 * The method :py:meth:`horton.matrix.dense.DenseExpansion.rotate_2orbitals`
-  allows one to mix two orbitals. By default it rotates the HOMO and LUMO
+  allows you to mix two orbitals. By default, it rotates the HOMO and LUMO
   orbitals by 45 degrees:
 
   .. code-block:: python
@@ -141,11 +141,11 @@ that come out of a failed SCF.)
       exp._alpha.rotate_2orbitals(30*deg, 0, 5)
 
   Note that Horton uses radians as unit for angles, i.e. ``30*deg == np.pi/6``.
-  Also, zero-based indices are used for everything, so the arguments ``0, 5``
+  Also, Horton uses zero-based indices, so the arguments ``0, 5``
   refer to the first and the sixth orbital.
 
 * The method :py:meth:`horton.matrix.dense.DenseExpansion.swap_orbitals` allows
-  on to swap several orbitals. It takes as an argument an array where each row
+  you to swap several orbitals. It takes as an argument an array where each row
   is a pair of orbitals to swap. For example, the following swaps 1st and 3rd,
   followed by a swap of 2nd and 4th:
 
@@ -157,12 +157,12 @@ that come out of a failed SCF.)
 
 
 Reading a guess from a file
-----------------------------
+---------------------------
 
-One may also load orbitals from an external file. The file formats ``.mkl``,
-``.molden``, ``.fchk``, or Horton's internal ``.h5`` can are all eligible
+You may also load orbitals from an external file. The file formats ``.mkl``,
+``.molden``, ``.fchk``, or Horton's internal ``.h5`` are all viable
 sources of orbitals. For example, the orbitals from a Gaussian formatted
-checkpoint file may be loaded as follows:
+checkpoint file, ``*.fchk``, may be loaded as follows:
 
 .. code-block:: python
 
@@ -172,9 +172,9 @@ checkpoint file may be loaded as follows:
     # Print the number of alpha orbitals (occupied and virtual)
     print mol.exp_aplha.nfn
 
-Obviously, if one would like to use these orbitals without projecting them onto
-a new basis set (as explained in :ref:`user_hf_dft_project_basis`), one is
-forced to continue working in exactly the same basis set, which can be accessed
+Obviously, if you would like to use these orbitals without projecting them onto
+a new basis set (as explained in :ref:`user_hf_dft_project_basis`), you are
+forced to continue working in the same basis set, which can be accessed
 in this example as ``mol.obasis``. See :ref:`user_molecularham_geom_and_basis`
 for more details.
 
@@ -184,7 +184,7 @@ for more details.
 Projecting orbitals from a smaller basis onto a larger one
 ----------------------------------------------------------
 
-Assuming one has obtained (converged) orbitals in a smaller basis set, one can
+Assuming you have obtained (converged) orbitals in a smaller basis set, you can
 try to use these as initial guess after projecting the orbitals onto the
 larger basis set. This is exactly what the function
 :py:func:`horton.meanfield.project.project_orbitals_mgs` does. The following
@@ -205,20 +205,21 @@ and a set of orbitals in that basis for the ``IOData`` instance ``mol``.
     # The actual projection
     project_orbitals_msg(obasis0, obasis1, exp_alpha0, exp_alpha1)
 
+Note that all of these basis must be available in your Horton data directory.
 
 Effective Hamiltonians
 ======================
 
 Horton implements spin-restricted and spin-unrestricted effective Hamiltonians.
 Mathematically, these are models for the energy as function of a set of
-density matrices. The implementation also provides an API to compute for every
-density matrix the corresponding Fock matrix, i.e. the derivative of the energy
+density matrices. The implementation also provides an API to compute the corresponding
+Fock matrix for every density matrix, i.e. the derivative of the energy
 toward the density matrix elements.
 
 * For the restricted case, the alpha and beta density matrices are assumed
   to be identical. Hence the energy is only a function of the alpha density
   matrix. When constructing the Fock matrix, the derivative is divided by two
-  to obtain such that the Fock matrix has conventional orbital energies as
+  to obtain such that the Fock matrix has the conventional orbital energies as
   eigenvalues.
 
   .. math::
@@ -268,7 +269,7 @@ the constructor arguments.
   :py:class:`~horton.meanfield.gridgroup.UGridGroup`. This makes it possible
   to compute at every SCF iteration the density (and its gradients) only once
   for all terms that depend on the density. This also allows for a similar gain
-  in efficiency when building the Fock matrix/matrices. The constructor of a
+  in efficiency when building the Fock matrices. The constructor of a
   ``GridGroup`` class takes a numerical integration grid and a list of instances
   of the following classes as arguments:
 
@@ -296,7 +297,7 @@ the constructor arguments.
   be found in :ref:`ref_functionals`. Note that Horton does not support the
   MGGA's yet.
 
-Using these classes, one can construct the Hatree-Fock or a DFT effective
+Using these classes, you can construct the Hatree-Fock or a DFT effective
 Hamiltonian.
 
 
@@ -363,13 +364,13 @@ repulsion energy to the total energy reported by the effective Hamiltonian.
 Models for orbital occupations
 ==============================
 
-Before calling an SCF solver, one has to select a scheme to set the orbital
+Before calling an SCF solver, you have to select a scheme to set the orbital
 occupations after each SCF iteration, even when the occuption numbers are to
-remain fixed throughout the calculation. One can use any of the following
+remain fixed throughout the calculation. You can use any of the following
 three options:
 
 * :py:class:`~horton.meanfield.occ.FixedOccModel`. Keep all occupation numbers
-  fixed at preset values. Example usage:
+  fixed at preset values. For example,
 
   .. code-block:: python
 
@@ -381,7 +382,7 @@ three options:
 
 * :py:class:`~horton.meanfield.occ.AufbauOccModel`. Fill all orbitals according
   to the `Aufbau principle <http://en.wikipedia.org/wiki/Aufbau_principle>`_.
-  Example usage:
+  For example,
 
   .. code-block:: python
 
@@ -394,7 +395,7 @@ three options:
 * :py:class:`~horton.meanfield.occ.FermiOccModel`. Use the Fermi-smearing method
   to fill up the orbitals. [rabuck1999]_ Only part of the methodology presented
   Rabuck is implemented. See :py:class:`~horton.meanfield.occ.FermiOccModel` for
-  details. Example usage:
+  details. For example,
 
   .. code-block:: python
 
@@ -424,7 +425,7 @@ Horton supports the following SCF algorithms:
 
 * :py:class:`~horton.meanfield.scf_ediis.EDIISSCFSolver`: the energy direct
   inversion of the iterative subspace (EDIIS) method. [kudin2002]_ This method
-  works well for the initial iterations but becomes numerically instable close
+  works well for the initial iterations but becomes numerically unstable close
   to the solution. It typically works better with a relativey poor initial
   guess.
 
@@ -481,11 +482,15 @@ and their default values.
 Conversion of density and Fock matrix to orbitals
 =================================================
 
-The :py:class:`~horton.meanfield.scf.PlainSCFSolver` iteratively updates the orbitals. Hence, for this SCF solver, there is no need to reconstruct the orbitals after SCF convergence. All other SCF algorithms, however, iteratively update the density matrix and one explicitly needs to reconstruct the orbitals after SCF convergence.
+The :py:class:`~horton.meanfield.scf.PlainSCFSolver` iteratively updates the
+orbitals. Hence, for this SCF solver, there is no need to reconstruct the orbitals
+after SCF convergence. All other SCF algorithms, however, iteratively update the
+density matrix and you need to explicitly reconstruct the orbitals after SCF
+convergence.
 
 .. note::
 
-    SCF algorithms that update the density matrix, may produce a converged
+    SCF algorithms that update the density matrix may produce a converged
     density matrix with fractional occupations for degenerate orbitals at the
     Fermi level. The code snippets below properly handle such cases as well. For
     more details, refer to
@@ -546,9 +551,17 @@ of the object ``mol`` are already set as required for the ``.molden`` format.
 Preparing for a Post-Hartree-Fock calculation
 =============================================
 
-Once the SCF has converged and you have obtained a set of orbitals, one can use these orbitals to convert the integrals in the atomic-orbital (AO) basis to integrals in the molecular-orbital (MO) basis. There are two ways to do so: (i) using all molecular orbitals or (ii) by specifing a frozen core and active set of orbitals. A full example, which covers both options and which includes dumping the transformed integrals to a file, is given in the section :ref:`hf_dft_complete_examples` below.
+Once the SCF has converged and you have obtained a set of orbitals, you can use
+these orbitals to convert the integrals in the atomic-orbital (AO) basis to
+integrals in the molecular-orbital (MO) basis. There are two ways to do so: (i)
+by using all molecular orbitals or (ii) by specifying a frozen core and set of
+active orbitals. A full example, which covers both options and which includes dumping
+the transformed integrals to a file, is given in the section
+:ref:`hf_dft_complete_examples` below.
 
-The conversion to an MO basis is useful for post-HF calculations. For such purposes, it is also of interest to sum all one-body operators into a single term. This can be done in two ways:
+The conversion to an MO basis is useful for post-HF calculations. For such purposes,
+it is also of interest to sum all one-body operators into a single term. This
+can be done in two ways:
 
 1. When the operators are computed, e.g.:
 
@@ -601,13 +614,18 @@ In case of an active space, the new one-electron integrals :math:`\tilde{t}_{pq}
 
     \tilde{t}_{pq} = t_{pq} + \sum_{i \in \textrm{ncore}} ( 2 \langle pi \vert qi \rangle - \langle pi \vert iq \rangle),
 
-where :math:`t_{pq}` is the element :math:`pq` of the old one-electron integrals and :math:`\langle pi \vert qi \rangle` is the appropriate two-electron integral in physicist's notation. The core energy of the active space is calculated as
+where :math:`t_{pq}` is the element :math:`pq` of the old one-electron integrals
+and :math:`\langle pi \vert qi \rangle` is the appropriate two-electron integral
+in physicist's notation. The core energy of the active space is calculated as
 
 .. math::
 
     e_\text{core} = e_\text{nn} + 2\sum_{i \in \textrm{ncore}} t_{ii} + \sum_{i, j \in \textrm{ncore}} (2 \langle ij \vert ij \rangle - \langle ij \vert ji \rangle)
 
-where the two-electron integrals :math:`\langle pq \vert rs \rangle` contain only the elements with active orbital indices :math:`p,q,r,s`. This type of conversion is implemented in the function :py:func:`horton.orbital_utils.split_core_active`. It is used as follows:
+where the two-electron integrals :math:`\langle pq \vert rs \rangle` contain only
+the elements with active orbital indices :math:`p,q,r,s`. This type of conversion
+is implemented in the function :py:func:`horton.orbital_utils.split_core_active`.
+It is used as follows:
 
 .. code-block:: python
 
