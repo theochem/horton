@@ -223,10 +223,10 @@ Defining the effective Hamiltonian
 ==================================
 
 Horton implements spin-restricted and spin-unrestricted effective Hamiltonians.
-Mathematically, these are models for the energy as function of a set of
-density matrices. The implementation also provides an API to compute the corresponding
-Fock matrix for every density matrix, i.e. the derivative of the energy
-toward the density matrix elements.
+Mathematically speaking, these are models for the energy as function of a set of
+density matrices. The implementation also provides an API to compute the
+corresponding Fock matrix for every density matrix, i.e. the derivative of the
+energy toward the density matrix elements.
 
 * For the restricted case, the alpha and beta density matrices are assumed
   to be identical. Hence the energy is only a function of the alpha density
@@ -246,7 +246,9 @@ toward the density matrix elements.
                         &\rightarrow F^\alpha_{\mu\nu} = \frac{\partial E}{\partial D^\alpha_{\nu\mu}} \\
                         &\rightarrow F^\beta_{\mu\nu} = \frac{\partial E}{\partial D^\beta_{\nu\mu}}
 
-This generic API is implemented in the class
+A generic `API
+<http://en.wikipedia.org/wiki/Application_programming_interface>`_ for such
+density matrix functionals is implemented in the classes
 :py:class:`horton.meanfield.hamiltonian.REffHam` and
 :py:class:`horton.meanfield.hamiltonian.UEffHam`. The prefixes ``R`` and ``U``
 are used (also below) to differentiate between restricted and unrestricted
@@ -573,10 +575,10 @@ Preparing for a Post-Hartree-Fock calculation
 
 Once the SCF has converged and you have obtained a set of orbitals, you can use
 these orbitals to convert the integrals from the atomic-orbital (AO) basis to
-the molecular-orbital (MO) basis. There are two ways to do so: (i) using all
-molecular orbitals or (ii) by specifing a frozen core and active set of
-orbitals. A full example, ``rhf_n2_dense.py``, which covers both options and
-which includes dumping the transformed integrals to a file, is given in the
+the molecular-orbital (MO) basis. Two implementations are available in Horton:
+(i) using all molecular orbitals or (ii) by specifing a frozen core and active
+set of orbitals. A full example, ``rhf_n2_dense.py``, which covers both options
+and which includes dumping the transformed integrals to a file, is given in the
 section :ref:`hf_dft_complete_examples` below.
 
 The conversion to an MO basis is useful for post-HF calculations. For such
@@ -610,16 +612,18 @@ Transforming the Hamiltonian to the molecular-orbital (MO) basis
 ----------------------------------------------------------------
 
 The function :py:func:`horton.orbital_utils.transform_integrals` can be used for
-this purpose. There are two use cases:
+this purpose. It works differently for restricted and unrestricted orbitals:
 
-1. Restricted (Hartree-Fock) orbitals:
+1. In the case of restricted (Hartree-Fock) orbitals, there is just one
+   transformed one-body and one transformed two-body operator:
 
    .. code-block:: python
 
        (one_mo,), (two_mo,) = transform_integrals(one, er, 'tensordot', exp_alpha)
 
 
-2. Unrestricted (Hartree-Fock) orbitals:
+2. In the case of unrestricted (Hartree-Fock) orbitals, there are two
+   transformed one-body and three transformed two-body operators:
 
    .. code-block:: python
 
@@ -631,7 +635,8 @@ this purpose. There are two use cases:
 Reducing the Hamiltonian to an active space
 -------------------------------------------
 
-In case of an active space, the new one-electron integrals :math:`\tilde{t}_{pq}` become
+The active-space feature only works for restricted orbitals. The new
+one-electron integrals :math:`\tilde{t}_{pq}` become
 
 .. math::
 
