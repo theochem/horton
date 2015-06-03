@@ -214,8 +214,6 @@ and a set of orbitals in that basis for the ``IOData`` instance ``mol``.
     # The actual projection
     project_orbitals_msg(obasis0, obasis1, exp_alpha0, exp_alpha1)
 
-Note that all of these basis must be available in your Horton data directory.
-
 
 .. _user_hf_dft_effective_ham:
 
