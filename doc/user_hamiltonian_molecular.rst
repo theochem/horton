@@ -197,7 +197,9 @@ objects will be represented. The default in Horton is to use a dense
 matrix representation, which is implemented in the ``DenseLinalgFactory`` class.
 An instance of this class must be passed to the methods that compute the matrix
 elements. Alternatively, one may also use the ``CholeskyLinalgFactory``, which
-represents all four-index objects with a Cholesky decomposition.
+represents all four-index objects with a Cholesky decomposition. Note that
+the four-center electron-repulsion integrals are computed with LibInt
+[valeev2014]_.
 
 This is a basic example, assuming some of the preceding code has created the
 ``obasis`` object:

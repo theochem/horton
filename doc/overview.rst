@@ -16,7 +16,8 @@ Main Features
 
 * Integration of the `LibXC
   <http://www.tddft.org/programs/octopus/wiki/index.php/Libxc>`_
-  [marques2012]_ and `LibInt2 <https://github.com/evaleev/libint>`_.
+  [marques2012]_ and `LibInt2 <https://github.com/evaleev/libint>`_
+  [valeev2014]_.
 
 * Support for many :ref:`ref_file_formats` to exchange data with other codes.
 
@@ -29,7 +30,7 @@ Main Features
     * Molecular electronic Hamiltonians in localized Gaussian basis sets
 
         * Four-center integrals computed with
-          `LibInt2 <https://github.com/evaleev/libint>`_
+          `LibInt2 <https://github.com/evaleev/libint>`_ [valeev2014]_
 
         * :ref:`ref_gaussian_basis_standard_sets`
 
