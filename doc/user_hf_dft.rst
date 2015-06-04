@@ -42,8 +42,8 @@ different ways. The following sections cover the typical steps of a calculation:
 4) :ref:`user_hf_dft_occupation`
 5) :ref:`user_hf_dft_scf`
 6) Optional (if needed for 7 or 8): :ref:`user_hf_dft_get_orbitals`
-7) Optional :ref:`user_hf_dft_to_file`
-8) Optional :ref:`user_hf_dft_preparing_posthf`
+7) Optional: :ref:`user_hf_dft_to_file`
+8) Optional: :ref:`user_hf_dft_preparing_posthf`
 
 The last section contains an overview of :ref:`hf_dft_complete_examples`
 that are shipped (and tested) with Horton. These may be convenient as a starting
