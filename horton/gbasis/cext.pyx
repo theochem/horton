@@ -693,6 +693,21 @@ cdef class GOBasis(GBasis):
         return output
 
     def compute_electron_repulsion(self, output):
+        '''Compute electron-electron repulsion integrals
+
+           **Argument:**
+
+           output
+                A ``DenseFourIndex`` objects that will be used as output
+                argument, or a ``DenseLinalgFactory`` or
+                ``CholeskyLinalgFactory`` used to construct the four-index
+                object in which the integrals are stored.
+
+           **Returns:** The four-index object with the electron repulsion
+           integrals.
+
+           Keywords: :index:`ERI`, :index:`four-center integrals`
+        '''
         log.cite('valeev2014', 'the efficient implementation of four-center electron repulsion integrals')
         # prepare the output array
         if isinstance(output, CholeskyLinalgFactory):
