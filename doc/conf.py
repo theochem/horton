@@ -246,3 +246,4 @@ def setup(app):
     from sphinx.ext.autodoc import cut_lines
     app.connect("autodoc-skip-member", autodoc_skip_member)
     app.connect('autodoc-process-docstring', cut_lines(2, what=['module']))
+    app.add_stylesheet("custom.css")
