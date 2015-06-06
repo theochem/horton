@@ -239,7 +239,7 @@ development server, make the following substitutions below:
 Develop the feature in a separate branch
 ----------------------------------------
 
-0. Clone the public horton repository (if not done yet) and enter the source
+0. Clone the public HORTON repository (if not done yet) and enter the source
    tree:
 
    .. code-block:: bash

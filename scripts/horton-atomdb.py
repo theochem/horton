@@ -96,7 +96,7 @@ def main_input(args):
 
 def parse_args_convert(args):
     parser = argparse.ArgumentParser(prog='horton-atomdb.py convert',
-        description='Convert the output of the atomic computations to horton '
+        description='Convert the output of the atomic computations to HORTON '
                     'h5 files.')
     parser.add_argument('-V', '--version', action='version',
         version="%%(prog)s (horton version %s)" % __version__)

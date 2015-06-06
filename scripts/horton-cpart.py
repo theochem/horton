@@ -46,7 +46,7 @@ def parse_args():
         help='The output destination in the form file.h5:group. The colon and '
              'the group name are optional. When omitted, the root group of the '
              'HDF5 file is used. '
-             'To mimick the behavior of horton 1.2.0 scripts, use '
+             'To mimick the behavior of HORTON 1.2.0 scripts, use '
              '"${prefix}_cpart.h5:cpart/${scheme}_r${stride}" where ${prefix} '
              'is the name of the cube file without extension, ${scheme} is the '
              'partitioning scheme used and ${stride} is the value of the '

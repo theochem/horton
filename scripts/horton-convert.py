@@ -32,7 +32,9 @@ np.seterr(divide='raise', over='raise', invalid='raise')
 
 def parse_args():
     parser = argparse.ArgumentParser(prog='horton-convert.py',
-        description='Convert between file formats supported in horton. This only works of the input contains sufficient data for the output')
+        description='Convert between file formats supported in HORTON. This '
+                    'only works of the input contains sufficient data for the '
+                    'output')
     parser.add_argument('-V', '--version', action='version',
         version="%%(prog)s (horton version %s)" % __version__)
 
