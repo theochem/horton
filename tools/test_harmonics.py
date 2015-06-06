@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# HORTON is a Density Functional Theory program.
-# Copyright (C) 2011-2012 Toon Verstraelen <Toon.Verstraelen@UGent.be>
+# HORTON: Helpful Open-source Research TOol for N-fermion systems.
+# Copyright (C) 2011-2015 The HORTON Development Team
 #
 # This file is part of HORTON.
 #
@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
+#pylint: skip-file
 
 
 try:
