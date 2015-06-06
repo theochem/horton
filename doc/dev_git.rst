@@ -66,7 +66,7 @@ We recommend that you use the following ``~/.gitconfig`` file:
 .. code-block:: ini
 
     [user]
-        name = {Replace by your official name: First. M. Last}
+        name = {Replace by your official name: First M. Last}
         email = {Replace by a decent e-mail address, cfr. corresponding author on a paper.}
 
     [color]
@@ -302,7 +302,20 @@ Develop the feature in a separate branch
 
    .. code-block:: bash
 
+      $ ~/.../horton:bar> git commit
+
+   This command will start an editor in which you can write a commit message. By
+   convention, such a message starts with a short single-line description
+   of at most 69 characters. Optionally, a longer description follows
+   that is separated from the short description by an empty line. More
+   suggestions for writing heplful commit messages can be found `here
+   <http://chris.beams.io/posts/git-commit/>`_. If you only intend to write a
+   short description, it can be provided at the command line:
+
+   .. code-block:: bash
+
       $ ~/.../horton:bar> git commit -m 'Short description'
+
 
 In practice, you'll make a few commits before a new feature is finished. After
 adding a few commits, testing them thoroughly, you are ready for the next step.
