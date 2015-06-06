@@ -22,7 +22,27 @@
 Release history
 ###############
 
-* **March 17, 2014. Version 1.2.1**
+**June 11, 2015. Version 2.0.0**
+
+   - The (orbital-optimized) AP1roG method (geminal-based wafecuntions).
+   - Perturbation theory methods: MP2 (post-HF) and PTa and PTb (post-AP1roG).
+   - Cholesky decomposition of the four-center integrals.
+   - Installation instructions for Mac OS/X.
+   - New file format: FCIDUMP.
+   - Improvements in other file formats, e.g. all different conventions for the
+     Molden file format are recognized automatically.
+   - Model Hamiltonians.
+   - Orbital localization (Pipek-Mezey).
+   - Orbital entanglement analysis.
+   - A Numerical Poisson solver (AIM analysis and pure KS-DFT implementation).
+   - Evaluation of the kinetic energy density on a grid.
+   - Projection of orbitals onto new basis sets.
+   - Update to LibXC 2.2.2.
+   - A lot of documentation, revamped website and code examples.
+   - Many small cleanups and improvements under the hood.
+
+
+**March 17, 2014. Version 1.2.1**
 
    - Update to LibXC-2.0.3 plus overview of the supported functionals in the
      documentation.
@@ -44,7 +64,8 @@ Release history
    - Additional basis sets
    - Several minor fixes and cleanups
 
-* **August 25, 2013. Version 1.2.0**
+
+**August 25, 2013. Version 1.2.0**
 
    - Gaussian/GAMESS wfn file reader. WFN files are now supported in
      ``horton-wpart.sh``. (Thanks to Farnaz!)
@@ -67,7 +88,8 @@ Release history
    - LineGrid and RectangleGrid for visualization purposes.
    - Various cleanups.
 
-* **July 22, 2013. Version 1.1.0**
+
+**July 22, 2013. Version 1.1.0**
 
    - Iterative Stockholder partitioning [lillestolen2008]_.
    - Pure (harmonic) multipoles in the AIM analysis.
@@ -84,14 +106,14 @@ Release history
    - Many cleanups.
 
 
-* **July 5, 2013. Version 1.0.2**
+**July 5, 2013. Version 1.0.2**
 
    - Also support dynamic linking of libint and libx.
    - Switch to libint-2.0.3-stable.
    - Various cleanups.
 
 
-* **July 1, 2013. Version 1.0.1**
+**July 1, 2013. Version 1.0.1**
 
    - Two bug fixes related to reading Gaussian formatted checkpoint files.
 
@@ -108,7 +130,7 @@ Release history
    - ESP fitting for isolated systems.
 
 
-* **May 23, 2013. Version 1.0**
+**May 23, 2013. Version 1.0**
 
    - This release mainly focuses on real-space density partitioning
      (atoms-in-molecules) methods.
