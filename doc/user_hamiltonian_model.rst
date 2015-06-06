@@ -116,7 +116,7 @@ Finally, all terms of the 1-dimensinal Hubbard Hamiltonian can be combined toget
             ]
     ham = REffHam(terms)
 
-Note that the last step can be omitted for post-Hartree-Fock methods, like :ref:`AP1roG <introap1rog>`, :ref:`MP2 <mp2>`, :ref:`PTa <pta>`, and :ref:`PTb <ptb>`.
+Note that the last step can be omitted for post-Hartree-Fock methods, like :ref:`AP1roG <user_ap1rog>`, :ref:`MP2 <mp2>`, :ref:`PTa <pta>`, and :ref:`PTb <ptb>`.
 
 
 Filling the lattice

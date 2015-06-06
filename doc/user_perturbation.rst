@@ -115,7 +115,7 @@ The PTa module
 Getting started
 ---------------
 
-PTa [Limacher2014]_ adds dynamic electron correlation effects on top of an AP1roG wavefunction (see :ref:`user_ap1rog_model`). You have to optimize an AP1roG wavefunction (see :ref:`ooap1rog` or :ref:`ap1rog`), before the PTa energy correction can be determined.
+PTa [Limacher2014]_ adds dynamic electron correlation effects on top of an AP1roG wavefunction (see :ref:`user_ap1rog`). You have to optimize an AP1roG wavefunction (see :ref:`ooap1rog` or :ref:`ap1rog`), before the PTa energy correction can be determined.
 
 
 How to set-up a calculation
@@ -140,8 +140,8 @@ A function call initiates an PTa calculation,
 
 with arguments
 
-    :one: (``TwoIndex`` instance) the one-electron integrals (the same integrals as used in the AP1roG module :ref:`user_ap1rog_model`)
-    :two: (``FourIndex`` instance) the two-electron integrals (the same integrals as used in the AP1roG module :ref:`user_ap1rog_model`)
+    :one: (``TwoIndex`` instance) the one-electron integrals (the same integrals as used in the AP1roG module :ref:`user_ap1rog`)
+    :two: (``FourIndex`` instance) the two-electron integrals (the same integrals as used in the AP1roG module :ref:`user_ap1rog`)
     :orb: (``Expansion`` instance) the optimized AP1roG MO coefficient matrix
     :c: (``TwoIndex`` instance) the geminal coefficients (see :ref:`ooap1rog`)
 
@@ -167,7 +167,7 @@ The PTb module
 Getting started
 ---------------
 
-PTb [Limacher2014]_ represents a different flavor to add dynamic electron correlation effects on top of an AP1roG wavefunction (see :ref:`user_ap1rog_model`). Similarly to PTa (:ref:`pta`), you have to optimize an AP1roG wavefunction (see :ref:`ooap1rog` or :ref:`ap1rog`), before the PTb energy correction can be determined.
+PTb [Limacher2014]_ represents a different flavor to add dynamic electron correlation effects on top of an AP1roG wavefunction (see :ref:`user_ap1rog`). Similarly to PTa (:ref:`pta`), you have to optimize an AP1roG wavefunction (see :ref:`ooap1rog` or :ref:`ap1rog`), before the PTb energy correction can be determined.
 
 How to set-up a calculation
 ---------------------------

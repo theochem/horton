@@ -19,6 +19,8 @@
     :
     : --
 
+.. _user_ap1rog:
+
 The AP1roG module
 #################
 
