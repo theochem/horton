@@ -27,7 +27,7 @@ Defining a model Hamiltonian
 Supported features
 ==================
 
-Horton provides the following physical model Hamiltonians
+HORTON provides the following physical model Hamiltonians
 
 1. The :ref:`1- dimensional Hubbard model Hamiltonian <hubbardham>` with open and periodic boundary conditions
 

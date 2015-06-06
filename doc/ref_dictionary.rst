@@ -19,7 +19,7 @@
     :
     : --
 
-Horton dictionary of variables
+HORTON dictionary of variables
 ##############################
 
 For a full list of class names and variables, consult the :ref:`genindex`.
@@ -27,7 +27,7 @@ For a full list of class names and variables, consult the :ref:`genindex`.
 Rules
 =====
 
-The following naming rules are used in the Horton source code:
+The following naming rules are used in the HORTON source code:
 
 * Lower and upper case is used according to PEP8. In share: ``CamelCase`` for
   class names, ``lower_case`` for anything else. In lower-case names, underscore
@@ -100,7 +100,7 @@ Variable names and prefixes
     atomic number of a single atom.)
 
 :index:`log`
-    The screen logger of Horton (See horton.log.)
+    The screen logger of HORTON (See horton.log.)
 
 :index:`obasis`
     An orbital basis.

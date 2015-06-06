@@ -22,7 +22,7 @@
 Writing unit tests
 ##################
 
-Horton uses the `Nosetests <https://nose.readthedocs.org/en/latest/>`_
+HORTON uses the `Nosetests <https://nose.readthedocs.org/en/latest/>`_
 program to run all the unit tests. The goal of a unit test is to check whether
 as small piece of code works as expected.
 
@@ -36,7 +36,7 @@ The tests are run as follows (including preparation steps)::
     toony@poony ~/.../horton:master> ./setup.py build_ext -i
     toony@poony ~/.../horton:master> nosetests -v
 
-This will run the tests with the version of Horton in the source tree, i.e. not
+This will run the tests with the version of HORTON in the source tree, i.e. not
 the one that is installed with ``python setup.py install``. There are some cases
 where the first two commands are not needed. You will figure out.
 
@@ -53,7 +53,7 @@ Within one file, one may also select one test function::
 Writing new tests
 -----------------
 
-All tests in Horton are located in the directories ``horton/test`` and
+All tests in HORTON are located in the directories ``horton/test`` and
 ``horton/*/test``. All module files containing tests have a filename that starts
 with ``test_``. In these modules, all functions with a name that starts with
 ``test_`` are picked up by Nosetests. Tests that do not follow this convention,
@@ -66,7 +66,7 @@ The basic structure of a test is as follows::
         b = 2
         assert a+b == 3
 
-Horton currently contains many examples that can be used as a starting point
+HORTON currently contains many examples that can be used as a starting point
 for new tests. The easiest way to write new tests is to just copy an existing
 test (similar to what you have in mind) and start modifying it.
 

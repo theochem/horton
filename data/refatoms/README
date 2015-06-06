@@ -1,5 +1,5 @@
 This directory contains a database of reference atomic density matrices. It is
-only populated in the stable/unstable releases of Horton, not in the development
+only populated in the stable/unstable releases of HORTON, not in the development
 version. In the later case, one has to download the files manually from the
 following url and unpack the archive:
 

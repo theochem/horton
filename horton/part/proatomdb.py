@@ -387,7 +387,7 @@ class ProAtomDB(object):
     @classmethod
     def from_files(cls, fns, agspec='fine'):
         '''
-           Construct a ProAtomDB from a series of Horton checkpoint files.
+           Construct a ProAtomDB from a series of HORTON checkpoint files.
 
            **Arguments:**
 
@@ -415,12 +415,12 @@ class ProAtomDB(object):
     @classmethod
     def from_refatoms(cls, numbers=None, max_kation=3, max_anion=2, agspec='fine'):
         '''
-           Construct a ProAtomDB from reference atoms included in Horton
+           Construct a ProAtomDB from reference atoms included in HORTON
 
            **Arguments:**
 
            fns_chk
-                A list of Horton checkpoint files.
+                A list of HORTON checkpoint files.
 
            **Optional Arguments:**
 

@@ -179,7 +179,7 @@ htmlhelp_basename = 'HORTONdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Horton.tex', u'HORTON Documentation',
+  ('index', 'horton.tex', u'HORTON Documentation',
    u'The HORTON Development Team', 'manual'),
 ]
 

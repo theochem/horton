@@ -24,7 +24,7 @@
 The AP1roG module
 #################
 
-Two-electron functions, called geminals, can be used to incorporate electron correlation effects into the many-particle wavefunction. Horton supports a special type of geminal-based wavefunction models, the antisymmetric product of 1-reference orbital geminals (AP1roG).
+Two-electron functions, called geminals, can be used to incorporate electron correlation effects into the many-particle wavefunction. HORTON supports a special type of geminal-based wavefunction models, the antisymmetric product of 1-reference orbital geminals (AP1roG).
 This gemial model provides an alternative parametrization of the doubly occupied configuration interaction (DOCI), but requires only mean-field computational cost in contrast to the factorial scaling of traditional DOCI implementations [limacher2013]_.
 Currently the AP1roG module is limited to closed-shell systems only.
 
@@ -56,7 +56,7 @@ The geminal coefficient matrix (:math:`\mathbf{C}`) of AP1roG links the geminals
     \end{pmatrix}
 
 
-The exponential form of eq. :eq:`ap1rog` assures the size extensivity of the geminal wavefunction, however, in order to ensure the size consistency, one has to optimize the orbitals (see [boguslawski2014a]_ and [boguslawski2014b]_). The simplest and most robust way is to use the variational orbital optimization (vOO-AP1roG) method implemented in Horton (see :ref:`ooap1rog`).
+The exponential form of eq. :eq:`ap1rog` assures the size extensivity of the geminal wavefunction, however, in order to ensure the size consistency, one has to optimize the orbitals (see [boguslawski2014a]_ and [boguslawski2014b]_). The simplest and most robust way is to use the variational orbital optimization (vOO-AP1roG) method implemented in HORTON (see :ref:`ooap1rog`).
 
 Currently supported features
 ============================
@@ -70,7 +70,7 @@ If not mentioned otherwise, the AP1roG module supports spin-restricted orbitals 
     4. Determination of AP1roG natural orbitals and occupation numbers (see :ref:`responsedms` and :ref:`natorb`)
     5. Calculation of the exact orbital Hessian (see :ref:`exacthessian`). Note that the orbital optimizer uses only a diagonal Hessian. The exact orbital Hessian can only be evaluated in combination with the ``DenseLinalgFactory``.
 
-The AP1roG wave function and its response density matrices can then be used for post-processing. This version of Horton offers:
+The AP1roG wave function and its response density matrices can then be used for post-processing. This version of HORTON offers:
 
     1. A posteriori addition of dynamic electron correlation using the perturbation module (see :ref:`pta` and :ref:`ptb` for documentation)
     2. Analysis of orbital correlations in the AP1roG wave function using the orbital entanglement module (see :ref:`orbital_entanglementseniorityzero` for documentation)
@@ -85,11 +85,11 @@ Input structure
 Getting started
 ---------------
 
-To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an initial guess for the orbitals (either an AO/MO coefficient matrix or an MO/MO coefficient matrix) as input arguments. Horton provides different options for specifying the Hamiltonian and an orbital guess.
+To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an initial guess for the orbitals (either an AO/MO coefficient matrix or an MO/MO coefficient matrix) as input arguments. HORTON provides different options for specifying the Hamiltonian and an orbital guess.
 
 - The Hamiltonian is divided into three contributions: the one- and two-electron integrals as well as an external term (also referred to as core energy). Possible choices are:
 
-    1. In-house calculation of the quantum chemical Hamiltonian expressed in the AO basis (kinetic energy of the electrons, electron-nuclear attraction, electron-electron repulsion, and nuclear-nuclear repulsion). All terms are calculated separately in Horton (see :ref:`user_molecularham_matrix_elements` for documentation). Note, however, that all one-electron terms have to be combined into one single operator term. This can be done in the following way
+    1. In-house calculation of the quantum chemical Hamiltonian expressed in the AO basis (kinetic energy of the electrons, electron-nuclear attraction, electron-electron repulsion, and nuclear-nuclear repulsion). All terms are calculated separately in HORTON (see :ref:`user_molecularham_matrix_elements` for documentation). Note, however, that all one-electron terms have to be combined into one single operator term. This can be done in the following way
 
         .. code-block:: python
 
@@ -124,11 +124,11 @@ To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an ini
 
       The function ``load_fcidump`` has three return values; the one-electron integrals (``one``) stored as a ``TwoIndex`` object, the two-electron integrals (``two``) stored as a ``FourIndex`` object, and the core energy (``coreenergy``, float).
 
-- A set of initial guess orbitals can be either generated in Horton (including the AO overlap matrix) or read from disk (see :ref:`restart-ap1rog` to use orbitals generated in Horton as initial guess). Examples for initial guess orbitals are:
+- A set of initial guess orbitals can be either generated in HORTON (including the AO overlap matrix) or read from disk (see :ref:`restart-ap1rog` to use orbitals generated in Horton as initial guess). Examples for initial guess orbitals are:
 
     1. Restricted canonical Hartree-Fock orbitals (see :ref:`user_hf_dft`)
 
-    2. Localized orbitals. Horton supports Pipek-Mezey localization of canonical Hartree-Fock orbitals. See :ref:`localization` for documentation.
+    2. Localized orbitals. HORTON supports Pipek-Mezey localization of canonical Hartree-Fock orbitals. See :ref:`localization` for documentation.
 
     3. If external integrals (expressed in an orthonormal basis) are used to define the Hamiltonian, the initial orbitals and the overlap matrix are the identity matrix and can be set as follows:
 
@@ -313,7 +313,7 @@ Note that all optional arguments have been omitted and ``orb`` was set to ``True
 Response density matrices
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Horton supports the calculation of the response 1- and 2-particle reduced density matrices (1-RDM and 2-RDM), :math:`\gamma_{pq}` and :math:`\Gamma_{pqrs}`, respectively. Since AP1roG is a product of natural geminals, the 1-RDM is diagonal and is calculated from
+HORTON supports the calculation of the response 1- and 2-particle reduced density matrices (1-RDM and 2-RDM), :math:`\gamma_{pq}` and :math:`\Gamma_{pqrs}`, respectively. Since AP1roG is a product of natural geminals, the 1-RDM is diagonal and is calculated from
 
 .. math::
     \gamma_p = \langle \Psi_0| (1+\hat{\Lambda}) a^\dagger_p a_p | \textrm{AP1roG} \rangle,
@@ -323,7 +323,7 @@ where :math:`\hat{\Lambda}` contains the deexcitation operator,
 .. math::
     \hat{\Lambda} = \sum_{ia} \lambda_i^a (a^\dagger_i a^\dagger_{\bar{i}} a_{\bar{a}} a_a - c_i^a).
 
-The response 1-RDM (a ``OneIndex`` instance) can be calculated in Horton as follows
+The response 1-RDM (a ``OneIndex`` instance) can be calculated in HORTON as follows
 
 .. code-block:: python
 
@@ -344,7 +344,7 @@ The response 2-RDM is defined as
 .. math::
     \Gamma_{pqrs} = \langle \Psi_0| (1+\hat{\Lambda})a^\dagger_p a^\dagger_{q}  a_{s} a_r| \textrm{AP1roG} \rangle.
 
-In Horton, only the non-zero elements of the response 2-RDM are calculated, which are :math:`\Gamma_{pqpq}=\Gamma_{p\bar{q}p\bar{q}}` and :math:`\Gamma_{p\bar{p}q\bar{q}}`. Specifically, the non-zero elements :math:`\Gamma_{pqpq}` and :math:`\Gamma_{ppqq}` (where we have omitted the information about electron spin) are calculated separately and stored as ``TwoIndex`` objects. Note that :math:`\gamma_p=\Gamma_{p\bar{p}p\bar{p}}`.
+In HORTON, only the non-zero elements of the response 2-RDM are calculated, which are :math:`\Gamma_{pqpq}=\Gamma_{p\bar{q}p\bar{q}}` and :math:`\Gamma_{p\bar{p}q\bar{q}}`. Specifically, the non-zero elements :math:`\Gamma_{pqpq}` and :math:`\Gamma_{ppqq}` (where we have omitted the information about electron spin) are calculated separately and stored as ``TwoIndex`` objects. Note that :math:`\gamma_p=\Gamma_{p\bar{p}p\bar{p}}`.
 
 .. code-block:: python
 
@@ -370,7 +370,7 @@ and optional arguments
 
     :response: (boolean) if ``True``, the response 1-RDM is calculated (default ``True``)
 
-Note that, in Horton, :math:`\Gamma_{p\bar{p}q\bar{q}} = 0 \, \forall \, p=q \in \textrm{occupied}` and :math:`\Gamma_{p\bar{q}p\bar{q}} =  0 \, \forall \, p=q \in \textrm{virtual}`.
+Note that, in HORTON, :math:`\Gamma_{p\bar{p}q\bar{q}} = 0 \, \forall \, p=q \in \textrm{occupied}` and :math:`\Gamma_{p\bar{q}p\bar{q}} =  0 \, \forall \, p=q \in \textrm{virtual}`.
 
 .. _natorb:
 
@@ -530,7 +530,7 @@ Troubleshooting in AP1roG-SCF calculations
 
 - **The orbital optimization converges very, very slowly:**
 
-  Usually, the orbital optimization converges fast around the equilibrium. For stretched distances (in the vicinity of dissociation, etc.) convergence can be very slow, especially if the final solution results in symmetry-broken orbitals. In such cases, the diagonal approximation to the Hessian is not optimal. However, the current version of Horton does not support orbital optimization with the exact Hessian nor Hessian updates.
+  Usually, the orbital optimization converges fast around the equilibrium. For stretched distances (in the vicinity of dissociation, etc.) convergence can be very slow, especially if the final solution results in symmetry-broken orbitals. In such cases, the diagonal approximation to the Hessian is not optimal. However, the current version of HORTON does not support orbital optimization with the exact Hessian nor Hessian updates.
 
 - **How to scan a potential energy surface**
 
@@ -553,7 +553,7 @@ Example Python scripts
 The water molecule (a minimum input example)
 --------------------------------------------
 
-This is a basic example on how to perform an orbital-optimized AP1roG calculation in Horton. This script performs an orbital-optimized AP1roG calculation on the water molecule using the cc-pVDZ basis set and RHF orbitals as initial orbitals.
+This is a basic example on how to perform an orbital-optimized AP1roG calculation in HORTON. This script performs an orbital-optimized AP1roG calculation on the water molecule using the cc-pVDZ basis set and RHF orbitals as initial orbitals.
 
 .. literalinclude:: ../data/examples/ap1rog/water_minimal.py
     :caption: data/examples/ap1rog/water_minimal.py

@@ -21,19 +21,19 @@
 
 .. _user_hf_dft:
 
-How to use Horton as a Hartree-Fock/DFT program
+How to use HORTON as a Hartree-Fock/DFT program
 ###############################################
 
-This section explains how the relevant Hartree-Fock and DFT features in Horton
+This section explains how the relevant Hartree-Fock and DFT features in HORTON
 are used with Python scripts. This is different from most regular quantum
 chemistry codes, where you just prepare an input file with a molecular geometry
-and some control options. Such an input-file interface for Horton is under
+and some control options. Such an input-file interface for HORTON is under
 construction. The script interface, explained here, is more expressive and
 laborsome than a regular input file, because you basically have to write the
 main program. It also offers the advantage that you can to tinker more with the
 internals.
 
-Horton can do restricted and unrestricted HF/DFT SCF calculations in various
+HORTON can do restricted and unrestricted HF/DFT SCF calculations in various
 different ways. The following sections cover the typical steps of a calculation:
 
 1) :ref:`user_hf_dft_setup_hamiltonian`
@@ -46,7 +46,7 @@ different ways. The following sections cover the typical steps of a calculation:
 8) Optional: :ref:`user_hf_dft_preparing_posthf`
 
 The last section contains an overview of :ref:`hf_dft_complete_examples`
-that are shipped (and tested) with Horton. These may be convenient as a starting
+that are shipped (and tested) with HORTON. These may be convenient as a starting
 point when preparing your own scripts. You may also just dive straight
 into these examples and consult the first five sections to better understand how
 each example works.
@@ -73,7 +73,7 @@ Setting up the (molecular electronic) Hamiltonian
 See :ref:`user_hamiltonian`.
 
 You first have to compute/load the two- and four-index objects for the one- and
-two-body terms in the Hamiltonian. Some DFT implementations in Horton do not
+two-body terms in the Hamiltonian. Some DFT implementations in HORTON do not
 require pre-computed four-center integrals.
 
 
@@ -149,8 +149,8 @@ that come out of a failed SCF.)
       # Rotate 1st and 6th orbital by 30 deg
       exp._alpha.rotate_2orbitals(30*deg, 0, 5)
 
-  Note that Horton uses radians as unit for angles, i.e. ``30*deg == np.pi/6``.
-  Also, Horton uses zero-based indices, so the arguments ``0, 5``
+  Note that HORTON uses radians as unit for angles, i.e. ``30*deg == np.pi/6``.
+  Also, HORTON uses zero-based indices, so the arguments ``0, 5``
   refer to the first and the sixth orbital.
 
 * The method :py:meth:`horton.matrix.dense.DenseExpansion.swap_orbitals` allows
@@ -169,7 +169,7 @@ Reading a guess from a file
 ---------------------------
 
 You may also load orbitals from an external file. The file formats ``.mkl``,
-``.molden``, ``.fchk``, or Horton's internal ``.h5`` are all viable
+``.molden``, ``.fchk``, or HORTON's internal ``.h5`` are all viable
 sources of orbitals. For example, the orbitals from a Gaussian formatted
 checkpoint file, ``*.fchk``, may be loaded as follows:
 
@@ -220,7 +220,7 @@ and a set of orbitals in that basis for the ``IOData`` instance ``mol``.
 Defining the effective Hamiltonian
 ==================================
 
-Horton implements spin-restricted and spin-unrestricted effective Hamiltonians.
+HORTON implements spin-restricted and spin-unrestricted effective Hamiltonians.
 Mathematically speaking, these are models for the energy as function of a set of
 density matrices. The implementation also provides an API to compute the
 corresponding Fock matrix for every density matrix, i.e. the derivative of the
@@ -306,7 +306,7 @@ the constructor arguments.
 
   Integration grids are discussed in more detail in the section
   :ref:`user_integration_grids_specify`. A list of the supported LibXC functionals can
-  be found in :ref:`ref_functionals`. Note that Horton does not support the
+  be found in :ref:`ref_functionals`. Note that HORTON does not support the
   MGGA's yet.
 
 Using these classes, you can construct the Hatree-Fock or a DFT effective
@@ -424,7 +424,7 @@ three options:
 Optimize the wavefunction with a self-consistent field algorithm
 ================================================================
 
-Horton supports the following SCF algorithms:
+HORTON supports the following SCF algorithms:
 
 * :py:class:`~horton.meanfield.scf.PlainSCFSolver`: the ordinary SCF solver.
   This method just builds and diagonalizes the Fock matrices at every iteration.
@@ -533,13 +533,13 @@ Writing SCF results to a file
 =============================
 
 Once you have obtained a converged set of molecular orbitals, they can be stored
-in a file. Two file formats can be used: (i) Horton's internal format based on
+in a file. Two file formats can be used: (i) HORTON's internal format based on
 HDF5 and (ii) the Molden format. The internal format has the advantage that all
 data is stored in full precision and that you can include as much additional
 information as you like. The Molden format is useful for visualization purposes
 or when you would like to use the orbitals in another quantum chemistry code.
 Both formats can be used to store the wavefunction and to use it as an initial
-guess afterwards. For more background information on data formats in Horton,
+guess afterwards. For more background information on data formats in HORTON,
 refer to :ref:`ref_file_formats`.
 
 The two code snippets below show how a wavefunction can be written to a file.
@@ -573,7 +573,7 @@ Preparing for a Post-Hartree-Fock calculation
 
 Once the SCF has converged and you have obtained a set of orbitals, you can use
 these orbitals to convert the integrals from the atomic-orbital (AO) basis to
-the molecular-orbital (MO) basis. Two implementations are available in Horton:
+the molecular-orbital (MO) basis. Two implementations are available in HORTON:
 (i) using all molecular orbitals or (ii) by specifing a frozen core and active
 set of orbitals. A full example, ``rhf_n2_dense.py``, which covers both options
 and which includes dumping the transformed integrals to a file, is given in the

@@ -20,7 +20,7 @@
 #--
 '''Conversion from and to atomic units
 
-   Internally Horton always uses atomic units. Atomic units are consistent,
+   Internally HORTON always uses atomic units. Atomic units are consistent,
    similar to the SI unit system: one does not need conversion factors in the
    middle of a computation. This choice facilitates the programming and reduces
    accidental bugs.
@@ -53,7 +53,7 @@
 
    It is highly recommended to perform unit conversions only when data is read
    from the input or data is written to the output. It may also be useful in
-   `input scripts` that use Horton. Do not perform any unit conversion in other
+   `input scripts` that use HORTON. Do not perform any unit conversion in other
    parts of the program.
 
    An often recurring question is how to convert a frequency in internal units

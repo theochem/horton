@@ -25,7 +25,7 @@ Download and Installation on Mac OS X (10.8--10.10)
 Disclaimer
 ==========
 
-Horton has been tested on Mac OS X 10.8--10.10 using MacPorts. If you
+HORTON has been tested on Mac OS X 10.8--10.10 using MacPorts. If you
 are running any other version of OS X or using other package managers,
 some of the instructions below may not work.
 
@@ -33,7 +33,7 @@ some of the instructions below may not work.
 MacPorts
 =========
 
-We strongly recommend that you install all of the packages required by Horton
+We strongly recommend that you install all of the packages required by HORTON
 through MacPorts. The latest version of MacPorts can be downloaded from the web:
 https://www.macports.org/install.php. This guide has been tested using
 MacPorts 2.3.3 but should also work with newer versions.
@@ -91,7 +91,7 @@ Here are some basic MacPort commands:
 Download the code
 =================
 
-The latest stable source code release of Horton can be downloaded here:
+The latest stable source code release of HORTON can be downloaded here:
 
     https://github.com/theochem/horton/releases/download/2.0.0/horton-2.0.0.tar.gz
 
@@ -106,14 +106,14 @@ Choose a suitable directory, e.g. ``~/build``, download and unpack the archive:
     cd horton-2.0.0
 
 
-Dependencies for building, installing and testing Horton
+Dependencies for building, installing and testing HORTON
 ========================================================
 
-In order to compile and test Horton, you need to install relatively recent
+In order to compile and test HORTON, you need to install relatively recent
 versions of the following programs/libraries:
 
 * GCC, G++ and GFortran >= 4.5: http://gcc.gnu.org/ (The GNU compilers are only
-  used to compile Fortran code in some of the Horton dependencies as the default
+  used to compile Fortran code in some of the HORTON dependencies as the default
   C/C++ compiler on the Mac is ``clang``.)
 * Python >= 2.7, < 3.0: http://www.python.org/
 * Nosetests >= 1.1.2: http://readthedocs.org/docs/nose/en/latest/
@@ -181,14 +181,14 @@ Installing dependencies manually
 **BLAS**
 
 In principle, any BLAS implementation may be used. In case of a custom build,
-some environment variables must be set prior to building Horton, as discussed
+some environment variables must be set prior to building HORTON, as discussed
 in :ref:`mac_compile_install`. Also, Keep in mind that MacPorts only supports Atlas
 for building NumPy and SciPy.
 
 
 **LibXC**
 
-The directory ``depends`` of the Horton source tree contains a make file that
+The directory ``depends`` of the HORTON source tree contains a make file that
 will download and build LibXC, which will work on most systems:
 
 .. code-block:: bash
@@ -201,7 +201,7 @@ the website: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 
 **LibInt2**
 
-The directory ``depends`` of the Horton source tree contains a make file that
+The directory ``depends`` of the HORTON source tree contains a make file that
 will download and build LibInt2, which will work on most systems:
 
 .. code-block:: bash
@@ -243,14 +243,14 @@ failed or if you would like to specify which libraries to use.
 Runtime Configuration
 ---------------------
 
-You need to set some environment variables to use Horton. Add the following to
+You need to set some environment variables to use HORTON. Add the following to
 ``~/.bash_profile`` if it exists, otherwise add them to ``~/.profile``:
 
 .. code-block:: bash
 
     export PATH=${HOME}/Library/Python/2.7/bin:${PATH}
 
-If you run Horton on a headless node, i.e. without an X server, you need to
+If you run HORTON on a headless node, i.e. without an X server, you need to
 configure Matplotlib to use a backend that does not require a graphical user
 interface. (See http://matplotlib.org/faq/usage_faq.html#what-is-a-backend for
 more details on the Matplotlib backends.) This can be done by adding the
@@ -267,7 +267,7 @@ This file is located either in ``${HOME}/.matplotlib`` or
 Running the tests
 =================
 
-To test that Horton was installed properly and that you can can access it from
+To test that HORTON was installed properly and that you can can access it from
 other directories, you should change to a directory outside of the source tree
 and call nosetests as follows:
 

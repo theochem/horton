@@ -4,7 +4,7 @@ from horton import *
 ###############################################################################
 ## Set up molecule, define basis set ##########################################
 ###############################################################################
-# get the XYZ file from Horton's test data directory
+# get the XYZ file from HORTON's test data directory
 fn_xyz = context.get_fn('test/water.xyz')
 mol = IOData.from_file(fn_xyz)
 obasis = get_gobasis(mol.coordinates, mol.numbers, 'cc-pvdz')

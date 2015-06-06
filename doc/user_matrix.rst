@@ -25,7 +25,7 @@ How to use the matrix package?
 Introduction
 ============
 
-In Horton, we use our own Matrix package (abstraction layer) to implement the
+In HORTON, we use our own Matrix package (abstraction layer) to implement the
 linear algebra code (low-level) into the quantum chemistry code (high-level). There
 are two main reasons for such implementation:
 
@@ -44,9 +44,9 @@ are two main reasons for such implementation:
 Although such an abstraction layer seems pedantic and ostentatious, and requires
 a tedious implementation of all new operations into the Matrix package, the
 small penalty in performance and the ease of implementing different concepts
-into the low-level areas of Horton make it well worth the effort.
+into the low-level areas of HORTON make it well worth the effort.
 
-Below conceptualizes the organization of Horton:
+Below conceptualizes the organization of HORTON:
 
 .. image:: matrix_concept.png
 

@@ -22,31 +22,31 @@
 Getting started
 ###############
 
-How to run Horton
+How to run HORTON
 =================
 
-Horton is essentially a Python library that can be used to do electronic structure
+HORTON is essentially a Python library that can be used to do electronic structure
 calculations and the post-processing of such calculations. There are two different
-ways of working with Horton. The most versatile approach is to write Python scripts
-that use Horton as a Python library. This gives you full access to all features in
-Horton but it also requires some understanding of the Python programming language.
+ways of working with HORTON. The most versatile approach is to write Python scripts
+that use HORTON as a Python library. This gives you full access to all features in
+HORTON but it also requires some understanding of the Python programming language.
 Alternatively, some of the functionality is also accessible through built-in
 python scripts whose behaviour can be controlled through command line arguments.
 This requires less technical background from the user.
 
 
-Running Horton as a Python library
+Running HORTON as a Python library
 ----------------------------------
 
 There will be many examples in the following sections that explain what can be
-done with Horton by writing your own Python scripts. These scripts should all
+done with HORTON by writing your own Python scripts. These scripts should all
 start with the following lines:
 
 .. code-block:: python
 
     #!/usr/bin/env python
 
-    # Import the Horton library
+    # Import the HORTON library
     from horton import *
 
     # Optionally import some other stuff
@@ -56,7 +56,7 @@ start with the following lines:
 
 This header is then followed by some Python code that does the actual computation
 of interest. In such a script, you basically write the `main` program of the
-calculation of interest, using the components that Horton offers. The Horton library
+calculation of interest, using the components that HORTON offers. The Horton library
 is designed such that all features are as modular as possible, allowing you to
 combine them in various ways.
 
@@ -77,10 +77,10 @@ Do not use ``horton.py`` as a script name because will cause trouble when loadin
 the ``horton`` library (due to a namespace collision).
 
 
-Running Horton with provided ``horton-*.py`` scripts
+Running HORTON with provided ``horton-*.py`` scripts
 ----------------------------------------------------
 
-The builtin Horton scripts all have the following filename pattern: ``horton-*.py``.
+The builtin HORTON scripts all have the following filename pattern: ``horton-*.py``.
 Through command line arguments, one can control the actual calculation. Basic
 usage information is obtained with the ``--help`` flag, e.g.:
 
@@ -89,10 +89,10 @@ usage information is obtained with the ``--help`` flag, e.g.:
     $ horton-convert.py --help
 
 
-Writing your first Horton Python script
+Writing your first HORTON Python script
 =======================================
 
-Horton scripts just run with a regular Python interpreter
+HORTON scripts just run with a regular Python interpreter
 (like `ASE <https://wiki.fysik.dtu.dk/ase/>`_ and unlike
 `PSI4 <http://www.psicode.org/>`_, which uses a modified Python interpreter).
 This means you first need to learn basic Python. It may also be of interest to become
@@ -114,7 +114,7 @@ other examples in the documentation.
 Atomic units
 ------------
 
-Horton internally works exclusively in atomic units. If you want to convert a
+HORTON internally works exclusively in atomic units. If you want to convert a
 value from a different unit to atomic units, multiply it with the appropriate unit
 constant, e.g. the following sets ``length`` to 5 Angstrom and prints it out in
 atomic units:
@@ -153,14 +153,14 @@ that the first element of a vector is accessed as follows:
     vector = np.array([1, 2, 3])
     print vector[0]
 
-This convention also applies to all array-like objects in Horton, e.g. the
+This convention also applies to all array-like objects in HORTON, e.g. the
 first orbital in a Slater determinant has index 0.
 
 
 Loading/Dumping data from/to a file
 -----------------------------------
 
-All input and output of data in Horton is managed through the :py:class:`~horton.io.iodata.IOData`
+All input and output of data in HORTON is managed through the :py:class:`~horton.io.iodata.IOData`
 class. Data can be loaded with a call to the class method :py:meth:`~horton.io.iodata.IOData.from_file`
 of the :py:class:`~horton.io.iodata.IOData` class, e.g.:
 
@@ -198,7 +198,7 @@ attributes supported by each file format. A definition of all possible
 The periodic table
 ------------------
 
-Horton has a periodic table of elements with several atomic properties that may
+HORTON has a periodic table of elements with several atomic properties that may
 be of interest for computations. Details can be found here: :py:mod:`horton.periodic`.
 The following example prints some information for Carbon:
 
@@ -214,17 +214,17 @@ Note that you can be relatively sloppy with the index to refer to elements of th
 A complete example
 ------------------
 
-This first example is kept very simple, just to illustrate the basics of a Horton
+This first example is kept very simple, just to illustrate the basics of a HORTON
 Python script. (It does not do an electronic calculation yet.) The following example
 loads an ``.xyz`` file and computes the molecular mass. Finally, it writes out
-data read from the ``.xyz`` file and the mass into a ``.h5`` file, using Horton's
+data read from the ``.xyz`` file and the mass into a ``.h5`` file, using HORTON's
 internal data format.
 
 .. literalinclude:: ../data/examples/getting_started/first.py
     :caption: data/examples/getting_started/first.py
 
 Note that the part ``context.get_fn('test/water.xyz')`` is used to look up a data
-file from the Horton data directory. If you want to use your own file, load the
+file from the HORTON data directory. If you want to use your own file, load the
 molecule as follows instead:
 
 .. code-block:: python

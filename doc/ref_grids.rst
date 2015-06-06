@@ -28,7 +28,7 @@ Built-in grids
 --------------
 
 The table below lists the number of grid points in each built-in atomic
-integration grid in Horton. For the heavier elements (after Kr), the grids are
+integration grid in HORTON. For the heavier elements (after Kr), the grids are
 calibrated based on reference computations with pseudo potentials. The last
 digit in the grid name refers to the number of significant digits obtained with
 these grids on diatomic benchmarks.

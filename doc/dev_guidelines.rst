@@ -29,9 +29,9 @@ avoids a lot of frustration in the long run.
    code and tests in one patch.**
 
    Writing unit tests is difficult, especially for newcomers, but it is really
-   necessary to maintain to keep Horton functional. Only fools believe they can
+   necessary to maintain to keep HORTON functional. Only fools believe they can
    write bug-free code without testing. It always takes some creativity to
-   devise test routines, certainly in Horton. Some examples are given below, but
+   devise test routines, certainly in HORTON. Some examples are given below, but
    feel free to blur the lines. Just make sure a test does not take too long to
    execute (i.e. not more than a second).
 
@@ -66,7 +66,7 @@ avoids a lot of frustration in the long run.
 
    This is a great way of fixing bugs and making tests. It also guarantees that
    the bug you found will not be reintroduced accidentally in later versions of
-   Horton.
+   HORTON.
 
 5. **Write lots of comments, doc-strings, documentation and examples.**
 
@@ -80,7 +80,7 @@ avoids a lot of frustration in the long run.
    webpage you are currently looking at. More details on the documentation
    system are given below.
 
-   `Examples` are simple python scripts that use Horton to run a computation.
+   `Examples` are simple python scripts that use HORTON to run a computation.
    Keep these examples simple, e.g. no more than 20 lines, and add abundant
    comments that explain every line.
 
@@ -104,12 +104,12 @@ avoids a lot of frustration in the long run.
         4. Some extra paragraphs with detailed information. (optional)
    * Use self-explaining names for classes, variables, functions, methods. Start
      functions and methods with a verb.
-   * Never use ``from foo import *`` in a Horton module. Always specify what is
+   * Never use ``from foo import *`` in a HORTON module. Always specify what is
      to be imported, or use the ``import foo`` or ``import foo as bar`` syntax.
    * Avoid long lines, i.e. no longer than 80 characters. Use the line-wrapping
      features in Python to break long lines into smaller ones.
 
-   Specific conventions for Horton
+   Specific conventions for HORTON
 
    * Import the Numpy package as follows: ``import numpy as np``.
    * Import the H5Py package as follows: ``import h5py as h5``.

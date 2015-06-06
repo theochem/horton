@@ -25,7 +25,7 @@ The perturbation theory module
 Supported features
 ==================
 
-The perturbation theory module supports spin-restricted orbitals and the ``DenseLinalgFactory``. Horton offers the following flavors of perturbation theory:
+The perturbation theory module supports spin-restricted orbitals and the ``DenseLinalgFactory``. HORTON offers the following flavors of perturbation theory:
 
 1. Moller-Plesset Perturbation theory of second order with a restricted, closed-shell Hartree-Fock reference function (see :ref:`mp2`)
 
@@ -227,7 +227,7 @@ Example Python scripts
 MP2 calculation on the water molecule
 -------------------------------------
 
-This is a basic example on how to perform a RMP2 calculation in Horton. This script performs a RMP2 calculation on the water molecule using the cc-pVDZ basis set.
+This is a basic example on how to perform a RMP2 calculation in HORTON. This script performs a RMP2 calculation on the water molecule using the cc-pVDZ basis set.
 
 .. literalinclude:: ../data/examples/perturbation_theory/water_mp2.py
     :caption: data/examples/perturbation_theory/water_mp2.py
@@ -237,7 +237,7 @@ This is a basic example on how to perform a RMP2 calculation in Horton. This scr
 PTa calculation on the water molecule
 -------------------------------------
 
-This is a basic example on how to perform a PTa calculation in Horton. This script performs a PTa calculation on the water molecule using the cc-pVDZ basis set.
+This is a basic example on how to perform a PTa calculation in HORTON. This script performs a PTa calculation on the water molecule using the cc-pVDZ basis set.
 
 .. literalinclude:: ../data/examples/perturbation_theory/water_pta.py
     :caption: data/examples/perturbation_theory/water_pta.py
@@ -247,7 +247,7 @@ This is a basic example on how to perform a PTa calculation in Horton. This scri
 PTb calculation on the water molecule
 -------------------------------------
 
-This is a basic example on how to perform a PTb calculation in Horton. This script performs a PTb calculation on the water molecule using the cc-pVDZ basis set.
+This is a basic example on how to perform a PTb calculation in HORTON. This script performs a PTb calculation on the water molecule using the cc-pVDZ basis set.
 
 .. literalinclude:: ../data/examples/perturbation_theory/water_ptb.py
     :caption: data/examples/perturbation_theory/water_ptb.py

@@ -19,5 +19,5 @@
     :
     : --
 
-How to add new file formats to Horton
+How to add new file formats to HORTON
 #####################################

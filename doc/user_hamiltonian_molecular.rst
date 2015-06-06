@@ -33,7 +33,7 @@ basis to define a Hamiltonian.
 Specifying the molecular geometry
 =================================
 
-Horton can load/dump the molecular geometry from/to different file formats. The
+HORTON can load/dump the molecular geometry from/to different file formats. The
 file format is determined automatically using the extension or prefix of the
 filename. For more information on supported file formats, refer to
 :ref:`ref_file_formats`.
@@ -69,8 +69,8 @@ XYZ file
 Specifying the basis set
 ========================
 
-Horton supports basis sets consisting of generally contracted Cartesian Gaussian functions up to a maximum angular momentum of seven (I functions).
-Horton is using the same basis set format as NWChem, and the basis sets can be downloaded from the EMSL webpage (https://bse.pnl.gov/bse/portal).
+HORTON supports basis sets consisting of generally contracted Cartesian Gaussian functions up to a maximum angular momentum of seven (I functions).
+HORTON is using the same basis set format as NWChem, and the basis sets can be downloaded from the EMSL webpage (https://bse.pnl.gov/bse/portal).
 
 Most of the popular basis sets can be loaded automatically. A list of currently supported built-in sets can be found here: :ref:`ref_gaussian_basis_standard_sets`. The basis set for a given molecule is constructed with the function :py:func:`horton.gbasis.gobasis.get_gobasis`
 
@@ -121,7 +121,7 @@ basis for the third atom and the ``sto-3g`` basis for all other atoms.
 Loading custom basis sets from file
 -----------------------------------
 
-One can also use other basis sets besides the ones that are shipped with Horton.
+One can also use other basis sets besides the ones that are shipped with HORTON.
 It is assumed that the basis is available in NWChem format:
 
 .. code-block:: python
@@ -163,9 +163,9 @@ When post-processing results from other programs, it may be desirable to use
 exactly the same basis set as was used in the other program (Gaussian, ORCA,
 PSI4, etc.) This can be acchieved by loading the geometry, basis set and
 wavefunction from one of the following formats: ``.mkl``, ``.molden``,
-``.fchk``, or Horton's internal ``.h5`` format. In principle, it is also
+``.fchk``, or HORTON's internal ``.h5`` format. In principle, it is also
 possible to load the basis set from a ``.wfn`` file, but keep in mind that this
-format does not support contracted basis functions, so Horton will then use a
+format does not support contracted basis functions, so HORTON will then use a
 decontracted basis set, which is less efficient.
 
 One simply uses the ``IOData.from_file`` method to load the file. The orbital
@@ -193,7 +193,7 @@ objects for the molecular electronic Hamiltonian. It may be useful to construct
 also the overlap operator as the Gaussian basis sets are not orthonormal.
 
 Before computing the matrix elements, one first has to specify how the two- and four-index
-objects will be represented. The default in Horton is to use a dense
+objects will be represented. The default in HORTON is to use a dense
 matrix representation, which is implemented in the ``DenseLinalgFactory`` class.
 An instance of this class must be passed to the methods that compute the matrix
 elements. Alternatively, one may also use the ``CholeskyLinalgFactory``, which

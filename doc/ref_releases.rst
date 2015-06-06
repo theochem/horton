@@ -32,7 +32,7 @@ Release history
    - Documentation for the ESP fitting scripts.
    - Mandatory output argument for most ``horton-*.py`` scripts.
    - Properly load fchk files from Gaussian calculations with Ghost atoms.
-   - New script: ``horton-convert.py``. (Conversion between different file formats supported in Horton.)
+   - New script: ``horton-convert.py``. (Conversion between different file formats supported in HORTON.)
    - New script: ``horton-cubehead.py``. (Part of the ESP fitting scripts. A tool te generate economic grid specs for cubegen.)
    - Usability improvements in ``horton-atomdb.py``.
    - Skip expensive AIM computatoins by default in ``horton-wpart.py``
@@ -48,7 +48,7 @@ Release history
 
    - Gaussian/GAMESS wfn file reader. WFN files are now supported in
      ``horton-wpart.sh``. (Thanks to Farnaz!)
-   - Horton wavefunctions can now be written to the molden file format.
+   - HORTON wavefunctions can now be written to the molden file format.
    - The efficiency of ``horton-wpart.sh`` has improved.
    - Added ``--lmax`` option to ``horton-wpart.sh`` and ``horton-cpart.sh`` to
      control the maximum angular momentum for the multipole analysis.
@@ -97,7 +97,7 @@ Release history
 
      1. The Gaussian 03 FCHK format contains a spelling error ('independant'
         instead of 'independent'). This is fixed in Gaussian 09. Both variants
-        are now properly handled by Horton.
+        are now properly handled by HORTON.
      2. Post-HF density matrices are read in properly.
 
    - Reorganization of mean-field code. It is now located in a sub package

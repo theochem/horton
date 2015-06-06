@@ -19,10 +19,10 @@
     :
     : --
 
-Accelerating Horton code with Cython
+Accelerating HORTON code with Cython
 ####################################
 
-Horton was designed to prioritize ease of programming over performance. This is a reasonable decision in light of the fact that the vast majority of time in a quantum chemistry code is only spent in a relatively small section of code. In Horton, we rewrite these critical portion s of code in C++ and link them into Python using the Cython framework. We identify these critical portions using :ref:`profiling` tools.
+HORTON was designed to prioritize ease of programming over performance. This is a reasonable decision in light of the fact that the vast majority of time in a quantum chemistry code is only spent in a relatively small section of code. In Horton, we rewrite these critical portion s of code in C++ and link them into Python using the Cython framework. We identify these critical portions using :ref:`profiling` tools.
 
 Before you Begin
 ================

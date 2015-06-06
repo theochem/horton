@@ -22,7 +22,7 @@
 How to use Git
 ##############
 
-Horton uses `Git <http://git-scm.com/>`_ for version control.
+HORTON uses `Git <http://git-scm.com/>`_ for version control.
 
 This section goes through the basics of version control. Although the commands
 below are specific to Git, the following entails good practices that can be
@@ -111,7 +111,7 @@ commit:
 
 Copy this script into the directory ``.git/hooks/`` as ``pre-commit`` and make it
 executable. The last part of the pre-commit script checks for python ``print``
-lines. These should not be used in the Horton library. If you think you have
+lines. These should not be used in the HORTON library. If you think you have
 legitimate reasons to ignore this test, use the ``--no-verify`` option when
 comitting.
 
@@ -173,10 +173,10 @@ Branch head
     The last commit in a branch.
 
 
-Cloning the Horton git repository
+Cloning the HORTON git repository
 =================================
 
-In order to `clone` the public Horton repository, run these commands:
+In order to `clone` the public HORTON repository, run these commands:
 
 .. code-block:: bash
 
@@ -192,16 +192,16 @@ command:
 
     git pull
 
-There is also a web interface to Horton's git repository:
+There is also a web interface to HORTON's git repository:
 https://github.com/theochem/horton
 
 
-Additional steps required to build the development version of Horton
+Additional steps required to build the development version of HORTON
 ====================================================================
 
-Several parts of Horton make use of reference atomic computations. These files
+Several parts of HORTON make use of reference atomic computations. These files
 are too large to be included in the git revision system. Therefore, they must be
-downloaded separately when compiling a development version of Horton:
+downloaded separately when compiling a development version of HORTON:
 
 .. code-block:: bash
 
@@ -345,7 +345,7 @@ available by pushing it to a remote server. One may use `Github
 
 Now send the URL of your remote server and the name of the branch to a peer for
 review. If you are looking for someone to review your code, post a request on
-the `Horton mailing list <https://groups.google.com/d/forum/horton-discuss>`_
+the `HORTON mailing list <https://groups.google.com/d/forum/horton-discuss>`_
 
 Unless, you have written spotless code, you will make some further modifications
 to the code, commit these and push them to the remote server for review. Once
@@ -410,9 +410,9 @@ branch to the new HEAD of the master branch with ``git rebase``
 
       $ ~/.../horton:bar-1> git push review bar-1:bar-1
 
-Now, you can get in touch with one of the Horton developers (at the `Horton
+Now, you can get in touch with one of the HORTON developers (at the `Horton
 mailing list <https://groups.google.com/d/forum/horton-discuss>`_) to transfer
-these new patches to the public master branch of Horton.
+these new patches to the public master branch of HORTON.
 
 
 Common Issues

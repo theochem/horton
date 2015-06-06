@@ -204,7 +204,7 @@ def test_nuclear_attraction_helper():
 
 
 def check_overlap(alphas0, alphas1, r0, r1, scales0, scales1, shell_type0, shell_type1, result0):
-    # This test compares output from Horton with reference data computed with
+    # This test compares output from HORTON with reference data computed with
     # PyQuante.
     max_shell_type = 4
     max_nbasis = get_shell_nbasis(max_shell_type)
@@ -498,7 +498,7 @@ def test_overlap_4_4():
 
 
 def check_kinetic(alphas0, alphas1, r0, r1, scales0, scales1, shell_type0, shell_type1, result0):
-    # This test compares output from Horton with reference data computed with
+    # This test compares output from HORTON with reference data computed with
     # PyQuante.
     max_shell_type = 4
     max_nbasis = get_shell_nbasis(max_shell_type)
@@ -793,7 +793,7 @@ def test_kinetic_4_4():
 
 
 def check_nuclear_attraction(alphas0, alphas1, r0, r1, scales0, scales1, charges, centers, shell_type0, shell_type1, result0):
-    # This test compares output from Horton with reference data computed with
+    # This test compares output from HORTON with reference data computed with
     # PyQuante.
     max_shell_type = 4
     max_nbasis = get_shell_nbasis(max_shell_type)
@@ -1219,7 +1219,7 @@ def test_gb4_erilibint_class():
 
 
 def check_electron_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, scales0, scales1, scales2, scales3, shell_type0, shell_type1, shell_type2, shell_type3, result0):
-    # This test compares output from Horton with reference data computed with
+    # This test compares output from HORTON with reference data computed with
     # PyQuante.
     max_shell_type = 4
     max_nbasis = get_shell_nbasis(max_shell_type)

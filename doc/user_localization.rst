@@ -43,7 +43,7 @@ and :math:`\kappa_{kl}` is determined by the optimization of the localization fu
 
 Many of the localization schemes, and thus
 the result of the localization, differ by the localization function. The localization
-function somehow measures the localization of the orbitals. So far, Horton only
+function somehow measures the localization of the orbitals. So far, HORTON only
 supports the Pipek-Mezey localization. [pipek1989]_
 
 
@@ -78,7 +78,7 @@ Example Python scripts
 Pipek-Mezey localization of restricted Hartree-Fock orbitals for the water molecule
 -----------------------------------------------------------------------------------
 
-This is a basic example on how to perform a Pipek-Mezey localization in Horton. This script performs a Pipek-Mezey localization for the water molecule using the cc-pVDZ basis set and Mulliken projectors.
+This is a basic example on how to perform a Pipek-Mezey localization in HORTON. This script performs a Pipek-Mezey localization for the water molecule using the cc-pVDZ basis set and Mulliken projectors.
 
 
 .. literalinclude :: ../data/examples/localization/water_pm.py
