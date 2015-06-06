@@ -401,7 +401,7 @@ void GB4ElectronRepulsionIntegralLibInt::reset(
 
     /*
         Figure out the ordering of the shell quartet that is compatible with
-        libint. Note that libint uses the chemist's notation, while horton uses
+        libint. Note that libint uses the chemist's notation, while HORTON uses
         the physicists notation for the indexes of a four-index operator.
 
         The arguments must be reordered such that the following conditions are
