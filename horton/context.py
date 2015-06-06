@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''The context in which Horton is used
+'''The context in which HORTON is used
 
    This module controls global parameters that are purely technical, e.g. the
    location of data files. It is certainly not meant to keep track of input

@@ -21,7 +21,7 @@
 
 .. _user_integration_grids:
 
-How to use Horton for numerical integration?
+How to use HORTON for numerical integration?
 ############################################
 
 .. _user_integration_grids_specify:
@@ -29,7 +29,7 @@ How to use Horton for numerical integration?
 Building an integration grid
 ============================
 
-Horton primarily makes use of Becke-Lebedev grids for numerical integrations over
+HORTON primarily makes use of Becke-Lebedev grids for numerical integrations over
 molecular volumes. It can automatically construct Becke-Lebedev integration grids for a given
 molecular geometry. This is needed for DFT computations (typically to
 evaluate the exchange-correlation functional) or atoms-in-molecules
@@ -103,7 +103,7 @@ This section assumes that the following objects are already available:
 If you are not familiar with the ``obasis`` and ``dm_full`` objects, please
 refer to :ref:`user_molecularham_basis` and :ref:`user_hf_dft`,
 respectively. Note that the density matrix can also be loaded from a file
-instead of being computed by Horton. This is demonstrated in an example at the
+instead of being computed by HORTON. This is demonstrated in an example at the
 end of this section.
 
 First, one must evaluate the integrand on all the points of the integration grid.
@@ -169,7 +169,7 @@ This section assumes that the following objects are already available:
 
 If you are not familiar with the ``obasis`` or ``lf`` object, please refer to
 :ref:`user_molecularham_basis`. The density matrix can either be read from a
-file or computed with Horton. For more information, please refer to :ref:`user_hf_dft`.
+file or computed with HORTON. For more information, please refer to :ref:`user_hf_dft`.
 
 Given a multiplicative potential, its expectation value is written as:
 

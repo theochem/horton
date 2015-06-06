@@ -33,7 +33,7 @@ A list of currently supported built-in basis sets is tabulated below.
 
 .. include:: basis.rst.inc
 
-Note that the basis set names are case-insensitive in Horton. These basis sets
+Note that the basis set names are case-insensitive in HORTON. These basis sets
 were taken from the EMSL library (https://bse.pnl.gov/bse/portal). When
 publishing results obtained with these basis sets, please cite the following
 references [feller1996]_ and [Didier2007]_.
@@ -46,7 +46,7 @@ Introduction
 ------------
 
 
-Horton supports contracted Gaussian basis functions, which have in general the
+HORTON supports contracted Gaussian basis functions, which have in general the
 following form:
 
 .. math:: b(\mathbf{r}; D_1, \ldots, D_k, P, \alpha_1, \ldots, \alpha_K, \mathbf{r}_A) =
@@ -75,7 +75,7 @@ contraction satisfies the same normalization condition:
 
 There are two common forms of the polynomial: Cartesian and pure (harmonic) basis
 functions. Both types will be defined below, together with some conventions
-that are needed for the implementation in Horton.
+that are needed for the implementation in HORTON.
 
 
 Cartesian
@@ -102,7 +102,7 @@ angular momentum, and it is assumed that all polynomials of that
 order are included in the basis set. The number of basis functions, i.e. the
 number of polynomials, for a given angular momentum, :math:`n=n_x+n_y+n_z`, is
 :math:`(n+1)(n+2)/2`. For the implementation, one must fix a certain ordering of
-these polynomials. In Horton, the ordering is simply alphabetical.
+these polynomials. In HORTON, the ordering is simply alphabetical.
 
 The first five angular momenta and the corresponding polynomials are listed in
 the table below.
@@ -170,7 +170,7 @@ angular momentum, and it is assumed that all polynomials of that
 order are included in the basis set. The number of basis functions, i.e. the
 number of polynomials, for a given angular momentum, :math:`\ell`, is
 :math:`2\ell+1`. For the implementation, one must fix a certain ordering of
-these polynomials. The ordering in Horton is based on the angular momentum
+these polynomials. The ordering in HORTON is based on the angular momentum
 number, :math:`m`. When :math:`m>0`, the cosine-like functions is preceded by
 the sine-like function.
 

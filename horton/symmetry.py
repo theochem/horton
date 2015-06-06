@@ -20,7 +20,7 @@
 #--
 '''Geometric symmetries
 
-   The symmetry tools in Horton are just meant to provide optional additional
+   The symmetry tools in HORTON are just meant to provide optional additional
    information on top of a System instance.
 '''
 

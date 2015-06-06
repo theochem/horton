@@ -83,7 +83,7 @@ two = er
 mol_all_active = IOData(core_energy=external['nn'], one_mo=one_mo, two_mo=two_mo)
 # useful for exchange with other codes
 mol_all_active.to_file('n2.FCIDUMP')
-# useful for exchange with other Horton scripts
+# useful for exchange with other HORTON scripts
 mol_all_active.to_file('n2.h5')
 
 
@@ -98,5 +98,5 @@ one_small, two_small, core_energy = split_core_active(one, er,
 mol_cas88 = IOData(core_energy=core_energy, one_mo=one_mo, two_mo=two_mo, nelec=8, ms2=0)
 # useful for exchange with other codes
 mol_cas88.to_file('n2-cas8-8.FCIDUMP')
-# useful for exchange with other Horton scripts
+# useful for exchange with other HORTON scripts
 mol_cas88.to_file('n2-cas8-8.h5')

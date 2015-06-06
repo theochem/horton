@@ -17,6 +17,6 @@ print 'MOLECULAR MASS [amu]: %.5f' % (mass/amu)
 # Store the mass in the IOData instance, in order to write it to the file
 mol.mass = mass
 
-# Write data in the mol object to a file in Horton's internal HDF5-based
+# Write data in the mol object to a file in HORTON's internal HDF5-based
 # file format.
 mol.to_file('water.h5')

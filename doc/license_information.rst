@@ -24,10 +24,10 @@
 License Information
 ###################
 
-Horton is distributed under the conditions of the GPL License version 3. Amongst
+HORTON is distributed under the conditions of the GPL License version 3. Amongst
 other things, this has the following practical implications:
 
-- You are free to use Horton for any purpose but the (re)distribution of Horton
+- You are free to use HORTON for any purpose but the (re)distribution of Horton
   or any derived program must be done under the same license conditions.
 
 - Once you share a modified version of HORTON with someone, there is no legal

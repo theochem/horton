@@ -26,14 +26,14 @@ Download and Installation on Linux (Fedora and Ubuntu)
 Disclaimer
 ==========
 
-Horton has been tested on Fedora and Ubuntu Linux. If you are running
+HORTON has been tested on Fedora and Ubuntu Linux. If you are running
 any other operating system, some of the instructions below may not work.
 
 
 Download the code
 =================
 
-The latest stable source code release of Horton can be downloaded here:
+The latest stable source code release of HORTON can be downloaded here:
 
     https://github.com/theochem/horton/releases/download/2.0.0/horton-2.0.0.tar.gz
 
@@ -48,10 +48,10 @@ Choose a suitable directory, e.g. ``~/build``, download and unpack the archive
     cd horton-2.0.0
 
 
-Dependencies for building, installing and testing Horton
+Dependencies for building, installing and testing HORTON
 ========================================================
 
-In order to compile and test Horton, you need to install relatively recent
+In order to compile and test HORTON, you need to install relatively recent
 versions of the following programs/libraries:
 
 * Python >= 2.7, < 3.0: http://www.python.org/ (also install `development files`)
@@ -110,13 +110,13 @@ HPC environments a compilation from scratch is recommended.
 **BLAS**
 
 In principle, any BLAS implementation may be used. In case of a custom build,
-some environment variables must be set prior to building Horton, as discussed
+some environment variables must be set prior to building HORTON, as discussed
 in :ref:`linux_compile_install`.
 
 
 **LibXC**
 
-The directory ``depends`` of the Horton source tree contains a make file that
+The directory ``depends`` of the HORTON source tree contains a make file that
 will download and build LibXC, which will work on most systems:
 
 .. code-block:: bash
@@ -129,7 +129,7 @@ the website: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 
 **LibInt2**
 
-The directory ``depends`` of the Horton source tree contains a make file that
+The directory ``depends`` of the HORTON source tree contains a make file that
 will download and build LibInt2, which will work on most systems:
 
 .. code-block:: bash
@@ -201,7 +201,7 @@ has failed or if you would like to specify which libraries to use.
 Runtime Configuration
 ---------------------
 
-You need to set the following variable in ``~/.bashrc`` to use Horton:
+You need to set the following variable in ``~/.bashrc`` to use HORTON:
 
 .. code-block:: bash
 
@@ -211,7 +211,7 @@ You need to set the following variable in ``~/.bashrc`` to use Horton:
     # the following lines may also be needed:
     # export LD_LIBRARY_PATH=some_dir/with/shared_objects/${LD_LIBRARY_PATH}
 
-If you run Horton on a headless node, i.e. without an X server, you need to
+If you run HORTON on a headless node, i.e. without an X server, you need to
 configure Matplotlib to use a backend that does not require a graphical user
 interface. (See http://matplotlib.org/faq/usage_faq.html#what-is-a-backend for
 more details on the Matplotlib backends.) This can be done by adding the
@@ -228,7 +228,7 @@ This file is located in either ``${HOME}/.matplotlib`` or
 Running the tests
 =================
 
-To test if Horton was installed properly and if it can be accessed from any directory,
+To test if HORTON was installed properly and if it can be accessed from any directory,
 you should change to a directory outside of the source tree and call nosetests
 as follows:
 

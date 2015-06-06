@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Horton is a Density Functional Theory program.
+# HORTON is a Density Functional Theory program.
 # Copyright (C) 2011-2012 Toon Verstraelen <Toon.Verstraelen@UGent.be>
 #
-# This file is part of Horton.
+# This file is part of HORTON.
 #
-# Horton is free software; you can redistribute it and/or
+# HORTON is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 3
 # of the License, or (at your option) any later version.
 #
-# Horton is distributed in the hope that it will be useful,
+# HORTON is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
@@ -38,7 +38,7 @@ def parse_args():
 
     parser.add_argument('input',
         help='The input file. Supported file types are: '
-             '*.h5 (Horton\'s native format), '
+             '*.h5 (HORTON\'s native format), '
              '*.cif (Crystallographic Information File), '
              '*.cp2k.out (Output from a CP2K atom computation), '
              '*.cube (Gaussian cube file), '
@@ -51,7 +51,7 @@ def parse_args():
              '*.xyz (The XYZ format).')
     parser.add_argument('output',
         help='The output file. Supported file types are: '
-             '*.h5 (Horton\'s native format), '
+             '*.h5 (HORTON\'s native format), '
              '*.cif (Crystallographic Information File), '
              '*.cube (Gaussian cube file), '
              '*.molden.input (Molden wavefunction file), '

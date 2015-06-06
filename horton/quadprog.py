@@ -28,7 +28,7 @@ r'''A light-weight quadratic programming solver
         x \ge 0
 
    This is not the most general type of quadratic programming but it is
-   sufficient for the needs in Horton.
+   sufficient for the needs in HORTON.
 
    The equality constraints are optional. When A is positive definite, a
    polynomial-scaling interior point algorithm can be used:

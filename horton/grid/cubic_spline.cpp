@@ -20,8 +20,8 @@
 
 /*
 
-   The cubic splines in Horton are a bit special, hence this dedicated
-   implementation. Unlike, the general cubic splines, Horton only uses splines
+   The cubic splines in HORTON are a bit special, hence this dedicated
+   implementation. Unlike, the general cubic splines, HORTON only uses splines
    with a 'standard' equidistant spacing of the grid points, with spacing 1. In
    order to handle data on other grids, one must provide a transformation object
    that defines the relation between that other grid and the standard grid.

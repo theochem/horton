@@ -1,4 +1,4 @@
-This is an example program to make batch comparisons of Horton output for atomic
+This is an example program to make batch comparisons of HORTON output for atomic
 HF computations with Gaussian output. It works as follows:
 
 1) Run the script mkinputs.py. This will create a bunch of input files for

@@ -28,14 +28,14 @@ Electrostatic potential fitting
 Introduction
 ============
 
-The general idea behind the electrostatic potential (ESP) fitting tools in Horton is to allow fitting
+The general idea behind the electrostatic potential (ESP) fitting tools in HORTON is to allow fitting
 and assessment of charges in isolated and 3D-periodic systems with compatible
 methodologies. Furthermore, the procedure is broken into different steps, such
 that one can carry out more specialized ESP fits.
 
 Two related computations, fitting of charges and testing the quality of charges
 for the reproduction of the ESP, can be carried out once an ESP cost function
-is constructed. In Horton, this ESP cost function takes the following form:
+is constructed. In HORTON, this ESP cost function takes the following form:
 
 .. math::
     \text{COST}(\{q\}, \Delta V_\text{ref}) = \int_V d\mathbf{r} w(\mathbf{r}) \left(V_\text{ai}(\mathbf{r}) - \sum_A q_A V_\text{point}(\mathbf{r} - \mathbf{R}_A) - \Delta V_\text{ref} \right)^2
@@ -47,7 +47,7 @@ where the symbols have the following meaning:
   reference ESP. In periodic systems, this is the volume of a single primitive
   cell. In isolated systems, this is some volume surrounding the molecule.
 * :math:`w(\mathbf{r})`: the weight function with range [0, 1] that selects the
-  relevant parts of the volume for the ESP fit. In Horton, the weight function
+  relevant parts of the volume for the ESP fit. In HORTON, the weight function
   of Hu, Lu and Yang is used. [hu2007]_ This weight function is zero far away
   from and inside the atoms. It becomes one in the part of the electron density
   tail where non-bonding contacts are typically found. The weight function
@@ -121,7 +121,7 @@ function for an isolated system (``000``) or a 3D periodic system (``111``).
 
 When a pseudo-potential computation is used, the density cube file contains
 regions of low electron density close to the nucleus. These regions may not be
-excluded from the fit with the Hu-Lu-Yang weight function. Therefore, Horton
+excluded from the fit with the Hu-Lu-Yang weight function. Therefore, HORTON
 allows one to build the weight function as a product of several factors:
 :math:`w(\mathbf{r}) = w_1(\mathbf{r})w_2(\mathbf{r})w_3(\mathbf{r})w_4(\mathbf{r}) \ldots`, where the
 first one is typically the Hu-Lu-Yang weight function and additional weight
@@ -181,7 +181,7 @@ with ``horton-wpart.py gaussian.fchk wpart.h5:hi hi atoms.h5``. The last file,
 Making nice cube files with Gaussian
 ====================================
 
-Horton contains an auxiliary tool, ``horton-cubehead.py`` to prepare an input
+HORTON contains an auxiliary tool, ``horton-cubehead.py`` to prepare an input
 header for a cube file aligned with the molecule of interest. This is more
 efficient than the default settings of cubegen, which makes a significant difference in
 disk space when working with molecular databases. For occasional use,

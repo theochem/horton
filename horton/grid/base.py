@@ -34,7 +34,7 @@ __all__ = ['IntGrid']
 
 
 class IntGrid(object):
-    '''Base class for real-space integration grids in Horton'''
+    '''Base class for real-space integration grids in HORTON'''
     def __init__(self, points, weights, subgrids=None):
         '''
            **Arguments:**

@@ -28,7 +28,7 @@ import re, sys
 rules = [
     ('setup.py', '^    version=\'(...+)\',$'),
     ('horton/__init__.py', '^__version__ = \'(...+)\'$'),
-    ('horton/log.py', '^.* Welcome to Horton (...+)!$'),
+    ('horton/log.py', '^.* Welcome to HORTON (...+)!$'),
     ('doc/conf.py', '^version = \'(...+)\'$'),
     ('doc/conf.py', '^release = \'(...+)\'$'),
     ('doc/download_and_install_linux.rst', '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
@@ -39,7 +39,7 @@ rules = [
     ('doc/download_and_install_mac.rst', '^    curl -O https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
     ('doc/download_and_install_mac.rst', '^    tar -xvzf horton-(...+).tar.gz$'),
     ('doc/download_and_install_mac.rst', '^    cd horton-(...+)$'),
-    ('doc/index.rst', '^    Horton (...+), http://theochem.github.com/horton/,$'),
+    ('doc/index.rst', '^    HORTON (...+), http://theochem.github.com/horton/,$'),
 ]
 
 

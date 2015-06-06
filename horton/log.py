@@ -25,7 +25,7 @@
    It is not intended as a computer-readable output file that contains all the
    results of a computation. For that purpose, all useful information is
    written to a binary checkpoint file or kept in memory as attributes of the
-   Horton objects.
+   HORTON objects.
 '''
 
 import sys, os, datetime, getpass, time, atexit, traceback, resource, urllib
@@ -207,7 +207,7 @@ class ScreenLog(object):
             self('%s&%s' % (('%s version:' % self.name).ljust(15), self.version))
             self('Current Dir:   &' + os.getcwd())
             self('Command line:  &' + ' '.join(sys.argv))
-            self('Horton module: &' + __file__)
+            self('HORTON module: &' + __file__)
             self.blank()
 
 
@@ -537,9 +537,9 @@ class MemoryLogger(object):
 head_banner = """\
 ================================================================================
  _ __ _
-/ (..) \ Welcome to Horton 2.0.0!
+/ (..) \ Welcome to HORTON 2.0.0!
 \/ || \/
- |_''_|  Horton is written and maintained by by Toon Verstraelen (1).
+ |_''_|  HORTON is written and maintained by by Toon Verstraelen (1).
 
          This version contains contributions from Ali Malek (2), Cristina E.
          González-Espinoza (2), Derrick Yang (2), Diego Berrocal (2), Farnaz
@@ -550,7 +550,7 @@ head_banner = """\
          (1) Center for Molecular Modeling, Ghent University, Belgium.
          (2) The Ayers Group at McMaster University, Ontario, Canada.
 
-         More information about Horton can be found on this website:
+         More information about HORTON can be found on this website:
          http://theochem.github.com/horton/
 
          The purpose of this log file is to track the progress and quality of a
@@ -563,9 +563,9 @@ head_banner = """\
 foot_banner = """
 ================================================================================
  _    _
-/ )--( \ End of the Horton program.
+/ )--( \ End of the HORTON program.
 \|  \ |/
- |_||_|  Thank you for using Horton! See you soon!
+ |_||_|  Thank you for using HORTON! See you soon!
 ================================================================================"""
 
 timer = TimerGroup()

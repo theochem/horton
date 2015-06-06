@@ -12,7 +12,7 @@ debug = True
 
 def main(fns_fchk):
     np.set_printoptions(suppress=True, linewidth=100)
-    print '                            Case             Horton                G09        H-G  H converged'
+    print '                            Case             HORTON                G09        H-G  H converged'
     print '----------------------------------------------------------------------------------------------'
     for fn_fchk in fns_fchk:
         # Get stuff from g09

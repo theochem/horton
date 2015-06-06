@@ -1,7 +1,7 @@
-// Horton is a Density Functional Theory program.
+// HORTON is a Density Functional Theory program.
 // Copyright (C) 2011-2012 Toon Verstraelen <Toon.Verstraelen@UGent.be>
 //
-// This file is part of Horton.
+// This file is part of HORTON.
 //
 // This file is based on a copy taken from the Orientations program of prof.
 // Levitt. See M. Edén and M. H. Levitt, J. Magn. Reson. 132, 220-239 (1998)
@@ -13,15 +13,15 @@
 // redistribute modified versions of this file under an open source license.
 //
 // All copyrights belong to the respective authors. The first version of this
-// file in the Horton git repository is the version taken from the Orientation
+// file in the HORTON git repository is the version taken from the Orientation
 // program with these comments and a license header added.
 //
-// Horton is free software; you can redistribute it and/or
+// HORTON is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 3
 // of the License, or (at your option) any later version.
 //
-// Horton is distributed in the hope that it will be useful,
+// HORTON is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.

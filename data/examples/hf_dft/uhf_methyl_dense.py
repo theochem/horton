@@ -8,7 +8,7 @@
 from horton import *
 
 # Load the coordinates from file.
-# Use the XYZ file from Horton's test data directory.
+# Use the XYZ file from HORTON's test data directory.
 fn_xyz = context.get_fn('test/methyl.xyz')
 mol = IOData.from_file(fn_xyz)
 

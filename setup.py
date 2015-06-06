@@ -203,7 +203,7 @@ def lib_config_magic(prefix, libname, static_config={}):
        **Arguments:**
 
        prefix
-            The prefix for this library. This is a name that Horton uses to
+            The prefix for this library. This is a name that HORTON uses to
             refer to the library.
 
        libname
@@ -307,7 +307,7 @@ print 'BLAS precompiler directive: -D%s' % blas_precompiler[0]
 setup(
     name='horton',
     version='2.0.0',
-    description='Horton is a development platform for electronic structure methods.',
+    description='HORTON is a development platform for electronic structure methods.',
     author='Toon Verstraelen',
     author_email='Toon.Verstraelen@UGent.be',
     url='http://theochem.github.com/horton/',

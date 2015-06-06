@@ -24,21 +24,21 @@
 Dumping/Loading a Hamiltonian to/from a file
 ############################################
 
-Horton supports two formats for Hamiltonians: (i) an internal binary format based
+HORTON supports two formats for Hamiltonians: (i) an internal binary format based
 on HDF5 (extension ``.h5``) and (ii) Molpro's FCIDUMP text format (containing ``FCIDUMP``
 somewhere in the file name). The internal format is more flexible and can store
 Hamiltonians in various ways. The FCIDUMP format is more restricted
-but can be used to interface Horton with different codes, e.g. Molpro. Horton can
+but can be used to interface HORTON with different codes, e.g. Molpro. Horton can
 also load integrals from a Gaussian log file but this is **absolutely not**
 recommended for any serious calculation.
 
-For general information on how to load and dump data with Horton in different
+For general information on how to load and dump data with HORTON in different
 data file formats, refer to :ref:`ref_file_formats`.
 
 
 .. _hamiltonian_io_internal:
 
-Horton's Internal format
+HORTON's Internal format
 ========================
 
 Dumping
@@ -114,7 +114,7 @@ if you want to compute (and store) integrals in the molecular-orbital (MO) basis
 Loading
 -------
 
-You can load integrals from the Horton's internal format, as follows:
+You can load integrals from the HORTON's internal format, as follows:
 
 .. literalinclude :: ../data/examples/hamiltonian/load_internal_ao.py
     :caption: data/examples/hamiltonian/load_internal_ao.py
@@ -200,7 +200,7 @@ and the core energy in the following order:
    on the last line with all orbital indices equal 0.
 
 If the value of an integral is zero, the corresponding line is not included in
-the the FCIDUMP file. It's important to note that Horton does not (yet) support
+the the FCIDUMP file. It's important to note that HORTON does not (yet) support
 geometric symmetries, so all the orbitals will be assigned a symmetry label 1,
 which corresponds to the point group C1 in the FCIDUMP format.
 

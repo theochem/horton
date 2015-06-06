@@ -80,7 +80,7 @@ Supported features
 
 Unless mentioned otherwise, the orbital entanglement module only supports restricted
 orbitals, ``DenseLinalgFactory`` and ``CholeskyLinalgFactory``. The current
-version of Horton offers
+version of HORTON offers
 
 1. :ref:`Calculation of single-orbital entropy and orbital-pair mutual
 information for a seniority-zero wavefunction <orbital_entanglementseniorityzero>`
@@ -116,7 +116,7 @@ calculates the entanglement and correlation measures.
 How to generate correlation diagrams
 ------------------------------------
 
-Horton provides ``gnuplot`` scripts to generate the entanglement and correlation
+HORTON provides ``gnuplot`` scripts to generate the entanglement and correlation
 diagrams. All scripts are tested for ``gnuplot4.7``.
 
 To generate the single-orbital entropy diagram, run in shell
@@ -150,7 +150,7 @@ Orbital entanglement analysis of an AP1roG wavefunction
 -------------------------------------------------------
 
 This is a basic example on how to perform an orbital entanglement analysis in
-Horton. This script performs an orbital-optimized AP1roG calculation, followed
+HORTON. This script performs an orbital-optimized AP1roG calculation, followed
 by an orbital entanglement analysis of the AP1roG wavefunction for the water
 molecule using the cc-pVDZ basis set.
 

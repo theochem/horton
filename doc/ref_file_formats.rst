@@ -28,7 +28,7 @@ Data file formats (input and output)
 
    <br />
 
-This section gives an overview of the file formats supported by Horton. Some
+This section gives an overview of the file formats supported by HORTON. Some
 formats can be used for input and output, others only for input or for output.
 The formats are always used in the same way:
 
@@ -72,7 +72,7 @@ The formats are always used in the same way:
 
 The complete list of all possible attributes (the superset for all supported
 formats) is documented here: :py:class:`horton.io.iodata.IOData`. Note that
-Horton's internal format supports all of these and any other attribute that one
+HORTON's internal format supports all of these and any other attribute that one
 assigns to a ``IOData`` instance.
 
 
@@ -181,7 +181,7 @@ All wavefunction formats share the following behavior
   loaded.
 * Some formats also `load` a ``permutation`` and/or a ``signs`` attribute. These are
   generated when loading the file, such that appropriate permutations and sign changes can be
-  applied to convert to the proper Horton conventions for Gaussian basis
+  applied to convert to the proper HORTON conventions for Gaussian basis
   functions. These conventions are `fixed` in the ``from_file`` method. This
   allows you to fix also the order of elements in arrays loaded from another
   file. For example, you can load an ``.fchk`` and a ``.log`` file at the same
@@ -264,7 +264,7 @@ Derived when **loading** ``natom``
 .. note ::
 
     Only use this format if the program that generated it does not offer any
-    alternatives that Horton can load. The WFN format has the disadvantage that
+    alternatives that HORTON can load. The WFN format has the disadvantage that
     it cannot represent contractions and therefore expands all orbitals into
     a decontracted basis. This makes the post-processing less efficient compared
     to formats that do support contractions of Gaussian functions.
@@ -317,10 +317,10 @@ precision.
 
 .. _ref_file_formats_internal:
 
-Horton's internal file format
+HORTON's internal file format
 =============================
 
-The internal HDF5-based format of Horton is effectively a superset of all
+The internal HDF5-based format of HORTON is effectively a superset of all
 formats listed above. Moreover, the user is free to store any additional data
 not covered by the file formats above. Many (not all) Python data types can
 dumped into the internal format:
@@ -333,7 +333,7 @@ dumped into the internal format:
 
 * Any NumPy array
 
-* Classes in the Horton library that have a ``to_hdf5`` and ``from_hdf5``
+* Classes in the HORTON library that have a ``to_hdf5`` and ``from_hdf5``
   method. For example: ``AtomicGridSpec``, ``BeckeMolGrid``, ``Cell``,
   ``CubicSpline``, ``ESPCost``, ``GBasis``, ``GOBasis``, ``Symmetry``,
   ``UniformGrid`` and all classes in the package ``horton.matrix``

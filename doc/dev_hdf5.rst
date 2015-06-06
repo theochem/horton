@@ -19,5 +19,5 @@
     :
     : --
 
-How HDF5 is used in Horton
+How HDF5 is used in HORTON
 ##########################
