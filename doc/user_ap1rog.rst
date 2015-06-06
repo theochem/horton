@@ -22,11 +22,11 @@
 The AP1roG module
 #################
 
-.. _introap1rog:
-
 Two-electron functions, called geminals, can be used to incorporate electron correlation effects into the many-particle wavefunction. Horton supports a special type of geminal-based wavefunction models, the antisymmetric product of 1-reference orbital geminals (AP1roG).
 This gemial model provides an alternative parametrization of the doubly occupied configuration interaction (DOCI), but requires only mean-field computational cost in contrast to the factorial scaling of traditional DOCI implementations [limacher2013]_.
-Curreently the AP1roG module is limited to closed-shell systems only.
+Currently the AP1roG module is limited to closed-shell systems only.
+
+.. _user_ap1rog_model:
 
 The AP1roG model
 ================
@@ -54,7 +54,7 @@ The geminal coefficient matrix (:math:`\mathbf{C}`) of AP1roG links the geminals
     \end{pmatrix}
 
 
-The exponential form of eq. :eq:`ap1rog` assures the size extensivity of the geminal wavefunction, however, in order to ensure the size consistency, one has to optimize the orbitals (see [boguslawski2014a]_ and [boguslawski2014b]_). The simplest and most rubost way is to use the variational orbital optimization (vOO-AP1roG) method implemented in Horton (see :ref:`ooap1rog`).
+The exponential form of eq. :eq:`ap1rog` assures the size extensivity of the geminal wavefunction, however, in order to ensure the size consistency, one has to optimize the orbitals (see [boguslawski2014a]_ and [boguslawski2014b]_). The simplest and most robust way is to use the variational orbital optimization (vOO-AP1roG) method implemented in Horton (see :ref:`ooap1rog`).
 
 Currently supported features
 ============================
@@ -188,7 +188,7 @@ The keyword arguments are optional and contain optimization-specific options (li
 The function call gives 3 return values,
 
     :energy: (float) the total AP1roG electronic energy (the **external** term included)
-    :c: (``TwoIndex`` instance) the geminal coefficient matrix (without the diagonal occupied sub-block, see :ref:`introap1rog`)
+    :c: (``TwoIndex`` instance) the geminal coefficient matrix (without the diagonal occupied sub-block, see :ref:`user_ap1rog_model`)
     :l: (``TwoIndex`` instance) the Lagrange multipliers (can be used to calculated the response 1-RDM)
 
 After the AP1roG calculation is finished (because AP1roG converged or the maximum number of iterations was reached), the orbitals and the overlap matrix are, by default, stored in a checkpoint file ``checkpoint.h5`` and can be used for a subsequent restart. Note that the geminal coefficient matrix and Lagrange multipliers are not stored after the calculation is completed.
@@ -330,7 +330,7 @@ The response 1-RDM (a ``OneIndex`` instance) can be calculated in Horton as foll
 
 where ap1rog is an instance of the ``RAp1rog`` class and (see also :ref:`setup-oo-ap1rog` to get ``c`` and ``l``)
     :one_dm: (``OneIndex`` instance) output argument that contains the response 1-RDM in the _array attribute
-    :c: (``TwoIndex`` instance) the geminal coefficient matrix (without the diagonal occupied sub-block, see :ref:`introap1rog`)
+    :c: (``TwoIndex`` instance) the geminal coefficient matrix (without the diagonal occupied sub-block, see :ref:`user_ap1rog_model`)
     :l: (``TwoIndex`` instance) the Lagrange multipliers
 
 and optional arguments
@@ -361,7 +361,7 @@ with arguments (see again :ref:`setup-oo-ap1rog` to get ``c`` and ``l``)
 
     :twopqpq/twoppqq: (``TwoIndex`` instance) output argument that contains the response 2-RDM
     :one_dm: (``OneIndex`` instance) the response 1-RDM
-    :c: (``TwoIndex`` instance) the geminal coefficient matrix (without the diagonal occupied sub-block, see :ref:`introap1rog`)
+    :c: (``TwoIndex`` instance) the geminal coefficient matrix (without the diagonal occupied sub-block, see :ref:`user_ap1rog_model`)
     :l: (``TwoIndex`` instance) the Lagrange multipliers
 
 and optional arguments
@@ -447,7 +447,7 @@ The geminal coefficients can be optimized as follows
     Note that the function call gives only 2 return values (the Lagrange multipliers are not calculated):
 
     :energy: (float) the total AP1roG electronic energy (the **external** term included)
-    :c: (``TwoIndex`` instance) the geminal coefficient matrix (without the diagonal occupied sub-block, see :ref:`introap1rog`)
+    :c: (``TwoIndex`` instance) the geminal coefficient matrix (without the diagonal occupied sub-block, see :ref:`user_ap1rog_model`)
 
     In contrast to the orbital-optimized code, the orbitals and the overlap matrix are not stored to disk after the AP1roG calculation is finished.
 
