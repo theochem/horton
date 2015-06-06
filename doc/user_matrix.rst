@@ -132,6 +132,4 @@ We can also allocate different objects, if implemented, using ``lf``:
 Many functions and classes have been implemented into the Matrix class. It may
 help to read over some of the documented module files in
 :py:mod:`horton.matrix.dense` and :py:mod:`horton.matrix.cholesky`
-to see if a desired function has already been implemented. In the event that a
-desired function has not been implemented, please contact the authors to
-make a feature request or for more details on implementing it yourself.
+to see if a desired function has already been implemented.

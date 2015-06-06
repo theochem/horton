@@ -47,6 +47,9 @@ please refer to HORTON as follows:
 HORTON is distributed under the conditions of the GPL License version 3. See
 :ref:`license_information` for more details.
 
+If you have questions, please post them on `the HORTON mailing list
+<https://groups.google.com/forum/#!forum/horton-discuss>`_.
+
 
 .. toctree::
    :maxdepth: 2
