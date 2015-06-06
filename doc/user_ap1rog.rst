@@ -24,17 +24,23 @@ The AP1roG module
 
 .. _introap1rog:
 
+Two-electron functions, called geminals, can be used to incorporate electron correlation effects into the many-particle wavefunction. Horton supports a special type of geminal-based wavefunction models, the antisymmetric product of 1-reference orbital geminals (AP1roG).
+This gemial model provides an alternative parametrization of the doubly occupied configuration interaction (DOCI), but requires only mean-field computational cost in contrast to the factorial scaling of traditional DOCI implementations [limacher2013]_.
+Curreently the AP1roG module is limited to closed-shell systems only.
+
 The AP1roG model
 ================
 
-**WRITE ME**
+The AP1roG wavefunction ansatz can be rewritten in terms of one-particle functions as a fully general pair-coupled-cluster wavefunction,
 
 .. math::
     :label: ap1rog
 
     \vert \textrm{AP1roG}\rangle = \exp(\sum_{ia} c_i^a a^\dagger_a a^\dagger_{\bar{a}} a_{\bar{i}} a_i) \vert \Psi_0 \rangle
 
-**WRITE MORE**
+where :math:`a_p^{\dagger}`, :math:`a_{\bar{p}}^{\dagger}`, and :math:`a_p`, :math:`a_{\bar{p}}` are the electron creation and annihilation operators and :math:`p` and :math:`\bar{p}` denote :math:`\alpha` and :math:`\beta` spins, respectively. :math:`\vert \Psi_0 \rangle` is some independent-particle wave function (for instance, the Hartree−Fock determinant).
+Indices :math:`i` and :math:`a` correspond to virtual and occupied orbitals with respect to :math:`\vert \Psi_0 \rangle`, :math:`P` and :math:`K` denote the number of electron pairs (:math:`P = N/2` with :math:`N` being the total number of electrons) and orbitals, respectively.
+The geminal coefficient matrix (:math:`\mathbf{C}`) of AP1roG links the geminals with the underlying one-particle basis functions and has the following form,
 
 .. math::
     :label: cia
@@ -47,6 +53,8 @@ The AP1roG model
       0      & 0       & \cdots & 1       & c_{P;P+1} & c_{P;P+2}&\cdots & c_{P;K}
     \end{pmatrix}
 
+
+The exponential form of eq. :eq:`ap1rog` assures the size extensivity of the geminal wavefunction, however, in order to ensure the size consistency, one has to optimize the orbitals (see [boguslawski2014a]_ and [boguslawski2014b]_). The simplest and most rubost way is to use the variational orbital optimization (vOO-AP1roG) method implemented in Horton (see :ref:`ooap1rog`).
 
 Currently supported features
 ============================
