@@ -87,7 +87,7 @@ information for a seniority-zero wavefunction <orbital_entanglementseniorityzero
 
 Supported wavefunction models are
 
-1. :ref:`AP1roG <introap1rog>` (seniority-zero wavefunction)
+1. :ref:`AP1roG <user_ap1rog>` (seniority-zero wavefunction)
 
 
 .. _orbital_entanglementseniorityzero:
