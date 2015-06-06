@@ -37,8 +37,11 @@ software. More details are provided in the :ref:`overview`.
 In anticipation of the first announcement of HORTON in a scientific journal,
 please refer to HORTON as follows:
 
-    T. Verstraelen, S. Vandenbrande, M. Chan, F. H. Zadeh, C. González, P. A.
-    Limacher, A. Malek; HORTON 2.0.0, http://theochem.github.com/horton/,
+    Toon Verstraelen, Ali Malek, Cristina E. González-Espinoza, Derrick Yang,
+    Diego Berrocal, Farnaz Heidar-Zadeh, Katharina Boguslawski, Matthew Chan,
+    Pawel Tecmer, Peter A. Limacher, Steven Vandenbrande, Taewon Kim, Paul W.
+    Ayers,
+    HORTON 2.0.0, http://theochem.github.com/horton/,
     **2015**
 
 HORTON is distributed under the conditions of the GPL License version 3. See

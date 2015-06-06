@@ -32,10 +32,14 @@ Modeling <http://molmod.ugent.be/>`_ have contributed patches to the public
 version of Horton:
 
 * Ali Malek
-* Cristina González
-* Farnaz H. Zadeh
+* Cristina E. González-Espinoza
+* Derrick Yang
+* Diego Berrocal
+* Farnaz Heidar-Zadeh
 * Katharina Boguslawski
 * Matthew Chan
+* Paul W. Ayers
 * Pawel Tecmer
 * Peter A. Limacher
 * Steven Vandenbrande
+* Taewon Kim
