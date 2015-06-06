@@ -116,7 +116,8 @@ legitimate reasons to ignore this test, use the ``--no-verify`` option when
 comitting.
 
 Furthermore, it is useful to include the current branch in your shell prompt. To
-do so, put one of the following in your ``~/.bashrc`` file:
+do so, put one of the following in your ``~/.bashrc`` (Linux) or
+``~/.bash_profile`` (Max OS/X) file:
 
 * For terminals with a dark background:
 
@@ -133,7 +134,9 @@ do so, put one of the following in your ``~/.bashrc`` file:
       export PS1="\[\033[2;32m\]\u@\h\[\033[00m\]:\[\033[2;34m\]\w\[\033[3;31m\]${GIT_PS}\[\033[00m\]$ "
 
 You can customize it to your taste. You may also want to add a line ``export
-PROMPT_DIRTRIM=3`` to keep the shell prompt short.
+PROMPT_DIRTRIM=3`` to keep the shell prompt short. If you are a happy ``vim``
+user, you can set ``export EDITOR=vim`` to get syntax highlighting when writing
+commit messages.
 
 
 Some terminology
