@@ -59,7 +59,7 @@ Main Features
 
     * User-provided Hamiltonians
 
-* Hatree-Fock and DFT methods:
+* Hartree-Fock and DFT methods:
 
     * Restricted and unrestricted orbitals
 
@@ -67,7 +67,8 @@ Main Features
 
     * Various SCF algorithms
 
-* AP1roG
+* Geminals-based methods. Specifically, Antisymmetry Product of 1
+  reference-orbital Geminals (AP1roG)
 
 * Perturbation theory
 
