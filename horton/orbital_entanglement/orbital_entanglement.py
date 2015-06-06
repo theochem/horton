@@ -93,7 +93,7 @@ class OrbitalEntanglement(object):
     def __call__(self):
         """dumps single-orbital entropy and orbital-pair mututal information
 
-        see :py:meth:`horton.orbitalentanglement.orbital_entanglement.OrbitalEntanglement.dump_output` for more info
+        see :py:meth:`horton.orbital_entanglement.orbital_entanglement.OrbitalEntanglement.dump_output` for more info
         """
 
         if log.do_medium:

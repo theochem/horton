@@ -47,8 +47,8 @@ autogendoc:
 
 clean:
 	-rm -rf $(BUILDDIR)/*
-	rm -f lib/horton*.rst
-	rm -f grids.rst.inc
+	rm -f lib/*.rst
+	rm -f *.rst.inc
 	rm -f ref_literature.rst
 	rm -f ref_functionals.rst
 	rm -rf doxyxml

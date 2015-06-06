@@ -22,7 +22,7 @@
 Orbital entanglement analysis
 #############################
 
-.. _orbitalentanglement:
+.. _orbital_entanglement:
 
 Orbital entanglement and orbital correlation
 ============================================
@@ -83,14 +83,14 @@ orbitals, ``DenseLinalgFactory`` and ``CholeskyLinalgFactory``. The current
 version of Horton offers
 
 1. :ref:`Calculation of single-orbital entropy and orbital-pair mutual
-information for a seniority-zero wavefunction <orbitalentanglementseniorityzero>`
+information for a seniority-zero wavefunction <orbital_entanglementseniorityzero>`
 
 Supported wavefunction models are
 
 1. :ref:`AP1roG <introap1rog>` (seniority-zero wavefunction)
 
 
-.. _orbitalentanglementseniorityzero:
+.. _orbital_entanglementseniorityzero:
 
 Orbital entanglement and correlation for a seniority zero wavefunction
 ======================================================================
@@ -107,9 +107,9 @@ from which the eigenvalues are needed to calculate the single-orbital and
 two-orbital entropy.
 
 Given the one- and two-particle RDMs, an instance of the
-:py:class:`horton.orbitalentanglement.orbital_entanglement.OrbitalEntanglement`
+:py:class:`horton.orbital_entanglement.orbital_entanglement.orbital_entanglement`
 can be created. A function call of this instance,
-:py:meth:`horton.orbitalentanglement.orbital_entanglement.OrbitalEntanglement.__call__`,
+:py:meth:`horton.orbital_entanglement.orbital_entanglement.orbital_entanglement.__call__`,
 calculates the entanglement and correlation measures.
 
 
@@ -154,6 +154,6 @@ Horton. This script performs an orbital-optimized AP1roG calculation, followed
 by an orbital entanglement analysis of the AP1roG wavefunction for the water
 molecule using the cc-pVDZ basis set.
 
-.. literalinclude :: ../data/examples/orbitalentanglement/water.py
-    :caption: data/examples/orbitalentanglement/water.py
+.. literalinclude :: ../data/examples/orbital_entanglement/water.py
+    :caption: data/examples/orbital_entanglement/water.py
     :lines: 2-
