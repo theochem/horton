@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Horton is a development platform for electronic structure methods.
-# Copyright (C) 2011-2015 The Horton Development Team
+# HORTON: Helpful Open-source Research TOol for N-fermion systems.
+# Copyright (C) 2011-2015 The HORTON Development Team
 #
-# This file is part of Horton.
+# This file is part of HORTON.
 #
-# Horton is free software; you can redistribute it and/or
+# HORTON is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 3
 # of the License, or (at your option) any later version.
 #
-# Horton is distributed in the hope that it will be useful,
+# HORTON is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
@@ -22,7 +22,9 @@
 
 
 from glob import glob
+from fnmatch import fnmatch
 import os
+
 
 def strip_header(lines, closing):
     # search for the header closing line, i.e. '#--\n'
@@ -40,11 +42,15 @@ def strip_header(lines, closing):
     lines.insert(0, closing)
 
 
-def fix_python(lines, header_lines):
+def fix_python(fn, lines, header_lines):
     # check if a shebang is present
     do_shebang = lines[0].startswith('#!')
     # remove the current header
     strip_header(lines, '#--\n')
+    # add a pylint line for test files:
+    if os.path.basename(fn).startswith('test_'):
+        if not lines[1].startswith('#pylint: skip-file'):
+            lines.insert(1, '#pylint: skip-file\n')
     # add new header (insert must be in reverse order)
     for hline in header_lines[::-1]:
         lines.insert(0, ('# '+hline).strip() + '\n')
@@ -54,7 +60,7 @@ def fix_python(lines, header_lines):
         lines.insert(0, '#!/usr/bin/env python\n')
 
 
-def fix_c(lines, header_lines):
+def fix_c(fn, lines, header_lines):
     # check for an exception line
     for line in lines:
         if 'no_update_headers' in line:
@@ -66,7 +72,7 @@ def fix_c(lines, header_lines):
         lines.insert(0, ('// '+hline).strip() + '\n')
 
 
-def fix_rst(lines, header_lines):
+def fix_rst(fn, lines, header_lines):
     # check for an exception line
     for line in lines:
         if 'no_update_headers' in line:
@@ -89,16 +95,18 @@ def iter_subdirs(root):
 
 
 def main():
-    source_dirs = ['.', 'doc'] + list(iter_subdirs('horton'))
+    source_dirs = ['.', 'doc', 'data/grids', 'scripts', 'tools'] + \
+        list(iter_subdirs('horton'))
 
     fixers = [
-        ('.py', fix_python),
-        ('.pxd', fix_python),
-        ('.pyx', fix_python),
-        ('.c', fix_c),
-        ('.cpp', fix_c),
-        ('.h', fix_c),
-        ('.rst', fix_rst),
+        ('*.py', fix_python),
+        ('*.pxd', fix_python),
+        ('*.pyx', fix_python),
+        ('*.txt', fix_python),
+        ('*.c', fix_c),
+        ('*.cpp', fix_c),
+        ('*.h', fix_c),
+        ('*.rst', fix_rst),
     ]
 
     f = open('HEADER')
@@ -110,16 +118,14 @@ def main():
         for fn in glob(sdir + '/*.*'):
             if not os.path.isfile(fn):
                 continue
-            for ext, fixer in fixers:
-                if fn.endswith(ext):
+            for pattern, fixer in fixers:
+                if fnmatch(fn, pattern):
                     print 'Fixing  ', fn
-                    f = file(fn)
-                    lines = f.readlines()
-                    f.close()
-                    fixer(lines, header_lines)
-                    f = file(fn, 'w')
-                    f.writelines(lines)
-                    f.close()
+                    with open(fn) as f:
+                        lines = f.readlines()
+                    fixer(fn, lines, header_lines)
+                    with open(fn, 'w') as f:
+                        f.writelines(lines)
                     break
 
 
