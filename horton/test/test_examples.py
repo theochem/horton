@@ -116,7 +116,7 @@ def test_example_pt_water_ptb():
 
 
 def test_example_oe_water():
-    required = [context.get_fn('examples/orbitalentanglement/water.py')]
+    required = [context.get_fn('examples/orbital_entanglement/water.py')]
     expected = ['i12.dat', 'checkpoint.h5', 's1.dat']
     check_script_in_tmp('./water.py', required, expected)
 

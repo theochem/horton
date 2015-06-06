@@ -20,4 +20,4 @@
 #--
 '''Methods for measuring orbital entanglement'''
 
-from horton.orbitalentanglement.orbital_entanglement import *
+from horton.orbital_entanglement.orbital_entanglement import *

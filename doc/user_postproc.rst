@@ -29,4 +29,4 @@ Post processing
    user_espfit
    user_conversion
    user_localization
-   user_orbitalentanglement
+   user_orbital_entanglement

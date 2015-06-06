@@ -322,7 +322,7 @@ setup(
               'horton.localization', #'horton.localization.test',
               'horton.matrix', 'horton.matrix.test',
               'horton.meanfield', 'horton.meanfield.test',
-              'horton.orbitalentanglement', #'horton.orbitalentanglement.test',
+              'horton.orbital_entanglement', #'horton.orbital_entanglement.test',
               'horton.part', 'horton.part.test',
               'horton.scripts', 'horton.scripts.test',
               'horton.modelhamiltonians',
