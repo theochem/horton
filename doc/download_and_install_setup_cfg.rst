@@ -32,33 +32,33 @@ these extension are linked against LibXC, LibInt2, BLAS library or a combination
 of these. The ``setup.py`` script attempts to detect all of the compiler and
 linker settings for these libraries automatically.
 
-For each library, following attempts are made (in the given order) to detect
-the compiler and linker flags. If an attempt gives a set of satisfactory flags,
-further steps are not considered for that library.
+For **each** library, following attempts are made (in the given order) to detect
+the compiler and linker flags. If the attempt succeeds, i.e. gives a set of
+satisfactory flags, further steps are not considered for that library.\
 
-1. If a file ``setup.cfg`` is present in the root of the source tree, and it
-   contains compile and link options for a given library, as documented in
-   :ref:`cfgfile`, the automatic configuration for that library is skipped. One
-   can override the settings in ``setup.cfg`` with equivalent environment variables.
+1. Read in environment variables for compilation and link options for that library.
 
-2. For LibXC and LibInt2, ``setup.py`` will try to use the static link libraries
-   in the ``depends`` directory.
+2. Read ``setup.cfg`` in the root of the source tree for compilation and link
+   options for that library, as documented in :ref:`cfgfile`.
 
-3. The program ``pkg-config`` tries to get all of the compiler and linker flags
+3. Statically link libraries in the ``depends`` directory (for LibXC and LibInt2).
+
+4. Use program ``pkg-config`` to get all of the compiler and linker flags
    for each library. See http://www.freedesktop.org/wiki/Software/pkg-config/ for
    more details.
 
-4. If you have a ``setup.*.cfg`` file in the directory ``data/setup_cfgs`` that
-   corresponds to your operating system and CPU architecture, then it is used.
+5. Read ``setup.*.cfg`` file in the directory ``data/setup_cfgs`` that
+   corresponds to your operating system and CPU architecture for compilation and
+   link options for that library.
 
-5. A default library name is used for dynamic linking: ``xc``, ``int2`` and
+6. Dynamically link libraries using default library names: ``xc``, ``int2`` and
    ``atlas``, for LibXC, LibInt2 and BLAS, respectively.
 
 However, if these steps do not result in decent compiler/linker options for some
 library or the dependencies are not installed, then the compilation will fail
 and you will get a compiler error message.
 
-The following sections explain how one can override the default guesses of the
+The following sections explain how you can override the default guesses of the
 ``setup.py`` script.
 
 .. _cfgfile:
@@ -82,7 +82,7 @@ Fedora:
 .. literalinclude:: ../data/setup_cfgs/setup.Linux-Fedora-MKL.cfg
     :caption: data/setup_cfgs/setup.Linux-Fedora-MKL.cfg
 
-In each section one can define the following variables: ``include_dirs``,
+In each section you can define the following variables: ``include_dirs``,
 ``library_dirs``, ``libraries``, ``extra_objects``, ``extra_compile_args`` and
 ``extra_link_args``. They correspond to the optional arguments of the
 ``Extension`` class of the Distutils package, as described here:
@@ -114,7 +114,7 @@ The purpose of each keyword is summarized below:
 
 Multiple paths or names for one keyword are separated by a colon (``:``).
 
-Instead of setting the library configuration in the file ``setup.cfg``, one may
+Instead of setting the library configuration in the file ``setup.cfg``, you may
 also set the following environment variables:
 
 * ``LIBXC_LIBRARY_DIRS``
@@ -140,7 +140,7 @@ Other ways of controlling compilation and linker flags
 Instead of the library-specific variables above, there are also general methods
 to configure the compiler and linker.
 
-One may specify a colon-separated list of non-standard directories with
+You may specify a colon-separated list of non-standard directories with
 include files in the ``CPATH`` environment variable. For example::
 
     export CPATH=/usr/include/libint2
