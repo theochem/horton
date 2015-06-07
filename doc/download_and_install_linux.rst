@@ -123,7 +123,7 @@ will download and build LibXC, which will work on most systems:
 
     (cd depends; make libxc)
 
-This results in a libxc library suitable for static linking. If this fails,
+This results in a ``libxc`` library suitable for static linking. If this fails,
 consult your local Linux guru to build LibXC. For more info about LibXC, check
 the website: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 
