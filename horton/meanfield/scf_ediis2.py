@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''EDIIS+DIIS Self-Consistent Field algorithm'''
+'''EDIIS+DIIS SCF algorithm'''
 
 
 import numpy as np

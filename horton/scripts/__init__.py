@@ -18,4 +18,4 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Code used (solely) by the HORTON command line scripts'''
+'''Code (solely) used by HORTON's command line scripts'''

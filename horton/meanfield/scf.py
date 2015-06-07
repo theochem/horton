@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Basic Self-Consistent Field algorithm'''
+'''Basic Self-Consistent Field (SCF) algorithm'''
 
 
 from horton.log import log, timer

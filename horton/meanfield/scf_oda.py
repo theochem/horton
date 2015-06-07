@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Optimal Damping Self-Consistent Field algorithm'''
+'''Optimal Damping SCF algorithm'''
 
 
 import numpy as np

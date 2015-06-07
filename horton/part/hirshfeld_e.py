@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Extended Hirshfeld Partitioning'''
+'''Extended Hirshfeld (HE) partitioning'''
 
 
 import numpy as np

@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''One-, Two-, three- and four-dimensional matrix implementations
+'''One-, two-, three- and four-dimensional matrix implementations
 
    The purpose of this package is to provide a generic API for different
    implementations of real-valued double precision matrix storage and

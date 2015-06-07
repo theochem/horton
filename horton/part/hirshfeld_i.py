@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Iterative Hirshfeld Partitioning'''
+'''Iterative Hirshfeld (HI) partitioning'''
 
 
 import numpy as np

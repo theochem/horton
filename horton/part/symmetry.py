@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Symmetry analysis of AIM results'''
+'''Symmetry analysis of atoms-in-molecules results'''
 
 
 import numpy as np

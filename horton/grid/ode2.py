@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Finite element second order ODE solver'''
+'''Finite-element second-order ODE solver'''
 
 
 from scipy.sparse.linalg import spsolve

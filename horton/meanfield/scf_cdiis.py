@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Commutator DIIS Self-Consistent Field algorithm'''
+'''Commutator DIIS SCF algorithm'''
 
 
 import numpy as np
