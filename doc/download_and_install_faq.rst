@@ -32,7 +32,7 @@ You try to install HORTON, i.e.
 
     ./setup.py install --user
 
-but something goes wrong. Remember, you have installed all your dependencies
+or you run nosetests, but something goes wrong. Remember, you have installed all your dependencies
 correctly, so the problems you are facing has to do with finding and using those
 dependencies. Chances are, you have installed the dependencies using different
 methods, e.g. yum, apt-get, macports, homebrew, pip, and compilation from source. You
