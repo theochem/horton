@@ -48,7 +48,7 @@ What HORTON is (or hopes to be):
   tradeoffs are essential.
 
 * HORTON is, and always will be, *open source*, distributed under the :ref:`GNU
-  General Public License <license information>`. Its developers welcome new
+  General Public License <license_information>`. Its developers welcome new
   contributors.
 
 * HORTON is a *research tool* for its contributors and users. Its functionality
