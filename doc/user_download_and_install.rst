@@ -28,3 +28,4 @@ Download and installation
    user_download_and_install_linux
    user_download_and_install_mac
    user_download_and_install_setup_cfg
+   download_and_install_faq
