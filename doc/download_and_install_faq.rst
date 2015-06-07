@@ -148,11 +148,6 @@ For example, Mac users that uses python scripts might do
 .. code-block:: bash
 
     export PATH=${HOME}/Library/Python/2.7/bin:$PATH
-
-or
-
-.. code-block:: bash
-
     export PATH=/Library/Python/2.7/bin:$PATH
 
 Similarly, Linux users may do
@@ -160,11 +155,6 @@ Similarly, Linux users may do
 .. code-block:: bash
 
     export PATH=${HOME}/.local/bin:$PATH
-
-or
-
-.. code-block:: bash
-
     export PATH=/bin:$PATH
 
 Using linux function ``find`` may help you find the appropriate directory.
@@ -187,7 +177,7 @@ the unix command ``ldconfig``:
 
 ``ldconfig -p`` prints all cached libraries, and piping to ``grep`` searches through
 the results for the library with the ``libraryname``. Perhaps ``find`` would give
-a more thorough search, especially if your library has been cached yet. Here is
+a more thorough search, especially if your library has not been cached yet. Here is
 an example, where we tried to find atlas libraries in a cluster:
 
 .. code-block:: bash
@@ -237,16 +227,17 @@ correspond with that instruction set, i.e. ``/usr/include/atlas-x86_64-base``.
 
 In the above list of libraries associated with atlas, we have ``ptf77blas``,
 ``ptcblas``, ``lapack``, ``f77blas``, ``clapack``, ``cblas``, and ``atlas``.
-Though we can include all these libraries, HORTON only uses ``atlas``, ``cblas``,
-``f77blas``, and ``lapack``. Therefore, the resulting ``setup.cfg`` file included
+Though we can include all these libraries, HORTON only uses ``atlas`` and
+``cblas``. Therefore, the resulting ``setup.cfg`` file includes
 
 .. code-block:: bash
 
   [blas]
   library_dirs=/usr/lib64/atlas
-  libraries=atlas:lapack:f77blas:cblas
+  libraries=atlas:cblas
   include_dirs=/usr/include/atlas-x86_64-base
 
 
 Similarly, we can repeat the process for the LibXC and Libint2, where the libraries
-that are needed are only ``libxc`` and ``libint``, respectively.
+that are needed are only ``libxc`` and ``libint``, respectively. See :ref:`setup_cfg`
+for more details.
