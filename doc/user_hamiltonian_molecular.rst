@@ -184,7 +184,7 @@ For example:
 
 .. _user_molecularham_matrix_elements:
 
-Computing (Hamiltonian) Matrix elements
+Computing (Hamiltonian) matrix elements
 =======================================
 
 Given a ``GOBasis`` instance (the ``obasis`` object from the

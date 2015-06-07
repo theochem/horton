@@ -84,7 +84,7 @@ Generating an initial guess of the wavefunction
 
 .. _user_hf_dft_core_guess:
 
-Core Hamiltonian Guess
+Core Hamiltonian guess
 ----------------------
 
 This guess involves only the one-body terms of the electronic Hamiltonian and

@@ -78,8 +78,8 @@ functions. Both types will be defined below, together with some conventions
 that are needed for the implementation in HORTON.
 
 
-Cartesian
----------
+Cartesian basis functions
+-------------------------
 
 
 When the polynomial consists of a single term as follows:
@@ -118,8 +118,8 @@ G      4                15 :math:`xxxx`, :math:`xxxy`, :math:`xxxz`, :math:`xxyy
 ====== ================ == ===========
 
 
-Pure or Harmonic
-----------------
+Pure or harmonic basis functions
+--------------------------------
 
 When the polynomial is a real regular solid harmonic, one speaks of `pure
 Gaussian basis functions`:
@@ -188,8 +188,8 @@ G      4                9  :math:`C_{40}`, :math:`C_{41}`, :math:`S_{41}`, :math
 ====== ================ == ===========
 
 
-Transformation from Cartesian to pure
--------------------------------------
+Transformation from Cartesian to pure basis functions
+-----------------------------------------------------
 
 Let us now derive convenient expressions for these real solid harmonics in terms
 of Cartesian coordinates. The function :math:`P_\ell^m` is the

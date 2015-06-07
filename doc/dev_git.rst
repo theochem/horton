@@ -421,7 +421,7 @@ mailing list <https://groups.google.com/d/forum/horton-discuss>`_) to transfer
 these new patches to the public master branch of HORTON.
 
 
-Common Issues
+Common issues
 =============
 
 * Make sure you set the ``pre-commit`` hook. If this causes error messages when

@@ -19,7 +19,7 @@
     :
     : --
 
-Download and Installation on Linux (Fedora and Ubuntu)
+Download and installation on Linux (Fedora and Ubuntu)
 ######################################################
 
 
@@ -210,8 +210,8 @@ The manual configuration of the compiler and linker settings is described here:
 has failed or if you would like to specify which libraries to use.
 
 
-Runtime Configuration
----------------------
+Runtime configurations
+----------------------
 
 You need to set the following variable in ``~/.bashrc`` to use HORTON:
 
