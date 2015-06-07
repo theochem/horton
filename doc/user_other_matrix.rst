@@ -19,49 +19,50 @@
     :
     : --
 
-How to use the matrix package?
-##############################
+How to use Horton's Matrix package?
+###################################
 
 Introduction
 ============
 
 In HORTON, we use our own Matrix package (abstraction layer) to implement the
-linear algebra code (low-level) into the quantum chemistry code (high-level). There
-are two main reasons for such implementation:
+linear algebra code (low-level code) into the quantum chemistry code (high-level code). There
+are two main reasons for such an architecture:
 
 1. We can develop new linear algebra operations without breaking the higher-level
    code. For example, if we implemented Cholesky decomposition for the transformation
    of 2-electron integrals, we should be able to use this method in the Geminals
-   code without rewriting the Geminals code.
+   code without rewriting this code.
 2. Numpy, the conventional linear algbebra package in Python, may not manage
-   memory effectively for large structures, such as the 2-electron
+   memory effectively for large objects, such as the 2-electron
    integrals. For example, Numpy allocates temporary memory when evaluating ``a += b``, which
-   is costly when  ``a`` or ``b`` is very large. We developed a Matrix package
-   (using the Numpy package) geared towards memory management of quantum
-   chemistry calculations, and we use that package (Matrix package) instead of Numpy
-   directly.
+   is costly when  ``a`` or ``b`` is very large. By developing a Matrix package
+   (using the Numpy package), we gear towards memory management of quantum
+   chemistry calculations. So, the Matrix package is used instead of Numpy package directly.
 
-Although such an abstraction layer seems pedantic and ostentatious, and requires
+Although such an abstraction layer seems pedantic and ostentatious, requiring
 a tedious implementation of all new operations into the Matrix package, the
 small penalty in performance and the ease of implementing different concepts
 into the low-level areas of HORTON make it well worth the effort.
 
-Below conceptualizes the organization of HORTON:
+The image below represents this architecture schematically (the gray bullet points are future
+implementations).
 
 .. image:: matrix_concept.png
 
-How to use this abstraction layer
-=================================
+Using Matrix package
+====================
 
-The Matrix package is organized (in ``horton/matrix``) as follows:
+The Matrix package, ``horton/matrix``, is organized as follows:
 
 The package consists of `backend` modules, each with their own implementation of
-the data storage and manipulation. So far, there are two such modules, a dense
+the data storage and data manipulation. So far, there are two such modules: a dense
 Numpy storage and Cholesky decomposition of the Numpy storage. Because these
-modules treat data in fundamentally different ways, each method used by the
-higher-level module (listed in the ``base.py``) must be implemented.
+modules treat data fundamentally different, the corresponding methods for manipulating
+the data, as listed in ``base.py``, should be implemented separately. These methods are used by
+the high-level modules.
 
-Then, the code for each module is organized by the type of data that is
+The code for each module is structured by the type of data that is
 manipulated within a class. So far, classes for 1-index tensor, 2-index tensor,
 3-index tensor, 4-index tensor, and wavefunction expansion have been
 implemented.
@@ -72,62 +73,58 @@ for these objects, and then, the operations performed on these objects will modi
 their own attributes directly. Most of the operations are in-place, i.e.
 modifying their own data based on input and not returning any output.
 
-For example, to create and modify a dense two-index tensor, we first create a
-LinalgFactory instance and call it ``lf``:
+For example, to create and modify a dense 2-index tensor, we first create a
+:class:`.LinalgFactory` instance and call it ``lf``:
 
 .. code-block:: python
 
     lf = DenseLinalgFactory()
 
-We use ``lf`` to allocate a two index tensor object:
+Then, we use ``lf`` to allocate a 2-index tensor object:
 
 .. code-block:: python
 
-    A = lf.create_two_index() #matrix
+    A = lf.create_two_index()      # 2-index tensor
 
-We can also pass ``lf`` as an argument to other parts of the code, which
-uses it to allocate an object.
+Now, we can modify the 2-index tensor object by some in-place operations:
+
+.. code-block:: python
+
+    A.iadd(B)         # A = A + B
+    A.idot(B)         # A = A * B
+
+    # A = B + C is not a possible in-place operation, but doable in two steps:
+    A.iadd(B)         # A = A + B
+    A.iadd(C)         # A = A + C
+
+Note that more complex operations, such as ``A = B + C``, can be broken up into
+a series of in-place operations, that deal with the explicitly allocated memory.
+
+We can also allocate other implemented objects using ``lf``:
+
+.. code-block:: python
+
+    A4 = lf.create_four_index()    # 4-index tensor
+    wfn = lf.create_expansion()    # wavefunction expansion
+
+Furthermore, we can pass ``lf`` as an argument to other parts of the code, which
+uses it to allocate an object, like,
 
 .. code-block:: python
 
     er = obasis.compute_electron_repulsion(lf)
 
-We can modify the two-tensor object by some in-place operations:
-
-.. code-block:: python
-
-    #A = A + B
-    A.iadd(B)
-
-    #A = A * B
-    A.idot(B)
-
-    #A = B + C (NOT POSSIBLE)
-    #A = A + B
-    A.iadd(B)
-    #A = A + C
-    A.iadd(C)
-
-Note that more complex operations, such as (`A = B + C`), can be broken up into
-a series of in-place operations, that deal with explicitly allocated memory.
-
 We can appreciate the simplicity of implementing different modules by playing
-with the different `backend` modules available. For example, we could have used
+with the different `backend` modules available. For example, instead of the ``DenseLinalgFactory``,
+we could have used,
 
 .. code-block:: python
 
     lf = CholeskyLinalgFactory()
 
-in place of the ``DenseLinalgFactory`` above. Making this change will not change
-any of the preceeding code, provided that the same objects are implemented into
+Making this change will not change
+any of the preceeding code, provided that the same methods and attributes are implemented in
 this module as well.
-
-We can also allocate different objects, if implemented, using ``lf``:
-
-.. code-block:: python
-
-    A4 = lf.create_four_index() #4_rank_tensor
-    wfn = lf.create_expansion() #wavefunction expansion
 
 Many functions and classes have been implemented into the Matrix class. It may
 help to read over some of the documented module files in
