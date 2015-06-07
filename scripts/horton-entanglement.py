@@ -160,10 +160,13 @@ def parse_args():
         version="%%(prog)s (HORTON version %s)" % __version__)
 
     parser.add_argument('threshold', type=float,
-        help='FIXME')
-    parser.add_argument('orbital', default=None, type=int, nargs='?',
-        help='The orbital to be used for the plot. If not provided, all '
-             'orbitals are considered.')
+        help='Orbitals with a mutual information below this threshold will not '
+             'be connected by a line.')
+    parser.add_argument('init_index', default=1, type=int, nargs='?',
+        help='The first orbital to be used for the plot. [default=%(default)s]')
+    parser.add_argument('final_index', default=None, type=int, nargs='?',
+        help='The last orbital to be used for the plot (inclusive). '
+             '[default=last orbital]')
 
     return parser.parse_args()
 
@@ -171,12 +174,8 @@ def parse_args():
 def main():
     args = parse_args()
 
-    if args.orbital is None:
-        orbinit = 0
-        orbfinal = None
-    else:
-        orbinit = int(args.orbital-1)
-        orbfinal = int(args.orbital)
+    orbinit = args.init_index - 1
+    orbfinal = args.final_index
 
     # Read s1.dat and store data
     s1index, s1value = read_s1_data(orbinit, orbfinal)
