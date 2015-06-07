@@ -46,8 +46,8 @@ MacPorts 2.3.3 but should also work with newer versions.
     installation of Python is present.
 
 
-Quick tour through MacPorts
----------------------------
+Quick tour of MacPorts
+----------------------
 
 Here are some basic MacPort commands:
 
