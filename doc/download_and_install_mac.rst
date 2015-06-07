@@ -240,8 +240,8 @@ The manual configuration of the compiler and linker settings is described here:
 failed or if you would like to specify which libraries to use.
 
 
-Runtime configurations
-----------------------
+Runtime configuration
+---------------------
 
 You need to set some environment variables to use HORTON. Add the following to
 ``~/.bash_profile`` if it exists, otherwise add them to ``~/.profile``:

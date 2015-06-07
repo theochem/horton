@@ -19,7 +19,7 @@
     :
     : --
 
-Download and Installation
+Download and installation
 #########################
 
 .. toctree::

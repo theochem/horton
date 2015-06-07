@@ -19,8 +19,8 @@
     :
     : --
 
-Developing Guidelines
-#####################
+Developer documentation
+#######################
 
 
 .. toctree::
