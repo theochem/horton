@@ -34,21 +34,14 @@ developing and exploring new methods, for interpreting the results of electronic
 structure calculations, and for interacting with other computational modeling
 software. More details are provided in the :ref:`overview`.
 
-In anticipation of the first announcement of HORTON in a scientific journal,
-please refer to HORTON as follows:
+.. toctree::
+   :maxdepth: 1
+   :numbered:
 
-    Toon Verstraelen, Ali Malek, Cristina E. González-Espinoza, Derrick Yang,
-    Diego Berrocal, Farnaz Heidar-Zadeh, Katharina Boguslawski, Matthew Chan,
-    Pawel Tecmer, Peter A. Limacher, Steven Vandenbrande, Taewon Kim, Paul W.
-    Ayers,
-    HORTON 2.0.0, http://theochem.github.com/horton/,
-    **2015**
-
-HORTON is distributed under the conditions of the GPL License version 3. See
-:ref:`license_information` for more details.
-
-If you have questions, please post them on `the HORTON mailing list
-<https://groups.google.com/forum/#!forum/horton-discuss>`_.
+   overview
+   cite_horton
+   license_information
+   contact_information
 
 
 .. toctree::
