@@ -66,11 +66,11 @@ What HORTON is (or hopes to be):
   specialized functionality to other programs and (2) easy to use as a scripting
   language for processing results from other Schrödinger solvers (which may have
   alternative capabilities or better computational performance). To encourage
-  others to use Horton within their programs, we guarantee no major `API
+  others to use HORTON within their programs, we guarantee no major `API
   <http://en.wikipedia.org/wiki/Application_programming_interface>`_ changes for
-  at least twelve months after each major release. Ensuring that Horton can be
+  at least twelve months after each major release. Ensuring that HORTON can be
   used in all three ways (inside a larger program; as a stand-alone program;
-  outside other programs) is a fundamental design principle of Horton.
+  outside other programs) is a fundamental design principle of HORTON.
 
 
 Main Features

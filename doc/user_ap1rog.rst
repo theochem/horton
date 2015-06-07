@@ -124,7 +124,7 @@ To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an ini
 
       The function ``load_fcidump`` has three return values; the one-electron integrals (``one``) stored as a ``TwoIndex`` object, the two-electron integrals (``two``) stored as a ``FourIndex`` object, and the core energy (``coreenergy``, float).
 
-- A set of initial guess orbitals can be either generated in HORTON (including the AO overlap matrix) or read from disk (see :ref:`restart-ap1rog` to use orbitals generated in Horton as initial guess). Examples for initial guess orbitals are:
+- A set of initial guess orbitals can be either generated in HORTON (including the AO overlap matrix) or read from disk (see :ref:`restart-ap1rog` to use orbitals generated in HORTON as initial guess). Examples for initial guess orbitals are:
 
     1. Restricted canonical Hartree-Fock orbitals (see :ref:`user_hf_dft`)
 

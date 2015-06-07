@@ -28,7 +28,7 @@ HORTON supports two formats for Hamiltonians: (i) an internal binary format base
 on HDF5 (extension ``.h5``) and (ii) Molpro's FCIDUMP text format (containing ``FCIDUMP``
 somewhere in the file name). The internal format is more flexible and can store
 Hamiltonians in various ways. The FCIDUMP format is more restricted
-but can be used to interface HORTON with different codes, e.g. Molpro. Horton can
+but can be used to interface HORTON with different codes, e.g. Molpro. HORTON can
 also load integrals from a Gaussian log file but this is **absolutely not**
 recommended for any serious calculation.
 

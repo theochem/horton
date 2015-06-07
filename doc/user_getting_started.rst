@@ -56,7 +56,7 @@ start with the following lines:
 
 This header is then followed by some Python code that does the actual computation
 of interest. In such a script, you basically write the `main` program of the
-calculation of interest, using the components that HORTON offers. The Horton library
+calculation of interest, using the components that HORTON offers. The HORTON library
 is designed such that all features are as modular as possible, allowing you to
 combine them in various ways.
 
