@@ -52,7 +52,7 @@ that installed modules through PIP may need to include their user site-packages:
 
 .. code-block:: bash
 
-    export PYTHONPATH=/Users/username/Library/Python/2.7/lib/python/site-packages:$PYTHONPATH
+    export PYTHONPATH=${HOME}/Library/Python/2.7/lib/python/site-packages:$PYTHONPATH
 
 or their system site-packages:
 
@@ -64,7 +64,7 @@ Similarly, Linux users that installed modules through PIP may need to include
 
 .. code-block:: bash
 
-    export PYTHONPATH=userbase/.local/lib/python2.7/site-packages
+    export PYTHONPATH=${HOME}/.local/lib/python2.7/site-packages
 
 or
 
@@ -88,18 +88,17 @@ modules). As shown above, the python modules are commonly installed in
 
 .. code-block:: bash
 
-   `userbase`/Library/Python/2.7/site-packages
-   `root`/Library/Python/2.7/site-packages
+   ${HOME}/Library/Python/2.7/site-packages
+   /Library/Python/2.7/site-packages
 
 for Mac users, and
 
 .. code-block:: bash
 
-   `userbase`/.local/lib/python2.7/site-packages
-   `root`/lib/python2.7/site-packages
+   ${HOME}/.local/lib/python2.7/site-packages
+   /lib/python2.7/site-packages
 
-for Linux users, where `userbase` is the directory of the user, and `root` is the root
-directory.
+for Linux users.
 
 
 Excecutables
@@ -112,7 +111,7 @@ environment variable. For example, Mac users that uses python scripts might do
 
 .. code-block:: bash
 
-    export PATH=/Users/username/Library/Python/2.7/bin:$PATH
+    export PATH=${HOME}/Library/Python/2.7/bin:$PATH
 
 or
 
@@ -124,7 +123,7 @@ Similarly, Linux users may do
 
 .. code-block:: bash
 
-    export PATH=~/.local/bin:$PATH
+    export PATH=${HOME}/.local/bin:$PATH
 
 or
 
