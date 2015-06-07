@@ -33,7 +33,7 @@ systems, written primarily in the `Python programming language <https://www.pyth
 <http://en.wikipedia.org/wiki/Horton_the_Elephant>`_, not the `Canadian caffeine
 supply store <http://www.timhortons.com/>`_.) The ultimate goal of HORTON is to
 provide a platform for testing new ideas on the quantum many-body
-problems at a reasonable computational cost. Although HORTON is primarily designed
+problem at a reasonable computational cost. Although HORTON is primarily designed
 to be a `quantum-chemistry program
 <http://en.wikipedia.org/wiki/List_of_quantum_chemistry_and_solid-state_physics_software>`_,
 it can perform computations involving model Hamiltonians, and could be extended for computations in nuclear physics.
@@ -48,10 +48,10 @@ What HORTON is (or is hoped to be):
   tradeoffs are essential.
 
 * HORTON is, and always will be, *open source*, distributed under the :ref:`GNU
-  General Public License <license_information>`. HORTON's developing team always welcome new
-  contributors.
+  General Public License <license_information>`. The HORTON development team always welcomes new
+  contributions.
 
-* HORTON is a *research tool* for both contributors and users. As a result, the available functionality
+* HORTON is a *research tool* for both its developers and users. As a result, the available functionality
   is naturally biased towards the interests of its developers. The current
   focus of HORTON is on low-cost *ab initio* electronic structure theory methods and
   post-processing tools for interpreting electronic structure calculations.
@@ -64,7 +64,7 @@ What HORTON is (or is hoped to be):
   either input files or Python scripts. Although more work remains to be done,
   we hope that HORTON is easy to use as (1) a procedure providing
   specialized functionality to other programs and (2) a scripting
-  language for processing results from other Schrödinger solver softwares (which may have
+  language for processing results from other Schrödinger solver software (which may have
   alternative capabilities or better computational performance). To faciliate
   the use of HORTON within other programs, we guarantee no major `API
   <http://en.wikipedia.org/wiki/Application_programming_interface>`_ changes for
@@ -85,7 +85,7 @@ Main Features
 
 * Supporting many :ref:`ref_file_formats` to exchange data with other codes.
 
-* Adapting modular structure to easily combine HORTON with custom developments.
+* Adapting a modular structure to easily combine HORTON with custom developments.
 
 **Electronic Structure Methods**
 
