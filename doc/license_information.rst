@@ -28,8 +28,8 @@ HORTON is distributed under the conditions of the `GPL License version 3
 <http://www.gnu.org/licenses/gpl-3.0.en.html>`_ (GPLv3). Amongst other things,
 this has the following practical implications:
 
-- You are free to use HORTON for any purpose but the (re)distribution of HORTON
-  or any derived program must be done under the same license conditions.
+- You are free to use HORTON for any purpose. However, HORTON, or any derived
+  program, can only be (re)distributed under the same license conditions.
 
 - Once you share a modified version of HORTON with someone, there is no legal
   way to stop your modified version from being distributed further. If you want
