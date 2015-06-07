@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-"""The 1- and 2-orbital entanglement measures implementation
+"""One- and two-orbital entanglement measures
 
    Abbreviations used in this module:
 

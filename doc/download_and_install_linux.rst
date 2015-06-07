@@ -210,8 +210,8 @@ The manual configuration of the compiler and linker settings is described here:
 has failed or if you would like to specify which libraries to use.
 
 
-Runtime configurations
-----------------------
+Runtime configuration
+---------------------
 
 You need to set the following variable in ``~/.bashrc`` to use HORTON:
 
