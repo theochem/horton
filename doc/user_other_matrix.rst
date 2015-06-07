@@ -19,7 +19,7 @@
     :
     : --
 
-How to use Horton's Matrix package?
+How to use HORTON's Matrix package?
 ###################################
 
 Introduction
@@ -50,15 +50,15 @@ implementations).
 
 .. image:: matrix_concept.png
 
-Using Matrix package
-====================
+Using the Matrix package
+========================
 
-The Matrix package, ``horton/matrix``, is organized as follows:
+The package ``horton.matrix`` is organized as follows:
 
 The package consists of `backend` modules, each with their own implementation of
 the data storage and data manipulation. So far, there are two such modules: a dense
 Numpy storage and Cholesky decomposition of the Numpy storage. Because these
-modules treat data fundamentally different, the corresponding methods for manipulating
+modules treat data fundamentally differently, the corresponding methods for manipulating
 the data, as listed in ``base.py``, should be implemented separately. These methods are used by
 the high-level modules.
 
@@ -74,7 +74,7 @@ their own attributes directly. Most of the operations are in-place, i.e.
 modifying their own data based on input and not returning any output.
 
 For example, to create and modify a dense 2-index tensor, we first create a
-:class:`.LinalgFactory` instance and call it ``lf``:
+:py:class:`~horton.matrix.dense.DenseLinalgFactory` instance and call it ``lf``:
 
 .. code-block:: python
 
@@ -107,26 +107,25 @@ We can also allocate other implemented objects using ``lf``:
     A4 = lf.create_four_index()    # 4-index tensor
     wfn = lf.create_expansion()    # wavefunction expansion
 
-Furthermore, we can pass ``lf`` as an argument to other parts of the code, which
-uses it to allocate an object, like,
+Furthermore, we can pass ``lf`` as an argument to other parts of the code, where
+it is used to allocate an object, like,
 
 .. code-block:: python
 
     er = obasis.compute_electron_repulsion(lf)
 
 We can appreciate the simplicity of implementing different modules by playing
-with the different `backend` modules available. For example, instead of the ``DenseLinalgFactory``,
-we could have used,
+with the different `backend` modules available. For example, instead of the
+``DenseLinalgFactory``, we could have used,
 
 .. code-block:: python
 
     lf = CholeskyLinalgFactory()
 
-Making this change will not change
-any of the preceeding code, provided that the same methods and attributes are implemented in
-this module as well.
+Making this change will not change any of the preceeding code, provided that the
+same methods and attributes are implemented in this module as well.
 
-Many functions and classes have been implemented into the Matrix class. It may
-help to read over some of the documented module files in
-:py:mod:`horton.matrix.dense` and :py:mod:`horton.matrix.cholesky`
-to see if a desired function has already been implemented.
+Many functions and classes have been implemented into the Matrix package. It
+may help to read over some of the documented module files in
+:py:mod:`horton.matrix.dense` and :py:mod:`horton.matrix.cholesky` to see if a
+desired function has already been implemented.
