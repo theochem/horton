@@ -43,4 +43,4 @@ for key, reference in items:
     print >> f
     print >> f, '.. [%s] %s' % (key, reference.format_rst())
 s = f.getvalue()
-write_if_changed('ref_literature.rst', s)
+write_if_changed('tech_ref_literature.rst', s)

@@ -32,16 +32,16 @@ enough to be helpful, without compromising code-readability and
 user-friendliness. Our hope is that users will find HORTON helpful for
 developing and exploring new methods, for interpreting the results of electronic
 structure calculations, and for interacting with other computational modeling
-software. More details are provided in the :ref:`overview`.
+software. More details are provided in the :ref:`intro_horton_overview`.
 
 .. toctree::
    :maxdepth: 1
    :numbered:
 
-   overview
-   cite_horton
-   license_information
-   contact_information
+   intro_horton_overview
+   intro_citing_horton
+   intro_license_information
+   intro_contact_information
 
 
 .. toctree::
@@ -49,12 +49,12 @@ software. More details are provided in the :ref:`overview`.
    :numbered:
    :caption: User documentation
 
-   download_and_install
+   user_download_and_install
    user_getting_started
    user_hamiltonian
    user_estruct
    user_postproc
-   user_other_topics
+   user_other
 
 
 .. toctree::
@@ -62,9 +62,9 @@ software. More details are provided in the :ref:`overview`.
    :numbered:
    :caption: Technical stuff
 
-   dev_howto_guides
-   dev_reference_docs
-   dev_api
+   tech_dev
+   tech_ref
+   tech_api
 
 
 Indices and tables

@@ -19,11 +19,12 @@
     :
     : --
 
-Other Topics
-############
+Download and installation
+#########################
 
 .. toctree::
    :maxdepth: 3
 
-   user_integration_grids
-   user_matrix
+   user_download_and_install_linux
+   user_download_and_install_mac
+   user_download_and_install_setup_cfg

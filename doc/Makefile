@@ -49,8 +49,8 @@ clean:
 	-rm -rf $(BUILDDIR)/*
 	rm -f lib/*.rst
 	rm -f *.rst.inc
-	rm -f ref_literature.rst
-	rm -f ref_functionals.rst
+	rm -f tech_ref_literature.rst
+	rm -f tech_ref_functionals.rst
 	rm -rf doxyxml
 
 html: autogendoc

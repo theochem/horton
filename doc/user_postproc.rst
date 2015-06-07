@@ -25,8 +25,7 @@ Post-processing
 .. toctree::
    :maxdepth: 3
 
-   user_part
-   user_espfit
-   user_conversion
-   user_localization
-   user_orbital_entanglement
+   user_postproc_aim
+   user_postproc_espfit
+   user_postproc_localization
+   user_postproc_orbital_entanglement

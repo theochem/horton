@@ -19,12 +19,17 @@
     :
     : --
 
-Download and installation
-#########################
+Developer documentation
+#######################
+
 
 .. toctree::
    :maxdepth: 3
 
-   download_and_install_linux
-   download_and_install_mac
-   download_and_install_setup_cfg
+   tech_dev_coding_guidelines
+   tech_dev_git
+   tech_dev_documentation
+   tech_dev_unit_tests
+   tech_dev_examples
+   tech_dev_citing_papers
+   tech_dev_cython
