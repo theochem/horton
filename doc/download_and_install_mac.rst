@@ -195,7 +195,7 @@ will download and build LibXC, which will work on most systems:
 
     (cd depends; make libxc)
 
-This results in a ``libxc`` library suitable for static linking. If this fails,
+This results in a LibXC library suitable for static linking. If this fails,
 consult your local Mac guru to build LibXC. For more info about LibXC, check
 the website: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 
@@ -208,7 +208,7 @@ will download and build LibInt2, which will work on most systems:
 
     (cd depends; make libint -j4)
 
-The compilation of ``libint`` takes a few minutes and results in a library for
+The compilation of LibInt2 takes a few minutes and results in a library for
 static linking. If this fails, consult your local Mac guru to build LibInt2.
 For more info about LibInt2, check the website:
 http://sourceforge.net/p/libint/home
