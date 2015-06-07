@@ -36,22 +36,21 @@ For **each** library, following attempts are made (in the given order) to detect
 the compiler and linker flags. If the attempt succeeds, i.e. gives a set of
 satisfactory flags, further steps are not considered for that library.\
 
-1. Read in environment variables for compilation and link options for that library.
+1. Read ``setup.cfg`` in the root of the source tree for compilation and link
+   options for that library, as documented in :ref:`cfgfile`. Read in
+   environment variables for compilation and link options for that library.
 
-2. Read ``setup.cfg`` in the root of the source tree for compilation and link
-   options for that library, as documented in :ref:`cfgfile`.
+2. Statically link libraries in the ``depends`` directory (for LibXC and LibInt2).
 
-3. Statically link libraries in the ``depends`` directory (for LibXC and LibInt2).
-
-4. Use program ``pkg-config`` to get all of the compiler and linker flags
+3. Use program ``pkg-config`` to get all of the compiler and linker flags
    for each library. See http://www.freedesktop.org/wiki/Software/pkg-config/ for
    more details.
 
-5. Read ``setup.*.cfg`` file in the directory ``data/setup_cfgs`` that
+4. Read ``setup.*.cfg`` file in the directory ``data/setup_cfgs`` that
    corresponds to your operating system and CPU architecture for compilation and
    link options for that library.
 
-6. Dynamically link libraries using default library names: ``xc``, ``int2`` and
+5. Dynamically link libraries using default library names: ``xc``, ``int2`` and
    ``atlas``, for LibXC, LibInt2 and BLAS, respectively.
 
 However, if these steps do not result in decent compiler/linker options for some
