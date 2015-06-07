@@ -19,17 +19,19 @@
     :
     : --
 
-Developer documentation
+Reference Documentation
 #######################
-
 
 .. toctree::
    :maxdepth: 3
 
-   dev_guidelines
-   dev_git
-   dev_documentation
-   dev_unit_tests
-   dev_write_examples
-   dev_cite_papers
-   dev_cython
+   tech_ref_release_planning
+   tech_ref_contributors
+   tech_ref_release_history
+   tech_ref_file_formats
+   tech_ref_grids
+   tech_ref_gaussian_basis
+   tech_ref_acronyms
+   tech_ref_dictionary
+   tech_ref_functionals
+   tech_ref_literature

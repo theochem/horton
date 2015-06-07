@@ -19,7 +19,7 @@
     :
     : --
 
-.. _overview:
+.. _intro_horton_overview:
 
 HORTON Overview
 ###############

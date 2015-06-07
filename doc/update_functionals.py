@@ -104,4 +104,4 @@ for key in keys:
         print 'FAILED to load functional', key
         pass
 
-write_if_changed('ref_functionals.rst', s.getvalue())
+write_if_changed('tech_ref_functionals.rst', s.getvalue())
