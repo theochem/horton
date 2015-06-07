@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Horton is a Density Functional Theory program.
-# Copyright (C) 2011-2012 Toon Verstraelen <Toon.Verstraelen@UGent.be>
+# HORTON: Helpful Open-source Research TOol for N-fermion systems.
+# Copyright (C) 2011-2015 The HORTON Development Team
 #
-# This file is part of Horton.
+# This file is part of HORTON.
 #
-# Horton is free software; you can redistribute it and/or
+# HORTON is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 3
 # of the License, or (at your option) any later version.
 #
-# Horton is distributed in the hope that it will be useful,
+# HORTON is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
@@ -21,7 +21,8 @@
 #--
 
 
-import sys, numpy as np
+import numpy as np, argparse
+from horton import __version__
 
 
 def plot(i12ind1, i12ind2, i12val, orbinit, orbfinal, thresh, s1index, s1value):
@@ -29,7 +30,6 @@ def plot(i12ind1, i12ind2, i12val, orbinit, orbfinal, thresh, s1index, s1value):
         import matplotlib.pyplot as plt
         import matplotlib.lines as mlines
         from matplotlib.ticker import NullFormatter
-        import math
     except ImportError:
         if log.do_warning:
             log.warn('Skipping plots because matplotlib was not found.')
@@ -62,13 +62,21 @@ def plot(i12ind1, i12ind2, i12val, orbinit, orbfinal, thresh, s1index, s1value):
     for ind in range(len(i12val)):
         if i12val[ind] >= thresh:
             if i12val[ind] >= 0.0001 and i12val[ind] < 0.001:
-                plt.plot([theta[i12ind1[ind]-orbinit], theta[i12ind2[ind]-orbinit]], [r[i12ind1[ind]-orbinit], r[i12ind2[ind]-orbinit]], ':', lw=2, color='orange')
+                plt.plot([theta[i12ind1[ind]-orbinit], theta[i12ind2[ind]-orbinit]],
+                         [r[i12ind1[ind]-orbinit], r[i12ind2[ind]-orbinit]],
+                         ':', lw=2, color='orange')
             if i12val[ind] >= 0.001 and i12val[ind] < 0.01:
-                plt.plot([theta[i12ind1[ind]-orbinit], theta[i12ind2[ind]-orbinit]], [r[i12ind1[ind]-orbinit], r[i12ind2[ind]-orbinit]], '-.', lw=2, color='g')
+                plt.plot([theta[i12ind1[ind]-orbinit], theta[i12ind2[ind]-orbinit]],
+                         [r[i12ind1[ind]-orbinit], r[i12ind2[ind]-orbinit]],
+                         '-.', lw=2, color='g')
             if i12val[ind] >= 0.01 and i12val[ind] < 0.1:
-                plt.plot([theta[i12ind1[ind]-orbinit], theta[i12ind2[ind]-orbinit]], [r[i12ind1[ind]-orbinit], r[i12ind2[ind]-orbinit]], '--', lw=2, color='r')
+                plt.plot([theta[i12ind1[ind]-orbinit], theta[i12ind2[ind]-orbinit]],
+                         [r[i12ind1[ind]-orbinit], r[i12ind2[ind]-orbinit]],
+                         '--', lw=2, color='r')
             if i12val[ind] >= 0.1:
-                plt.plot([theta[i12ind1[ind]-orbinit], theta[i12ind2[ind]-orbinit]], [r[i12ind1[ind]-orbinit], r[i12ind2[ind]-orbinit]], '-', lw=3, color='b')
+                plt.plot([theta[i12ind1[ind]-orbinit], theta[i12ind2[ind]-orbinit]],
+                         [r[i12ind1[ind]-orbinit], r[i12ind2[ind]-orbinit]],
+                         '-', lw=3, color='b')
 
     blue_line = mlines.Line2D([], [], color='blue', marker='', lw=3, ls='-', label='0.1')
     red_line = mlines.Line2D([], [], color='red', marker='', lw=2, ls='--', label='0.01')
@@ -100,8 +108,8 @@ def plot(i12ind1, i12ind2, i12val, orbinit, orbfinal, thresh, s1index, s1value):
     plt.xlabel('Orbital index')
     plt.plot(s1index, s1value, 'ro', markersize=8)
 
-    plt.savefig('orbitalentanglement.png', dpi=300)
-#   return plt
+    plt.savefig('orbital_entanglement.png', dpi=300)
+
 
 def read_i12_data(orbinit, orbfinal, thresh):
     index1 = np.array([])
@@ -113,11 +121,14 @@ def read_i12_data(orbinit, orbfinal, thresh):
             words = line.split()
             if len(words) != 3:
                 raise IOError('Expecting 3 fields on each data line in i12.dat')
-            if float(words[2]) >= thresh and int(words[0]) >= orbinit and int(words[1]) >= orbinit and int(words[0]) <= orbfinal and int(words[1]) <= orbfinal:
+            if float(words[2]) >= thresh and int(words[0]) >= orbinit and \
+               int(words[1]) >= orbinit and int(words[0]) <= orbfinal and \
+               int(words[1]) <= orbfinal:
                 index1 = np.append(index1, int(words[0])-1)
                 index2 = np.append(index2, int(words[1])-1)
                 value = np.append(value, float(words[2]))
     return index1, index2, value
+
 
 def read_s1_data(orbinit, orbfinal):
     index = np.array([])
@@ -138,21 +149,34 @@ def read_s1_data(orbinit, orbfinal):
         value = value[newind2]
     return index, value
 
+
+def parse_args():
+    parser = argparse.ArgumentParser(prog='horton-entanglement.py',
+        description='This script makes an orbital entanglement plot. It '
+                    'assumes that the files s1.dat and i12.dat are present in '
+                    'the current directory. These two files will be used to '
+                    'create the figure orbital_entanglement.png.')
+    parser.add_argument('-V', '--version', action='version',
+        version="%%(prog)s (HORTON version %s)" % __version__)
+
+    parser.add_argument('threshold', type=float,
+        help='FIXME')
+    parser.add_argument('orbital', default=None, type=int, nargs='?',
+        help='The orbital to be used for the plot. If not provided, all '
+             'orbitals are considered.')
+
+    return parser.parse_args()
+
+
 def main():
+    args = parse_args()
 
-    args = sys.argv[1:]
-    if len(args) == 0:
-        print >> sys.stderr, 'Expecting at least one argument: threshold (float)'
-        sys.exit(-1)
-    thresh = float(args.pop(0))
-
-    # Get plot range if provided, otherwise use full range
-    try:
-        orbinit = int(args.pop(0))-1
-        orbfinal = int(args.pop(0))
-    except:
+    if args.orbital is None:
         orbinit = 0
         orbfinal = None
+    else:
+        orbinit = int(args.orbital-1)
+        orbfinal = int(args.orbital)
 
     # Read s1.dat and store data
     s1index, s1value = read_s1_data(orbinit, orbfinal)
@@ -161,11 +185,11 @@ def main():
         orbfinal = len(s1index)
 
     # Read i12.dat and store data
-    i12index1, i12index2, i12value = read_i12_data(orbinit, orbfinal, thresh)
+    i12index1, i12index2, i12value = read_i12_data(orbinit, orbfinal, args.threshold)
 
     # Plot i12 graph
-    plt1 = plot(i12index1, i12index2, i12value, orbinit, orbfinal, thresh, s1index, s1value)
-#   plt1.show()
+    plt1 = plot(i12index1, i12index2, i12value, orbinit, orbfinal, args.threshold, s1index, s1value)
+
 
 if __name__ == '__main__':
     main()
