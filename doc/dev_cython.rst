@@ -24,7 +24,7 @@ Accelerating HORTON code with Cython
 
 HORTON was designed to prioritize ease of programming over performance. This is a reasonable decision in light of the fact that the vast majority of time in a quantum chemistry code is only spent in a relatively small section of code. In HORTON, we rewrite these critical portion s of code in C++ and link them into Python using the Cython framework. We identify these critical portions using :ref:`profiling` tools.
 
-Before you Begin
+Before you begin
 ================
 
 There are several downsides to accelerating code with Cython. Please make sure they are acceptable to you before starting to code.
@@ -125,7 +125,7 @@ There are several things to note here:
 
 There are several other nuances not illustrated in this example, but they are well covered in the Cython documentation below. Users should be particularly poignant of whether variables are Python-style (dynamic typed) or C-style (static typed). In our example above, everything is static typed as the method declaration declares everything.
 
-Additional Notes
+Additional notes
 ================
 
 The above example leaves all memory management to the Python interpreter. This is not always possible, especially when implementing iterative algorithms in C/C++ code. There is no issue when memory is allocated and deallocated dynamically in the C++ code as in the example above. However, if memory must be allocated by C++ and freed by Python, it can be much more complicated. The reverse case, memory allocated by Python and freed by C++, should be much more rare and won't be covered here.
@@ -147,7 +147,7 @@ The most common form of memory allocated in C++ and passed back to Python for ma
 The method ``PyArray_SimpleNewFromData`` creates a new Numpy array from memory which has already been allocated. The numpy data types must be specified, as well as the dimensionality. Data is simply a 1D ``double*`` array of size nvec * nbasis * nbasis.
 
 
-Further Reading
+Further reading
 ===============
 
 http://docs.cython.org/

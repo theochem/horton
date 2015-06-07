@@ -19,7 +19,7 @@
     :
     : --
 
-Download and Installation on Mac OS X (10.8--10.10)
+Download and installation on Mac OS X (10.8--10.10)
 ###################################################
 
 Disclaimer
@@ -240,8 +240,8 @@ The manual configuration of the compiler and linker settings is described here:
 failed or if you would like to specify which libraries to use.
 
 
-Runtime Configuration
----------------------
+Runtime configurations
+----------------------
 
 You need to set some environment variables to use HORTON. Add the following to
 ``~/.bash_profile`` if it exists, otherwise add them to ``~/.profile``:

@@ -1,5 +1,5 @@
-How to cite HORTON
-==================
+Citing HORTON
+=============
 
 In anticipation of the first announcement of HORTON in a scientific journal,
 please refer to HORTON as follows:

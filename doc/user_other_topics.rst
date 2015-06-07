@@ -19,7 +19,7 @@
     :
     : --
 
-Other topics
+Other Topics
 ############
 
 .. toctree::

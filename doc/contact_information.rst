@@ -1,4 +1,4 @@
-Contact information
+Contact Information
 ===================
 
 If you have questions, please post them on `the HORTON mailing list
