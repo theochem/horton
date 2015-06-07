@@ -26,8 +26,8 @@ Disclaimer
 ==========
 
 HORTON has been tested on Mac OS X 10.8--10.10 using MacPorts. If you
-are running any other version of OS X or using other package managers,
-some of the instructions below may not work.
+are running any other version of OS X or if you are using other package
+managers, some of the instructions below may not work.
 
 
 MacPorts

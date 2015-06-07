@@ -27,7 +27,7 @@ Disclaimer
 ==========
 
 HORTON has been tested on Fedora and Ubuntu Linux. If you are running
-any other operating system, some of the instructions below may not work.
+another Linux distribution, some of the instructions below may not work.
 
 
 Download the code
