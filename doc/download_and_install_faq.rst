@@ -47,8 +47,24 @@ Python modules
 If you have installed some python module (i.e. numpy, scipy, cython, h5py, sympy,
 matplotlib, nosetests, sphinx, doxygen, breathe, docutils) and you get an error
 saying your system cannot find such module, then you need to set the environment
-variable ``PYTHONPATH`` to include your module's location. For example, Mac users
-that installed modules through PIP may need to include their user site-packages:
+variable ``PYTHONPATH`` to include your module's location. By default, python
+already includes some paths without having to set ``PYTHONPATH``. These directories are
+stored in attribute ``path`` of module ``sys``, which can be accessed by:
+
+.. code-block:: bash
+
+    python -c "import sys; import pprint; pprint.pprint(sys.path)"
+
+You should make sure that there are no modules of the same name in all of these
+directories. If there are recurrences, then you should make sure that you are
+selecting the module that you want by ensuring that the desired directory comes before
+the others. Please note that this is quite a bad practice, and will likely
+result in more confusion in the future. In the following examples, we may
+use directories that are already included in Python by default. For some
+special cases, these directories were excluded, and needed to be included manually.
+
+For example, some Mac users needed to set
+the ``PYTHONPATH`` after instaslling modules through PIP:
 
 .. code-block:: bash
 
@@ -60,7 +76,7 @@ or their system site-packages:
 
     export PYTHONPATH=/Library/Python/2.7/lib/python/site-packages:$PYTHONPATH
 
-Similarly, Linux users that installed modules through PIP may need to include
+Similarly, a few Linux users needed to set ``PYTHONPATH`` after installation through PIP:
 
 .. code-block:: bash
 
@@ -78,13 +94,14 @@ or
 
     export PYTHONPATH=/lib64/python2.7/site-packages
 
+
 The idea is to find your module (the directory that contains the files to use that
 module), and add its parent directory to the ``PYTHONPATH``. Finding the module
 can be tricky, but remember, there are finite number of files on your hard drive.
 You can use unix commands like ``find`` to speed up the process. You can look up
 where your package manager installs packages. You can explicitly build your module
 in a location that you will remember (try to adopt some convention for installing
-modules). As shown above, the python modules are commonly installed in
+modules). Including the python modules are commonly installed in
 
 .. code-block:: bash
 
@@ -97,6 +114,7 @@ for Mac users, and
 
    ${HOME}/.local/lib/python2.7/site-packages
    /lib/python2.7/site-packages
+   /lib64/python2.7/site-packages
 
 for Linux users.
 
@@ -107,7 +125,25 @@ Excecutables
 Let's say for whatever reason, HORTON requires the use of an executable for
 installation. Then, this executable must be in the same directory as the current
 directory, i.e. root of your source tree, or in one of the directories in ``PATH``
-environment variable. For example, Mac users that uses python scripts might do
+environment variable. By default, bash already includes some paths without
+having to set ``PATH``. The contents of ``PATH`` can be accessed by:
+
+.. code-block:: bash
+
+    echo $PATH
+
+For some special cases, these directories were excluded, often because ``PATH``
+is overwritten somewhere in the ``${HOME}/.profile`` or ``${HOME}/.bashrc`` for
+Mac and linux users, respectively. You should make sure that there are no
+executables of the same name in all of the directories in ``PATH``. If there
+are recurrences, then you should make sure that you are selecting the executable
+that you want by ensuring that the desired directory comes before the others.
+Please note that this is quite a bad practice, and will likely result in more
+confusion in the future. In the following examples, we may use directories
+that are already included in ``PATH`` by default. For some cases these directories
+need to be added again to ``PATH``.
+
+For example, Mac users that uses python scripts might do
 
 .. code-block:: bash
 
