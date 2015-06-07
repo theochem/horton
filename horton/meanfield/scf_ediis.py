@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Energy DIIS Self-Consistent Field algorithm'''
+'''Energy DIIS SCF algorithm'''
 
 import numpy as np
 

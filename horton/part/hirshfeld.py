@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Hirshfeld Partitioning'''
+'''Hirshfeld partitioning'''
 
 
 from horton.cache import just_once

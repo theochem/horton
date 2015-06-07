@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Iterative Stockholder partitioning'''
+'''Iterative Stockholder Analysis (ISA) partitioning'''
 
 
 import numpy as np

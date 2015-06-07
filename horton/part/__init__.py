@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Package for density-based partitioning (fuzzy atoms)'''
+'''Density-based partitioning (fuzzy atoms-in-molecules) package'''
 
 
 from horton.part.base import *

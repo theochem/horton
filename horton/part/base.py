@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Base classes for partitioning algorithms'''
+'''Base classes for (atoms-in-molecules) partitioning algorithms'''
 
 
 import numpy as np

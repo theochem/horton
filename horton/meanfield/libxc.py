@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-'''Interface to LDA, GGA and Hybrid functionals from LibXC'''
+'''Interface to LDA, GGA and hybrid functionals from LibXC'''
 
 
 import numpy as np
