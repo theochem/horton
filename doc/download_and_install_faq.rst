@@ -39,7 +39,7 @@ methods, e.g. yum, apt-get, macports, homebrew, pip, and compilation from source
 may even have the same dependency installed multiple times using different methods.
 You have to make sure your system can find the right dependency and be able to use
 it. We've encountered problems with three types of dependencies: Python modules,
-executables, and libraries.
+executables, and libraries. Also, multiple installation of Python may cause problems.
 
 Python modules
 --------------
@@ -241,3 +241,53 @@ Though we can include all these libraries, HORTON only uses ``atlas`` and
 Similarly, we can repeat the process for the LibXC and Libint2, where the libraries
 that are needed are only ``libxc`` and ``libint``, respectively. See :ref:`setup_cfg`
 for more details.
+
+Multiple Python
+---------------
+
+Ideally, you should only have one Python in your system. Having multiple versions
+may result in conflicts when running Python. You can use the ``find`` function to
+see where the other Python's may be installed. First, you should find the location of
+Python you are currently using:
+
+.. code-block:: bash
+
+    which python
+
+If this directory does not correspond to the Python you want to use, you may want to
+rename the binary file, and create a symbolic link for the Python you want to use.
+For example, if you have Python 3 installed, and it is set as the default Python,
+you may want to set Python 2.7 as the default:
+
+.. code-block:: bash
+
+    export temp=which python
+    cd ${temp}
+    rm python
+    ln -s python2.7 python
+    rm python-config
+    ln -s python2.7-config python-config
+
+where files ``python`` and ``python2.7-config`` were removed because it was a soft
+link to ``python3.3``. If it was not a soft link, you may want to save this file
+by renaming it, i.e.
+
+.. code-block:: bash
+
+    mv python python3.3_2
+    mv python-config python3.3-config_2
+
+You can check if a file is a link by the unix command
+
+.. code-block:: bash
+
+    ls -l
+
+which gives output such as
+
+.. code-block:: bash
+
+    lrwxrwxrwx. 1 root root     9 Feb 25 04:28 python3 -> python3.3
+    -rwxr-xr-x. 2 root root 11296 Dec  4  2014 python3.3
+
+where the first file was a link and the second was not.
