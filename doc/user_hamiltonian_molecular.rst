@@ -22,9 +22,9 @@
 Molecular Hamiltonians
 ######################
 
-A molecular Hamiltonian is typically set up in three steps. First one loads or
-constructs a molecular geometry. Then one generates a Gaussian basis set for
-this molecule. Finally, all kinds of matrix elements can be computed with that
+A molecular Hamiltonian is typically set up in three steps. First you load or
+construct a molecular geometry. Then you generate a Gaussian basis set for
+this molecule. Finally, you can compute all kinds of matrix elements with that
 basis to define a Hamiltonian.
 
 
@@ -55,7 +55,7 @@ The molecular geometry can be read from file using the method
 Constructing a molecular geometry from scratch
 ----------------------------------------------
 
-One may also generate molecular geometries with Python code. The
+You may also generate molecular geometries with Python code. The
 following example constructs a ring of Hydrogen atoms and writes it to an
 XYZ file
 
@@ -78,7 +78,7 @@ Most of the popular basis sets can be loaded automatically. A list of currently 
 Unique basis set for all atoms
 ------------------------------
 
-Usually one wants to define a unique (the same) basis set for the whole system, this can be done by a function call.
+Usually, you want to define a unique (the same) basis set for the whole system, this can be done by a function call.
 
 .. code-block:: python
 
@@ -90,7 +90,7 @@ where ``mol.coordinates`` and ``mol.numbers`` are read from file (see :ref:`read
 Specifying different basis sets for different atoms
 ---------------------------------------------------
 
-In some cases one wants to specify different basis sets for different atoms. For example, setting the 3-21G basis set for the hydrogen atom and the 6-31G basis set for the carbon atom, and STO-3G for all remainig atoms can be done as follows.
+In some cases, you may want to specify different basis sets for different atoms. For example, setting the 3-21G basis set for the hydrogen atom and the 6-31G basis set for the carbon atom, and STO-3G for all remainig atoms can be done as follows.
 
 .. code-block:: python
 
@@ -106,7 +106,7 @@ Alternatively, the same result can be obtained by substituting the H and C symbo
     obasis = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g',
                          element_map={1:'3-21g', 6:'6-31g'})
 
-One may also override the default basis for selected atoms based on their index,
+You may also override the default basis for selected atoms based on their index,
 i.e. position in the list of atoms that specify the molecule:
 
 .. code-block:: python
@@ -121,7 +121,7 @@ basis for the third atom and the ``sto-3g`` basis for all other atoms.
 Loading custom basis sets from file
 -----------------------------------
 
-One can also use other basis sets besides the ones that are shipped with HORTON.
+You can also use other basis sets besides the ones that are shipped with HORTON.
 It is assumed that the basis is available in NWChem format:
 
 .. code-block:: python
@@ -129,7 +129,7 @@ It is assumed that the basis is available in NWChem format:
     mybasis = GOBasisFamily('myname', filename='mybasis.nwchem'),
     obasis = get_gobasis(mol.coordinates, mol.numbers, mybasis)
 
-Anywhere one can specify a built-in basis set with a string, one my also use
+Anywhere you can specify a built-in basis set with a string, you can also use
 instance of the ``GOBasisFamily`` class (``mybasis`` in the example above), e.g.
 in the arguments ``default``, ``element_map`` and ``index_map`` of
 ``get_gobasis``.
@@ -168,7 +168,7 @@ possible to load the basis set from a ``.wfn`` file, but keep in mind that this
 format does not support contracted basis functions, so HORTON will then use a
 decontracted basis set, which is less efficient.
 
-One simply uses the ``IOData.from_file`` method to load the file. The orbital
+You simply use the ``IOData.from_file`` method to load the file. The orbital
 basis object is then available in the ``obasis`` attribute if the return value.
 For example:
 
@@ -188,15 +188,15 @@ Computing (Hamiltonian) matrix elements
 =======================================
 
 Given a ``GOBasis`` instance (the ``obasis`` object from the
-examples in the previous section), one can generate the two-index and four-index
+examples in the previous section), you can generate the two-index and four-index
 objects for the molecular electronic Hamiltonian. It may be useful to construct
 also the overlap operator as the Gaussian basis sets are not orthonormal.
 
-Before computing the matrix elements, one first has to specify how the two- and four-index
+Before computing the matrix elements, you first have to specify how the two- and four-index
 objects will be represented. The default in HORTON is to use a dense
 matrix representation, which is implemented in the ``DenseLinalgFactory`` class.
 An instance of this class must be passed to the methods that compute the matrix
-elements. Alternatively, one may also use the ``CholeskyLinalgFactory``, which
+elements. Alternatively, you may also use the ``CholeskyLinalgFactory``, which
 represents all four-index objects with a Cholesky decomposition. Note that
 the four-center electron-repulsion integrals are computed with LibInt
 [valeev2014]_.
@@ -208,5 +208,5 @@ This is a basic example, assuming some of the preceding code has created the
     :lines: 18-25
     :caption: data/examples/hf_dft/rhf_water_dense.py, lines 18--25
 
-For the nuclear attraction integrals, one also has to specify arrays with atomic
+For the nuclear attraction integrals, you also have to specify arrays with atomic
 coordinates and nuclear charges.

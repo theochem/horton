@@ -31,7 +31,7 @@ Introduction
 The general idea behind the electrostatic potential (ESP) fitting tools in HORTON is to allow fitting
 and assessment of charges in isolated and 3D-periodic systems with compatible
 methodologies. Furthermore, the procedure is broken into different steps, such
-that one can carry out more specialized ESP fits.
+that you can carry out more specialized ESP fits.
 
 Two related computations, fitting of charges and testing the quality of charges
 for the reproduction of the ESP, can be carried out once an ESP cost function
@@ -96,9 +96,9 @@ where the cost is computed with a certain set of charges (and the optimal
 :math:`\Delta V_\text{ref}` when applicable). The parameter :math:`V_w` is the
 integral of the weight function. When these charges are the ESP-fitted charges,
 :math:`\text{COST}`, :math:`\text{RMSD}` and :math:`\text{RRMSD}` are minimal.
-When the charges are all set to zero, one obtains the worst-case value for
+When the charges are all set to zero, you obtain the worst-case value for
 :math:`\text{COST}=C`, :math:`\text{RMSD}=\sqrt{C/V_w}` and
-:math:`\text{RRMSD}=100\%`. (One can can still obtain a higher
+:math:`\text{RRMSD}=100\%`. (You can can still obtain a higher
 :math:`\text{COST}`, but only with completely insensible charges. When that is
 the case, it is better to set the charges to zero to model the ESP.)
 
@@ -122,7 +122,7 @@ function for an isolated system (``000``) or a 3D periodic system (``111``).
 When a pseudo-potential computation is used, the density cube file contains
 regions of low electron density close to the nucleus. These regions may not be
 excluded from the fit with the Hu-Lu-Yang weight function. Therefore, HORTON
-allows one to build the weight function as a product of several factors:
+allows you to build the weight function as a product of several factors:
 :math:`w(\mathbf{r}) = w_1(\mathbf{r})w_2(\mathbf{r})w_3(\mathbf{r})w_4(\mathbf{r}) \ldots`, where the
 first one is typically the Hu-Lu-Yang weight function and additional weight
 functions can be included for every pseudo-core,
@@ -134,7 +134,7 @@ The recommended usage for a pseudo-potential computation is as follows::
 where one new option, ``--wnear``, is used. This option takes at least one
 argument. One such argument must be present for every element in the system for
 which a pseudo potential is used. The parameter ``Z1`` is the atomic number. The
-parameter ``r1`` is the radius of the core region that one would like to
+parameter ``r1`` is the radius of the core region that you would like to
 exclude. The parameter ``gamma1`` determines how quickly the weight factor for
 elements ``Z1`` switches from 0 (inside a sphere with radius ``r1``) to 1
 (outside a sphere with radius ``r1``). Both ``r1`` and ``gamma1`` must be given
@@ -159,7 +159,7 @@ Useful ESP-fitted charges typically involve much more advanced minimizations of
 the ESP cost function, for example, by adding constraints, restraints,
 transforming to bond-charge increments, fitting to several different molecules
 concurrently, etc. Such advanced features are not supported in
-``horton-esp-fit.py`` but one is free to implement these in customized scripts
+``horton-esp-fit.py`` but you are free to implement these in customized scripts
 that use the the ESP cost functions obtained with ``horton-esp-cost.py``.
 
 
@@ -209,13 +209,13 @@ more details.
 Making cube files with CP2K
 ===========================
 
-CP2K can generate cube files for periodic systems. One has to use the input sections `E_DENSITY_CUBE <http://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE.html>`_ and `V_HARTREE_CUBE <http://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE.html>`_ for density and ESP cube files, respectively. (The name ``V_HARTREE_CUBE`` is misleading. CP2K will print out the potential due to the electrons `and` the nuclei felt by a point charge with charge :math:`-e`.)
+CP2K can generate cube files for periodic systems. You have to use the input sections `E_DENSITY_CUBE <http://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE.html>`_ and `V_HARTREE_CUBE <http://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE.html>`_ for density and ESP cube files, respectively. (The name ``V_HARTREE_CUBE`` is misleading. CP2K will print out the potential due to the electrons `and` the nuclei felt by a point charge with charge :math:`-e`.)
 
 
 Python interface to the ESP fitting code
 ========================================
 
-One can use the ESP cost function constructed with ``horton-esp-cost.py`` to
+You can use the ESP cost function constructed with ``horton-esp-cost.py`` to
 implement customized charge fitting protocols, e.g. using bond-charge
 increments, constraints or hyperbolic restraints. At the beginning of such
 a custom script, the cost function can be loaded as follows:
@@ -234,7 +234,7 @@ given array of atomic charges:
     print cost.value(charges)
     print cost.gradient(charges)
 
-If desired, one can also directly access :math:`A`, :math:`B`, :math:`C` that
+If desired, you can also directly access :math:`A`, :math:`B`, :math:`C` that
 define the quadratic cost functions: (See :ref:`user_espfit_introduction`.)
 
 .. code-block:: python
