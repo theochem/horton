@@ -93,9 +93,21 @@ with a package manager:
 
   .. code-block:: bash
 
+    sudo dnf install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy \
+                     Cython python-sphinx python-nose sympy python-matplotlib \
+                     libint2-devel libxc-devel atlas-devel curl
+
+* **Fedora Linux 20 and 21**:
+
+  .. code-block:: bash
+
     sudo yum install python-devel gcc gcc-c++ gcc-gfortran numpy h5py scipy \
                      Cython python-sphinx python-nose sympy python-matplotlib \
                      libint2-devel libxc-devel atlas-devel curl
+
+  Note that the Numpy version in Fedora 21 (and earlier releases) is too old. Go
+  to the section :ref:`linux_manual_dependency_install` to resolve these issues.
+
 
 .. _linux_manual_dependency_install:
 
@@ -148,21 +160,21 @@ the most recent versions of the Python packages in the list of dependencies.
 Here are some examples on how to use ``pip`` to install newer versions of
 dependencies on Linux distributions that have outdated packages:
 
-* **Ubuntu 15.04 and 14.04**:
+* **Ubuntu Linux 15.04 and 14.04**:
 
   .. code-block:: bash
 
       sudo apt-get install python-pip
       pip install --user --upgrade numpy
 
-* **Ubuntu 12.04**:
+* **Ubuntu Linux 12.04**:
 
   .. code-block:: bash
 
       sudo apt-get install python-pip
       pip install --user --upgrade numpy h5py
 
-* **Fedora 20 and 21**:
+* **Fedora Linux 20 and 21**:
 
   .. code-block:: bash
 
@@ -254,13 +266,19 @@ packages are also needed:
 Installing the dependencies with a package manager and PIP
 ----------------------------------------------------------
 
-* **Ubuntu packages**:
+* **Ubuntu Linux 15.04**:
 
   .. code-block:: bash
 
       sudo apt-get install doxygen python-docutils python-pip
 
-* **Fedora packages**:
+* **Fedora Linux 22**:
+
+  .. code-block:: bash
+
+      sudo dnf install doxygen python-docutils python-pip
+
+* **Fedora Linux 20 and 21**:
 
   .. code-block:: bash
 
