@@ -42,4 +42,4 @@ version of HORTON:
 * Pawel Tecmer
 * Peter A. Limacher
 * Steven Vandenbrande
-* Taewon Kim
+* Taewon D. Kim
