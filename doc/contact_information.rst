@@ -5,7 +5,7 @@ If you have questions, please post them on `the HORTON mailing list
 <https://groups.google.com/forum/#!forum/horton-discuss>`_.
 
 Alternatively, you may directly contact the authors of a specific part of
-Horton. (E-mail addresses can be found in the `git revision history
+HORTON. (E-mail addresses can be found in the `git revision history
 <https://github.com/theochem/horton>`_.)
 
 You may also send general inquiries to:

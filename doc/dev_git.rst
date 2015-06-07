@@ -410,7 +410,7 @@ branch to the new HEAD of the master branch with ``git rebase``
 
       $ ~/.../horton:bar-1> git push review bar-1:bar-1
 
-Now, you can get in touch with one of the HORTON developers (at the `Horton
+Now, you can get in touch with one of the HORTON developers (at the `HORTON
 mailing list <https://groups.google.com/d/forum/horton-discuss>`_) to transfer
 these new patches to the public master branch of HORTON.
 
