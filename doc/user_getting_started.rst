@@ -169,7 +169,7 @@ of the :py:class:`~horton.io.iodata.IOData` class, e.g.:
     mol = IOData.from_file('water.xyz')
 
 The information read from the file is accessible through attributes of the ``mol`` object. For
-example, the following prints the coordinates of the nuclei in Angstrom (The ``.xyz`` file contains the coordinates in atomic units):
+example, the following prints the coordinates of the nuclei in Angstrom:
 
 .. code-block:: python
 
@@ -199,7 +199,7 @@ Periodic Table
 --------------
 
 HORTON has a periodic table of elements alongside several atomic properties that may
-become handy in computations. For more details please refer to :py:mod:`horton.periodic`.
+come in handy in computations. For more details please refer to :py:mod:`horton.periodic`.
 The following example prints some information for Carbon atom:
 
 .. code-block:: python
