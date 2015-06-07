@@ -32,7 +32,7 @@ This section gives an overview of the file formats supported by HORTON. Some
 formats can be used for input and output, others only for input or for output.
 The formats are always used in the same way:
 
-* To load data from a file, one uses the
+* To load data from a file, you use the
   :py:meth:`~horton.io.iodata.IOData.from_file` method of the ``IOData``
   class:
 
@@ -52,8 +52,8 @@ The formats are always used in the same way:
   data read from the file. For some formats, the available attributes may also
   depend on the data available in the file.
 
-* To dump data into a file, one creates a ``IOData`` instance, assigns
-  attributes to this instance and one calls the
+* To dump data into a file, you create a ``IOData`` instance, assign
+  attributes to this instance and call the
   :py:meth:`~horton.io.iodata.IOData.to_file` method, e.g.:
 
   .. code-block:: python
@@ -72,8 +72,8 @@ The formats are always used in the same way:
 
 The complete list of all possible attributes (the superset for all supported
 formats) is documented here: :py:class:`horton.io.iodata.IOData`. Note that
-HORTON's internal format supports all of these and any other attribute that one
-assigns to a ``IOData`` instance.
+HORTON's internal format supports all of these and any other attribute that you
+assign to a ``IOData`` instance.
 
 
 .. _ref_file_formats_geo:

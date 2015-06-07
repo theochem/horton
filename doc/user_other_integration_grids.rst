@@ -36,7 +36,7 @@ evaluate the exchange-correlation functional) or atoms-in-molecules
 analyses. To familiarize yourself with these grids, please refer to [becke1988_multicenter]_ and
 [lebedev1999]_.
 
-In a nutshell, a Becke-Lebedev integration grid works as follows. Say, one is interested in
+In a nutshell, a Becke-Lebedev integration grid works as follows. Say, you are interested in
 computing the integral of :math:`f(\mathbf{r})` over a molecular volume. In
 practice, the integrand is often a functional of the electron density, so similar to the electron
 density, it contains sharp spikes close to the atomic nuclei. In order to properly integrate all these
@@ -51,7 +51,7 @@ where :math:`w_A(\mathbf{r})` is the atomic weight function for atom A. This fun
 atomic integral is then computed on a grid in a spherical coordinate system centered on
 the nucleus of the corresponding atom. This atomic grid is typically a product grid, where different
 one-dimensional radial grids are possible, and the Lebedev-Laikov grids are always used
-for the angular part. Putting all these together, one can always approximate the numerical
+for the angular part. Putting all these together, you can always approximate the numerical
 integration as follows:
 
 .. math::
@@ -70,7 +70,7 @@ The default Becke-Lebedev grid is constructed by specifying three non-optional a
 where ``coordinates`` is an array containing the Cartesian coordinates of the atoms,
 ``numbers`` is an array containing the (integer) atomic numbers of the atoms, and ``pseudo_numbers``
 is an array containing the (float) effective core charges of the atoms. These arrays are always
-available when one loads a molecule from a file. For example:
+available when you load a molecule from a file. For example:
 
 .. code-block:: python
 
@@ -85,7 +85,7 @@ grid, e.g.:
     grid = BeckeMolGrid(coordinates, numbers, pseudo_numbers, 'fine')
 
 The available levels of accuracy for the built-in numerical integration grids are
-documented in :ref:`ref_grids`. One can also control in more detail the
+documented in :ref:`ref_grids`. You can also control in more detail the
 radial and angular components of the integration grids. For more details,
 please refer to the API documentation of :py:class:`horton.grid.molgrid.BeckeMolGrid`
 and :py:class:`horton.grid.atgrid.AtomicGridSpec`.
@@ -106,7 +106,7 @@ respectively. Note that the density matrix can also be loaded from a file
 instead of being computed by HORTON. This is demonstrated in an example at the
 end of this section.
 
-First, one must evaluate the integrand on all the points of the integration grid.
+First, you must evaluate the integrand on all the points of the integration grid.
 In case of the electron density, this can be done as follows:
 
 .. code-block:: python
@@ -136,7 +136,7 @@ functionals of the electron density, e.g.
 
     print grid.integrate(rho**(4.0/3.0))
 
-One can also use the ``grid.points`` array to evaluate other expectation values
+You can also use the ``grid.points`` array to evaluate other expectation values
 numerically, e.g. the following snippet evaluates the expectation value of
 :math:`\vert\mathbf{r}\vert=(x^{2}+y^{2}+z^{2})^{0.5}`:
 

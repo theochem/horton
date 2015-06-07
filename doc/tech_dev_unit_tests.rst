@@ -45,7 +45,7 @@ number of tests that are checked. The following runs only the tests in ``horton/
 
     toony@poony ~/.../horton:master> nosetests -v horton/test/test_cell.py
 
-Within one file, one may also select one test function::
+Within one file, you can also select one test function::
 
     toony@poony ~/.../horton:master> nosetests -v horton/test/test_cell.py:test_from_parameters3
 
