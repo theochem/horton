@@ -117,8 +117,10 @@ def test_example_pt_water_ptb():
 
 def test_example_oe_water():
     required = [context.get_fn('examples/orbital_entanglement/water.py')]
-    expected = ['i12.dat', 'checkpoint.h5', 's1.dat']
-    check_script_in_tmp('./water.py', required, expected)
+    expected = ['i12.dat', 'checkpoint.h5', 's1.dat', 'orbital_entanglement.png']
+    check_script_in_tmp('./water.py; horton-entanglement.py 0.001; '
+                        'horton-entanglement.py 0.001 1 3;'
+                        'horton-entanglement.py 0.0001 10', required, expected)
 
 
 def test_example_rhf_water_cholesky():
