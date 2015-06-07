@@ -45,7 +45,13 @@ On most Linux distributions, git can be installed with a package manager:
 
      sudo apt-get install git
 
-* **Fedora Linux**:
+* **Fedora Linux 22 (and newer)**:
+
+  .. code-block:: bash
+
+     sudo dnf install git
+
+* **Fedora Linux 21 (and older)**:
 
   .. code-block:: bash
 
