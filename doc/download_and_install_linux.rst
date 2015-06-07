@@ -85,7 +85,7 @@ with a package manager:
                          python-scipy cython python-nose python-sympy \
                          python-matplotlib libxc-dev libatlas-base-dev curl
 
-  Note that Ubuntu 15.04 does not have a libint2 package and will install a
+  Note that Ubuntu 15.04 does not have a LibInt2 package and will install a
   Numpy version that is too old. Go to the section
   :ref:`linux_manual_dependency_install` to resolve these issues.
 
@@ -136,7 +136,7 @@ will download and build LibInt2, which will work on most systems:
 
     (cd depends; make libint -j4)
 
-The compilation of libint takes a few minutes and results in a library for
+The compilation of ``libint`` takes a few minutes and results in a library for
 static linking. If this fails, consult your local Linux guru to build LibInt2.
 For more info about LibInt2, check the website:
 http://sourceforge.net/p/libint/home
