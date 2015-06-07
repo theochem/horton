@@ -38,7 +38,7 @@ data file formats, refer to :ref:`ref_file_formats`.
 
 .. _hamiltonian_io_internal:
 
-HORTON's Internal format
+HORTON's internal format
 ========================
 
 Dumping
@@ -51,16 +51,16 @@ you can store the integrals in the Cholesky decomposed format and the core energ
     :caption: data/examples/hamiltonian/dump_internal_ao.py
     :lines: 2-
 
-The internal format will store all attributes of the ``IOData`` instance. Note that the
+The internal format will store all attributes of the
+:py:class:`~horton.io.iodata.IOData` instance. Note that the
 attributes ``coordinates``, ``numbers`` and ``title`` were loaded from the
 ``.xyz`` file and will also be dumped into the internal format. Deleting the
 attribute, e.g. ``del mol.title``, or adding a new attribute, e.g. ``mol.sasfdasdf = 'poop'``,
-will result in the inclusion or the exclusion of the appropriate attribute,
-respectively. You can see the default attributes of ``IOData`` class in
-:py:class:`horton.io.iodata.IOData`.
+will result in the exclusion or the inclusion of the appropriate attribute,
+respectively.
 
 In the HDF5 file, all data is stored in binary form with full precision. In the
-given example above, the dumped HDF5 file will have the following layout:
+example above, the dumped HDF5 file will have the following layout:
 
 .. code-block:: text
 
@@ -83,13 +83,14 @@ given example above, the dumped HDF5 file will have the following layout:
 
 The attributes of the FCIDUMP format, ``one_mo``, ``two_mo``, ``core_energy``,
 ``nelec`` and ``ms2`` can also be used in the internal format. We can create an
-empty ``IOData`` instance and assign each of these attributes. For example,
+empty :py:class:`~horton.io.iodata.IOData` instance and assign each of these
+attributes. For example,
 
 .. literalinclude::  ../data/examples/hamiltonian/dump_internal_ao_fcidump.py
     :caption: data/examples/hamiltonian/dump_internal_ao_fcidump.py
     :lines: 2-
 
-which results in the following HDF5 layout:
+will results in the following HDF5 layout:
 
 .. code-block:: text
 
@@ -109,7 +110,7 @@ which results in the following HDF5 layout:
 
 Note that the integrals in this example are actually stored in the AO basis
 (despite the ``_mo`` suffix). Read the section :ref:`user_hf_dft_preparing_posthf`
-if you want to compute (and store) integrals in the molecular-orbital (MO) basis.
+if you want to compute (and store) integrals in the molecular orbital (MO) basis.
 
 Loading
 -------
@@ -132,11 +133,11 @@ Dumping
 The FCIDUMP format is useful when exchanging Hamiltonians with different codes.
 Unlike the internal format, there are some restrictions:
 
-1. The one-body operators (usually kinetic energy and nuclear attraction)
+1. One-body operators (usually kinetic energy and nuclear attraction)
    must all be added into a single two-index object.
-2. The integrals can only be stored in a restricted (MO) basis set, i.e. using
+2. Integrals can only be stored in a restricted (MO) basis set, i.e. using
    different basis sets for the alpha and beta orbitals is not possible.
-3. The two-electron integrals must be stored as a ``DenseFourIndex`` object, so
+3. Two-electron integrals must be stored as a ``DenseFourIndex`` object, so
    the Cholesky decomposition of the ERI is not supported.
 
 The FCIDUMP format is normally used for storing integrals in the MO basis
@@ -148,8 +149,9 @@ in the MO basis. The storage of integrals in AO basis in FCIDUMP format is as fo
     :caption: data/examples/hamiltonian/dump_fcidump_ao.py
     :lines: 2-
 
-In this example, we set the ``IOData`` attributes by using keyword arguments in
-the constructor. The file ``hamiltonian_ao.FCIDUMP`` will contain the following:
+In this example, we set the :py:class:`~horton.io.iodata.IOData` attributes by
+using keyword arguments in the constructor. The file ``hamiltonian_ao.FCIDUMP``
+will contain the following:
 
 .. code-block:: text
 
@@ -179,9 +181,9 @@ This file is divided into two blocks. The first block (between ``&FCI`` and
     :ISYM: total symmetry of the wavefunction
 
 The second block (after ``&END``) contains the one- and two-electron integrals
-and the core energy in the following order:
+and the core energy in that order:
 
-1. all symmetry-unique elements of the two-electron integrals are listed,
+1. All symmetry-unique elements of the two-electron integrals are listed,
    where the first column is the value of the integral, followed by the orbital
    indices. Note that the orbital indices start from one and that the orbital indices
    (``i j k l``) in an FCIDUMP file are written in chemists' notation,
@@ -192,11 +194,11 @@ and the core energy in the following order:
       \phi_k^*(\mathbf{x}_2) \frac{1}{r_{12}} \phi_j(\mathbf{x}_1) \phi_l(\mathbf{x}_2)
       d\mathbf{x}_1 d\mathbf{x}_2
 
-2. all symmetry-unique elements of the one-electron integrals are listed, where
+2. All symmetry-unique elements of the one-electron integrals are listed, where
    the first column is the value of the integral, followed by the orbital
    indices. Note that the last two columns contain zeros.
 
-3. the core energy (for instance, the nuclear repulsion term, etc.) is written
+3. Core energy (for instance, the nuclear repulsion term, etc.) is written
    on the last line with all orbital indices equal 0.
 
 If the value of an integral is zero, the corresponding line is not included in
