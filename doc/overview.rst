@@ -28,48 +28,48 @@ Our Manifesto
 =============
 
 HORTON is a *H*\ elpful *O*\ pen-source *R*\ esearch *TO*\ ol for *N*-fermion
-systems, written primarily in the `Python language <https://www.python.org/>`_.
-(HORTON is named for the `helpful pachyderm
+systems, written primarily in the `Python programming language <https://www.python.org/>`_.
+(HORTON is named after the `helpful pachyderm
 <http://en.wikipedia.org/wiki/Horton_the_Elephant>`_, not the `Canadian caffeine
 supply store <http://www.timhortons.com/>`_.) The ultimate goal of HORTON is to
-provide a useful platform for testing new ideas related to the quantum many-body
-problem, at reasonable computational cost. Although HORTON is primarily intended
-as a `quantum-chemistry program
+provide a platform for testing new ideas on the quantum many-body
+problems at a reasonable computational cost. Although HORTON is primarily designed
+to be a `quantum-chemistry program
 <http://en.wikipedia.org/wiki/List_of_quantum_chemistry_and_solid-state_physics_software>`_,
-it can be used for model Hamiltonians and could be extended to nuclear physics.
+it can perform computations involving model Hamiltonians, and could be extended for computations in nuclear physics.
 
-What HORTON is (or hopes to be):
+What HORTON is (or is hoped to be):
 
-* HORTON is designed as a *helpful* framework for rapidly prototyping methods
-  and testing ideas, together with utilities that help ensure that the resulting
+* HORTON is designed to be a *helpful* framework for rapidly prototyping methods
+  and testing ideas, together with utilities that ensure the resulting
   implementation is not too inefficient. HORTON is not designed to achieve
   bleeding-edge performance: readability, extensibility, and modifiability are
   often preferred over computational efficiency and code compactness when
   tradeoffs are essential.
 
 * HORTON is, and always will be, *open source*, distributed under the :ref:`GNU
-  General Public License <license_information>`. Its developers welcome new
+  General Public License <license_information>`. HORTON's developing team always welcome new
   contributors.
 
-* HORTON is a *research tool* for its contributors and users. Its functionality
-  is naturally biased towards the interests of its developers, so its current
-  focus is on low-cost *ab initio* electronic structure theory methods and
+* HORTON is a *research tool* for both contributors and users. As a result, the available functionality
+  is naturally biased towards the interests of its developers. The current
+  focus of HORTON is on low-cost *ab initio* electronic structure theory methods and
   post-processing tools for interpreting electronic structure calculations.
-  Additional functionality will be provided by other developers and through
-  interfaces to other programs. People interested in joining the HORTON
-  development team should contact us through the `the HORTON mailing list
+  Additional functionality can be provided by other developers, and through
+  interfaces to various programs. If you are interested in joining the HORTON
+  development team, please contact us through the `the HORTON mailing list
   <https://groups.google.com/forum/#!forum/horton-discuss>`_.
 
-* HORTON can be used as a stand-alone program for the N-fermion problem using
+* HORTON can be used as a stand-alone program for the *N-fermion* problems using
   either input files or Python scripts. Although more work remains to be done,
-  we hope that HORTON is also (1) easy to use as a procedure providing
-  specialized functionality to other programs and (2) easy to use as a scripting
-  language for processing results from other Schrödinger solvers (which may have
-  alternative capabilities or better computational performance). To encourage
-  others to use HORTON within their programs, we guarantee no major `API
+  we hope that HORTON is easy to use as (1) a procedure providing
+  specialized functionality to other programs and (2) a scripting
+  language for processing results from other Schrödinger solver softwares (which may have
+  alternative capabilities or better computational performance). To faciliate
+  the use of HORTON within other programs, we guarantee no major `API
   <http://en.wikipedia.org/wiki/Application_programming_interface>`_ changes for
   at least twelve months after each major release. Ensuring that HORTON can be
-  used in all three ways (inside a larger program; as a stand-alone program;
+  used in all three ways (as part of a larger program; as a stand-alone program;
   outside other programs) is a fundamental design principle of HORTON.
 
 
@@ -78,16 +78,16 @@ Main Features
 
 **Interoperability**
 
-* Integration of the `LibXC
+* Integrating the `LibXC
   <http://www.tddft.org/programs/octopus/wiki/index.php/Libxc>`_
   [marques2012]_ and `LibInt2 <https://github.com/evaleev/libint>`_
-  [valeev2014]_.
+  [valeev2014]_ libraries.
 
-* Support for many :ref:`ref_file_formats` to exchange data with other codes.
+* Supporting many :ref:`ref_file_formats` to exchange data with other codes.
 
-* The modular structure allows HORTON to be combined with custom developments.
+* Adapting modular structure to easily combine HORTON with custom developments.
 
-**Electronic structure methods**
+**Electronic Structure Methods**
 
 * Hamiltonians
 
@@ -115,11 +115,11 @@ Main Features
 
 * Perturbation theory
 
-**Post-processing**
+**Post-Processing**
 
-* Several variants of the (iterative) Hirshfeld method
+* Several variants of the Hirshfeld atoms-in-molecules partitioning scheme
 
-* Electrostatic Potential Fitting
+* Electrostatic potential fitting of atomic charges
 
 * Orbital entanglement analysis
 
