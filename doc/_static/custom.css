@@ -13,3 +13,8 @@ div.code-block-caption {
 div.literal-block-wrapper {
     background: #DDDDDD;
 }
+
+span.eqno {
+    float: right;
+    margin-top: 6px;
+}
