@@ -573,7 +573,8 @@ This is the same example as above, but all keyword arguments are mentioned expli
 AP1roG with external integrals
 ------------------------------
 
-This is a basic example on how to perform an orbital-optimized AP1roG calculation using one- and two-electron integrals from an external file. The number of doubly-occupied orbitals is ``5``, while the total number of basis functions is ``28``. See :ref:`modphysham`.
+This is a basic example on how to perform an orbital-optimized AP1roG calculation using one- and two-electron integrals from an external file, when generate the FCIDUMP file, don't specify any symmetry or freeze orbitals. The number of doubly-occupied orbitals is ``5``, while the total number of basis functions is ``28``. See :ref:`modphysham`.
+
 
 .. literalinclude:: ../data/examples/ap1rog/extham.py
     :caption: data/examples/ap1rog/extham.py
@@ -591,9 +592,8 @@ parameter is set to -1, the ``U`` parameter is set to 2, and periodic boundary c
     :caption: data/examples/ap1rog/hubbard.py
     :lines: 2-
 
-
 Note that for the Hubbard model, the external potential has to be set to ``0``,
 
 .. code-block:: python
 
-    energy, g, l = ap1rog(kin, er, 0, orb, olp, True)
+    energy, c, l = ap1rog(kin, er, 0, orb, olp, True)
