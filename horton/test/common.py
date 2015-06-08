@@ -106,7 +106,7 @@ def check_script_in_tmp(command, required, expected):
         check_script(command, dn)
         # check the output files
         for fn in expected:
-            assert os.path.exists(os.path.join(dn, fn))
+            assert os.path.exists(os.path.join(dn, fn)), 'Missing output %s' % fn
 
 
 def check_delta(fun, fun_deriv, x, dxs):

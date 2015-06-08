@@ -101,8 +101,8 @@ spins.
 The guess for a restricted wavefunction is done as follows:
 
 .. literalinclude:: ../data/examples/hf_dft/rhf_water_dense.py
-    :lines: 27-31
-    :caption: data/examples/hf_dft/rhf_water_dense.py, lines 27--31
+    :lines: 31-35
+    :caption: data/examples/hf_dft/rhf_water_dense.py, lines 31--35
 
 For an unrestricted wavefunction, the procedure is very similar:
 
@@ -336,8 +336,8 @@ repulsion energy to the total energy reported by the effective Hamiltonian.
 * Restricted Hartree-Fock:
 
   .. literalinclude:: ../data/examples/hf_dft/rhf_water_dense.py
-      :lines: 34-41
-      :caption: data/examples/hf_dft/rhf_water_dense.py, lines 34--41
+      :lines: 37-45
+      :caption: data/examples/hf_dft/rhf_water_dense.py, lines 37--45
 
 * Unrestricted Hartree-Fock:
 
@@ -455,8 +455,8 @@ these in-place.
 * Usage in the restricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/rhf_water_dense.py
-      :lines: 46-48
-      :caption: data/examples/hf_dft/rhf_water_dense.py, lines 46--48
+      :lines: 50-52
+      :caption: data/examples/hf_dft/rhf_water_dense.py, lines 50--52
 
 * Usage in the unrestricted case:
 

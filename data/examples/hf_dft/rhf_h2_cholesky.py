@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-#JSON {"lot": "RHF/cc-pvtz",
+#JSON {"lot": "RHF/6-31G",
 #JSON  "scf": "PlainSCFSolver",
-#JSON  "linalg": "DenseLinalgFactory",
+#JSON  "linalg": "CholeskyLinalgFactory",
 #JSON  "difficulty": 1,
-#JSON  "description": "Basic RHF example with dense matrices, includes export of Hamiltonian"}
+#JSON  "description": "Basic RHF example with Cholesky matrices, includes export of Hamiltonian"}
 
 from horton import *
 import numpy as np
@@ -13,16 +13,13 @@ import numpy as np
 # ------------------------
 
 # Construct a molecule from scratch
-bond_length = 1.098*angstrom
-mol = IOData(title='dinitrogen')
-mol.coordinates = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, bond_length]])
-mol.numbers = np.array([7, 7])
+mol = IOData.from_file(context.get_fn('test/h2.xyz'))
 
 # Create a Gaussian basis set
-obasis = get_gobasis(mol.coordinates, mol.numbers, 'cc-pvdz')
+obasis = get_gobasis(mol.coordinates, mol.numbers, '6-31G')
 
 # Create a linalg factory
-lf = DenseLinalgFactory(obasis.nbasis)
+lf = CholeskyLinalgFactory(obasis.nbasis)
 
 # Compute Gaussian integrals
 olp = obasis.compute_overlap(lf)
@@ -46,8 +43,8 @@ terms = [
 ]
 ham = REffHam(terms, external)
 
-# Decide how to occupy the orbitals (7 alpha electrons)
-occ_model = AufbauOccModel(7)
+# Decide how to occupy the orbitals (1 alpha electron)
+occ_model = AufbauOccModel(1)
 
 # Converge WFN with plain SCF
 scf_solver = PlainSCFSolver(1e-6)
@@ -65,9 +62,9 @@ mol.obasis = obasis
 mol.exp_alpha = exp_alpha
 
 # useful for visualization:
-mol.to_file('n2-scf.molden')
+mol.to_file('h2-scf.molden')
 # useful for post-processing (results stored in double precision)
-mol.to_file('n2-scf.h5')
+mol.to_file('h2-scf.h5')
 
 
 # Export Hamiltonian in Hartree-Fock molecular orbital basis (all orbitals active)
@@ -79,24 +76,7 @@ one.iadd(na)
 two = er
 (one_mo,), (two_mo,) = transform_integrals(one, two, 'tensordot', mol.exp_alpha)
 
-# Write files
-mol_all_active = IOData(core_energy=external['nn'], one_mo=one_mo, two_mo=two_mo)
-# useful for exchange with other codes
-mol_all_active.to_file('n2.FCIDUMP')
-# useful for exchange with other HORTON scripts
-mol_all_active.to_file('n2-hamiltonian.h5')
-
-
-# Export Hamiltonian in Hartree-Fock molecular orbital basis for CAS(8,8)
-# -----------------------------------------------------------------------
-
-# Transform orbitals
-one_small, two_small, core_energy = split_core_active(one, er,
-    external['nn'], exp_alpha, ncore=2, nactive=8)
-
-# Write files
-mol_cas88 = IOData(core_energy=core_energy, one_mo=one_mo, two_mo=two_mo, nelec=8, ms2=0, lf=lf)
-# useful for exchange with other codes
-mol_cas88.to_file('n2-cas8-8.FCIDUMP')
-# useful for exchange with other HORTON scripts
-mol_cas88.to_file('n2-hamiltonian-cas8-8.h5')
+# Prepare an IOData object for writing the Hamiltonian.
+mol_all_active = IOData(core_energy=external['nn'], one_mo=one_mo, two_mo=two_mo, lf=lf)
+# The Cholesky decomposition can only be stored in the internal format.
+mol_all_active.to_file('h2-hamiltonian.h5')
