@@ -53,7 +53,7 @@ def parse_args_input(args):
         description='Create input files for a database of pro-atoms.',
         epilog=epilog_input)
     parser.add_argument('-V', '--version', action='version',
-        version="%%(prog)s (horton version %s)" % __version__)
+        version="%%(prog)s (HORTON version %s)" % __version__)
 
     parser.add_argument('program', choices=sorted(atom_programs.keys()),
         help='The name of the program for which input files must be created.')

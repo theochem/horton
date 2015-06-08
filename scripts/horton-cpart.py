@@ -38,7 +38,7 @@ def parse_args():
     parser = argparse.ArgumentParser(prog='horton-cpart.py',
         description='Partition the density from a cube file.')
     parser.add_argument('-V', '--version', action='version',
-        version="%%(prog)s (horton version %s)" % __version__)
+        version="%%(prog)s (HORTON version %s)" % __version__)
 
     parser.add_argument('cube',
         help='The cube file.')
