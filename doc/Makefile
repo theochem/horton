@@ -55,6 +55,7 @@ clean:
 
 html: autogendoc
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	python tag_source_files.py _build/html/_sources
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
