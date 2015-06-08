@@ -224,6 +224,11 @@ Summary of keyword arguments
 Example Python scripts
 ======================
 
+Several complete examples can be found in the directory
+``data/examples/perturbation_theory``. Three of these are discussed in the
+following subsections.
+
+
 MP2 calculation on the water molecule
 -------------------------------------
 
