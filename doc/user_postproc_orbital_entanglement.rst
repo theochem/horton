@@ -107,9 +107,9 @@ from which the eigenvalues are needed to calculate the single-orbital and
 two-orbital entropy.
 
 Given the one- and two-particle RDMs, an instance of the
-:py:class:`horton.orbital_entanglement.orbital_entanglement.orbital_entanglement`
+:py:class:`~horton.orbital_entanglement.orbital_entanglement.orbital_entanglement`
 can be created. A function call of this instance,
-:py:meth:`horton.orbital_entanglement.orbital_entanglement.orbital_entanglement.__call__`,
+:py:meth:`~horton.orbital_entanglement.orbital_entanglement.orbital_entanglement.__call__`,
 calculates the entanglement and correlation measures.
 
 

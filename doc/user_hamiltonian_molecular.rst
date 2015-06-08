@@ -45,7 +45,7 @@ Reading the molecular geometry from file
 ----------------------------------------
 
 The molecular geometry can be read from file using the method
-:py:meth:`horton.io.iodata.IOData.from_file` of the ``IOData`` class,
+:py:meth:`~horton.io.iodata.IOData.from_file` of the ``IOData`` class,
 
 .. code-block:: python
 
@@ -75,9 +75,9 @@ HORTON is using the same basis set format as NWChem, and the basis sets can be
 downloaded from the EMSL webpage (https://bse.pnl.gov/bse/portal).
 
 HORTON is distributed with most of the popular basis sets. A list of currently
-supported built-in basis sets can be found here: :ref:`ref_gaussian_basis_standard_sets`.
-The basis set for a given molecule is constructed with the function
-:py:func:`horton.gbasis.gobasis.get_gobasis`
+supported built-in basis sets can be found here:
+:ref:`ref_gaussian_basis_standard_sets`. The basis set for a given molecule is
+constructed with the function :py:func:`~horton.gbasis.gobasis.get_gobasis`
 
 
 Unique basis set for all atoms

@@ -64,10 +64,10 @@ orbitals from the atomic basis, the occupation of each molecular orbital, and
 some weighted projection of atomic basis function within each atom.
 
 For example, if the Mulliken population analysis is used, the projectors are
-obtained through :py:meth:`horton.part.mulliken.get_mulliken_operators`.
+obtained through :py:meth:`~horton.part.mulliken.get_mulliken_operators`.
 Then the Pipek-Mezey localization function and the optimization are obtained through
-:py:class:`horton.localization.localization.PipekMezey`. Function call,
-:py:meth:`horton.localization.localization.Localization.__call__`, of this
+:py:class:`~horton.localization.localization.PipekMezey`. Function call,
+:py:meth:`~horton.localization.localization.Localization.__call__`, of this
 instance results in localization.
 Please see documentation in :py:mod:`horton.localization.localization` for more detail.
 
