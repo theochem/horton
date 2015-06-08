@@ -576,8 +576,8 @@ AP1roG with external integrals
 This is a basic example on how to perform an orbital-optimized AP1roG calculation using one- and two-electron integrals from an external file, when generate the FCIDUMP file, don't specify any symmetry or freeze orbitals. The number of doubly-occupied orbitals is ``5``, while the total number of basis functions is ``28``. See :ref:`modphysham`.
 
 
-.. literalinclude:: ../data/examples/ap1rog/extham.py
-    :caption: data/examples/ap1rog/extham.py
+.. literalinclude:: ../data/examples/ap1rog/external_hamiltonian_n2_dense.py
+    :caption: data/examples/ap1rog/external_hamiltonian_n2_dense.py
     :lines: 2-
 
 

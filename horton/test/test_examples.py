@@ -75,12 +75,102 @@ def test_example_ap1rog_hubbard():
     check_script_in_tmp('./hubbard.py', required, expected)
 
 
-def test_example_ap1rog_extham():
-    required = [context.get_fn('examples/ap1rog/extham.py'),
+def test_example_ap1rog_extham_n2():
+    required = [context.get_fn('examples/ap1rog/external_hamiltonian_n2_dense.py'),
                 context.get_fn('examples/hf_dft/rhf_n2_dense.py')]
     expected = ['checkpoint.h5', 'n2-scf.molden', 'n2-scf.h5',
-                'n2-cas8-8.FCIDUMP', 'n2-cas8-8.h5', 'n2.FCIDUMP', 'n2.h5']
-    check_script_in_tmp('./rhf_n2_dense.py; ./extham.py', required, expected)
+                'n2-cas8-8.FCIDUMP', 'n2-hamiltonian-cas8-8.h5', 'n2.FCIDUMP',
+                'n2-hamiltonian.h5']
+    check_script_in_tmp('./rhf_n2_dense.py; ./external_hamiltonian_n2_dense.py', required, expected)
+
+
+def test_example_ap1rog_extham_h2():
+    required = [context.get_fn('examples/ap1rog/external_hamiltonian_h2_cholesky.py'),
+                context.get_fn('examples/hf_dft/rhf_h2_cholesky.py')]
+    expected = ['checkpoint.h5', 'h2-scf.molden', 'h2-scf.h5',
+                'h2-hamiltonian.h5']
+    check_script_in_tmp('./rhf_h2_cholesky.py; ./external_hamiltonian_h2_cholesky.py', required, expected)
+
+
+def test_example_ap1rog_extham_water():
+    required = [context.get_fn('examples/ap1rog/external_hamiltonian_water_dense.py'),
+                context.get_fn('examples/hf_dft/rhf_water_dense.py')]
+    expected = ['checkpoint.h5', 'water-scf.molden', 'water-scf.h5',
+                'water-hamiltonian.h5']
+    check_script_in_tmp('./rhf_water_dense.py; ./external_hamiltonian_water_dense.py', required, expected)
+
+
+def test_example_ap1rog_h2_cholesky_321g():
+    required = [context.get_fn('examples/ap1rog/h2_cholesky_3-21g.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./h2_cholesky_3-21g.py', required, expected)
+
+
+def test_example_ap1rog_h2_cholesky_aug_cc_pvdz():
+    required = [context.get_fn('examples/ap1rog/h2_cholesky_aug-cc-pvdz.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./h2_cholesky_aug-cc-pvdz.py', required, expected)
+
+
+def test_example_ap1rog_h2_cholesky_cc_pvdz():
+    required = [context.get_fn('examples/ap1rog/h2_cholesky_cc-pvdz.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./h2_cholesky_cc-pvdz.py', required, expected)
+
+
+def test_example_ap1rog_h2_dense_321g():
+    required = [context.get_fn('examples/ap1rog/h2_dense_3-21g.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./h2_dense_3-21g.py', required, expected)
+
+
+def test_example_ap1rog_h2_dense_aug_cc_pvdz():
+    required = [context.get_fn('examples/ap1rog/h2_dense_aug-cc-pvdz.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./h2_dense_aug-cc-pvdz.py', required, expected)
+
+
+def test_example_ap1rog_water_cholesky_321g():
+    required = [context.get_fn('examples/ap1rog/water_cholesky_3-21g.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./water_cholesky_3-21g.py', required, expected)
+
+
+def test_example_ap1rog_water_cholesky_321g_restart():
+    required = [context.get_fn('examples/ap1rog/water_cholesky_3-21g.py'),
+                context.get_fn('examples/ap1rog/restart_water_cholesky_3-21g.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./water_cholesky_3-21g.py; ./restart_water_cholesky_3-21g.py', required, expected)
+
+
+def test_example_ap1rog_water_cholesky_sto3g():
+    required = [context.get_fn('examples/ap1rog/water_cholesky_sto-3g.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./water_cholesky_sto-3g.py', required, expected)
+
+
+def test_example_ap1rog_water_cholesky_cc_pvdz():
+    required = [context.get_fn('examples/ap1rog/water_cholesky_cc-pvdz.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./water_cholesky_cc-pvdz.py', required, expected)
+
+
+def test_example_ap1rog_water_dense_321g():
+    required = [context.get_fn('examples/ap1rog/water_dense_3-21g.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./water_dense_3-21g.py', required, expected)
+
+
+def test_example_ap1rog_water_dense_sto3g():
+    required = [context.get_fn('examples/ap1rog/water_dense_sto-3g.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./water_dense_sto-3g.py', required, expected)
+
+
+def test_example_ap1rog_water_dense_cc_pvdz():
+    required = [context.get_fn('examples/ap1rog/water_dense_cc-pvdz.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./water_dense_cc-pvdz.py', required, expected)
 
 
 def test_example_ap1rog_water_default():
@@ -99,20 +189,100 @@ def test_example_localization():
     check_script('./water_pm.py', context.get_fn('examples/localization'))
 
 
-def test_example_pt_water_mp2():
-    check_script('./water_mp2.py', context.get_fn('examples/perturbation_theory'))
+def test_example_pt_mp2_h2_431g():
+    check_script('./mp2_h2_4-31g.py', context.get_fn('examples/perturbation_theory'))
 
 
-def test_example_pt_water_pta():
-    required = [context.get_fn('examples/perturbation_theory/water_pta.py')]
+def test_example_pt_mp2_h2_cc_pvdz():
+    check_script('./mp2_h2_cc-pvdz.py', context.get_fn('examples/perturbation_theory'))
+
+
+def test_example_pt_mp2_h2_def2_svpd():
+    check_script('./mp2_h2_def2-svpd.py', context.get_fn('examples/perturbation_theory'))
+
+
+def test_example_pt_mp2_water_431g():
+    check_script('./mp2_water_4-31g.py', context.get_fn('examples/perturbation_theory'))
+
+
+def test_example_pt_mp2_water_cc_pvdz():
+    check_script('./mp2_water_cc-pvdz.py', context.get_fn('examples/perturbation_theory'))
+
+
+def test_example_pt_mp2_water_def2_svpd():
+    check_script('./mp2_water_def2-svpd.py', context.get_fn('examples/perturbation_theory'))
+
+
+def test_example_pta_h2_431g():
+    required = [context.get_fn('examples/perturbation_theory/pta_h2_4-31g.py')]
     expected = ['checkpoint.h5']
-    check_script_in_tmp('./water_pta.py', required, expected)
+    check_script_in_tmp('./pta_h2_4-31g.py', required, expected)
 
 
-def test_example_pt_water_ptb():
-    required = [context.get_fn('examples/perturbation_theory/water_ptb.py')]
+def test_example_pta_h2_cc_pvdz():
+    required = [context.get_fn('examples/perturbation_theory/pta_h2_cc-pvdz.py')]
     expected = ['checkpoint.h5']
-    check_script_in_tmp('./water_ptb.py', required, expected)
+    check_script_in_tmp('./pta_h2_cc-pvdz.py', required, expected)
+
+
+def test_example_pta_h2_def2_svpd():
+    required = [context.get_fn('examples/perturbation_theory/pta_h2_def2-svpd.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./pta_h2_def2-svpd.py', required, expected)
+
+
+def test_example_pta_water_431g():
+    required = [context.get_fn('examples/perturbation_theory/pta_water_4-31g.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./pta_water_4-31g.py', required, expected)
+
+
+def test_example_pta_water_cc_pvdz():
+    required = [context.get_fn('examples/perturbation_theory/pta_water_cc-pvdz.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./pta_water_cc-pvdz.py', required, expected)
+
+
+def test_example_pta_water_def2_svpd():
+    required = [context.get_fn('examples/perturbation_theory/pta_water_def2-svpd.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./pta_water_def2-svpd.py', required, expected)
+
+
+def test_example_ptb_h2_431g():
+    required = [context.get_fn('examples/perturbation_theory/ptb_h2_4-31g.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./ptb_h2_4-31g.py', required, expected)
+
+
+def test_example_ptb_h2_cc_pvdz():
+    required = [context.get_fn('examples/perturbation_theory/ptb_h2_cc-pvdz.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./ptb_h2_cc-pvdz.py', required, expected)
+
+
+def test_example_ptb_h2_def2_svpd():
+    required = [context.get_fn('examples/perturbation_theory/ptb_h2_def2-svpd.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./ptb_h2_def2-svpd.py', required, expected)
+
+
+def test_example_ptb_water_431g():
+    required = [context.get_fn('examples/perturbation_theory/ptb_water_4-31g.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./ptb_water_4-31g.py', required, expected)
+
+
+def test_example_ptb_water_cc_pvdz():
+    required = [context.get_fn('examples/perturbation_theory/ptb_water_cc-pvdz.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./ptb_water_cc-pvdz.py', required, expected)
+
+
+def test_example_ptb_water_def2_svpd():
+    required = [context.get_fn('examples/perturbation_theory/ptb_water_def2-svpd.py')]
+    expected = ['checkpoint.h5']
+    check_script_in_tmp('./ptb_water_def2-svpd.py', required, expected)
 
 
 def test_example_oe_water():
@@ -132,13 +302,20 @@ def test_example_rhf_water_cholesky():
 def test_example_rhf_n2_dense():
     required = [context.get_fn('examples/hf_dft/rhf_n2_dense.py')]
     expected = ['n2-scf.molden', 'n2-scf.h5', 'n2-cas8-8.FCIDUMP',
-                'n2-cas8-8.h5', 'n2.FCIDUMP', 'n2.h5']
+                'n2-hamiltonian-cas8-8.h5', 'n2.FCIDUMP', 'n2-hamiltonian.h5']
     check_script_in_tmp('./rhf_n2_dense.py', required, expected)
+
+
+def test_example_rhf_h2_cholesky():
+    required = [context.get_fn('examples/hf_dft/rhf_h2_cholesky.py')]
+    expected = ['h2-scf.molden', 'h2-scf.h5', 'h2-hamiltonian.h5']
+    check_script_in_tmp('./rhf_h2_cholesky.py', required, expected)
 
 
 def test_example_rhf_water_dense():
     required = [context.get_fn('examples/hf_dft/rhf_water_dense.py')]
-    expected = ['water.h5', 'water.molden']
+    expected = ['water-scf.h5', 'water-scf.molden', 'water.FCIDUMP',
+                'water-hamiltonian.h5']
     check_script_in_tmp('./rhf_water_dense.py', required, expected)
 
 

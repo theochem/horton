@@ -229,8 +229,8 @@ MP2 calculation on the water molecule
 
 This is a basic example on how to perform a RMP2 calculation in HORTON. This script performs a RMP2 calculation on the water molecule using the cc-pVDZ basis set.
 
-.. literalinclude:: ../data/examples/perturbation_theory/water_mp2.py
-    :caption: data/examples/perturbation_theory/water_mp2.py
+.. literalinclude:: ../data/examples/perturbation_theory/mp2_water_cc-pvdz.py
+    :caption: data/examples/perturbation_theory/mp2_water_cc-pvdz.py
     :lines: 2-
 
 
@@ -239,8 +239,8 @@ PTa calculation on the water molecule
 
 This is a basic example on how to perform a PTa calculation in HORTON. This script performs a PTa calculation on the water molecule using the cc-pVDZ basis set.
 
-.. literalinclude:: ../data/examples/perturbation_theory/water_pta.py
-    :caption: data/examples/perturbation_theory/water_pta.py
+.. literalinclude:: ../data/examples/perturbation_theory/pta_water_cc-pvdz.py
+    :caption: data/examples/perturbation_theory/pta_water_cc-pvdz.py
     :lines: 2-
 
 
@@ -249,6 +249,6 @@ PTb calculation on the water molecule
 
 This is a basic example on how to perform a PTb calculation in HORTON. This script performs a PTb calculation on the water molecule using the cc-pVDZ basis set.
 
-.. literalinclude:: ../data/examples/perturbation_theory/water_ptb.py
-    :caption: data/examples/perturbation_theory/water_ptb.py
+.. literalinclude:: ../data/examples/perturbation_theory/ptb_water_cc-pvdz.py
+    :caption: data/examples/perturbation_theory/ptb_water_cc-pvdz.py
     :lines: 2-

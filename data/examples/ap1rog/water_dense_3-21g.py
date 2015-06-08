@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! /usr/bin/python
 
 from horton import *
 import numpy as np
@@ -6,10 +6,9 @@ import numpy as np
 ###############################################################################
 ## Set up molecule, define basis set ##########################################
 ###############################################################################
-# get the XYZ file from HORTON's test data directory
 fn_xyz = context.get_fn('test/water.xyz')
 mol = IOData.from_file(fn_xyz)
-obasis = get_gobasis(mol.coordinates, mol.numbers, 'cc-pvdz')
+obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
 ###############################################################################
 ## Define Occupation model, expansion coefficients and overlap ################
 ###############################################################################
@@ -22,12 +21,12 @@ olp = obasis.compute_overlap(lf)
 ###############################################################################
 kin = obasis.compute_kinetic(lf)
 na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-two = obasis.compute_electron_repulsion(lf)
+er = obasis.compute_electron_repulsion(lf)
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 terms = [
     RTwoIndexTerm(kin, 'kin'),
-    RDirectTerm(two, 'hartree'),
-    RExchangeTerm(two, 'x_hf'),
+    RDirectTerm(er, 'hartree'),
+    RExchangeTerm(er, 'x_hf'),
     RTwoIndexTerm(na, 'ne'),
 ]
 ham = REffHam(terms, external)
@@ -50,7 +49,7 @@ one.iadd(na)
 ## Do OO-AP1roG optimization ##################################################
 ###############################################################################
 ap1rog = RAp1rog(lf, occ_model)
-energy, c, l = ap1rog(one, two, external['nn'], orb, olp, True, **{
+energy, c, l = ap1rog(one, er, external['nn'], orb, olp, True, **{
     'indextrans': 'tensordot',
     'warning': False,
     'checkpoint': 1,
