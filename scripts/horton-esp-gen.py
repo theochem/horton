@@ -39,7 +39,7 @@ def parse_args():
         description='Generate electrostatic potential grid data from charges '
                     'for a 3D periodic system.')
     parser.add_argument('-V', '--version', action='version',
-        version="%%(prog)s (horton version %s)" % __version__)
+        version="%%(prog)s (HORTON version %s)" % __version__)
 
     parser.add_argument('charges', type=str,
         help='The atomic charges to be used in the form '

@@ -29,7 +29,7 @@ def parse_args():
     parser = argparse.ArgumentParser(prog='horton-cubehead.py',
         description='Write an ecomonic header for the cubegen program.')
     parser.add_argument('-V', '--version', action='version',
-        version="%%(prog)s (horton version %s)" % __version__)
+        version="%%(prog)s (HORTON version %s)" % __version__)
 
     parser.add_argument('structure',
         help='A file containing a molecular structure (of an isolated system)')

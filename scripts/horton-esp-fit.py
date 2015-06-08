@@ -37,7 +37,7 @@ def parse_args():
     parser = argparse.ArgumentParser(prog='horton-esp-fit.py',
         description='Estimate charges from an ESP cost function.')
     parser.add_argument('-V', '--version', action='version',
-        version="%%(prog)s (horton version %s)" % __version__)
+        version="%%(prog)s (HORTON version %s)" % __version__)
 
     parser.add_argument('cost',
         help='The location of the cost function in the form '

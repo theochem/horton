@@ -40,7 +40,7 @@ def parse_args():
     parser = argparse.ArgumentParser(prog='horton-esp-cost.py',
         description='Construct a cost function and fit charges to ESP.')
     parser.add_argument('-V', '--version', action='version',
-        version="%%(prog)s (horton version %s)" % __version__)
+        version="%%(prog)s (HORTON version %s)" % __version__)
 
     parser.add_argument('cube',
         help='The cube file.')

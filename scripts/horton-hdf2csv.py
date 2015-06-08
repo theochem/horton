@@ -45,7 +45,7 @@ def parse_args():
         description='Convert part of a HDF5 file to a CSV file, suitable for spreadsheets.',
         epilog=epilog)
     parser.add_argument('-V', '--version', action='version',
-        version="%%(prog)s (horton version %s)" % __version__)
+        version="%%(prog)s (HORTON version %s)" % __version__)
 
     parser.add_argument('h5',
         help='Specifies (the part of) the HDF5 file that gets converted in the '

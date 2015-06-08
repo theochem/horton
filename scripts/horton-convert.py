@@ -36,7 +36,7 @@ def parse_args():
                     'only works of the input contains sufficient data for the '
                     'output')
     parser.add_argument('-V', '--version', action='version',
-        version="%%(prog)s (horton version %s)" % __version__)
+        version="%%(prog)s (HORTON version %s)" % __version__)
 
     parser.add_argument('input',
         help='The input file. Supported file types are: '
