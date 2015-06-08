@@ -45,22 +45,23 @@ Dumping
 -------
 
 You can store all of the operators in the atomic-orbital (AO) basis. For example,
-you can store the integrals in the Cholesky decomposed format and the core energy:
+you can store the core energy and all the integrals in the Cholesky decomposed format:
 
 .. literalinclude :: ../data/examples/hamiltonian/dump_internal_ao.py
     :caption: data/examples/hamiltonian/dump_internal_ao.py
     :lines: 2-
 
 The internal format will store all attributes of the
-:py:class:`~horton.io.iodata.IOData` instance. Note that the
-attributes ``coordinates``, ``numbers`` and ``title`` were loaded from the
-``.xyz`` file and will also be dumped into the internal format. Deleting the
-attribute, e.g. ``del mol.title``, or adding a new attribute, e.g. ``mol.sasfdasdf = 'poop'``,
-will result in the exclusion or the inclusion of the appropriate attribute,
+:py:class:`~horton.io.iodata.IOData` instance. Note that the attributes
+``coordinates``, ``numbers`` and ``title`` were loaded from the ``.xyz`` file
+and will also be dumped into the internal format. Deleting an attribute, e.g.
+``del mol.title``, or adding a new attribute, e.g. ``mol.egg = 'spam'``, will
+result in the exclusion or the inclusion of the appropriate attribute,
 respectively.
 
-In the HDF5 file, all data is stored in binary form with full precision. In the
-example above, the dumped HDF5 file will have the following layout:
+In the HDF5 file, all data is stored in binary form with full precision, which
+means that all significant digits are written to file. In the example above, the
+dumped HDF5 file will have the following layout:
 
 .. code-block:: text
 
@@ -74,6 +75,7 @@ example above, the dumped HDF5 file will have the following layout:
      dataset    /er/array
      group      /kin
      dataset    /kin/array
+     group      /lf
      group      /na
      dataset    /na/array
      dataset    /numbers
@@ -99,6 +101,7 @@ will results in the following HDF5 layout:
     FILE_CONTENTS {
      group      /
      dataset    /core_energy
+     group      /lf
      dataset    /ms2
      dataset    /nelec
      group      /one_mo

@@ -21,6 +21,7 @@ core_energy = compute_nucnuc(coordinates, numbers.astype(float))
 # Write to a HDF5 file
 # --------------------
 data = IOData()
+data.lf = lf
 data.one_mo = one_mo
 data.two_mo = two_mo
 data.core_energy = core_energy

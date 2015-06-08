@@ -27,13 +27,9 @@ Defining a model Hamiltonian
 Supported features
 ==================
 
-HORTON provides the following physical model Hamiltonians
-
-1. The :ref:`1- dimensional Hubbard model Hamiltonian <hubbardham>` with open
-   and periodic boundary conditions
-
-Note that only ``DenseLinalgFactory`` is supported for model Hamiltonians.
-
+HORTON implements the :ref:`1- dimensional Hubbard model Hamiltonian
+<hubbardham>` with open and periodic boundary conditions. Note that only
+``DenseLinalgFactory`` is supported for model Hamiltonians.
 
 .. _hubbardham:
 
@@ -58,7 +54,7 @@ Preliminaries
 -------------
 
 In contrast to the molecular Hamiltonian, the Hubbard Hamiltonian does not require
-a molecule and ``GOBasis`` instance. Instead, a
+a molecule and :py:class:`~horton.gbasis.cext.GOBasis` instance. Instead, a
 :py:class:`~horton.matrix.dense.DenseLinalgFactory` instance can
 be immediately created,
 
@@ -144,7 +140,13 @@ is used to initiate the orbitals:
 
     orb = lf.create_expansion(n)
 
-This instance can also be used as an initial guess.
+An initial guess can be obtained with
+:py:func:`~horton.meanfield.guess.guess_core_hamiltonian`:
+
+.. code-block:: python
+
+    guess_core_hamiltonian(olp, hopping, orb)
+
 The overlap matrix of the Hubbard model can be computed using the method
 :py:meth:`~horton.modelhamiltonians.physmodham.Hubbard.compute_overlap`:
 

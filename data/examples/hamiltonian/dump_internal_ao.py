@@ -12,6 +12,7 @@ lf = CholeskyLinalgFactory(obasis.nbasis)
 
 # Construct Hamiltonian
 # ---------------------
+mol.lf = lf
 mol.kin = obasis.compute_kinetic(lf)
 mol.na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
 mol.er = obasis.compute_electron_repulsion(lf)
