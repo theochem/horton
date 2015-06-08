@@ -24,9 +24,15 @@
 The AP1roG module
 #################
 
-Two-electron functions, called geminals, can be used to incorporate electron correlation effects into the many-particle wavefunction. HORTON supports a special type of geminal-based wavefunction models, the antisymmetric product of 1-reference orbital geminals (AP1roG).
-This gemial model provides an alternative parametrization of the doubly occupied configuration interaction (DOCI), but requires only mean-field computational cost in contrast to the factorial scaling of traditional DOCI implementations [limacher2013]_.
-Currently the AP1roG module is limited to closed-shell systems only.
+Two-electron functions, called geminals, can be used to incorporate electron
+correlation effects int o the many-particle wavefunction. Horton supports a
+special type of geminal-based wavefunction models, the antisymmetric p roduct of
+1-reference orbital geminals (AP1roG), which is equivalent to pair-coupled
+cluster doubles. The AP1roG wavefunct ion effectively parameterizes the doubly
+occupied configuration interaction wavefunction (DOCI), but requires only
+mean-fi eld computational cost in contrast to the factorial scaling of
+traditional DOCI implementations [limacher2013]_. Currently the AP1roG module is
+limited to closed-shell systems only.
 
 .. _user_ap1rog_model:
 
@@ -108,7 +114,7 @@ To optimize an AP1roG wavefunction, the module requires a Hamiltonian and an ini
     2. In-house calculation of model Hamiltonians. Supported model Hamiltonians are summarized in :ref:`modphysham`. If the model Hamiltonian contains separate one-electron contributions, they have to be combined to a single operator as shown under point 1.
 
 
-    3. External (one- and two-electron) integrals (in an orthonormal basis) and core energy can be read from file. The integral file must use the Molpro file format (see :ref:`hamiltonian_io` for more details). To load a Hamiltonina from file, run
+    3. External (one- and two-electron) integrals (in an orthonormal basis) and core energy can be read from file. The integral file must use the Molpro file format (see :ref:`hamiltonian_io` for more details). To load a Hamiltonian from file, run
 
         .. code-block:: python
 
@@ -200,7 +206,7 @@ After the AP1roG calculation is finished (because AP1roG converged or the maximu
 Summary of keyword arguments
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    :indextrans: (str) 4-index Transformation. Choice between ``tensordot`` (default) and ``einsum``. ``tensordot`` is faster than ``einsum``, requires, however, more memory. If ``DenseLinalgFactory`` is used, the memory requirement scales as :math:`2N^4` for ``einsum`` and :math:`3N^4` for ``tensordot``, respectively. Due to the storage of the two-electron integrals, the total amount of memory increases to :math:`3N^4` for ``einsum`` and :math:`4N^4` for ``tensordot``, respectively.
+    :indextrans: (str) 4-index Transformation. Choice between ``tensordot`` (default) and ``einsum``. ``tensordot`` is faster than ``einsum``, but requires more memory. If ``DenseLinalgFactory`` is used, the memory requirement scales as :math:`2N^4` for ``einsum`` and :math:`3N^4` for ``tensordot``, respectively. Due to the storage of the two-electron integrals, the total amount of memory increases to :math:`3N^4` for ``einsum`` and :math:`4N^4` for ``tensordot``, respectively.
 
     :warning: (boolean) if ``True``, (scipy) solver-specific warnings are printed (default ``False``)
 
@@ -577,7 +583,7 @@ This is the same example as above, but all keyword arguments are mentioned expli
 AP1roG with external integrals
 ------------------------------
 
-This is a basic example on how to perform an orbital-optimized AP1roG calculation using one- and two-electron integrals from an external file, when generate the FCIDUMP file, don't specify any symmetry or freeze orbitals. The number of doubly-occupied orbitals is ``5``, while the total number of basis functions is ``28``. See :ref:`modphysham`.
+This is a basic example on how to perform an orbital-optimized AP1roG calculation using one- and two-electron integrals from an external file. The number of doubly-occupied orbitals is ``5``, while the total number of basis functions is ``28``. See :ref:`modphysham`.
 
 
 .. literalinclude:: ../data/examples/ap1rog/external_hamiltonian_n2_dense.py
