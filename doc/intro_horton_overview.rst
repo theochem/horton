@@ -68,7 +68,7 @@ What HORTON is (or is hoped to be):
   alternative capabilities or better computational performance). To faciliate
   the use of HORTON within other programs, we guarantee no major `API
   <http://en.wikipedia.org/wiki/Application_programming_interface>`_ changes for
-  at least twelve months after each major release. Ensuring that HORTON can be
+  at least eighteen months after each major release. Ensuring that HORTON can be
   used in all three ways (as part of a larger program; as a stand-alone program;
   outside other programs) is a fundamental design principle of HORTON.
 
