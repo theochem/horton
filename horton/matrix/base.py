@@ -49,6 +49,30 @@ class LinalgFactory(object):
         '''
         self.default_nbasis = default_nbasis
 
+    @classmethod
+    def from_hdf5(cls, grp):
+        '''Construct an instance from data previously stored in an h5py.Group.
+
+           **Arguments:**
+
+           grp
+                An h5py.Group object.
+        '''
+        default_nbasis = grp.attrs.get('default_nbasis')
+        return cls(default_nbasis)
+
+    def to_hdf5(self, grp):
+        '''Write a LinalgFactory to an HDF5 group
+
+           **Argument:**
+
+           grp
+                A h5py.Group instance to write to.
+        '''
+        grp.attrs['class'] = self.__class__.__name__
+        if self.default_nbasis is not None:
+            grp.attrs['default_nbasis'] = self.default_nbasis
+
     def set_default_nbasis(self, nbasis):
         self.default_nbasis = nbasis
 

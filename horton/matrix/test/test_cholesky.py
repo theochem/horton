@@ -68,6 +68,30 @@ def test_linalg_factory_constructors():
     assert op4.is_decoupled
 
 
+def test_linalg_hdf5():
+    # without default nbasis
+    lf1 = CholeskyLinalgFactory()
+    with h5.File('horton.matrix.test.test_cholesky.test_linalg_hdf5.h5', driver='core', backing_store=False) as f:
+        lf1.to_hdf5(f)
+        lf2 = CholeskyLinalgFactory.from_hdf5(f)
+        assert isinstance(lf2, CholeskyLinalgFactory)
+        assert lf2.default_nbasis is None
+        lf3 = load_h5(f)
+        assert isinstance(lf3, CholeskyLinalgFactory)
+        assert lf3.default_nbasis is None
+
+    # with default nbasis
+    lf1 = CholeskyLinalgFactory(13)
+    with h5.File('horton.matrix.test.test_cholesky.test_linalg_hdf5.h5', driver='core', backing_store=False) as f:
+        lf1.to_hdf5(f)
+        lf2 = CholeskyLinalgFactory.from_hdf5(f)
+        assert isinstance(lf2, CholeskyLinalgFactory)
+        assert lf2.default_nbasis == 13
+        lf3 = load_h5(f)
+        assert isinstance(lf3, CholeskyLinalgFactory)
+        assert lf3.default_nbasis == 13
+
+
 def test_linalg_objects_del():
     lf = CholeskyLinalgFactory()
     with assert_raises(TypeError):

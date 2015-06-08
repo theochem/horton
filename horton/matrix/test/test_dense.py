@@ -168,6 +168,30 @@ def test_linalg_factory_constructors():
     assert op4.nbasis == 8
 
 
+def test_linalg_hdf5():
+    # without default nbasis
+    lf1 = DenseLinalgFactory()
+    with h5.File('horton.matrix.test.test_dense.test_linalg_hdf5.h5', driver='core', backing_store=False) as f:
+        lf1.to_hdf5(f)
+        lf2 = DenseLinalgFactory.from_hdf5(f)
+        assert isinstance(lf2, DenseLinalgFactory)
+        assert lf2.default_nbasis is None
+        lf3 = load_h5(f)
+        assert isinstance(lf3, DenseLinalgFactory)
+        assert lf3.default_nbasis is None
+
+    # with default nbasis
+    lf1 = DenseLinalgFactory(13)
+    with h5.File('horton.matrix.test.test_dense.test_linalg_hdf5.h5', driver='core', backing_store=False) as f:
+        lf1.to_hdf5(f)
+        lf2 = DenseLinalgFactory.from_hdf5(f)
+        assert isinstance(lf2, DenseLinalgFactory)
+        assert lf2.default_nbasis == 13
+        lf3 = load_h5(f)
+        assert isinstance(lf3, DenseLinalgFactory)
+        assert lf3.default_nbasis == 13
+
+
 def test_linalg_objects_del():
     lf = DenseLinalgFactory()
     with assert_raises(TypeError):
