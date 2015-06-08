@@ -22,24 +22,25 @@
 Contributors
 ############
 
-HORTON is developed and maintained by `Toon Verstraelen
-<Toon.Verstraelen@UGent.be>`_ at the `Center for Molecular Modeling
-<http://molmod.ugent.be/>`_.
+HORTON is maintained by `Toon Verstraelen <Toon.Verstraelen@UGent.be>`_ at the
+`Center for Molecular Modeling <http://molmod.ugent.be/>`_.
 
 The following people from the `Ayers group
 <http://www.chemistry.mcmaster.ca/ayers/>`_ and the `Center for Molecular
 Modeling <http://molmod.ugent.be/>`_ have contributed patches to the public
 version of HORTON:
 
-* Ali Malek
-* Cristina E. González-Espinoza
-* Derrick Yang
-* Diego Berrocal
-* Farnaz Heidar-Zadeh
+* Toon Verstraelen
 * Katharina Boguslawski
-* Matthew Chan
-* Paul W. Ayers
 * Pawel Tecmer
-* Peter A. Limacher
-* Steven Vandenbrande
+* Farnaz Heidar-Zadeh
+* Matthew Chan
+* Yilin Zhao
 * Taewon D. Kim
+* Steven Vandenbrande
+* Derrick Yang
+* Cristina E. González-Espinoza
+* Peter A. Limacher
+* Diego Berrocal
+* Ali Malek
+* Paul W. Ayers
