@@ -550,6 +550,10 @@ Troubleshooting in AP1roG-SCF calculations
 Example Python scripts
 ======================
 
+Several complete examples can be found in the directory
+``data/examples/ap1rog``. Three of these are discussed in the following
+subsections.
+
 The water molecule (a minimum input example)
 --------------------------------------------
 
