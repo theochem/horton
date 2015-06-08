@@ -27,5 +27,8 @@ depends/*.*
 .pydevproject
 .project
 
+# Ignore vi(m) swap files
+*.swp
+
 # Ignore user configuration for libraries
 setup.cfg
