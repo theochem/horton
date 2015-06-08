@@ -91,7 +91,7 @@ This guess involves only the one-body terms of the electronic Hamiltonian and
 completely neglects electron-electron interactions. The orbitals for such a
 one-body Hamiltonian can be computed without any prior guess.
 
-The function :py:func:`horton.meanfield.guess.guess_core_hamiltonian` can be
+The function :py:func:`~horton.meanfield.guess.guess_core_hamiltonian` can be
 used to compute the core hamiltonian guess. This type of guess does only relies on a
 simple one-body Hamiltonian, usually consisting of the kinetic energy and the
 interaction with the external field. In case of an unrestricted calculation,
@@ -118,7 +118,7 @@ operators to construct different types of guesses.
 Randomizing an initial guess
 ----------------------------
 
-The method :py:meth:`horton.matrix.dense.DenseExpansion.rotate_random` can be
+The method :py:meth:`~horton.matrix.dense.DenseExpansion.rotate_random` can be
 used to apply a random unitary rotation to all the orbitals (occupied and virtual).
 The orbital energies and occupation numbers are not affected. For example, after
 constructing a :ref:`user_hf_dft_core_guess`, the following line randomizes the
@@ -137,7 +137,7 @@ If needed, you may fine-tune the initial guess by making fine-grained
 modifications to the orbitals. (These may also be useful for fixing the orbitals
 that come out of a failed SCF.)
 
-* The method :py:meth:`horton.matrix.dense.DenseExpansion.rotate_2orbitals`
+* The method :py:meth:`~horton.matrix.dense.DenseExpansion.rotate_2orbitals`
   allows you to mix two orbitals. By default, it rotates the HOMO and LUMO
   orbitals by 45 degrees:
 
@@ -153,7 +153,7 @@ that come out of a failed SCF.)
   Also, HORTON uses zero-based indices, so the arguments ``0, 5``
   refer to the first and the sixth orbital.
 
-* The method :py:meth:`horton.matrix.dense.DenseExpansion.swap_orbitals` allows
+* The method :py:meth:`~horton.matrix.dense.DenseExpansion.swap_orbitals` allows
   you to swap several orbitals. It takes as an argument an array where each row
   is a pair of orbitals to swap. For example, the following swaps 1st and 3rd,
   followed by a swap of 2nd and 4th:
@@ -196,7 +196,7 @@ Projecting orbitals from a smaller basis onto a larger one
 Assuming you have obtained (converged) orbitals in a smaller basis set, you can
 try to use these as initial guess after projecting the orbitals onto the
 larger basis set. This is exactly what the function
-:py:func:`horton.meanfield.project.project_orbitals_mgs` does. The following
+:py:func:`~horton.meanfield.project.project_orbitals_mgs` does. The following
 snippet assumes that the ``obasis0`` and ``exp_alpha0`` are the small basis set
 and a set of orbitals in that basis for the ``IOData`` instance ``mol``.
 
@@ -247,8 +247,8 @@ energy toward the density matrix elements.
 A generic `API
 <http://en.wikipedia.org/wiki/Application_programming_interface>`_ for such
 density matrix functionals is implemented in the classes
-:py:class:`horton.meanfield.hamiltonian.REffHam` and
-:py:class:`horton.meanfield.hamiltonian.UEffHam`. The prefixes ``R`` and ``U``
+:py:class:`~horton.meanfield.hamiltonian.REffHam` and
+:py:class:`~horton.meanfield.hamiltonian.UEffHam`. The prefixes ``R`` and ``U``
 are used (also below) to differentiate between restricted and unrestricted
 implementations. A Hatree-Fock or DFT effective Hamiltonian is defined by
 constructing an instance of the ``REffHam`` or ``UEffHam`` classes and providing
@@ -609,7 +609,7 @@ term. This can be done in two ways:
 Transforming the Hamiltonian to the molecular-orbital (MO) basis
 ----------------------------------------------------------------
 
-The function :py:func:`horton.orbital_utils.transform_integrals` can be used for
+The function :py:func:`~horton.orbital_utils.transform_integrals` can be used for
 this purpose. It works differently for restricted and unrestricted orbitals:
 
 1. In the case of restricted (Hartree-Fock) orbitals, there is just one
@@ -650,7 +650,7 @@ in physicist's notation. The core energy of the active space is calculated as
 
 where the two-electron integrals :math:`\langle pq \vert rs \rangle` contain only
 the elements with active orbital indices :math:`p,q,r,s`. This type of conversion
-is implemented in the function :py:func:`horton.orbital_utils.split_core_active`.
+is implemented in the function :py:func:`~horton.orbital_utils.split_core_active`.
 It is used as follows:
 
 .. code-block:: python

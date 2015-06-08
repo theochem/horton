@@ -225,7 +225,7 @@ a custom script, the cost function can be loaded as follows:
     cost = load_h5("cost.h5")['cost']
 
 The object ``cost`` is an instance of the
-:py:class:`horton.espfit.cost.ESPCost` (follow link for documentation). This
+:py:class:`~horton.espfit.cost.ESPCost` (follow link for documentation). This
 instance can, for example, be used to evaluate the ESP cost or its gradient of a
 given array of atomic charges:
 

@@ -192,7 +192,7 @@ where :math:`D_{\mu\nu}` is the spin-summed density matrix. The matrix
 
 where :math:`b_\mu(\mathbf{r})` are the orbital basis functions. Such matrices
 can be constructed with the
-:py:meth:`horton.gbasis.cext.GOBasis.compute_grid_density_fock` method. This method is
+:py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_density_fock` method. This method is
 also useful when applying the chain rule to construct the contribution of a density functional
 to a Fock matrix:
 
