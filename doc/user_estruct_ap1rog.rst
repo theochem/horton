@@ -162,7 +162,7 @@ After specifying a Hamiltonian and initial guess orbitals, you can create an ins
 
 with arguments
 
-    :lf: A ``LinalgFactory`` instance (see FIXME)
+    :lf: A ``LinalgFactory`` instance
     :occ_model: (``AufbauOccModel`` instance) an Aufbau occupation model
 
 and optional arguments
@@ -377,7 +377,7 @@ Note that, in HORTON, :math:`\Gamma_{p\bar{p}q\bar{q}} = 0 \, \forall \, p=q \in
 Natural orbitals and occupation numbers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If AP1roG converges, the final orbitals are the AP1roG natural orbitals and are stored in ``orb`` (see :ref:`ooap1rog` how to obtain ``orb``). The natural orbitals can be exported to the molden file format (see FIXME) and visualized using, for instance, `Jmol <http://jmol.sourceforge.net>`_ or `VESTA <http://jp-minerals.org/vesta/en/>`_.
+If AP1roG converges, the final orbitals are the AP1roG natural orbitals and are stored in ``orb`` (see :ref:`ooap1rog` how to obtain ``orb``). The natural orbitals can be exported to the molden file format (see :ref:`ref_file_formats`) and visualized using, for instance, `Jmol <http://jmol.sourceforge.net>`_ or `VESTA <http://jp-minerals.org/vesta/en/>`_.
 
 The natural occupation numbers, the eigenvalues of the response 1-RDM (see :ref:`responsedms` for how to calculate response RDMs) are stored in the ``occupations`` attribute (a 1-dim np.array) of ``orb`` and can be directly accessed after an AP1roG calculation using
 
