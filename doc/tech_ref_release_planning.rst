@@ -38,18 +38,18 @@ will not change the behaviour of your code.
     expect breakage even between bugfix releases!
 
 - Major releases (i.e. 1.x.x -> 2.x.x) will not guarantee compatiblity with past
-  versions. 
+  versions.
 
-  * We will wait a minimum of 18 months between major releases. 
+  * We will wait a minimum of 18 months between major releases.
   * These releases will contain overarching restructuring of the code and
     renaming of functions and classes, including removal of deprecated code.
 
 
 - Minor releases (i.e. 1.1.x -> 1.2.x) will remain compatible with past
-  versions. 
+  versions.
 
   * These releases will be used to introduce new features or tweaks to existing
-    code. 
+    code.
   * New algorithms for existing features will be disabled by default in order to
     preserve old behaviour.
 
@@ -59,7 +59,7 @@ will not change the behaviour of your code.
 
 
 - Occasionally, we will release features marked as *beta* to speed up sharing
-  ideas. 
+  ideas.
 
   * They do not adhere to this stable API policy. We reserve the right to break
     API in beta features at any time.
