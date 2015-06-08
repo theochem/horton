@@ -17,15 +17,15 @@ kin = modelham.compute_kinetic(lf, -1)
 ###############################################################################
 # U-param, U = 2 ##############################################################
 ###############################################################################
-er = modelham.compute_er(lf, 2)
+two = modelham.compute_er(lf, 2)
 ###############################################################################
 ## Perform initial guess ######################################################
 ###############################################################################
 guess_core_hamiltonian(olp, kin, orb)
 terms = [
     RTwoIndexTerm(kin, 'kin'),
-    RDirectTerm(er, 'hartree'),
-    RExchangeTerm(er, 'x_hf'),
+    RDirectTerm(two, 'hartree'),
+    RExchangeTerm(two, 'x_hf'),
 ]
 ham = REffHam(terms)
 ###############################################################################
@@ -37,4 +37,4 @@ scf_solver(ham, lf, olp, occ_model, orb)
 ## Do OO-AP1roG optimization ##################################################
 ###############################################################################
 ap1rog = RAp1rog(lf, occ_model)
-energy, g, l = ap1rog(kin, er, 0, orb, olp, True)
+energy, c, l = ap1rog(kin, two, 0, orb, olp, True)

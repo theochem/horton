@@ -596,4 +596,4 @@ Note that for the Hubbard model, the external potential has to be set to ``0``,
 
 .. code-block:: python
 
-    energy, c, l = ap1rog(kin, er, 0, orb, olp, True)
+    energy, c, l = ap1rog(kin, two, 0, orb, olp, True)
