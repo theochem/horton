@@ -440,7 +440,7 @@ class RMP2(Perturbation):
     def check_input(self, **kwargs):
         '''Check input parameters'''
         for name, value in kwargs.items():
-            check_options('name', name, 'eref', 'threshold')
+            check_options('name', name, 'eref', 'threshold', 'indextrans')
         eref = kwargs.get('eref', float('nan'))
         if math.isnan(eref):
             raise ValueError('Warning: Cannot find reference energy in MP2 module!')
@@ -1425,7 +1425,7 @@ class PTb(Perturbation):
         '''Check input parameters.'''
         for name, value in kwargs.items():
             check_options(name, name, 'ecore', 'eref', 'threshold', 'maxiter',
-                'guess')
+                'guess', 'indextrans')
         eref = kwargs.get('eref', float('nan'))
         ecore = kwargs.get('ecore', float('nan'))
         guess = kwargs.get('guess', None)
