@@ -86,7 +86,7 @@ A function call initiates an MP2 calculation,
 
 .. code-block:: python
 
-    emp2, tmp2 = mp2(one, two, orb, **{'eref': ehf, 'indextrans': 'tensordot'})
+    emp2, tmp2 = mp2(one, two, orb, **{'eref': ehf, 'FIXME': 'tensordot'})
 
 with arguments
 
