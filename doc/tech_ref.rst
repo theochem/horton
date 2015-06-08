@@ -25,13 +25,13 @@ Reference Documentation
 .. toctree::
    :maxdepth: 3
 
-   tech_ref_release_planning
    tech_ref_contributors
+   tech_ref_release_planning
    tech_ref_release_history
    tech_ref_file_formats
    tech_ref_grids
    tech_ref_gaussian_basis
+   tech_ref_functionals
    tech_ref_acronyms
    tech_ref_dictionary
-   tech_ref_functionals
    tech_ref_literature
