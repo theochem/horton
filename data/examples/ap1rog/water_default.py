@@ -21,12 +21,12 @@ olp = obasis.compute_overlap(lf)
 ###############################################################################
 kin = obasis.compute_kinetic(lf)
 na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-er = obasis.compute_electron_repulsion(lf)
+two = obasis.compute_electron_repulsion(lf)
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 terms = [
     RTwoIndexTerm(kin, 'kin'),
-    RDirectTerm(er, 'hartree'),
-    RExchangeTerm(er, 'x_hf'),
+    RDirectTerm(two, 'hartree'),
+    RExchangeTerm(two, 'x_hf'),
     RTwoIndexTerm(na, 'ne'),
 ]
 ham = REffHam(terms, external)
@@ -49,7 +49,7 @@ one.iadd(na)
 ## Do OO-AP1roG optimization ##################################################
 ###############################################################################
 ap1rog = RAp1rog(lf, occ_model)
-energy, c, l = ap1rog(one, er, external['nn'], orb, olp, True, **{
+energy, c, l = ap1rog(one, two, external['nn'], orb, olp, True, **{
     'indextrans': 'tensordot',
     'warning': False,
     'checkpoint': 1,
