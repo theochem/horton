@@ -93,6 +93,9 @@ def main():
         write_disclaimer(f1)
         underline('``%s`` -- %s' % (package, get_first_docline(package)), '#', f1)
         print >> f1
+        print >> f1, '.. automodule::', package
+        print >> f1, '    :members:'
+        print >> f1
         print >> f1, '.. toctree::'
         print >> f1, '    :maxdepth: 1'
         print >> f1, '    :numbered:'
