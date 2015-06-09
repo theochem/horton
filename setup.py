@@ -68,6 +68,9 @@ class my_install_data(install_data):
         install_data.run(self)
         # Create the file datadir.txt. It's exact content is only known
         # at installation time.
+
+        install_directory = os.getenv("INSTALL_DIR", self.install_dir)
+
         dist = self.distribution
         libdir = dist.command_obj["install_lib"].install_dir
         for name in dist.packages:
@@ -76,7 +79,7 @@ class my_install_data(install_data):
                 print "Creating %s" % destination
                 if not self.dry_run:
                     f = file(destination, "w")
-                    print >> f, self.install_dir
+                    print >> f, install_directory
                     f.close()
 
 
