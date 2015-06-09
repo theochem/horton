@@ -33,9 +33,9 @@ will not change the behaviour of your code.
 
 .. warning::
 
-    *The stable API policy only applies to public members of code.* If you
-    access private members of classes directly (i.e. _array in Matrix), you can
-    expect breakage even between bugfix releases!
+    *The stable API policy only applies to the part that isdocumented in the
+    User Documentation.* All other API may be subject to changes as we make
+    improvements to HORTON.
 
 HORTON releases are given version numbers according to the `Semantic Versioning
 Specification <http://semver.org/>`_, which directly relates to API stability:
@@ -74,11 +74,10 @@ Unstable code in HORTON 2.0.0
 Some parts of the 2.0.0 version have no stable API yet because of known problems
 or because the code was not fully reviewed yet.
 
-* :py:mod:`horton.correaltedwfn`
-* :py:mod:`horton.perturbation_theory`
+* :py:mod:`horton.correlatedwfn`
 * :py:mod:`horton.orbital_entanglement`
 * :py:mod:`horton.orbital_utils`
-* :py:mod:`horton.orbital_localization`
+* :py:mod:`horton.localization`
 
 In future release, we will report in this sectoin the API changes for the
 unstable parts.
@@ -95,6 +94,6 @@ mail to `the HORTON mailing list
 ======== =======================================================================
  Target   Feature
 ======== =======================================================================
- 2.1.0    MGGA Functionals
- 2.1.0    Range-separated exchange integrals
+ 2.1.0    MGGA functionals
+ 2.1.0    Range-separated functionals
 ======== =======================================================================
