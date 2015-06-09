@@ -449,7 +449,7 @@ class RMP2(Perturbation):
         '''Check if amplitudes are symmetric (within a given threshold).'''
         thresh = kwargs.get('threshold', 1e-6)
 
-        if not self.amplitudes[0].is_symmetric('cdab', thresh):
+        if not self.amplitudes[0].is_symmetric('cdab', atol=thresh):
             raise ValueError('Warning: Cluster amplitudes not symmetric!')
 
 
@@ -861,7 +861,7 @@ class PTa(Perturbation):
         thresh = kwargs.get('threshold', 1e-6)
 
         # check symmetry of amplitudes:
-        if not self.amplitudes[0].is_symmetric('cdab', thresh):
+        if not self.amplitudes[0].is_symmetric('cdab', atol=thresh):
             raise ValueError('Warning: Cluster amplitudes not symmetric. Aborting optimization!')
 
         # check if diagonal amplitudes are zero:
@@ -1443,5 +1443,5 @@ class PTb(Perturbation):
         thresh = kwargs.get('threshold', 1e-6)
 
         # check symmetry of amplitudes:
-        if not self.amplitudes[0].is_symmetric('cdab', thresh):
+        if not self.amplitudes[0].is_symmetric('cdab', atol=thresh):
             raise ValueError('Warning: Cluster amplitudes not symmetric!')
