@@ -2061,6 +2061,12 @@ def test_four_index_slice_to_four():
     four.slice_to_four('abcd->cadb', factor=1.3, end0=3, begin1=2, begin2=2, end2=5)
 
 
+old_numpy_warning = """
+   Your NumPy version is too old. Please install version 1.9.1 or newer. Consult
+   to the "Download and install" documentation for more details.
+"""
+
+
 def test_four_index_contract_two():
     # test in detail for aabb,ab
     lf = DenseLinalgFactory(6)
@@ -2068,7 +2074,12 @@ def test_four_index_contract_two():
     two = lf.create_two_index()
     inp.randomize()
     two.randomize()
-    out = inp.contract_two('aabb,ab', two, factor=1.3)
+    try:
+        out = inp.contract_two('aabb,ab', two, factor=1.3)
+    except ValueError:
+        if np.__version__ < '1.9.1':
+            print old_numpy_warning
+        raise
     assert out == 1.3*np.einsum('aabb,ab', inp._array, two._array)
     # with ranges
     two = lf.create_two_index(3)
@@ -2210,7 +2221,12 @@ def test_four_index_contract_two_to_two():
               'abcc,bc->ba', 'abcc,bc->ab', 'abcd,ac->db', 'abcd,ad->cb',
               'abcd,ac->bd', 'abcd,ad->bc', 'abcd,ab->cd']
     for subscripts in others:
-        inp.contract_two_to_two(subscripts, two, factor=1.7)
+        try:
+            inp.contract_two_to_two(subscripts, two, factor=1.7)
+        except ValueError:
+            if np.__version__ < '1.9.1':
+                print old_numpy_warning
+            raise
     # with ranges
     out = inp.contract_two_to_two('abcd,cb->ad', two, factor=1.3,
         begin0=0, end0=3, begin1=1, end1=4, begin2=2, end2=5,
