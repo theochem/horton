@@ -28,13 +28,18 @@ Electrostatic potential fitting
 Introduction
 ============
 
-The general idea behind the electrostatic potential (ESP) fitting tools in HORTON is to allow fitting
-and assessment of charges in isolated and 3D-periodic systems with compatible
-methodologies. Furthermore, the procedure is broken into different steps, such
-that you can carry out more specialized ESP fits.
+The general idea behind the electrostatic potential (ESP) fitting tools in HORTON is to allow:
 
-Two related computations, fitting of charges and testing the quality of charges
-for the reproduction of the ESP, can be carried out once an ESP cost function
+ * ESP-fitting: Fitting atomic charges to reproduce the actual molecular ESP, and
+
+ * ESP-testing: Assessing how well a given set of charges reproduce the actual molecular ESP
+
+in isolated and 3D-periodic systems with compatible
+methodologies. These procedures are broken into small steps, such
+that you can carry out more specialized ESP fittings.
+
+These two computations, fitting charges and testing the quality of given charges
+to reproduce the ESP, can be carried out once an ESP cost function
 is constructed. In HORTON, this ESP cost function takes the following form:
 
 .. math::
@@ -43,9 +48,9 @@ is constructed. In HORTON, this ESP cost function takes the following form:
 where the symbols have the following meaning:
 
 * :math:`\{q\}`: the set of the atomic charges
-* :math:`V`: the volume where the point-charge ESP is compared with the
-  reference ESP. In periodic systems, this is the volume of a single primitive
-  cell. In isolated systems, this is some volume surrounding the molecule.
+* :math:`V`: the volume where the point-charge ESP (approximated molecular ESP) is compared to the
+  reference ESP (actual molecular ESP). In isolated systems, this is some volume surrounding the molecule.
+  In periodic systems, this is the volume of a single primitive cell.
 * :math:`w(\mathbf{r})`: the weight function with range [0, 1] that selects the
   relevant parts of the volume for the ESP fit. In HORTON, the weight function
   of Hu, Lu and Yang is used. [hu2007]_ This weight function is zero far away
@@ -54,8 +59,8 @@ where the symbols have the following meaning:
   smoothly varies from 0 to 1. In the Hu-Lu-Yang paper, a pro-density is
   recommended for this purpose while we recommend the use of a proper all-electron
   density or a corrected pseudo-density.
-* :math:`V_\text{ai}(\mathbf{r})`: the ab initio ESP computed with some other
-  program, e.g. Gaussian, CP2K, VASP, etc.
+* :math:`V_\text{ai}(\mathbf{r})`: the actual molecular ESP from `ab initio` or DFT calculations obtained
+  from programs, like Gaussian, CP2K, VASP, etc.
 * :math:`q_A`: the charge of atom :math:`A`.
 * :math:`V_\text{point}(\mathbf{r} - \mathbf{R}_A)`: the ESP due to a unit point
   charge. In an isolated molecule, this is simply :math:`1/|\mathbf{r} - \mathbf{R}_A|`
@@ -67,7 +72,7 @@ where the symbols have the following meaning:
 
 This approach differs from traditional ESP fitting methods (RESP, MKS, CHELPG)
 in the sense that the cost function is defined as an integral rather than a sum
-over sampling points. This idea comes from the Hu-Lu-Yang paper. [hu2007]_
+over sample points. This idea comes from the Hu-Lu-Yang paper. [hu2007]_
 The main difference with the REPEAT method [campana2009]_ is that the selected
 volume for the fit is defined by a smooth weight function. When this weight
 function is based on an all-electron density, there is no need to define atomic
@@ -82,8 +87,8 @@ a 3D periodic system), which we can always write as follows:
 
 The script ``horton-esp-cost.py`` constructs the matrix :math:`A`, the vector
 :math:`B` and the constant :math:`C`. These results are stored in an HDF5 file
-that is subsequently used by the script ``horton-esp-fit.py`` to obtain
-ESP-fitted charges or by the script ``horton-esp-test.py`` to evaluate the
+that is subsequently used by the ``horton-esp-fit.py`` script to obtain
+ESP-fitted charges, or by the ``horton-esp-test.py`` script to evaluate the
 cost function for a given set of charges.
 
 In the output of these three scripts, the following quantities are reported (if
@@ -98,25 +103,25 @@ integral of the weight function. When these charges are the ESP-fitted charges,
 :math:`\text{COST}`, :math:`\text{RMSD}` and :math:`\text{RRMSD}` are minimal.
 When the charges are all set to zero, you obtain the worst-case value for
 :math:`\text{COST}=C`, :math:`\text{RMSD}=\sqrt{C/V_w}` and
-:math:`\text{RRMSD}=100\%`. (You can can still obtain a higher
-:math:`\text{COST}`, but only with completely insensible charges. When that is
-the case, it is better to set the charges to zero to model the ESP.)
+:math:`\text{RRMSD}=100\%`. (You can still obtain a higher
+:math:`\text{COST}`, but only when using completely insensible charges. When that is
+the case, it is better to set the charges equal to zero to model the ESP.)
 
 
 ``horton-esp-cost.py`` -- Set up an ESP cost function
 =====================================================
 
 The ``horton-esp-cost.py`` script can be used to construct the cost function for
-the ESP fitting.
+the ESP fitting or charge testing.
 
-The recommended usage for an all-electron computation is as follows::
+For an all-electron calculation, it is recommended to use::
 
     $ horton-esp-cost.py esp.cube cost.h5 --wdens=rho.cube --pbc={000|111}
 
-where ``esp.cube`` is a Gaussian cube file containing the ESP data. The results will
+where ``esp.cube`` is a Gaussian cube file containing the actual molecular ESP on a grid. The results will
 be written in ``cost.h5``. The option ``--wdens=rho.cube`` implies that the
-weight function is constructed with the Hu-Lu-Yang method using the given
-density cube file. [hu2007]_ The option ``--pbc`` can be used to construct a cost
+weight function is constructed according to the Hu-Lu-Yang method [hu2007]_ using the given
+density cube file. The option ``--pbc`` can be used to construct a cost
 function for an isolated system (``000``) or a 3D periodic system (``111``).
 
 When a pseudo-potential computation is used, the density cube file contains
@@ -127,61 +132,66 @@ allows you to build the weight function as a product of several factors:
 first one is typically the Hu-Lu-Yang weight function and additional weight
 functions can be included for every pseudo-core,
 
-The recommended usage for a pseudo-potential computation is as follows::
+For a pseudo-potential calculation, it is recommended to use::
 
     $ horton-esp-cost.py esp.cube cost.h5 --wdens=rho.cube --pbc={000|111} --wnear Z1:r1:gamma1 [Z2:r2:gamma2 ...]
 
-where one new option, ``--wnear``, is used. This option takes at least one
-argument. One such argument must be present for every element in the system for
-which a pseudo potential is used. The parameter ``Z1`` is the atomic number. The
+where the new option, ``--wnear``, takes at least one
+argument. This argument must be presented for every element in the system for
+which a pseudo potential is used. The parameter ``Z1`` is the atomic number of atom 1. The
 parameter ``r1`` is the radius of the core region that you would like to
-exclude. The parameter ``gamma1`` determines how quickly the weight factor for
+exclude for atom 1. The parameter ``gamma1`` determines how quickly the weight factor for
 elements ``Z1`` switches from 0 (inside a sphere with radius ``r1``) to 1
 (outside a sphere with radius ``r1``). Both ``r1`` and ``gamma1`` must be given
 in angstrom.
 
-The ``horton-esp-cost.py`` script has several more options. Run
-``horton-esp-cost.py --help`` for more details.
+The ``horton-esp-cost.py`` script has several more options. As discussed in the
+:ref:`using_horton_as_a_script` section, the commands below describe
+the arguments that each script take::
 
+    $ horton-esp-cost.py --help
+    $ horton-esp-fit.py  --help
+    $ horton-esp-test.py --help
+    $ horton-cubehead.py --help
 
-``horton-esp-fit.py`` -- Fit charges to the ESP
-===============================================
+``horton-esp-fit.py`` -- Fit atomic charges to the ESP
+======================================================
 
-Once a cost function is constructed, it can be used to estimate atomic charges by
+Once a cost function is constructed, it can be used to estimate the atomic charges by
 minimizing the cost function. A bare-bones fit can be carried out as follows::
 
     $ horton-esp-fit.py cost.h5 charges.h5
 
-where the file ``cost.h5`` is constructed with the script
-``horton-esp-cost.py``.
+where the file ``cost.h5`` is the file generated by the
+``horton-esp-cost.py`` script.
 
 Useful ESP-fitted charges typically involve a more advanced minimizations of
 the ESP cost function, for example, by adding constraints, restraints,
 transforming to bond-charge increments, fitting to several different molecules
 concurrently, etc. Such advanced features are not supported in
 ``horton-esp-fit.py`` script, but you can implement these in customized scripts
-that use the the ESP cost functions obtained with ``horton-esp-cost.py``.
+that use the the ESP cost functions obtained from the ``horton-esp-cost.py`` script.
 
 
 ``horton-esp-test.py`` -- Test the ESP quality of a given set of charges
 ========================================================================
 
-The ``horton-esp-test.py`` script can be used to test the quality of a set of
+The ``horton-esp-test.py`` script can be used to test the quality of a given set of
 charges to reproduce the ESP. These charges are typically obtained
-with ``horton-wpart.py`` or ``horton-cpart.py``. It can be used as follows::
+with ``horton-wpart.py`` or ``horton-cpart.py``. This script can be used as follows::
 
     $ horton-esp-test.py cost.h5 wpart.h5:hi/charges wpart_espcost.h5:hi
 
-The first file, ``cost.h5``, is generated with the
-``horton-esp-cost.py`` script. The second file, ``wpart.h5`` is generated (for example)
-with ``horton-wpart.py gaussian.fchk wpart.h5:hi hi atoms.h5``. The last file,
-``wpart_espcost.h5`` will contain the output in the HDF5 group ``hi``.
+The first file, ``cost.h5``, contains the cost function and is generated with the
+``horton-esp-cost.py`` script. The second file, ``wpart.h5``, contains the given atomic chanrges
+and, for example, is generated with ``$ horton-wpart.py gaussian.fchk wpart.h5:hi hi atoms.h5``. The last file,
+``wpart_espcost.h5``, will contain the assessment results in the HDF5 group ``hi``.
 
 
 Making nice cube files with Gaussian
 ====================================
 
-HORTON contains an auxiliary tool, ``horton-cubehead.py`` to prepare an input
+HORTON contains an auxiliary tool, ``horton-cubehead.py``, to prepare an input
 header for a cube file aligned with the molecule of interest. This is more
 efficient than the default settings of cubegen, which makes a significant difference in
 disk space when working with molecular databases. For occasional use,
@@ -189,7 +199,7 @@ disk space when working with molecular databases. For occasional use,
 
     $ horton-cubehead.py structure.xyz cubehead.txt
 
-The file ``cubehead.txt`` will contain something along the following lines::
+The ``cubehead.txt`` file will contain something along the following lines::
 
     0   16.5695742234   -2.4411573645  -11.3378429796
   -61   -0.0000100512    0.0000288090    0.3779452256
@@ -218,7 +228,7 @@ Python interface to the ESP fitting code
 You can use the ESP cost function constructed by ``horton-esp-cost.py`` script to
 implement customized charge fitting protocols, e.g. using bond-charge
 increments, constraints or hyperbolic restraints. At the beginning of such
-a custom script, the cost function can be loaded as follows:
+a customized script, the cost function can be loaded as follows:
 
 .. code-block:: python
 
