@@ -42,8 +42,7 @@ from horton.log import log, timer
 from horton.cache import Cache
 from horton.utils import check_type, check_options
 from horton.orbital_utils import transform_integrals
-from horton.matrix.base import LinalgFactory, LinalgObject, OneIndex, \
-    Expansion, TwoIndex, ThreeIndex, FourIndex
+from horton.matrix.base import Expansion, TwoIndex, ThreeIndex, FourIndex
 
 
 __all__ = [

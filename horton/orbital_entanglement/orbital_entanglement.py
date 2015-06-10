@@ -36,7 +36,6 @@
 
 import numpy as np
 import math as math
-from horton.cache import Cache
 from horton.log import log
 from horton.utils import check_options
 

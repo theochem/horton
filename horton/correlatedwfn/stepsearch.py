@@ -27,8 +27,6 @@
 '''
 
 
-import numpy as np
-
 from horton.log import log, timer
 from horton.orbital_utils import rotate_orbitals
 from horton.correlatedwfn.trustregionopt import Dogleg, DoubleDogleg, TruncatedCG
