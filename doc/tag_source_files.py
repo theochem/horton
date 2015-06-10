@@ -21,14 +21,15 @@ def main(root):
         # get the current commit ID
         commit_id = subprocess.check_output(['git', 'log', '-n1', '--pretty=oneline']).split()[0]
         version = None
+        print 'Tagging files in %s with commit id %s' % (root, commit_id)
     except subprocess.CalledProcessError:
         # not in a git directory, then get the current version instead
         from conf import release
         version = release
         commit_id = None
+        print 'Tagging files in %s with version %s' % (root, version)
 
     for fn_txt in iter_txt_files(root):
-        print 'Tagging', fn_txt
         with open(fn_txt) as f:
             lines = f.readlines()
         if lines[1].startswith('    DOCUMENTATION BUILT FROM'):
