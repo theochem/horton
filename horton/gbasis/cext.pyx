@@ -643,7 +643,7 @@ cdef class GOBasis(GBasis):
                 is given, it is used to construct the output ``TwoIndex``
                 object. In both cases, the output two-index object is returned.
 
-           **Returns: ``TwoIndex`` object
+           **Returns:** ``TwoIndex`` object
         """
         # prepare the output array
         cdef np.ndarray[double, ndim=2] output_array
@@ -668,7 +668,7 @@ cdef class GOBasis(GBasis):
                 is given, it is used to construct the output ``TwoIndex``
                 object. In both cases, the output two-index object is returned.
 
-           **Returns: ``TwoIndex`` object
+           **Returns:** ``TwoIndex`` object
         """
         # prepare the output array
         cdef np.ndarray[double, ndim=2] output_array
@@ -704,7 +704,7 @@ cdef class GOBasis(GBasis):
                 is given, it is used to construct the output ``TwoIndex``
                 object. In both cases, the output two-index object is returned.
 
-           **Returns: ``TwoIndex`` object
+           **Returns:** ``TwoIndex`` object
         """
         # type checking
         assert coordinates.flags['C_CONTIGUOUS']
