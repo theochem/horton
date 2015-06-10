@@ -39,9 +39,9 @@ The ``horton-convert.py`` script converts between various file formats supported
 
     $ horton-convert.py input_file output_file
 
-The formats we are changing from/to are deduced from the extension of the input/output file name specified. This conversion only works if both file formats are recognized by HORTON, and the required information to write the output file is available in the input file. For more information, please refer to :ref:`ref_file_formats`.
+The formats you are changing from/to are deduced from the extension of the input/output file name specified. This conversion only works if both file formats are recognized by HORTON, and the required information to write the output file is available in the input file. For more information, please refer to :ref:`ref_file_formats`.
 
-This script is typically useful for archiving large amounts of data produced by other codes in text format. The following example converts a ``.cube`` file to HORTON's internal HDF5 format, and then uses ``h5repack``, one of the HDF5 command-line tools, to compress the binary file.
+This script is typically useful for archiving large amounts of data produced by other codes in text format. The following example converts a ``*.cube`` file to HORTON's internal HDF5 format, and then uses ``h5repack``, one of the HDF5 command-line tools, to compress the binary file.
 
 .. code-block:: bash
 
