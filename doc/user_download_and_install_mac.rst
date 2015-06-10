@@ -119,7 +119,7 @@ versions of the following programs/libraries:
 * Nosetests >= 1.1.2: http://readthedocs.org/docs/nose/en/latest/
 * Atlas >= 3.10.1: http://math-atlas.sourceforge.net/ (or any other BLAS implementation that you like more)
 * Numpy >= 1.7.0: http://www.numpy.org/
-* Scipy >= 0.10.0: http://www.scipy.org/
+* Scipy >= 0.11.0: http://www.scipy.org/
 * Cython >= 0.17.1 : http://www.cython.org/
 * h5py >= 2.2.1: http://www.h5py.org/
 * Sympy >= 0.7.1: http://code.google.com/p/sympy/
