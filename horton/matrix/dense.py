@@ -131,8 +131,8 @@ import numpy as np
 from scipy.linalg import eigh, sqrtm, inv
 from horton.log import log
 from horton.utils import check_type, check_options
-from horton.matrix.base import LinalgFactory, LinalgObject, OneIndex, \
-    Expansion, TwoIndex, ThreeIndex, FourIndex, parse_four_index_transform_exps
+from horton.matrix.base import LinalgFactory, OneIndex, Expansion, TwoIndex, \
+    ThreeIndex, FourIndex, parse_four_index_transform_exps
 
 
 __all__ = [

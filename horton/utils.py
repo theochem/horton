@@ -21,9 +21,6 @@
 '''Utility functions'''
 
 
-from functools import wraps
-
-
 __all__ = ['typecheck_geo', 'check_type', 'check_options', 'doc_inherit']
 
 
