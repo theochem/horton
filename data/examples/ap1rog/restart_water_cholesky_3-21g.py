@@ -19,8 +19,10 @@ olp = obasis.compute_overlap(lf)
 
 # Construct Hamiltonian
 # ---------------------
-one = obasis.compute_kinetic(lf)
-obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, one)
+kin = obasis.compute_kinetic(lf)
+na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
+one = kin.copy()
+one.iadd(na)
 two = obasis.compute_electron_repulsion(lf)
 core_energy = compute_nucnuc(mol.coordinates, mol.pseudo_numbers)
 

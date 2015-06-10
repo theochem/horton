@@ -633,14 +633,17 @@ cdef class GOBasis(GBasis):
         assert matrix.shape[3] == self.nbasis
 
     def compute_overlap(self, output):
-        """Compute the overlap matrix in a Gaussian orbital basis.
+        """Compute the overlap integrals in a Gaussian orbital basis
 
            **Arguments:**
 
            output
-                This can either be a TwoIndex instance (used to write the output
-                to) or a LinalgFactory (used to allocate the output operator).
-                In both cases, the resulting operator is returned.
+                When a ``TwoIndex`` instance is given, it is used as output
+                argument and its contents are overwritten. When ``LinalgFactory``
+                is given, it is used to construct the output ``TwoIndex``
+                object. In both cases, the output two-index object is returned.
+
+           **Returns: ``TwoIndex`` object
         """
         # prepare the output array
         cdef np.ndarray[double, ndim=2] output_array
@@ -655,7 +658,18 @@ cdef class GOBasis(GBasis):
         return output
 
     def compute_kinetic(self, output):
-        """Compute the kinetic energy matrix in a Gaussian orbital basis."""
+        """Compute the kinetic energy integrals in a Gaussian orbital basis
+
+           **Arguments:**
+
+           output
+                When a ``TwoIndex`` instance is given, it is used as output
+                argument and its contents are overwritten. When ``LinalgFactory``
+                is given, it is used to construct the output ``TwoIndex``
+                object. In both cases, the output two-index object is returned.
+
+           **Returns: ``TwoIndex`` object
+        """
         # prepare the output array
         cdef np.ndarray[double, ndim=2] output_array
         if isinstance(output, LinalgFactory):
@@ -672,7 +686,26 @@ cdef class GOBasis(GBasis):
                                    np.ndarray[double, ndim=2] coordinates not None,
                                    np.ndarray[double, ndim=1] charges not None,
                                    output):
-        """Compute the kintic energy matrix in a Gaussian orbital basis."""
+        """Compute the nuclear attraction integral in a Gaussian orbital basis
+
+           **Arguments:**
+
+           coordinates
+                A float array with shape (ncharge,3) with Cartesian coordinates
+                of point charges that define the external field.
+
+           charges
+                A float array with shape (ncharge,) with the values of the
+                charges.
+
+           output
+                When a ``TwoIndex`` instance is given, it is used as output
+                argument and its contents are overwritten. When ``LinalgFactory``
+                is given, it is used to construct the output ``TwoIndex``
+                object. In both cases, the output two-index object is returned.
+
+           **Returns: ``TwoIndex`` object
+        """
         # type checking
         assert coordinates.flags['C_CONTIGUOUS']
         assert charges.flags['C_CONTIGUOUS']
@@ -698,10 +731,11 @@ cdef class GOBasis(GBasis):
            **Argument:**
 
            output
-                A ``DenseFourIndex`` objects that will be used as output
-                argument, or a ``DenseLinalgFactory`` or
-                ``CholeskyLinalgFactory`` used to construct the four-index
-                object in which the integrals are stored.
+                When a ``DenseFourIndex`` object is given, it is used as output
+                argument and its contents are overwritten. When a
+                ``DenseLinalgFactory`` or ``CholeskyLinalgFactory`` is given, it
+                is used to construct the four-index object in which the
+                integrals are stored.
 
            **Returns:** The four-index object with the electron repulsion
            integrals.

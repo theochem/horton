@@ -581,29 +581,15 @@ section :ref:`hf_dft_complete_examples` below.
 
 The conversion to an MO basis is useful for post-HF calculations. For such
 purposes, it is also of interest to sum all one-body operators into a single
-term. This can be done in two ways:
+term:
 
-1. You can create a one-body operator (two-index object) and use it as the
-   output argument for the ``compute_`` methods. These ``compute_`` methods will
-   add the integrals in-place. For example:
+.. code-block:: python
 
-   .. code-block:: python
-
-        lf = DenseLinalgFactory(obasis.nbasis)
-        one = lf.create_two_index()
-        obasis.compute_kinetic(one)
-        obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, one)
-
-2. You can also compute separate one-body operators and add them *a posteriori*,
-   e.g.:
-
-   .. code-block:: python
-
-        lf = DenseLinalgFactory(obasis.nbasis)
-        kin = obasis.compute_kinetic(lf)
-        na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-        one = kin.copy()
-        one.iadd(na)
+    lf = DenseLinalgFactory(obasis.nbasis)
+    kin = obasis.compute_kinetic(lf)
+    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
+    one = kin.copy()
+    one.iadd(na)
 
 
 Transforming the Hamiltonian to the molecular-orbital (MO) basis
