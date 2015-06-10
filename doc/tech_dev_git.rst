@@ -24,16 +24,16 @@ How to use Git
 
 HORTON uses `Git <http://git-scm.com/>`_ for version control.
 
-This section goes through the basics of version control. Although the commands
-below are specific to Git, the following entails good practices that can be
-generalized and applied to other modern version control systems (VCS) such
-as Bazaar or Mercurial.
-
-A VCS allows many people to copy and modify the same source code while keeping
+A version control systems (VCS) allows many people to copy and modify the same source code while keeping
 track of all the changes. VCS software also helps you merge different
 developments into one common source tree.
 
 To refresh your mind on commonly used Git commands, please refer to `Git Reference <http://gitref.org/>`_.
+
+This section goes through the basics of VSC to get you started with developing new features in HORTON. Although the commands
+below are specific to Git, the following entails good practices that can be
+generalized and applied to other modern VCS such as Bazaar or Mercurial.
+
 
 Installing Git
 ==============
