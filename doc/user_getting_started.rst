@@ -19,6 +19,8 @@
     :
     : --
 
+.. _user_getting_started:
+
 Getting Started
 ###############
 
@@ -76,6 +78,7 @@ Now, when your script has completed, you can run it as follows:
 Do not use ``horton.py`` as your script name; this will cause trouble when loading
 the ``horton`` library (due to a namespace collision).
 
+.. _using_horton_as_a_script:
 
 Running HORTON as ``horton-*.py`` scripts
 -----------------------------------------
