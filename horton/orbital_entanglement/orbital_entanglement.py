@@ -35,7 +35,6 @@
 
 
 import numpy as np
-import math as math
 from horton.log import log
 from horton.utils import check_options
 
@@ -261,7 +260,7 @@ class OrbitalEntanglement(object):
         check_options('select', select, 'vonNeumann')
         if select=='vonNeumann':
             if val > 0.0:
-                return math.log(val)*val
+                return np.log(val)*val
             else:
                 if abs(val) > 1e-6:
                     log('Neglecting negative value %f in entropy function' % val)

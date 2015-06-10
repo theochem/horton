@@ -25,7 +25,6 @@
 
 
 import numpy as np
-from math import sqrt
 
 __all__ = [
     'Dogleg',
@@ -95,7 +94,7 @@ class Dogleg():
         if normpc >= self.Delta:
             self.step = pc
             self.step.iscale(self.Delta/normpc)
-            self.stepNorm = sqrt(np.dot(self.step, self.step))
+            self.stepNorm = np.sqrt(np.dot(self.step, self.step))
             return
 
         #
@@ -107,7 +106,7 @@ class Dogleg():
         dot_d_pn_pc = d_pn_pc.dot(d_pn_pc)
         dot_pc_d_pn_pc = self.pn.dot(d_pn_pc)
         term = dot_pc_d_pn_pc*dot_pc_d_pn_pc-dot_d_pn_pc*(dotpc-self.Delta*self.Delta)
-        tau = (-dot_pc_d_pn_pc+sqrt(term))/dot_d_pn_pc
+        tau = (-dot_pc_d_pn_pc+np.sqrt(term))/dot_d_pn_pc
 
         #
         # Return Dogleg step
@@ -193,7 +192,7 @@ class DoubleDogleg():
             #
             a = gamma*gamma*normpn*normpn-normpg*normpg
             b = self.Delta*self.Delta-normpg*normpg
-            alpha = (a-b)/(a+sqrt(a*b))
+            alpha = (a-b)/(a+np.sqrt(a*b))
 
             pg.iscale(alpha)
             self.pn.iscale((1-alpha))
@@ -297,7 +296,7 @@ class TruncatedCG:
 
         y = prec(r).copy()
         ry = r.dot(y)
-        sqrtry = sqrt(ry)
+        sqrtry = np.sqrt(ry)
 
         #
         # Initialize r as a copy of g not to alter the original g
@@ -362,7 +361,7 @@ class TruncatedCG:
             p.iscale(beta)
             p.iadd(y, -1.0)
             ry = ry_next
-            sqrtry = sqrt(ry)
+            sqrtry = np.sqrt(ry)
             snorm2 = s.dot(s)
 
             if i >= maxiter:
@@ -375,7 +374,7 @@ class TruncatedCG:
         #
         self.step = s
         self.niter = i
-        self.stepNorm = sqrt(snorm2)
+        self.stepNorm = np.sqrt(snorm2)
         return
 
     def to_boundary(self, s, p, radius, ss=None):
@@ -392,6 +391,6 @@ class TruncatedCG:
         pp = p.dot(p)
         if not ss:
             ss = s.dot(s)
-        sigma = (-sp + sqrt(abs(sp*sp + pp * (radius*radius - ss))))
+        sigma = (-sp + np.sqrt(abs(sp*sp + pp * (radius*radius - ss))))
         sigma = sigma/pp
         return sigma
