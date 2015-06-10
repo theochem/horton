@@ -25,7 +25,7 @@ How to use Git
 HORTON uses `Git <http://git-scm.com/>`_ for version control.
 
 A version control systems (VCS) allows many people to copy and modify the same source code while keeping
-track of all the changes. VCS software also helps you merge different
+track of all changes made. The VCS software also helps you merge different
 developments into one common source tree.
 
 To refresh your mind on commonly used Git commands, please refer to `Git Reference <http://gitref.org/>`_.
@@ -171,7 +171,7 @@ Branch
     A series of commits that describe the history of the source code.
 
     In realistic projects, the source code history is not linear, but contains
-    many deviations from the `master branch` where people try to implement a
+    many deviations from the ``master`` branch where people try to implement a
     new feature. It is, however, useful to have only one official linear history.
     We will show below how this can be done with git.
 
@@ -218,7 +218,7 @@ Work flow for adding a new feature
 
 The development of a new feature typically consists of three main steps: (i)
 modifications of the code in a separate branch, (ii) review of the new code,
-fixing problems and (iii) rebase your branch on top of the `master` branch and
+fixing problems and (iii) rebase your branch on top of the ``master`` branch and
 publish.
 
 .. note::
@@ -253,7 +253,7 @@ Develop the feature in a separate branch
        $ ~/code> cd horton
        $ ~/.../horton:master>
 
-1. Switch to the master branch, if needed:
+1. Switch to the ``master`` branch, if needed:
 
    .. code-block:: bash
 
@@ -261,7 +261,7 @@ Develop the feature in a separate branch
       $ ~/.../horton:master>
 
    Make sure there are no uncommitted changes in the source code on ``foo`` branch before
-   switching to the master branch.
+   switching to the ``master`` branch.
 
 2. Get the latest version of the source code:
 
@@ -276,8 +276,8 @@ Develop the feature in a separate branch
     $ ~/.../horton:master> git checkout -b bar
     $ ~/.../horton:bar>
 
-   Make sure that are on the right branch before starting to implement the
-   new feature `bar`. (Try to pick a more meaningful branch name based on the feature
+   Make sure that you are on the right branch before starting to implement the
+   new feature ``bar``. (Try to pick a more meaningful branch name based on the feature
    you are implementing.)
 
 4. Now you are in the right place to start making changes to the source code,
@@ -358,14 +358,14 @@ to the code after review, commit these and push them to the remote server for re
 this iterative process converged, it is time to move to the next step.
 
 
-Rebase your branch on top of the master branch
+Rebase your branch on top of the ``master`` branch
 ----------------------------------------------
 
-It is likely that while developing your branch, the master branch
+It is likely that while developing your branch, the ``master`` branch
 has evolved with new commits added by other developers. You need to append your
-branch to the new HEAD of the master branch with ``git rebase``.
+branch to the new HEAD of the ``master`` branch with ``git rebase``.
 
-1. Switch to the master branch:
+1. Switch to the ``master`` branch:
 
    .. code-block:: bash
 
@@ -394,14 +394,14 @@ branch to the new HEAD of the master branch with ``git rebase``.
       $ ~/.../horton:bar-1>
 
 
-5. ``Rebase`` your commits on top of the latest master branch:
+5. ``Rebase`` your commits on top of the latest ``master`` branch:
 
    .. code-block:: bash
 
       $ ~/.../horton:bar-1> git rebase master
 
     This command will try to apply the patches from your working branch on top of the
-    master branch. It may happen that changes in the master branch are not
+    ``master`` branch. It may happen that changes in the ``master`` branch are not
     compatible with yours, such that your patches cannot be simply applied.
     When that is the case, the ``git rebase`` script will be interrupted and you
     are instructed on what to do. Do not panic when this happens. If you feel
@@ -418,7 +418,7 @@ branch to the new HEAD of the master branch with ``git rebase``.
 
 Now, you can get in touch with one of the HORTON developers (at the `HORTON
 mailing list <https://groups.google.com/d/forum/horton-discuss>`_) to transfer
-these new patches to the public master branch of HORTON.
+these new patches to the public ``master`` branch of HORTON.
 
 
 Common issues
