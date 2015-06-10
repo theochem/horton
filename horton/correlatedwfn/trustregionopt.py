@@ -211,7 +211,7 @@ class DoubleDogleg():
             #
             # p = p(n)
             #
-            self.step = pn.copy()
+            self.step = self.pn.copy()
             self.stepNorm = self.step.norm()
 
         return
