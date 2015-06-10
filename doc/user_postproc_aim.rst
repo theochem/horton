@@ -583,12 +583,12 @@ as a starting point for similar scripts. These unit tests can be found in
 Frequently asked questions
 ==========================
 
-**Which atoms-in-molecules (AIM or partitioning) scheme should I use?**
+**Which atoms-in-molecules (AIM) partitioning scheme should I use?**
 
     There is no single partitioning scheme that is most suitable for any
     application. Nevertheless, some people claim that only one AIM scheme should
     be used above all others, especially in the QTAIM and electron density
-    communities. Try to stay away from such fanboyism as it has little to do
+    communities. Try to stay away from such fanboyism, as it has little to do
     with good science.
 
     In practice, the choice depends on the purposes you have in mind. You should
@@ -596,26 +596,26 @@ Frequently asked questions
     Typically, you would like to have a compromise between some of the following
     features:
 
-    * Numerical stability.
-    * Robustness with respect to conformational changes.
-    * Uniqueness of the result.
-    * Computational efficiency.
-    * Mathematical elegance.
-    * Simplicity.
-    * Linearity in the density (matrix).
-    * Chemical transferability.
-    * Applicable to a broad range of systems.
-    * Applicable to periodic/isolated systems.
-    * Applicable to a broad range of electronic structure methods/implementations.
+    * Numerical stability
+    * Robustness with respect to conformational changes
+    * Uniqueness of the result
+    * Computational efficiency
+    * Mathematical elegance
+    * Simplicity
+    * Linearity in the density (matrix)
+    * Chemical transferability
+    * Applicable to a broad range of systems
+    * Applicable to periodic/isolated systems
+    * Applicable to a broad range of electronic structure methods/implementations
     * Accuracy of electrostatic interactions with a limited multipole expansion
-      of the atoms.
+      of the atoms
     * Good (empirical) correlations between some AIM property with some experimental
-      observable.
+      observable
     * ...
 
     It goes beyond the scope of this FAQ to describe how each partitioning scheme
-    (implemented in HORTON or not) performs for these criteria. Some of these
-    features are also very hard to assess and subject of intense debate in the
+    (implemented in HORTON or not) performs for these features. Some of these
+    features are also very hard to assess and subject to intense debate in the
     literature.
 
     Regarding our own work, the following papers are directly related to this
@@ -634,13 +634,13 @@ Frequently asked questions
     If you have more suggestions, please drop me a note: Toon.Verstraelen@UGent.be.
 
 
-**What is the recommended level of theory for the computation of the database of pro-atoms?**
+**What is the recommended level of theory for computing the pro-atom databses?**
 
     This question is relevant to the following methods implemented in HORTON:
-    Hirshfeld, Hirshfeld-I and Hirshfeld-E. They are referred to in this answer
+    Hirshfeld, Hirshfeld-I and Hirshfeld-E, which require a pro-atoms database. They are referred to in this answer
     as Hirshfeld-like schemes.
 
-    In principle, you are free to choose any level of theory you prefer. In
+    In principle, you are free to choose any level of theory. In
     practice, several papers tend to be consistent in the level of theory (and
     basis set) that is used for the molecular and pro-atomic computations.
     See for example: [bultinck2007]_, [verstraelen2009]_, [verstraelen2011a]_,
@@ -649,30 +649,30 @@ Frequently asked questions
 
     One motivation for this consistency is that Hirshfeld-like partitioning
     schemes yield atoms-in-molecules that are maximally similar to the
-    pro-atoms. [nalewajski2000]_ (Technically speaking, the sum over all atoms
+    pro-atoms. [nalewajski2000]_ (Technically speaking, the sum
     of the `Kullback-Leibler divergence
     <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`_
-    between the atom-in-molecule and pro-atom is minimized.)
+    between the atomic and pro-atomic densities for all the atoms is minimized.)
     This principle is (or should be) one of the reasons that Hirhsfeld-like
     charges are somewhat transferable between chemically similar atoms. You
     could hope that the Kullback-Leibler divergence is easier to minimize when
     the molecular and pro-atomic densities are computed as consistently as
-    possible, hence with the same level of theory and basis set.
+    possible. Thus, using the same level of theory and basis set is advised.
 
-    Another motivation is that such consistency may result in, to some degree,
+    Another motivation is that such consistency may (to some degree) result in,
     cancellation of errors, when comparing Hirshfeld-like charges computed at different
     levels of theory. For example, it is found that Hirshfeld-I charges have
-    only a small basis set dependence. [bultinck2007b]_ In this work, the
+    only a small basis set dependency based on [bultinck2007b]_. In this work, the
     molecular and pro-atomic densities were computed consistently.
 
-    At last, you could also argue that without the consistency in level of
+    At the end, it can also be argued that without consistency in the level of
     theory, there are so many possible combinations that it becomes impossible
     to make a well-motivated choice. Then again, this is a problem that
-    computational chemists usually embrace with open arms in the hope that they
+    computational chemists usually embrace with open arms hoping that they
     will find a unique combination of levels of theory that turns out to be
     useful.
 
 
 **How can one generate Cube files with CP2K?**
 
-    Electron density cube files can be generated with CP2K by adding the following section to the CP2K the input file: `E_DENSITY_CUBE <http://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE.html>`_.
+    Electron density cube files can be generated with CP2K by adding the following section to the CP2K input file: `E_DENSITY_CUBE <http://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE.html>`_.
