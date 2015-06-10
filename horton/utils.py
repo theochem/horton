@@ -107,11 +107,6 @@ def typecheck_geo(coordinates=None, numbers=None, pseudo_numbers=None,
     return result
 
 
-    def iadd_exchange(self):
-        '''In-place addition of its own exchange contribution'''
-        self._array -= np.einsum('abcd->abdc', self._array)
-
-
 def check_type(name, instance, *Classes):
     '''Check type of argument with given name against list of types
 
