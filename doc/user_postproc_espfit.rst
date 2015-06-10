@@ -103,15 +103,15 @@ When the charges are all set to zero, you obtain the worst-case value for
 the case, it is better to set the charges to zero to model the ESP.)
 
 
-``horton-esp-cost.py`` -- Set up an ESP cost functions
-======================================================
+``horton-esp-cost.py`` -- Set up an ESP cost function
+=====================================================
 
-The script ``horton-esp-cost.py`` can be used to construct the cost function for
+The ``horton-esp-cost.py`` script can be used to construct the cost function for
 the ESP fitting.
 
 The recommended usage for an all-electron computation is as follows::
 
-    horton-esp-cost.py esp.cube cost.h5 --wdens=rho.cube --pbc={000|111}
+    $ horton-esp-cost.py esp.cube cost.h5 --wdens=rho.cube --pbc={000|111}
 
 where ``esp.cube`` is a Gaussian cube file containing the ESP data. The results will
 be written in ``cost.h5``. The option ``--wdens=rho.cube`` implies that the
@@ -129,7 +129,7 @@ functions can be included for every pseudo-core,
 
 The recommended usage for a pseudo-potential computation is as follows::
 
-    horton-esp-cost.py esp.cube cost.h5 --wdens=rho.cube --pbc={000|111} --wnear Z1:r1:gamma1 [Z2:r2:gamma2 ...]
+    $ horton-esp-cost.py esp.cube cost.h5 --wdens=rho.cube --pbc={000|111} --wnear Z1:r1:gamma1 [Z2:r2:gamma2 ...]
 
 where one new option, ``--wnear``, is used. This option takes at least one
 argument. One such argument must be present for every element in the system for
@@ -140,40 +140,40 @@ elements ``Z1`` switches from 0 (inside a sphere with radius ``r1``) to 1
 (outside a sphere with radius ``r1``). Both ``r1`` and ``gamma1`` must be given
 in angstrom.
 
-The script ``horton-esp-cost.py`` has several more options. Run
+The ``horton-esp-cost.py`` script has several more options. Run
 ``horton-esp-cost.py --help`` for more details.
 
 
 ``horton-esp-fit.py`` -- Fit charges to the ESP
 ===============================================
 
-Once a cost function is constructed, it can be used estimate atomic charges by
+Once a cost function is constructed, it can be used to estimate atomic charges by
 minimizing the cost function. A bare-bones fit can be carried out as follows::
 
-    horton-esp-fit.py cost.h5 charges.h5
+    $ horton-esp-fit.py cost.h5 charges.h5
 
 where the file ``cost.h5`` is constructed with the script
 ``horton-esp-cost.py``.
 
-Useful ESP-fitted charges typically involve much more advanced minimizations of
+Useful ESP-fitted charges typically involve a more advanced minimizations of
 the ESP cost function, for example, by adding constraints, restraints,
 transforming to bond-charge increments, fitting to several different molecules
 concurrently, etc. Such advanced features are not supported in
-``horton-esp-fit.py`` but you are free to implement these in customized scripts
+``horton-esp-fit.py`` script, but you can implement these in customized scripts
 that use the the ESP cost functions obtained with ``horton-esp-cost.py``.
 
 
 ``horton-esp-test.py`` -- Test the ESP quality of a given set of charges
 ========================================================================
 
-The script ``horton-esp-test.py`` can be used to test the quality of a set of
-charges for the reproduction of the ESP. These charges are typically obtained
+The ``horton-esp-test.py`` script can be used to test the quality of a set of
+charges to reproduce the ESP. These charges are typically obtained
 with ``horton-wpart.py`` or ``horton-cpart.py``. It can be used as follows::
 
-    horton-esp-test.py cost.h5 wpart.h5:hi/charges wpart_espcost.h5:hi
+    $ horton-esp-test.py cost.h5 wpart.h5:hi/charges wpart_espcost.h5:hi
 
-The first file, ``cost.h5``, is generated with the script
-``horton-esp-cost.py``. The second file, ``wpart.h5`` is generated (for example)
+The first file, ``cost.h5``, is generated with the
+``horton-esp-cost.py`` script. The second file, ``wpart.h5`` is generated (for example)
 with ``horton-wpart.py gaussian.fchk wpart.h5:hi hi atoms.h5``. The last file,
 ``wpart_espcost.h5`` will contain the output in the HDF5 group ``hi``.
 
@@ -187,7 +187,7 @@ efficient than the default settings of cubegen, which makes a significant differ
 disk space when working with molecular databases. For occasional use,
 ``horton-cubehead.py`` is probably an overkill. The script is used as follows::
 
-    horton-cubehead.py structure.xyz cubehead.txt
+    $ horton-cubehead.py structure.xyz cubehead.txt
 
 The file ``cubehead.txt`` will contain something along the following lines::
 
@@ -198,8 +198,8 @@ The file ``cubehead.txt`` will contain something along the following lines::
 
 This file can be used for the cubegen utility as follows::
 
-    cubegen 0 fdensity=scf somefile.fchk rho.cube -1 < cubehead.txt
-    cubegen 0 potential=scf somefile.fchk esp.cube -1 < cubehead.txt
+    $ cubegen 0 fdensity=scf somefile.fchk rho.cube -1 < cubehead.txt
+    $ cubegen 0 potential=scf somefile.fchk esp.cube -1 < cubehead.txt
 
 where ``scf`` must be replaced by the type of wavefunction to be analyzed. Read
 the `cubegen manual <http://www.gaussian.com/g_tech/g_ur/u_cubegen.htm>`_ for
@@ -215,7 +215,7 @@ CP2K can generate cube files for periodic systems. You have to use the input sec
 Python interface to the ESP fitting code
 ========================================
 
-You can use the ESP cost function constructed with ``horton-esp-cost.py`` to
+You can use the ESP cost function constructed by ``horton-esp-cost.py`` script to
 implement customized charge fitting protocols, e.g. using bond-charge
 increments, constraints or hyperbolic restraints. At the beginning of such
 a custom script, the cost function can be loaded as follows:
@@ -224,9 +224,9 @@ a custom script, the cost function can be loaded as follows:
 
     cost = load_h5("cost.h5")['cost']
 
-The object ``cost`` is an instance of the
-:py:class:`~horton.espfit.cost.ESPCost` (follow link for documentation). This
-instance can, for example, be used to evaluate the ESP cost or its gradient of a
+The ``cost`` object is an instance of the
+:py:class:`~horton.espfit.cost.ESPCost` class. This
+instance can, for example, be used to evaluate the ESP cost or its gradient for a
 given array of atomic charges:
 
 .. code-block:: python
@@ -235,10 +235,12 @@ given array of atomic charges:
     print cost.gradient(charges)
 
 If desired, you can also directly access :math:`A`, :math:`B`, :math:`C` that
-define the quadratic cost functions: (See :ref:`user_espfit_introduction`.)
+define the quadratic cost functions:
 
 .. code-block:: python
 
     print cost._A
     print cost._B
     print cost._C
+
+For more information, please refer to :ref:`user_espfit_introduction`.
