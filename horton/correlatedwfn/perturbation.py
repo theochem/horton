@@ -36,7 +36,6 @@
 '''
 
 import numpy as np
-import math
 from scipy import optimize as opt
 from horton.log import log, timer
 from horton.cache import Cache
@@ -441,7 +440,7 @@ class RMP2(Perturbation):
         for name, value in kwargs.items():
             check_options('name', name, 'eref', 'threshold', 'indextrans')
         eref = kwargs.get('eref', float('nan'))
-        if math.isnan(eref):
+        if np.isnan(eref):
             raise ValueError('Warning: Cannot find reference energy in MP2 module!')
 
     def check_result(self, **kwargs):
@@ -850,9 +849,9 @@ class PTa(Perturbation):
             check_options(name, name, 'ecore', 'eref', 'threshold', 'indextrans')
         eref = kwargs.get('eref', float('nan'))
         ecore = kwargs.get('ecore', float('nan'))
-        if math.isnan(eref):
+        if np.isnan(eref):
             raise ValueError('Warning: Cannot find reference energy in PTa module!')
-        if math.isnan(ecore):
+        if np.isnan(ecore):
             raise ValueError('Warning: Cannot find core: energy in PTa module!')
 
     def check_result(self, **kwargs):
@@ -1432,9 +1431,9 @@ class PTb(Perturbation):
             check_type('guess', guess, np.ndarray)
             if not len(guess) == self.nocc*self.nocc*self.nvirt*self.nvirt:
                 raise ValueError('Length of guess array does not agree with number of unknowns')
-        if math.isnan(eref):
+        if np.isnan(eref):
             raise ValueError('Warning: Cannot find reference energy in PTb module!')
-        if math.isnan(ecore):
+        if np.isnan(ecore):
             raise ValueError('Warning: Cannot find core: energy in PTb module!')
 
     def check_result(self, **kwargs):

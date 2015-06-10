@@ -41,7 +41,6 @@
 '''
 
 import numpy as np
-import math as math
 from scipy import optimize as opt
 import warnings
 
@@ -1854,7 +1853,7 @@ class RAp1rog(Geminal):
         for i in range(excitationlevel):
             if i==0:
                 for ci in it[0]:
-                    if math.fabs(ci) >= (cithresh):
+                    if abs(ci) >= (cithresh):
                         if amplitudestofile is True:
                             with open(filename, 'a') as filea:
                                 filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index), float(ci)))
@@ -1866,7 +1865,7 @@ class RAp1rog(Geminal):
                     it[index] = np.nditer(coeff,flags=['multi_index'])
                 if i==1:
                     for ci in it[0]:
-                        if math.fabs(ci) >= (cithresh/excitationlevel):
+                        if abs(ci) >= (cithresh/excitationlevel):
                             it[1] = it[0].copy()
                             for ci2 in it[1]:
                                 if (it[1].multi_index[0]>it[0].multi_index[0]):
@@ -1876,7 +1875,7 @@ class RAp1rog(Geminal):
                                         matrix[it[0].multi_index[0],it[1].multi_index[0]] = coeff[it[0].multi_index[0],it[1].multi_index[1]]
                                         matrix[it[1].multi_index[0],it[0].multi_index[0]] = coeff[it[1].multi_index[0],it[0].multi_index[1]]
                                         amplitude = self.perm(matrix)
-                                        if (math.fabs(amplitude) >= cithresh):
+                                        if (abs(amplitude) >= cithresh):
                                             if amplitudestofile is True:
                                                 with open(filename, 'a') as filea:
                                                     filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index), amplitude))
@@ -1886,7 +1885,7 @@ class RAp1rog(Geminal):
                                         matrix = np.identity(self.npairs)
                 if i==2:
                     for ci in it[0]:
-                        if math.fabs(ci) >= (cithresh/excitationlevel):
+                        if abs(ci) >= (cithresh/excitationlevel):
                             it[1] = it[0].copy()
                             for ci2 in it[1]:
                                 if (it[1].multi_index[0]>it[0].multi_index[0]):
@@ -1908,7 +1907,7 @@ class RAp1rog(Geminal):
                                                     matrix[it[2].multi_index[0],it[0].multi_index[0]] = coeff[it[2].multi_index[0],it[0].multi_index[1]]
                                                     matrix[it[2].multi_index[0],it[1].multi_index[0]] = coeff[it[2].multi_index[0],it[1].multi_index[1]]
                                                     amplitude = self.perm(matrix)
-                                                    if (math.fabs(amplitude) >= cithresh):
+                                                    if (abs(amplitude) >= cithresh):
                                                         if amplitudestofile is True:
                                                             with open(filename, 'a') as filea:
                                                                 filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
@@ -1920,7 +1919,7 @@ class RAp1rog(Geminal):
                                                     matrix = np.identity(self.npairs)
                 if i==3:
                     for ci in it[0]:
-                        if math.fabs(ci) >= (cithresh/excitationlevel):
+                        if abs(ci) >= (cithresh/excitationlevel):
                             it[1] = it[0].copy()
                             for ci2 in it[1]:
                                 if (it[1].multi_index[0]>it[0].multi_index[0]):
@@ -1954,7 +1953,7 @@ class RAp1rog(Geminal):
                                                                 matrix[it[3].multi_index[0],it[1].multi_index[0]] = coeff[it[3].multi_index[0],it[1].multi_index[1]]
                                                                 matrix[it[3].multi_index[0],it[2].multi_index[0]] = coeff[it[3].multi_index[0],it[2].multi_index[1]]
                                                                 amplitude = self.perm(matrix)
-                                                                if (math.fabs(amplitude) >= cithresh):
+                                                                if (abs(amplitude) >= cithresh):
                                                                     if amplitudestofile is True:
                                                                         with open(filename, 'a') as filea:
                                                                             filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
@@ -1966,7 +1965,7 @@ class RAp1rog(Geminal):
                                                                 matrix = np.identity(self.npairs)
                 if i==4:
                     for ci in it[0]:
-                        if math.fabs(ci) >= (cithresh/excitationlevel):
+                        if abs(ci) >= (cithresh/excitationlevel):
                             it[1] = it[0].copy()
                             for ci2 in it[1]:
                                 if ((it[1].multi_index[0]>it[0].multi_index[0])
@@ -2014,7 +2013,7 @@ class RAp1rog(Geminal):
                                                             matrix[it[4].multi_index[0],it[2].multi_index[0]] = coeff[it[4].multi_index[0],it[2].multi_index[1]]
                                                             matrix[it[4].multi_index[0],it[3].multi_index[0]] = coeff[it[4].multi_index[0],it[3].multi_index[1]]
                                                             amplitude = self.perm(matrix)
-                                                            if (math.fabs(amplitude) >= cithresh):
+                                                            if (abs(amplitude) >= cithresh):
                                                                 if amplitudestofile is True:
                                                                     with open(filename, 'a') as filea:
                                                                         filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
@@ -2026,7 +2025,7 @@ class RAp1rog(Geminal):
                                                             matrix = np.identity(self.npairs)
                 if i==5:
                     for ci in it[0]:
-                        if math.fabs(ci) >= (cithresh/excitationlevel):
+                        if abs(ci) >= (cithresh/excitationlevel):
                             it[1] = it[0].copy()
                             for ci2 in it[1]:
                                 if ((it[1].multi_index[0]>it[0].multi_index[0])
@@ -2091,7 +2090,7 @@ class RAp1rog(Geminal):
                                                                     matrix[it[5].multi_index[0],it[4].multi_index[0]] = coeff[it[5].multi_index[0],it[4].multi_index[1]]
 
                                                                     amplitude = self.perm(matrix)
-                                                                    if (math.fabs(amplitude) >= cithresh):
+                                                                    if (abs(amplitude) >= cithresh):
                                                                         if amplitudestofile is True:
                                                                             with open(filename, 'a') as filea:
                                                                                 filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,
@@ -2105,7 +2104,7 @@ class RAp1rog(Geminal):
                                                                     matrix = np.identity(self.npairs)
                 if i==6:
                     for ci in it[0]:
-                        if math.fabs(ci) >= (cithresh/excitationlevel):
+                        if abs(ci) >= (cithresh/excitationlevel):
                             it[1] = it[0].copy()
                             for ci2 in it[1]:
                                 if ((it[1].multi_index[0]>it[0].multi_index[0])
@@ -2187,7 +2186,7 @@ class RAp1rog(Geminal):
                                                                             matrix[it[6].multi_index[0],it[4].multi_index[0]] = coeff[it[6].multi_index[0],it[4].multi_index[1]]
                                                                             matrix[it[6].multi_index[0],it[5].multi_index[0]] = coeff[it[6].multi_index[0],it[5].multi_index[1]]
                                                                             amplitude = self.perm(matrix)
-                                                                            if (math.fabs(amplitude) >= cithresh):
+                                                                            if (abs(amplitude) >= cithresh):
                                                                                 if amplitudestofile is True:
                                                                                     with open(filename, 'a') as filea:
                                                                                         filea.write('{0:10} {1:20.16f}'.format(self.get_slater_determinant(it[0].multi_index,it[1].multi_index,

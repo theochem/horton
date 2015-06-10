@@ -24,7 +24,6 @@
 '''
 
 import numpy as np
-import math as math
 
 from horton.cache import Cache
 from horton.utils import check_options, check_type
@@ -460,7 +459,7 @@ class Geminal(object):
                 element of orbital gradient are smaller than some threshold
                 values.
         '''
-        return math.fabs(e0-e1) < thresh['energy'] and \
+        return abs(e0-e1) < thresh['energy'] and \
                gradient.get_max() < thresh['gradientmax'] and \
                gradient.norm() < thresh['gradientnorm']
 
@@ -486,4 +485,5 @@ class Geminal(object):
         n = len(a)
         r = range(n)
         s = permutations(r)
+        import math # FIXME: fsum really needed for accuracy?
         return math.fsum(self.prod(a[i][sigma[i]] for i in r) for sigma in s)
