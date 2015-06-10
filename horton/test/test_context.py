@@ -24,6 +24,7 @@
 import os, subprocess, importlib
 from glob import glob
 from nose.tools import assert_raises
+from horton.test.common import in_horton_source_root
 
 from horton import context
 
@@ -45,6 +46,40 @@ def test_data_files():
             line = line.strip()
             if len(line) != 0:
                 raise ValueError('The following file is not checked in: %s' % line)
+
+
+def test_shebang():
+    # Make sure that all executable python modules, in the data and
+    # scripts directories have a proper shebang line.
+    def iter_py_files(root):
+        for dn, subdns, fns in os.walk(root):
+            for fn in fns:
+                if fn.endswith('.py'):
+                    yield os.path.join(dn, fn)
+
+    # Collect all bad files
+    bad = []
+
+    # Loop over all py files in datadir:
+    for fn_py in iter_py_files(context.data_dir):
+        if os.access(fn_py, os.X_OK):
+            with open(fn_py) as f:
+                if f.next() != '#!/usr/bin/env python\n':
+                    bad.append(fn_py)
+
+    # Loop over all py files in scripts, if testing from the development root:
+    if in_horton_source_root():
+        for fn_py in iter_py_files('scripts'):
+            assert os.access(fn_py, os.X_OK), 'Py Files in scripts/ must be executable.'
+            with open(fn_py) as f:
+                if f.next() != '#!/usr/bin/env python\n':
+                    bad.append(fn_py)
+
+    if len(bad) > 0:
+        print 'The following files have an incorrect shebang line:'
+        for fn in bad:
+            print '   ', fn
+        raise AssertionError('Some Python scripts have an incorrect shebang line.')
 
 
 def test_do_not_use_iodata():

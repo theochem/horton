@@ -29,6 +29,7 @@ from horton import *
 
 
 __all__ = [
+    'in_horton_source_root',
     'check_script', 'check_script_in_tmp', 'check_delta',
     'get_random_cell', 'get_pentagon_moments',
     'compare_expansions', 'compare_all_expansions', 'compare_dms',
@@ -40,6 +41,26 @@ __all__ = [
 
 # All, except underflows, is *not* fine.
 np.seterr(divide='raise', over='raise', invalid='raise')
+
+
+def in_horton_source_root():
+    '''Test if the current directory is the HORTON source tree root'''
+    # Check for some files and directories that must be present (for functions
+    # that use this check).
+    if not os.path.isfile('setup.py'):
+        return False
+    if not os.path.isdir('horton'):
+        return False
+    if not os.path.isdir('data'):
+        return False
+    if not os.path.isdir('scripts'):
+        return False
+    if not os.path.isfile('HEADER'):
+        return False
+    with open('HEADER') as f:
+        if f.next() != 'HORTON: Helpful Open-source Research TOol for N-fermion systems.\n':
+            return False
+    return True
 
 
 def check_script(command, workdir):
@@ -60,7 +81,7 @@ def check_script(command, workdir):
     env = dict(os.environ)
     root_dir = os.getcwd()
     env['PYTHONPATH'] = root_dir + ':' + env.get('PYTHONPATH', '')
-    if os.path.isfile('setup.py') and os.path.isdir('horton') and os.path.isdir('data'):
+    if in_horton_source_root():
         # This is only needed when running the tests from the source tree.
         env['HORTONDATA'] = os.path.join(root_dir, 'data')
     env['PATH'] = os.path.join(root_dir, 'scripts') + ':' + env.get('PATH', '')

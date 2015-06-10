@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/env python
 from horton import *
 
 # Set up molecule, define basis set
