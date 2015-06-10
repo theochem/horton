@@ -22,7 +22,7 @@
 How to use HORTON to convert between file formats?
 ##################################################
 
-As discussed in the :ref:`user_getting_started.html#running-horton-as-horton-py-scripts` section, the (non-)optional
+As discussed in the :ref:`using_horton_as_a_script` section, the (non-)optional
 command-line arguments of the conversion scripts can be looked at by the ``--help`` flag:
 
 .. code-block:: bash
