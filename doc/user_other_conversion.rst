@@ -22,8 +22,8 @@
 Conversion between file formats
 ###############################
 
-As discussed in the :ref:`user_getting_started.html#running-horton-as-horton-py-scripts` section, the required and optional
-command-line arguments of the conversion scripts are obtained by the ``--help`` flag:
+As discussed in the :ref:`user_getting_started.html#running-horton-as-horton-py-scripts` section, the (non-)optional
+command-line arguments of the conversion scripts can be looked at by the ``--help`` flag:
 
 .. code-block:: bash
 
@@ -33,13 +33,13 @@ command-line arguments of the conversion scripts are obtained by the ``--help`` 
 ``horton-convert.py`` -- Conversion between file formats supported by HORTON
 ============================================================================
 
-The ``horton-convert.py`` script converts between various file formats supported by HORTON. It is simply used by providing the input and output files, respectively, as follows:
+The ``horton-convert.py`` script converts between various file formats supported by HORTON. To use it, simply provide the input and output files, as follows:
 
 .. code-block:: bash
 
     $ horton-convert.py input_file output_file
 
-The formats of the input and output files are deduced from the extension of the file names specified. This conversion only works if both file formats are recognized by HORTON, and the required information to write the output file is available in the input file. For more information, please refer to :ref:`ref_file_formats`.
+The formats we are changing from/to are deduced from the extension of the input/output file name specified. This conversion only works if both file formats are recognized by HORTON, and the required information to write the output file is available in the input file. For more information, please refer to :ref:`ref_file_formats`.
 
 This script is typically useful for archiving large amounts of data produced by other codes in text format. The following example converts a ``.cube`` file to HORTON's internal HDF5 format, and then uses ``h5repack``, one of the HDF5 command-line tools, to compress the binary file.
 
@@ -66,4 +66,4 @@ For example, if ``horton-wpart.py`` was used to run an Extended Hirshfeld partit
 
     $ horton-hdf2csv.py wpart_he_results.h5 extended_hirshfeld.csv
 
-This script was added for the convenience of those who are not familiar with processing the HDF5 files. If you are familiar with the HDF5 files, please process these files directly with conventional (Python) scripts. This would be far easier than interfacing with the CSV files. The `h5py <http://www.h5py.org/>`_ library is a great tool to make such custom scripts.
+This script was added for the convenience of those who are not familiar with the HDF5 files. If you are familiar with the HDF5 files, we strongly suggest you to directly process these files with conventional (Python) scripts. This would be far easier than interfacing with the CSV files. The `h5py <http://www.h5py.org/>`_ library is a great tool to make such custom scripts.
