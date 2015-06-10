@@ -78,7 +78,7 @@ class my_install_data(install_data):
         dist = self.distribution
         libdir = dist.command_obj["install_lib"].install_dir
         for name in dist.packages:
-            # If a package contains a dot, e.g. hoton.test, then don't write
+            # If a package contains a dot, e.g. horton.test, then don't write
             # the file data_dir.txt.
             if '.' not in name:
                 destination = os.path.join(libdir, name, "data_dir.txt")
