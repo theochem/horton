@@ -30,8 +30,8 @@ chemistry codes, where you just prepare an input file with a molecular geometry
 and some control options. Such an input-file interface for HORTON is under
 construction. The script interface, explained here, is more expressive and
 laborsome than a regular input file, because you basically have to write the
-main program. It also offers the advantage that you can to tinker more with the
-internals.
+main program. However, it has the advantage of flexibility, since you can tinker
+more with the individual steps in the calculation.
 
 HORTON can do restricted and unrestricted HF/DFT SCF calculations in various
 different ways. The following sections cover the typical steps of a calculation:
@@ -179,7 +179,7 @@ checkpoint file, ``*.fchk``, may be loaded as follows:
     mol = IOData.from_file('water.fchk')
 
     # Print the number of alpha orbitals (occupied and virtual)
-    print mol.exp_aplha.nfn
+    print mol.exp_alpha.nfn
 
 Obviously, if you would like to use these orbitals without projecting them onto
 a new basis set (as explained in :ref:`user_hf_dft_project_basis`), you are
@@ -250,7 +250,7 @@ density matrix functionals is implemented in the classes
 :py:class:`~horton.meanfield.hamiltonian.REffHam` and
 :py:class:`~horton.meanfield.hamiltonian.UEffHam`. The prefixes ``R`` and ``U``
 are used (also below) to differentiate between restricted and unrestricted
-implementations. A Hatree-Fock or DFT effective Hamiltonian is defined by
+implementations. A Hartree-Fock or DFT effective Hamiltonian is defined by
 constructing an instance of the ``REffHam`` or ``UEffHam`` classes and providing
 the necessary energy terms to the constructor.
 
@@ -306,10 +306,10 @@ the constructor arguments.
 
   Integration grids are discussed in more detail in the section
   :ref:`user_integration_grids_specify`. A list of the supported LibXC functionals can
-  be found in :ref:`ref_functionals`. Note that HORTON does not support the
-  MGGA's yet.
+  be found in :ref:`ref_functionals`. Note that HORTON does not support
+  meta-GGAs (MGGAs) yet.
 
-Using these classes, you can construct the Hatree-Fock or a DFT effective
+Using these classes, you can construct the Hartree-Fock or a DFT effective
 Hamiltonian.
 
 
@@ -484,7 +484,7 @@ All SCF solvers support the following two options:
   :threshold: The convergence threshold for the SCF solver. The exact meaning
               of this threshold is algorithm-dependent. In case of the
               ``PlainSCFSolver``, convergence is tested with the RSMD error on
-              the Rothaan equations. In all other cases, the square root of
+              the Roothaan equations. In all other cases, the square root of
               the commutator of the density and the Fock matrix is tested.
 
   :maxiter: The maximum allowed number of SCF iterations. If convergence is not

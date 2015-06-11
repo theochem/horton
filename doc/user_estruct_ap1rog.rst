@@ -25,12 +25,12 @@ The AP1roG module
 #################
 
 Two-electron functions, called geminals, can be used to incorporate electron
-correlation effects int o the many-particle wavefunction. Horton supports a
-special type of geminal-based wavefunction models, the antisymmetric p roduct of
+correlation effects into the many-particle wavefunction. Horton supports a
+special type of geminal-based wavefunction models, the antisymmetric product of
 1-reference orbital geminals (AP1roG), which is equivalent to pair-coupled
 cluster doubles. The AP1roG wavefunct ion effectively parameterizes the doubly
 occupied configuration interaction wavefunction (DOCI), but requires only
-mean-fi eld computational cost in contrast to the factorial scaling of
+mean-field computational cost in contrast to the factorial scaling of
 traditional DOCI implementations [limacher2013]_. Currently the AP1roG module is
 limited to closed-shell systems only.
 

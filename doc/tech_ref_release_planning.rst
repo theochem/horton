@@ -29,21 +29,22 @@ In order to ensure that users and developers spend as little time as possible
 performing maintenance work unrelated to research, the developers of HORTON have
 committed to providing a stable Application Programmer Interface (API). This
 means that most new releases of HORTON will remain compatible with your code and
-will not change the behaviour of your code.
+will not change the behavior of your code.
 
 .. warning::
 
-    *The stable API policy only applies to the part that isdocumented in the
+    *The stable API policy only applies to the part that is documented in the
     User Documentation.* All other API may be subject to changes as we make
     improvements to HORTON.
 
 HORTON releases are given version numbers according to the `Semantic Versioning
 Specification <http://semver.org/>`_, which directly relates to API stability:
 
-- Major releases (i.e. 1.x.x -> 2.x.x) will not guarantee compatiblity with past
+- Major releases (i.e. 1.x.x -> 2.x.x) will not guarantee compatibility with past
   versions.
 
-  * We will wait a minimum of 18 months between major releases.
+  * We will wait at least 12 months (typically 18-30 months) between major
+    releases.
   * These releases will contain overarching restructuring of the code and
     renaming of functions and classes, including removal of deprecated code.
 
@@ -54,7 +55,7 @@ Specification <http://semver.org/>`_, which directly relates to API stability:
   * These releases will be used to introduce new features or tweaks to existing
     code.
   * New algorithms for existing features will be disabled by default in order to
-    preserve old behaviour.
+    preserve old behavior.
 
 
 - Bugfix releases (i.e. 1.1.1 -> 1.1.2) will not make any changes to the code
@@ -79,7 +80,7 @@ or because the code was not fully reviewed yet.
 * :py:mod:`horton.orbital_utils`
 * :py:mod:`horton.localization`
 
-In future release, we will report in this sectoin the API changes for the
+In future release, we will report in this section the API changes for the
 unstable parts.
 
 
@@ -87,9 +88,9 @@ Features in development
 =======================
 
 The following features are planned or are in a certain state of development.
-If you are interested in testing or cobtributing in any of these areas, send a
-mail to `the HORTON mailing list
-<https://groups.google.com/forum/#!forum/horton-discuss>`_.
+If you are interested in testing or contributing in any of these areas, or if
+you would like to develop your own new features for HORTON, send a mail to `the
+HORTON mailing list <https://groups.google.com/forum/#!forum/horton-discuss>`_.
 
 ======== =======================================================================
  Target   Feature

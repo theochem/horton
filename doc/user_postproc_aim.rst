@@ -139,8 +139,8 @@ The ``horton-atomdb.py`` script should be used in three steps to build a pro-ato
 
    This script also generates figures of the radial densities and Fukui
    functions, if ``matplotlib`` is installed. In this step, you may use
-   :ref:`ref_grid_option`, although the default setting should be fine for
-   nearly all cases.
+   :ref:`the -- grid option <ref_grid_option>`, although the default setting
+   should be fine for nearly all cases.
 
 If you remove some directories for atomic computations before or after
 executing the ``run_PROGRAM.sh`` script, the corresponding atoms will not be
@@ -625,8 +625,8 @@ Frequently asked questions
 
     It goes beyond the scope of this FAQ to describe how each partitioning scheme
     (implemented in HORTON or not) performs for these features. Some of these
-    features are also very hard to assess and subject to intense debate in the
-    literature.
+    features are very difficult to assess and, therefore, are subject to intense
+    debate in the literature.
 
     Regarding our own work, the following papers are directly related to this
     question:
@@ -663,7 +663,7 @@ Frequently asked questions
     of the `Kullback-Leibler divergence
     <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>`_
     between the atomic and pro-atomic densities for all the atoms is minimized.)
-    This principle is (or should be) one of the reasons that Hirhsfeld-like
+    This principle is (or should be) one of the reasons that Hirshfeld-like
     charges are somewhat transferable between chemically similar atoms. You
     could hope that the Kullback-Leibler divergence is easier to minimize when
     the molecular and pro-atomic densities are computed as consistently as

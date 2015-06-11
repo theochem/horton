@@ -232,7 +232,14 @@ are available for the following two chain rules:
         \frac{1}{2}\int \frac{\delta E[\tau]}{\delta \tau(\mathbf{r})}
         \nabla b_\nu^*(\mathbf{r}) \nabla b_\mu(\mathbf{r}) d\mathbf{r}
 
-where :math:`\tau(\mathbf{r})` is the kinetic energy density:
+..
+    Mind the adjective "positive" in the following sentence. There are many
+    choices for the kinetic energy density (which is essentially arbitrarily
+    defined). Technically one should say "the nonnegative kinetic energy
+    density" but I think most people call this the "positive" choice.
+        ~ Paul W. Ayers
+
+where :math:`\tau(\mathbf{r})` is the positive kinetic energy density:
 
 .. math::
 
