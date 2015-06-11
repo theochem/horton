@@ -69,10 +69,10 @@ Specification <http://semver.org/>`_, which directly relates to API stability:
     API in beta features at any time.
 
 
-Unstable code in HORTON 2.0.0
-=============================
+Unstable code in HORTON |version|
+=================================
 
-Some parts of the 2.0.0 version have no stable API yet because of known problems
+Some parts of HORTON |version| have no stable API yet because of known problems
 or because the code was not fully reviewed yet.
 
 * :py:mod:`horton.correlatedwfn`

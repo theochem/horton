@@ -537,7 +537,7 @@ class MemoryLogger(object):
 head_banner = """\
 ================================================================================
  _ __ _
-/ (..) \ Welcome to HORTON 2.0.0!
+/ (..) \ Welcome to HORTON %s!
 \/ || \/
  |_''_|  HORTON is written and maintained by by Toon Verstraelen (1).
 
@@ -558,7 +558,7 @@ head_banner = """\
          computation. Useful numerical output may be written to a checkpoint
          file and is accessible through the Python scripting interface.
 
-================================================================================"""
+================================================================================""" % (horton.__version__)
 
 
 foot_banner = """
@@ -566,8 +566,8 @@ foot_banner = """
  _    _
 / )--( \ End of the HORTON program.
 \|  \ |/
- |_||_|  Thank you for using HORTON! See you soon!
-================================================================================"""
+ |_||_|  Thank you for using HORTON %s! See you soon!
+================================================================================""" % (horton.__version__)
 
 timer = TimerGroup()
 log = ScreenLog('HORTON', horton.__version__, head_banner, foot_banner, timer)

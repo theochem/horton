@@ -17,17 +17,9 @@ def iter_txt_files(root):
 
 
 def main(root):
-    try:
-        # get the current commit ID
-        commit_id = subprocess.check_output(['git', 'log', '-n1', '--pretty=oneline']).split()[0]
-        version = None
-        print 'Tagging files in %s with commit id %s' % (root, commit_id)
-    except subprocess.CalledProcessError:
-        # not in a git directory, then get the current version instead
-        from conf import release
-        version = release
-        commit_id = None
-        print 'Tagging files in %s with version %s' % (root, version)
+    from conf import release
+
+    print 'Tagging files in %s with release %s' % (root, release)
 
     for fn_txt in iter_txt_files(root):
         with open(fn_txt) as f:
@@ -35,10 +27,7 @@ def main(root):
         if lines[1].startswith('    DOCUMENTATION BUILT FROM'):
             lines = lines[3:]
         lines.insert(0, '\n')
-        if commit_id is not None:
-            lines.insert(0, '    DOCUMENTATION BUILT FROM COMMIT ID: %s\n' % commit_id)
-        else:
-            lines.insert(0, '    DOCUMENTATION BUILT FROM VERSION: %s\n' % version)
+        lines.insert(0, '    DOCUMENTATION BUILT FROM RELEASE: %s\n' % release)
         lines.insert(0, '.. \n')
         with open(fn_txt, 'w') as f:
             f.writelines(lines)

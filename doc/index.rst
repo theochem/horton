@@ -19,8 +19,8 @@
     :
     : --
 
-HORTON
-######
+HORTON |version|
+################
 
 Motivated by our frustration with the difficulty of adding new features to
 existing quantum chemistry programs, we decided to create our own *H*\ elpful
