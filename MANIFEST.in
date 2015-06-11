@@ -11,6 +11,7 @@ include doc/*.png
 include doc/*.svg
 include doc/Makefile
 include doc/_static/custom.css
+include doc/_templates/footer.html
 exclude doc/tech_ref_literature.rst
 exclude doc/tech_ref_functionals.rst
 
