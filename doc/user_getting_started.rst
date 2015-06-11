@@ -65,13 +65,13 @@ Before running your script, say ``run.py``, we recommend you to make it executab
 
 .. code-block:: bash
 
-    $ chmod +x run.py
+    chmod +x run.py
 
 Now, when your script has completed, you can run it as follows:
 
 .. code-block:: bash
 
-    $ ./run.py
+    ./run.py
 
 Do not use ``horton.py`` as your script name; this will cause trouble when loading
 the ``horton`` library (due to a namespace collision).
@@ -86,7 +86,7 @@ information on how to use each built-in script can be obtained by using the ``--
 
 .. code-block:: bash
 
-    $ horton-convert.py --help
+    horton-convert.py --help
 
 
 Writing a basic HORTON Python script
