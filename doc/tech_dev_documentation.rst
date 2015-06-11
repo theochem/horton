@@ -66,7 +66,7 @@ If you are using `sphinx-autobuild`  the command is as follows:
 
     (cd doc; firefox http://localhost:8000 &; make livehtml)
 
-This sets up a server at `localhost:8000` and rebuilds website whenever you
+This sets up a server at `localhost:8000` and rebuilds the website whenever you
 make a change to the source files. Just like any other process, you can stop it
 with `Ctrl-C`
 

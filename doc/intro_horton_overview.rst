@@ -45,7 +45,7 @@ What HORTON is (or is hoped to be):
   implementation is not too inefficient. HORTON is not designed to achieve
   bleeding-edge performance: readability, extensibility, and modifiability are
   often preferred over computational efficiency and code compactness when
-  tradeoffs are essential.
+  trade-offs are essential.
 
 * HORTON is, and always will be, *open source*, distributed under the :ref:`GNU
   General Public License <license_information>`. The HORTON development team always welcomes new
@@ -65,10 +65,10 @@ What HORTON is (or is hoped to be):
   we hope that HORTON is easy to use as (1) a procedure providing
   specialized functionality to other programs and (2) a scripting
   language for processing results from other Schrödinger solver software (which may have
-  alternative capabilities or better computational performance). To faciliate
+  alternative capabilities or better computational performance). To facilitate
   the use of HORTON within other programs, we guarantee no major `API
   <http://en.wikipedia.org/wiki/Application_programming_interface>`_ changes for
-  at least eighteen months after each major release. Ensuring that HORTON can be
+  at least twelve months after each major release. Ensuring that HORTON can be
   used in all three ways (as part of a larger program; as a stand-alone program;
   outside other programs) is a fundamental design principle of HORTON.
 

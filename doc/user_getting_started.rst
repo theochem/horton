@@ -62,8 +62,8 @@ calculations, exploiting the components that HORTON offers. The HORTON library
 is designed such that all its features are as modular as possible, allowing you to
 combine them in various ways.
 
-Before running your script, say ``run.py``, we recommend you to make it executable
-(this needs to be done only once for every script):
+Before running your script, say ``run.py``, we recommend that you to make it
+executable (this needs to be done only once for every script):
 
 .. code-block:: bash
 
@@ -142,13 +142,13 @@ There are two special cases:
 
 1. Angles are in radians, but you can use the ``deg`` unit to work with degrees,
    for example, ``90*deg`` and ``np.pi/2`` are equivalent.
-2. Temperatures are in Kelvin. (There is no atomic unit for temperature.)
+2. Temperatures are in Kelvin.
 
 
 Array Indexing
 --------------
 
-All arrays (and list-like) objects in Python use zero-based indexing. This means
+All arrays and list-like objects in Python use zero-based indexing. This means
 that the first element of a vector is accessed as follows:
 
 .. code-block:: python

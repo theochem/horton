@@ -152,4 +152,4 @@ in two steps::
     ./setup.py install --user
 
 Run ``./setup.py build_ext --help`` for a complete list of options. These
-options apply to all extension, so avoid them for static linking.
+options apply to all extensions, so avoid them for static linking.

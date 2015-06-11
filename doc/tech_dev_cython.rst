@@ -24,6 +24,7 @@ Accelerating HORTON code with Cython
 
 HORTON was designed to prioritize ease of programming over performance. This is a reasonable decision in light of the fact that the vast majority of time in a quantum chemistry code is only spent in a relatively small section of code. In HORTON, we rewrite these critical portion s of code in C++ and link them into Python using the Cython framework. We identify these critical portions using profiling tools.
 
+
 Before you begin
 ================
 
@@ -32,6 +33,7 @@ There are several downsides to accelerating code with Cython. Please make sure t
 - Developer tools will break. PDB cannot read C++ debug symbols. cProfile will break. IDEs will not syntax highlight correctly. Valgrind will report false positive memory leaks.
 - Cython is still a fairly new project. The API may not be stable. Don't be surprised if your code breaks after a few versions.
 - A steep learning curve. Unless you are already familiar with C/C++ and Python profiling tools, you may not obtain the speed up you expected. Memory allocation and management of arrays is particularly tricky.
+
 
 Basic example
 =============
@@ -51,7 +53,7 @@ The original code is here
 This code takes a slice of B where the indices ``c`` are kept the same and then contracts across the last index.
 
 .. math::
-    A_abc = \sum_k B_ack B'_bck
+    A_{abc} = \sum_k B_{ack} B'_{bck}
 
 A quick check using the python cProfile module (``python -m cProfile -o slice.pstats get_slice_slow.py; gprof2dot -f pstats slice.pstats | dot -Tpng -o slice.png``) showed ``get_slice_slow`` method required almost 40% of the total code runtime. Since this operation was simple to implement in C++, it was a good candidate for Cythonizing.
 
@@ -82,6 +84,7 @@ and the header is below:
     void get_slice_abcc(double* inp, double* inp2, double* out, long nbasis, long nvec);
 
 This code now needs to be interfaced with Python using Cython.
+
 
 Cythonizing your code
 ---------------------
@@ -123,7 +126,8 @@ There are several things to note here:
 - Python and Numpy use ``long`` datatypes by default.
 - You can pass the address of the first element of a Numpy array to a function expecting ``double*`` as long as it is contiguous.
 
-There are several other nuances not illustrated in this example, but they are well covered in the Cython documentation below. Users should be particularly poignant of whether variables are Python-style (dynamic typed) or C-style (static typed). In our example above, everything is static typed as the method declaration declares everything.
+There are several other nuances not illustrated in this example, but they are well covered in the Cython documentation below. Users should be particularly cognizant of whether variables are Python-style (dynamic typed) or C-style (static typed). In our example above, everything is static typed as the method declaration declares everything.
+
 
 Additional notes
 ================

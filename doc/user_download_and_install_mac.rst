@@ -49,7 +49,7 @@ MacPorts 2.3.3 but should also work with newer versions.
 Quick tour of MacPorts
 ----------------------
 
-Here are some basic MacPort commands:
+Here are some basic MacPorts commands:
 
 * updating ports (recommended):
 
@@ -309,7 +309,7 @@ The following commands will install the ports:
     sudo port select --set pip pip27
 
 Since Breathe (>=1.2.0) and Sphinx (>=1.3.1) may not be available through
-MacPort, they should be installed through PIP:
+MacPorts, they should be installed through PIP:
 
 .. code-block:: bash
 

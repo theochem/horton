@@ -225,7 +225,7 @@ with
 .. math::
     \gamma_{\ell k}^{(m)} = \frac{(-1)^k}{2^\ell} \binom{\ell}{k}\binom{2\ell-2k}{\ell}\frac{(\ell-2k)!}{(\ell-2k-m)!}
 
-For the :math:`(x,y)`-dependence one has to following polynomials for the
+For the :math:`(x,y)`-dependence one has to define following polynomials for the
 cosine and sine-like functions, respectively:
 
 .. math::

@@ -10,7 +10,7 @@ nbasis = 30
 lnratio = (np.log(alpha_high) - np.log(alpha_low))/(nbasis-1)
 
 # build a list of "contractions". These aren't real contractions as every
-# constraction only contains one basis function.
+# contraction only contains one basis function.
 bcs = []
 for ibasis in xrange(nbasis):
     alpha = alpha_low**lnratio

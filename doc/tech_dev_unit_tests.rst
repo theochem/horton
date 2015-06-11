@@ -37,8 +37,9 @@ The tests are run as follows (including preparation steps)::
     toony@poony ~/.../horton:master> nosetests -v
 
 This will run the tests with the version of HORTON in the source tree, i.e. not
-the one that is installed with ``python setup.py install``. There are some cases
-where the first two commands are not needed. You will figure out.
+the one that is installed with ``python setup.py install``. If you have not
+removed any ``.py`` files, the script ``./cleanfiles.sh`` can be skipped. If you
+did not change any low-level code, ``./setup.py build_ext -i`` can be skipped.
 
 When working on a specific part of the code, it is often convenient to limit the
 number of tests that are checked. The following runs only the tests in ``horton/test/test_cell.py``::
@@ -56,7 +57,7 @@ Writing new tests
 All tests in HORTON are located in the directories ``horton/test`` and
 ``horton/*/test``. All module files containing tests have a filename that starts
 with ``test_``. In these modules, all functions with a name that starts with
-``test_`` are picked up by Nosetests. Tests that do not follow this convention,
+``test_`` are picked up by Nosetests. Tests that do not follow this convention
 are simply ignored.
 
 The basic structure of a test is as follows::
@@ -72,7 +73,7 @@ test (similar to what you have in mind) and start modifying it.
 
 Most test packages in ``horton`` contain a ``common`` module that contains useful
 functions that facilitate the development of tests. An important example is the
-``check_delta`` function to test of analytical derivatives are properly
+``check_delta`` function to test if analytical derivatives are properly
 implemented. This is a simple example::
 
 

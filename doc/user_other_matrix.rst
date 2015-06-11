@@ -19,29 +19,29 @@
     :
     : --
 
-How to use HORTON's Matrix package?
-###################################
+How to use HORTON's ``matrix`` package?
+#######################################
 
 Introduction
 ============
 
-In HORTON, we use our own Matrix package (abstraction layer) to implement the
+In HORTON, we use our own ``matrix`` package (abstraction layer) to implement the
 linear algebra code (low-level code) into the quantum chemistry code (high-level code). There
 are two main reasons for such an architecture:
 
 1. We can develop new linear algebra operations without breaking the higher-level
    code. For example, if we implemented Cholesky decomposition for the transformation
-   of 2-electron integrals, we should be able to use this method in the Geminals
+   of 2-electron integrals, we should be able to use this method in the geminals
    code without rewriting this code.
-2. Numpy, the conventional linear algbebra package in Python, may not manage
+2. Numpy, the conventional linear algebra package in Python, may not manage
    memory effectively for large objects, such as the 2-electron
    integrals. For example, Numpy allocates temporary memory when evaluating ``a += b``, which
-   is costly when  ``a`` or ``b`` is very large. By developing a Matrix package
+   is costly when  ``a`` or ``b`` is very large. By developing a ``matrix`` package
    (using the Numpy package), we gear towards memory management of quantum
-   chemistry calculations. So, the Matrix package is used instead of Numpy package directly.
+   chemistry calculations. So, the ``matrix`` package is used instead of Numpy package directly.
 
 Although such an abstraction layer seems pedantic and ostentatious, requiring
-a tedious implementation of all new operations into the Matrix package, the
+a tedious implementation of all new operations into the ``matrix`` package, the
 small penalty in performance and the ease of implementing different concepts
 into the low-level areas of HORTON make it well worth the effort.
 
@@ -50,8 +50,8 @@ implementations).
 
 .. image:: matrix_concept.png
 
-Using the Matrix package
-========================
+Using the ``matrix`` package
+============================
 
 The package ``horton.matrix`` is organized as follows:
 
@@ -125,7 +125,7 @@ with the different `backend` modules available. For example, instead of the
 Making this change will not change any of the preceeding code, provided that the
 same methods and attributes are implemented in this module as well.
 
-Many functions and classes have been implemented into the Matrix package. It
+Many functions and classes have been implemented into the ``matrix`` package. It
 may help to read over some of the documented module files in
 :py:mod:`horton.matrix.dense` and :py:mod:`horton.matrix.cholesky` to see if a
 desired function has already been implemented.
