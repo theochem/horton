@@ -45,6 +45,6 @@ this has the following practical implications:
   GPL License version 3. Contribtions are always defined as the changes made in
   each commit in a revision control system (currently Git).
 
-The complete License text is given below:
+The complete GPLv3 license text is given below:
 
 .. literalinclude:: ../COPYING
