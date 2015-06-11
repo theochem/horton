@@ -305,7 +305,7 @@ the constructor arguments.
       :py:class:`~horton.meanfield.builtin.UBeckeHartree`.
 
   Integration grids are discussed in more detail in the section
-  :ref:`user_integration_grids_specify`. A list of the supported LibXC functionals can
+  :ref:`user_other_numerical_integration_specify`. A list of the supported LibXC functionals can
   be found in :ref:`ref_functionals`. Note that HORTON does not support
   meta-GGAs (MGGAs) yet.
 
@@ -327,7 +327,7 @@ already defined:
 * ``grid``: a numerical integration grid.
 
 If you are unfamiliar with any of these, please read the sections
-:ref:`user_hamiltonian` and :ref:`user_integration_grids`. The examples below
+:ref:`user_hamiltonian` and :ref:`user_other_numerical_integration`. The examples below
 also make use of the external argument of
 :py:class:`~horton.meanfield.hamiltonian.REffHam` or
 :py:class:`~horton.meanfield.hamiltonian.UEffHam` to add the nuclear-nuclear
