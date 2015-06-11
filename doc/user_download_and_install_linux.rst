@@ -43,7 +43,7 @@ Choose a suitable directory, e.g. ``~/build``, download and unpack the archive
 
     mkdir -p ~/build
     cd ~/build
-    curl -O https://github.com/theochem/horton/releases/download/2.0.0/horton-2.0.0.tar.gz
+    curl -kLO https://github.com/theochem/horton/releases/download/2.0.0/horton-2.0.0.tar.gz
     tar -xvzf horton-2.0.0.tar.gz
     cd horton-2.0.0
 

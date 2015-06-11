@@ -30,11 +30,11 @@ rules = [
     ('horton/__init__.py', '^__version__ = \'(...+)\'$'),
     ('doc/conf.py', '        release = \'(...+)-nogit\'$'),
     ('doc/user_download_and_install_linux.rst', '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_linux.rst', '^    curl -O https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
+    ('doc/user_download_and_install_linux.rst', '^    curl -kLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
     ('doc/user_download_and_install_linux.rst', '^    tar -xvzf horton-(...+).tar.gz$'),
     ('doc/user_download_and_install_linux.rst', '^    cd horton-(...+)$'),
     ('doc/user_download_and_install_mac.rst', '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_mac.rst', '^    curl -O https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
+    ('doc/user_download_and_install_mac.rst', '^    curl -kLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
     ('doc/user_download_and_install_mac.rst', '^    tar -xvzf horton-(...+).tar.gz$'),
     ('doc/user_download_and_install_mac.rst', '^    cd horton-(...+)$'),
 ]
