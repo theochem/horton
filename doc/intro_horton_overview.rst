@@ -60,17 +60,18 @@ What HORTON is (or is hoped to be):
   development team, please contact us through the `the HORTON mailing list
   <https://groups.google.com/forum/#!forum/horton-discuss>`_.
 
-* HORTON can be used as a stand-alone program for the *N-fermion* problems using
-  either input files or Python scripts. Although more work remains to be done,
-  we hope that HORTON is easy to use as (1) a procedure providing
-  specialized functionality to other programs and (2) a scripting
-  language for processing results from other Schrödinger solver software (which may have
-  alternative capabilities or better computational performance). To facilitate
-  the use of HORTON within other programs, we guarantee no major `API
+* HORTON can used in three ways: as part of a larger program, as a stand-alone
+  problem, outside other programs. Retaining this flexibility is a fundamental
+  design principle of HORTON. Horton can be run as a stand-alone program using
+  either input files or Python scripts. However, when HORTON's functionality is
+  limited or its computational requirements are too large, HORTON can be used in
+  scripts for managing and post-processing calculations from other Schrödinger
+  solver software. HORTON can also be used, to provide specialized functionality
+  to a larger program (e.g., to update the atomic charges in a molecular
+  dynamics simulation). To facilitate the use of HORTON within other programs,
+  we guarantee no major `API
   <http://en.wikipedia.org/wiki/Application_programming_interface>`_ changes for
-  at least twelve months after each major release. Ensuring that HORTON can be
-  used in all three ways (as part of a larger program; as a stand-alone program;
-  outside other programs) is a fundamental design principle of HORTON.
+  at least twelve months after each major release.
 
 
 Main Features

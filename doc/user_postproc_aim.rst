@@ -71,7 +71,7 @@ Symmetry analysis                                    X
 
 Note that Gaussian cube files can be generated from other programs like CPMD,
 ADF, Siesta, Crystal, etc. The output of all these programs should be compatible
-with HORTON. Moreovere, both all-electron and pseudo-potential
+with HORTON. Moreover, both all-electron and pseudo-potential
 wavefunctions can be partitioned with HORTON. However, very fine grids are required for all-electron
 partitioning with CPart.
 
