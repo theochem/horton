@@ -19,12 +19,12 @@
     :
     : --
 
-.. _user_integration_grids:
+.. _user_other_numerical_integration:
 
 How to use HORTON for numerical integration?
 ############################################
 
-.. _user_integration_grids_specify:
+.. _user_other_numerical_integration_specify:
 
 Building an integration grid
 ============================

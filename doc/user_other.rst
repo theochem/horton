@@ -25,6 +25,6 @@ Other Topics
 .. toctree::
    :maxdepth: 3
 
-   user_other_integration_grids
+   user_other_numerical_integration
    user_other_matrix
    user_other_conversion
