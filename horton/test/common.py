@@ -55,10 +55,10 @@ def in_horton_source_root():
         return False
     if not os.path.isdir('scripts'):
         return False
-    if not os.path.isfile('HEADER'):
+    if not os.path.isfile('README'):
         return False
-    with open('HEADER') as f:
-        if f.next() != 'HORTON: Helpful Open-source Research TOol for N-fermion systems.\n':
+    with open('README') as f:
+        if f.next() != 'HORTON: *H*elpful *O*pen-source *R*esearch *TO*ol for *N*-fermion systems.\n':
             return False
     return True
 
