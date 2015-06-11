@@ -25,7 +25,10 @@ License Information
 ###################
 
 HORTON is distributed under the conditions of the `GPL License version 3
-<http://www.gnu.org/licenses/gpl-3.0.en.html>`_ (GPLv3). Amongst other things,
+<http://www.gnu.org/licenses/gpl-3.0.en.html>`_ (GPLv3). The HORTON Logo,
+designed by Wim Dewitte, is licensed under a `Creative Commons
+Attribution-ShareAlike 4.0 International License
+<http://creativecommons.org/licenses/by-sa/4.0/>`_. Amongst other things,
 this has the following practical implications:
 
 - You are free to use HORTON for any purpose. However, HORTON, or any derived
