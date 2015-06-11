@@ -44,25 +44,25 @@ On most Linux distributions, git can be installed with a package manager:
 
   .. code-block:: bash
 
-     $ sudo apt-get install git
+     sudo apt-get install git
 
 * **Fedora Linux 22 (and newer)**:
 
   .. code-block:: bash
 
-     $ sudo dnf install git
+     sudo dnf install git
 
 * **Fedora Linux 21 (and older)**:
 
   .. code-block:: bash
 
-     $ sudo yum install git
+     sudo yum install git
 
 On Mac OS X, the latest version of git can be installed through MacPorts:
 
 .. code-block:: bash
 
-    $ sudo port install git
+    sudo port install git
 
 
 Git configuration
@@ -123,7 +123,7 @@ comitting.
 
 Furthermore, it is useful to include the current branch in your shell prompt. To
 do so, put one of the following in your ``~/.bashrc`` (Linux) or
-``~/.profile`` (Max OS X) file:
+``~/.bash_profile`` (Mac OS X) file:
 
 * For terminals with a dark background:
 
@@ -186,16 +186,16 @@ In order to `clone` the public HORTON repository, run the following commands:
 
 .. code-block:: bash
 
-    $ mkdir ~/code
-    $ cd ~/code
-    $ git clone git://github.com/theochem/horton.git
-    $ cd horton
+    mkdir ~/code
+    cd ~/code
+    git clone git://github.com/theochem/horton.git
+    cd horton
 
 The version history can be updated with the latest committed patches on GitHub by:
 
 .. code-block:: bash
 
-    $ git pull
+    git pull
 
 There is also a web interface to HORTON's git repository:
 https://github.com/theochem/horton
@@ -210,7 +210,7 @@ downloaded separately when compiling a development version of HORTON:
 
 .. code-block:: bash
 
-    $ cd data/refatoms; make all
+    (cd data/refatoms; make all)
 
 
 Work flow for adding a new feature
@@ -260,8 +260,8 @@ Develop the feature in a separate branch
       $ ~/.../horton:foo> git checkout master
       $ ~/.../horton:master>
 
-   Make sure there are no uncommitted changes in the source code on ``foo`` branch before
-   switching to the ``master`` branch.
+   Make sure there are no uncommitted changes in the source code on the ``foo``
+   branch before switching to the ``master`` branch.
 
 2. Get the latest version of the source code:
 
@@ -341,27 +341,28 @@ available by pushing it to a remote server. One may use `GitHub
 
    .. code-block:: bash
 
-      $ git remote add review <paste_your_remote_url_here>
+      git remote add review <paste_your_remote_url_here>
 
 2. Push your branch to the remote server:
 
    .. code-block:: bash
 
-      $ git push review bar:bar
+      git push review bar:bar
 
 Now send the URL of your remote server and the name of the branch to a peer for
 review. If you are looking for someone to review your code, post a request on
 the `HORTON mailing list <https://groups.google.com/d/forum/horton-discuss>`_.
 
 Unless, you have written spotless code, you will make some further modifications
-to the code after review, commit these and push them to the remote server for review again. Once
-this iterative process converged, it is time to move to the next step.
+to the code after review, commit these and push them to the remote server for
+review again. When there are no furher comments, it is time to move to the next
+step.
 
 
 Rebase your branch on top of the ``master`` branch
-----------------------------------------------
+--------------------------------------------------
 
-It is likely that while developing your branch, the ``master`` branch
+It is likely that, while developing your branch, the ``master`` branch
 has evolved with new commits added by other developers. You need to append your
 branch to the new HEAD of the ``master`` branch with ``git rebase``.
 
@@ -376,8 +377,7 @@ branch to the new HEAD of the ``master`` branch with ``git rebase``.
 
    .. code-block:: bash
 
-      $ ~/.../horton:master> git fetch
-      $ ~/.../horton:master> git merge
+      $ ~/.../horton:master> git pull
 
 3. Switch to your working branch:
 
@@ -424,7 +424,7 @@ these new patches to the public ``master`` branch of HORTON.
 Common issues
 =============
 
-* Make sure you to set the ``pre-commit`` hook. If this causes error messages when
+* Remember to set the ``pre-commit`` hook. If this causes error messages when
   committing, use the ``cleancode.sh`` script. This removes all sorts of
   trailing white-space and converts every tab to four spaces. These conventions
   make ``git diff`` more meaningful and make it easier to merge and rebase commits.
@@ -432,7 +432,7 @@ Common issues
 * When you are customizing your bash prompt, you may get an error like
   ``__git_ps1: command not found...``, if you sourced ``git-completion.bash``.
   Then, before setting the ``GIT_PS``, you need to add the following line to your
-  ``~/.bashrc`` (Linux) or ``~/.profile`` (Mac OS X):
+  ``~/.bashrc`` (Linux) or ``~/.bash_profile`` (Mac OS X):
 
   .. code-block:: bash
 
