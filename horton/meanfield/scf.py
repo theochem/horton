@@ -49,7 +49,7 @@ class PlainSCFSolver(object):
                 DIIS variants need to compute the energy anyway. for these methods
                 this option is irrelevant.
         '''
-        self.maxiter = maxiter,
+        self.maxiter = maxiter
         self.threshold = threshold
         self.skip_energy = skip_energy
 

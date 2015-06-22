@@ -21,12 +21,14 @@
 
 
 import numpy as np
+
 from nose.plugins.attrib import attr
+from nose.tools import assert_raises
 
 from horton import *
 from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf, \
     check_water_cs_hfs, check_n2_cs_hfs, check_h3_os_hfs, check_h3_os_pbe, \
-    check_co_cs_pbe
+    check_co_cs_pbe, check_scandium_sc_hf
 
 
 def test_hf_cs_hf():
@@ -58,3 +60,8 @@ def test_co_cs_pbe():
 @attr('slow')
 def test_h3_os_pbe():
     check_h3_os_pbe(EDIIS2SCFSolver(threshold=1e-6))
+
+
+def test_scandium_sc_hf():
+    with assert_raises(NoSCFConvergence):
+        check_scandium_sc_hf(EDIIS2SCFSolver(threshold=1e-10, maxiter=10))

@@ -29,6 +29,7 @@ __all__ = [
     'check_cubic_wrapper', 'check_interpolation', 'check_solve', 'helper_compute',
     'check_hf_cs_hf', 'check_lih_os_hf', 'check_water_cs_hfs',
     'check_n2_cs_hfs', 'check_h3_os_hfs', 'check_h3_os_pbe', 'check_co_cs_pbe',
+    'check_scandium_sc_hf',
 ]
 
 
@@ -68,10 +69,12 @@ def check_interpolation(ham, lf, olp, kin, na, exps, do_plot=False):
 def check_solve(ham, scf_solver, occ_model, lf, olp, kin, na, *exps):
     guess_core_hamiltonian(olp, kin, na, *exps)
     if scf_solver.kind == 'exp':
+        occ_model.assign(*exps)
         assert scf_solver.error(ham, lf, olp, *exps) > scf_solver.threshold
         scf_solver(ham, lf, olp, occ_model, *exps)
         assert scf_solver.error(ham, lf, olp, *exps) < scf_solver.threshold
     else:
+        occ_model.assign(*exps)
         dms = [exp.to_dm() for exp in exps]
         assert scf_solver.error(ham, lf, olp, *dms) > scf_solver.threshold
         scf_solver(ham, lf, olp, occ_model, *dms)
@@ -480,3 +483,42 @@ def check_h3_os_pbe(scf_solver):
     assert abs(ham.cache['energy_hartree'] + ham.cache['energy_libxc_gga_x_pbe'] + ham.cache['energy_libxc_gga_c_pbe'] - 1.502769385597E+00) < 1e-5
     assert abs(ham.cache['energy'] - -1.593208400939354E+00) < 1e-5
     assert abs(ham.cache['energy_nn'] - 1.8899186021) < 1e-8
+
+
+@log.with_level(log.high)
+def check_scandium_sc_hf(scf_solver):
+    # Scandium atoms
+    numbers = np.array([23])
+    pseudo_numbers = numbers.astype(float)
+    coordinates = np.zeros((1, 3), float)
+
+    # Simple basis set
+    obasis = get_gobasis(coordinates, numbers, 'def2-tzvpd')
+
+    # Dense matrices
+    lf = DenseLinalgFactory(obasis.nbasis)
+
+    # Compute integrals
+    olp = obasis.compute_overlap(lf)
+    kin = obasis.compute_kinetic(lf)
+    na = obasis.compute_nuclear_attraction(coordinates, pseudo_numbers, lf)
+    er = obasis.compute_electron_repulsion(lf)
+
+    # Setup of restricted HF Hamiltonian
+    terms = [
+        RTwoIndexTerm(kin, 'kin'),
+        RDirectTerm(er, 'hartree'),
+        RExchangeTerm(er, 'x_hf'),
+        RTwoIndexTerm(na, 'ne'),
+    ]
+    ham = REffHam(terms)
+
+    # Define fractional occupations of interest. (Spin-compensated case)
+    occ_model = FixedOccModel(np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5]))
+
+    # Allocate orbitals and make the initial guess
+    exp_alpha = lf.create_expansion(obasis.nbasis)
+    guess_core_hamiltonian(olp, kin, na, exp_alpha)
+
+    # SCF test
+    check_solve(ham, scf_solver, occ_model, lf, olp, kin, na, exp_alpha)

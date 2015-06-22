@@ -70,7 +70,7 @@ def test_cubic_interpolation_hfs_cs():
 def test_perturbation():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)
-    scf_solver = PlainSCFSolver()
+    scf_solver = PlainSCFSolver(maxiter=1024)
 
     # Without perturbation
     olp = mol.obasis.compute_overlap(mol.lf)
