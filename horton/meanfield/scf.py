@@ -31,9 +31,9 @@ __all__ = ['PlainSCFSolver']
 
 class PlainSCFSolver(object):
     '''A bare-bones SCF solver without mixing.'''
-    kind = 'exp' # input/output variable is the wfn expansion
+    kind = 'exp'  # input/output variable is the wfn expansion
 
-    def __init__(self, threshold=1e-8, maxiter=128, skip_energy=False):
+    def __init__(self, threshold=1e-8, maxiter=128, skip_energy=False, level_shift=0.0):
         '''
            **Optional arguments:**
 
@@ -46,10 +46,18 @@ class PlainSCFSolver(object):
 
            skip_energy
                 When set to True, the final energy is not computed.
+
+           level_shift
+                When set to non-zero, level-shifting is applied and the value of
+                the argument controls the magnitude of the level shift. This
+                argument cannot be negative.
         '''
         self.maxiter = maxiter
         self.threshold = threshold
         self.skip_energy = skip_energy
+        if level_shift < 0:
+            raise ValueError('The level_shift argument cannot be negative.')
+        self.level_shift = level_shift
 
     @timer.with_section('SCF')
     def __call__(self, ham, lf, overlap, occ_model, *exps):
@@ -108,9 +116,22 @@ class PlainSCFSolver(object):
             if error < self.threshold:
                 converged = True
                 break
+            # If requested, add the level shift to the Fock operator
+            if self.level_shift > 0:
+                for i in xrange(ham.ndm):
+                    lshift = overlap.copy()
+                    lshift.idot(dms[i])
+                    lshift.idot(overlap)
+                    # The normal behavior is to shift down the occupied levels.
+                    lshift.iscale(-self.level_shift)
+                    focks[i].iadd(lshift)
             # Diagonalize the fock operators to obtain new orbitals and
             for i in xrange(ham.ndm):
                 exps[i].from_fock(focks[i], overlap)
+                # If requested, compensate for level-shift. This compensation
+                # is only correct when the SCF has converged.
+                if self.level_shift > 0:
+                    exps[i].energies[:] += self.level_shift*exps[i].occupations
             # Assign new occupation numbers.
             occ_model.assign(*exps)
             # counter
