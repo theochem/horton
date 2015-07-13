@@ -465,7 +465,7 @@ void GB4Integral::cart_to_pure() {
 
 /*
 
-   GB4ElectronRepulsionIntegralLibInt
+   GB4LibInt
 
 */
 
@@ -481,17 +481,17 @@ void GB4Integral::cart_to_pure() {
 #error LibInt must be compiled with an angular momentum limit of at least MAX_SHELL_TYPE.
 #endif
 
-GB4ElectronRepulsionIntegralLibInt::GB4ElectronRepulsionIntegralLibInt(long max_shell_type) :
+GB4LibInt::GB4LibInt(long max_shell_type) :
     GB4Integral(max_shell_type) {
     libint2_init_eri(&erieval, max_shell_type, 0);
     erieval.contrdepth = 1;
 }
 
-GB4ElectronRepulsionIntegralLibInt::~GB4ElectronRepulsionIntegralLibInt() {
+GB4LibInt::~GB4LibInt() {
     libint2_cleanup_eri(&erieval);
 }
 
-void GB4ElectronRepulsionIntegralLibInt::reset(
+void GB4LibInt::reset(
     long _shell_type0, long _shell_type1, long _shell_type2, long _shell_type3,
     const double* _r0, const double* _r1, const double* _r2, const double* _r3)
 {
@@ -592,7 +592,7 @@ void GB4ElectronRepulsionIntegralLibInt::reset(
 }
 
 
-void GB4ElectronRepulsionIntegralLibInt::add(
+void GB4LibInt::add(
     double coeff, double alpha0, double alpha1, double alpha2, double alpha3,
     const double* scales0, const double* scales1, const double* scales2,
     const double* scales3) {
@@ -755,104 +755,114 @@ void GB4ElectronRepulsionIntegralLibInt::add(
     erieval.roe[0] = gammap*eta_inv;
 #endif
 
+    /*
+
+        Arguments for the kernel (using Boy's function or something else)
+
+    */
+
     const double k1 = exp(-libint_args[order[0]].alpha * libint_args[order[2]].alpha * ab2 * gammap_inv);
     const double k2 = exp(-libint_args[order[1]].alpha * libint_args[order[3]].alpha * cd2 * gammaq_inv);
-#define TWO_PI_POW_5_2 34.986836655249725693
-    const double pfac = TWO_PI_POW_5_2*k1*k2*gammap_inv*gammaq_inv*sqrt(eta_inv)*coeff;
+#define PI_POW_3_2 5.5683279968317078
+    const double pfac = PI_POW_3_2*k1*k2*pow(eta_inv, 1.5)*coeff;
+    const double rho = 1.0/(gammaq_inv + gammap_inv);
+    const double t = pq2*rho;
 
     /*
-        Evaluate Boys function
+        Laplace transform of the potential
     */
 
     int mmax = libint_args[0].am + libint_args[1].am + libint_args[2].am + libint_args[3].am;
-    const double bfarg = pq2*gammap*gammaq*eta_inv;
+    double kernel[28];
+    laplace_of_potential(rho, t, mmax, kernel);
+
 #define TEST_END_BOYS mmax--; if (mmax<0) goto end_boys;
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(0))
-    erieval.LIBINT_T_SS_EREP_SS(0)[0] = pfac*boys_function(0, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(0)[0] = pfac*kernel[0]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(1))
-    erieval.LIBINT_T_SS_EREP_SS(1)[0] = pfac*boys_function(1, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(1)[0] = pfac*kernel[1]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(2))
-    erieval.LIBINT_T_SS_EREP_SS(2)[0] = pfac*boys_function(2, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(2)[0] = pfac*kernel[2]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(3))
-    erieval.LIBINT_T_SS_EREP_SS(3)[0] = pfac*boys_function(3, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(3)[0] = pfac*kernel[3]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(4))
-    erieval.LIBINT_T_SS_EREP_SS(4)[0] = pfac*boys_function(4, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(4)[0] = pfac*kernel[4]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(5))
-    erieval.LIBINT_T_SS_EREP_SS(5)[0] = pfac*boys_function(5, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(5)[0] = pfac*kernel[5]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(6))
-    erieval.LIBINT_T_SS_EREP_SS(6)[0] = pfac*boys_function(6, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(6)[0] = pfac*kernel[6]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(7))
-    erieval.LIBINT_T_SS_EREP_SS(7)[0] = pfac*boys_function(7, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(7)[0] = pfac*kernel[7]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(8))
-    erieval.LIBINT_T_SS_EREP_SS(8)[0] = pfac*boys_function(8, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(8)[0] = pfac*kernel[8]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(9))
-    erieval.LIBINT_T_SS_EREP_SS(9)[0] = pfac*boys_function(9, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(9)[0] = pfac*kernel[9]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(10))
-    erieval.LIBINT_T_SS_EREP_SS(10)[0] = pfac*boys_function(10, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(10)[0] = pfac*kernel[10]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(11))
-    erieval.LIBINT_T_SS_EREP_SS(11)[0] = pfac*boys_function(11, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(11)[0] = pfac*kernel[11]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(12))
-    erieval.LIBINT_T_SS_EREP_SS(12)[0] = pfac*boys_function(12, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(12)[0] = pfac*kernel[12]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(13))
-    erieval.LIBINT_T_SS_EREP_SS(13)[0] = pfac*boys_function(13, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(13)[0] = pfac*kernel[13]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(14))
-    erieval.LIBINT_T_SS_EREP_SS(14)[0] = pfac*boys_function(14, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(14)[0] = pfac*kernel[14]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(15))
-    erieval.LIBINT_T_SS_EREP_SS(15)[0] = pfac*boys_function(15, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(15)[0] = pfac*kernel[15]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(16))
-    erieval.LIBINT_T_SS_EREP_SS(16)[0] = pfac*boys_function(16, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(16)[0] = pfac*kernel[16]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(17))
-    erieval.LIBINT_T_SS_EREP_SS(17)[0] = pfac*boys_function(17, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(17)[0] = pfac*kernel[17]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(18))
-    erieval.LIBINT_T_SS_EREP_SS(18)[0] = pfac*boys_function(18, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(18)[0] = pfac*kernel[18]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(19))
-    erieval.LIBINT_T_SS_EREP_SS(19)[0] = pfac*boys_function(19, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(19)[0] = pfac*kernel[19]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(20))
-    erieval.LIBINT_T_SS_EREP_SS(20)[0] = pfac*boys_function(20, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(20)[0] = pfac*kernel[20]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(21))
-    erieval.LIBINT_T_SS_EREP_SS(21)[0] = pfac*boys_function(21, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(21)[0] = pfac*kernel[21]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(22))
-    erieval.LIBINT_T_SS_EREP_SS(22)[0] = pfac*boys_function(22, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(22)[0] = pfac*kernel[22]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(23))
-    erieval.LIBINT_T_SS_EREP_SS(23)[0] = pfac*boys_function(23, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(23)[0] = pfac*kernel[23]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(24))
-    erieval.LIBINT_T_SS_EREP_SS(24)[0] = pfac*boys_function(24, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(24)[0] = pfac*kernel[24]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(25))
-    erieval.LIBINT_T_SS_EREP_SS(25)[0] = pfac*boys_function(25, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(25)[0] = pfac*kernel[25]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(26))
-    erieval.LIBINT_T_SS_EREP_SS(26)[0] = pfac*boys_function(26, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(26)[0] = pfac*kernel[26]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(27))
-    erieval.LIBINT_T_SS_EREP_SS(27)[0] = pfac*boys_function(27, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(27)[0] = pfac*kernel[27]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(28))
-    erieval.LIBINT_T_SS_EREP_SS(28)[0] = pfac*boys_function(28, bfarg); TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(28)[0] = pfac*kernel[28]; TEST_END_BOYS;
 #endif
 end_boys:
 
@@ -905,5 +915,12 @@ end_boys:
                 }
             }
         }
+    }
+}
+
+
+void GB4ElectronRepulsionIntegralLibInt::laplace_of_potential(double rho, double t, long mmax, double* output) {
+    for (long m=0; m<=mmax; m++) {
+        output[m] = 2.0*M_PI/rho*boys_function(m, t);
     }
 }
