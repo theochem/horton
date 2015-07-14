@@ -99,7 +99,6 @@ print >> s, 'LibXC Functionals'
 print >> s, '#################'
 print >> s
 print >> s, 'The following functionals are available in HORTON through `LibXC <http://www.tddft.org/programs/octopus/wiki/index.php/Libxc>`_ %s. [marques2012]_' % libxc_version
-print >> s, '(The MGGA functionals are not supported yet in HORTON.)'
 print >> s
 for key in keys:
     try:

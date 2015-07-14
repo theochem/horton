@@ -2,8 +2,8 @@
 #JSON {"lot": "RKS/6-31G*",
 #JSON  "scf": "CDIISSCFSolver",
 #JSON  "linalg": "CholeskyLinalgFactory",
-#JSON  "difficulty": 9,
-#JSON  "description": "RKS DFT example with GGA and numerical Hartree"}
+#JSON  "difficulty": 7,
+#JSON  "description": "Basic RKS DFT example with hybrid MGGA exhange-correlation functional (TPSS)"}
 
 from horton import *
 
@@ -18,14 +18,14 @@ obasis = get_gobasis(mol.coordinates, mol.numbers, '6-31g*')
 # Create a linalg factory
 lf = CholeskyLinalgFactory(obasis.nbasis)
 
-# Compute Gaussian integrals (not the ERI!)
+# Compute Gaussian integrals
 olp = obasis.compute_overlap(lf)
 kin = obasis.compute_kinetic(lf)
 na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
+er = obasis.compute_electron_repulsion(lf)
 
-# Define a numerical integration grid needed the XC functionals. The mode='keep'
-# option is need for the numerical Becke-Poisson solver.
-grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, mode='keep')
+# Define a numerical integration grid needed the XC functionals
+grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers)
 
 # Create alpha orbitals
 exp_alpha = lf.create_expansion()
@@ -35,13 +35,12 @@ guess_core_hamiltonian(olp, kin, na, exp_alpha)
 
 # Construct the restricted HF effective Hamiltonian
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
+libxc_term = RLibXCHybridMGGA('xc_m05')
 terms = [
     RTwoIndexTerm(kin, 'kin'),
-    RGridGroup(obasis, grid, [
-        RBeckeHartree(lmax=8),
-        RLibXCGGA('x_pbe'),
-        RLibXCGGA('c_pbe'),
-    ]),
+    RDirectTerm(er, 'hartree'),
+    RGridGroup(obasis, grid, [libxc_term]),
+    RExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
     RTwoIndexTerm(na, 'ne'),
 ]
 ham = REffHam(terms, external)
@@ -50,7 +49,7 @@ ham = REffHam(terms, external)
 occ_model = AufbauOccModel(5)
 
 # Converge WFN with CDIIS SCF
-# - Construct the initial density matrix (needes for CDIIS).
+# - Construct the initial density matrix (needed for CDIIS).
 occ_model.assign(exp_alpha)
 dm_alpha = exp_alpha.to_dm()
 # - SCF solver
