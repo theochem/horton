@@ -114,13 +114,17 @@ In case of the electron density, this can be done as follows:
     rho = obasis.compute_grid_density_dm(dm_full, grid.points)
 
 Several other quantities can also be evaluated on the grid. For more
-details, please refer to: :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_density_dm`,
-:py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_gradient_dm`,
-:py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_kinetic_dm`,
-:py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_hartree_dm`,
-:py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_esp_dm`,
-and
-:py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_orbitals_exp`.
+details, please refer to:
+
+* :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_density_dm`
+* :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_gradient_dm`
+* :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_gga_dm`
+* :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_kinetic_dm`
+* :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_hessian_dm`
+* :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_mgga_dm`
+* :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_hartree_dm`
+* :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_esp_dm`
+* :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_orbitals_exp`
 
 Integrating the electron density by itself results in the total number of electrons.
 This is a simple way to verify the accuracy of the integration grid.
@@ -215,12 +219,11 @@ The usage pattern is as follows:
     obasis.compute_grid_density_fock(grid.points, grid.weights, pot, fock)
 
 
-Similar methods, like
-:py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_gradient_fock` and
-:py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_kinetic_fock`,
-are available for the following two chain rules:
+Other chain rules are also implemented:
 
-.. math::
+* :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_gradient_fock`
+
+  .. math::
 
     \frac{\partial E[\nabla\rho]}{\partial D_{\nu\mu}} & =
         \int \frac{\delta E[\nabla\rho]}{\delta \nabla\rho(\mathbf{r})}
@@ -228,19 +231,44 @@ are available for the following two chain rules:
             \nabla b_\nu^*(\mathbf{r}) b_\mu(\mathbf{r}) +
             b_\nu^*(\mathbf{r}) \nabla b_\mu(\mathbf{r})
         \right) d\mathbf{r} \\
+
+* :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_gradient_fock` just
+  combines the density and gradient chain rules. This is more efficient than
+  computing the separately.
+
+* :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_kinetic_fock`
+
+  .. math::
+
     \frac{\partial E[\tau]}{\partial D_{\nu\mu}} & =
         \frac{1}{2}\int \frac{\delta E[\tau]}{\delta \tau(\mathbf{r})}
         \nabla b_\nu^*(\mathbf{r}) \nabla b_\mu(\mathbf{r}) d\mathbf{r}
 
-..
+  where :math:`\tau(\mathbf{r})` is the positive kinetic energy density:
+
+  ..
     Mind the adjective "positive" in the following sentence. There are many
     choices for the kinetic energy density (which is essentially arbitrarily
     defined). Technically one should say "the nonnegative kinetic energy
     density" but I think most people call this the "positive" choice.
         ~ Paul W. Ayers
 
-where :math:`\tau(\mathbf{r})` is the positive kinetic energy density:
-
-.. math::
+  .. math::
 
     \tau(\mathbf{r}) = \frac{1}{2} \sum_{\mu\nu} D_{\mu\nu} \nabla b_\nu^*(\mathbf{r}) \nabla b_\mu(\mathbf{r})
+
+* :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_hessian_fock`
+
+  .. math::
+
+    \frac{\partial E[\nabla\nabla\rho]}{\partial D_{\nu\mu}} & =
+        \int \frac{\delta E[\nabla\nabla\rho]}{\delta \nabla\nabla\rho(\mathbf{r})}
+        \colon \left(
+            \nabla \nabla b_\nu^*(\mathbf{r}) b_\mu(\mathbf{r}) +
+            2 \nabla b_\nu^*(\mathbf{r}) \nabla b_\mu(\mathbf{r}) +
+            b_\nu^*(\mathbf{r}) \nabla \nabla b_\mu(\mathbf{r})
+        \right) d\mathbf{r} \\
+
+* :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_mgga_fock` just combines
+  several of the previous chain rules: density, gradient, laplacian (trace of
+  the Hessian) and kinetic energy density.
