@@ -17,8 +17,8 @@ if [ ! -d "$HOME/depinstall/libint-2.0.3/lib" ]; then
     tar -xzf libint-2.0.3-stable.tgz
     cd libint-2.0.3-stable
     echo "Actual build and install. This may take a while."
-    (CONFIG_SHELL=$(which sh) ./configure --prefix=${HOME}/depinstall/libint-2.0.3 --enable-shared && make install) &> install.log
-    tail install.log
+    echo "Every 100th line of build output is shown to keep Travis-CI happy without generating too much output"
+    (CONFIG_SHELL=$(which sh) ./configure --prefix=${HOME}/depinstall/libint-2.0.3 --enable-shared && make install) | awk '!(NR % 100)'
 )
 else
     echo -e "${COLOR}Using Cached LIBINT 2.0.3${RESET}"
