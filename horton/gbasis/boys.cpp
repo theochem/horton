@@ -34,10 +34,10 @@
 #define SQRT_PI_D2      8.86226925452758013649e-1 // sqrt(pi)/2
 
 static double boys_function_tail(long m, double t) {
-    double result = 1.0;
+    double result = SQRT_PI_D2/sqrt(t);
     for (long i=1; i<=m; i++)
         result *= 0.5*(2*i-1)/t;
-    return result*SQRT_PI_D2/sqrt(t);
+    return result;
 }
 
 
@@ -73,10 +73,12 @@ void boys_function_array(long mmax, double t, double *output) {
     if (mmax < 0 || mmax > BOYS_MAX_M || t < 0) {
         throw std::domain_error("Arguments to Boys function are outside the valid domain.");
     }
-    // precompute terms in taylor series without coefficients, if needed.
+    // Precompute terms in taylor series without coefficients, if needed.
     const int i = (int)(round(t*BOYS_RESOLUTION));
     double xs[6];
     if (i<(boys_sizes[mmax]-1)) {
+        // The if clause relies on the fact that the size of the pre-computed
+        // Boys function arrays increases with m.
         const double t_delta = (i - t*BOYS_RESOLUTION)/BOYS_RESOLUTION;
         xs[0] = t_delta;
         xs[1] = xs[0]*(t_delta/2.0);
@@ -85,9 +87,17 @@ void boys_function_array(long mmax, double t, double *output) {
         xs[4] = xs[3]*(t_delta/5.0);
         xs[5] = xs[4]*(t_delta/6.0);
     }
+    // Start the computation of the approximation of the Boys function and its
+    // derivative for large values of t, if needed.
+    double tail = NAN;
+    if (i>=(boys_sizes[0]-1)) {
+        tail = SQRT_PI_D2/sqrt(t);
+    }
+    // Compute the Boys function and all the requested derivatives.
     for (long m=0; m <= mmax; m++) {
         if (i>=(boys_sizes[m]-1)) {
-            output[m] = boys_function_tail(m, t);
+            if (m > 0) tail *= 0.5*(2*m-1)/t;
+            output[m] = tail;
         } else {
             output[m] =
                 boys_fn_data[m][i] +
