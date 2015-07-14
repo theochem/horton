@@ -1,15 +1,69 @@
+sudo: false
 language: python
+
 python:
  - "2.7"
-virtualenv:
-  system_site_packages: true
+
+addons:
+  apt:
+    packages:
+     - gcc
+     - g++
+     - gfortran
+     - libatlas-base-dev
+     - libhdf5-serial-dev
+     # libtool is needed by libint
+     - libtool
+     - doxygen
+
+cache:
+  directories:
+    - $HOME/depinstall/numpy-1.9.1
+    - $HOME/depinstall/scipy-0.11.0
+    - $HOME/depinstall/cython-0.17.1
+    - $HOME/depinstall/h5py-2.2.1
+    - $HOME/depinstall/matplotlib-1.1.0
+    - $HOME/depinstall/libint-2.0.3
+    # $HOME/depinstall/libxc-2.2.2
+
 install:
- - "sudo apt-get --no-install-recommends install python-sympy libhdf5-serial-dev python-numpy python-scipy python-matplotlib gfortran"
- - "mkdir -p ~/.matplotlib/; echo 'backend : Agg' > ~/.matplotlib/matplotlibrc"
- - "pip install h5py cython --use-mirrors"
- - "ls; cd depends; make libint-linux-x86_64-gcc-4.7.2; cd .."
- - "ls; cd depends; make libxc 2>&1 > make_libxc.out; cd .."
- - "cd data/refatoms; make all; cd ../.."
- - "python setup.py install"
+ - pip install --upgrade sphinx breathe
+
+ - bash tools/travis-ci/build_numpy-1.9.1.sh
+ - export PYTHONPATH=$HOME/depinstall/numpy-1.9.1/lib/python2.7/site-packages:$PYTHONPATH
+
+ - bash tools/travis-ci/build_scipy-0.11.0.sh
+ - export PYTHONPATH=$HOME/depinstall/scipy-0.11.0/lib/python2.7/site-packages:$PYTHONPATH
+
+ - bash tools/travis-ci/build_cython-0.17.1.sh
+ - export PYTHONPATH=$HOME/depinstall/cython-0.17.1/lib/python2.7/site-packages:$PYTHONPATH
+
+ - bash tools/travis-ci/build_h5py-2.2.1.sh
+ - export PYTHONPATH=$HOME/depinstall/h5py-2.2.1/lib/python2.7/site-packages:$PYTHONPATH
+
+ - bash tools/travis-ci/build_matplotlib-1.1.0.sh
+ - export PYTHONPATH=$HOME/depinstall/matplotlib-1.1.0/lib/python2.7/site-packages:$PYTHONPATH
+ - mkdir -p ~/.matplotlib/
+# Ugly trick to avoid that the colon gets interpreted by the YAML parser.
+ - |-
+   echo "backend : Agg" > ~/.matplotlib/matplotlibrc
+
+# - bash tools/travis-ci/build_libxc-2.2.2.sh
+# - export LD_LIBRARY_PATH=$HOME/depinstall/libxc-2.2.2/lib:$LD_LIBRARY_PATH
+# - export CPATH=$HOME/depinstall/libxc-2.2.2/include:$CPATH
+
+ - bash tools/travis-ci/build_libint-2.0.3.sh
+ - export LD_LIBRARY_PATH=$HOME/depinstall/libint-2.0.3/lib:$LD_LIBRARY_PATH
+ - export CPATH=$HOME/depinstall/libint-2.0.3/include/libint2:$CPATH
+
+ - (cd data/refatoms; make all; cd ../..)
+
+# BLAS_LIBRARIES must be set because Python thinks it is running in Debian
+# wheezy/sid while it is actually running Ubuntu-12.04.
+ - export BLAS_LIBRARIES=atlas:cblas
+ - (cd depends; make libxc)
+ - python setup.py build_ext -i -L ${LD_LIBRARY_PATH}
+
 script:
- - "cd; nosetests -v horton"
+ - nosetests -v
+ - (cd doc; make html)
