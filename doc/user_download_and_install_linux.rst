@@ -60,12 +60,12 @@ versions of the following programs/libraries:
   any other of your favorite compilers should work. The GNU compilers are used for
   development and testing.)
 * Atlas >= 3.10.1: http://math-atlas.sourceforge.net/ (or any other BLAS implementation that you like more)
-* Numpy >= 1.9.1: http://www.numpy.org/
-* Scipy >= 0.11.0: http://www.scipy.org/
+* NumPy >= 1.9.1: http://www.numpy.org/
+* SciPy >= 0.11.0: http://www.scipy.org/
 * Cython >= 0.17.1 : http://www.cython.org/
-* h5py >= 2.2.1: http://www.h5py.org/
-* Sympy >= 0.7.1: http://code.google.com/p/sympy/
-* Matplotlib >= 1.0: http://matplotlib.org/
+* H5Py >= 2.2.1: http://www.h5py.org/
+* SymPy >= 0.7.1: http://code.google.com/p/sympy/
+* Matplotlib >= 1.0.0: http://matplotlib.org/
 * LibXC >= 2.2.2: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 * LibInt2 >= 2.0.3: http://sourceforge.net/p/libint/home
 * Curl: http://curl.haxx.se/
