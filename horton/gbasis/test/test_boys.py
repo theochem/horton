@@ -516,3 +516,10 @@ def test_boys_domain_error():
     for m, t in (-1, 0.0), (get_max_shell_type()*4+1, 0.0), (5, -1):
         with assert_raises(ValueError):
             boys_function(m, t)
+
+def test_boys_array():
+    for mmax in xrange(get_max_shell_type()*4+1):
+        for t in np.random.uniform(0, 200, 500):
+            output = boys_function_array(mmax, t)
+            for m in xrange(mmax+1):
+                assert output[m] == boys_function(m, t)

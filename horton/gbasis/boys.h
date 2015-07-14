@@ -27,5 +27,6 @@
 #define BOYS_MAX_M 4*MAX_SHELL_TYPE
 
 double boys_function(long m, double u);
+void boys_function_array(long mmax, double t, double *output);
 
 #endif

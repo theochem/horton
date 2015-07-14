@@ -48,7 +48,7 @@ from horton.utils import typecheck_geo
 
 __all__ = [
     # boys
-    'boys_function',
+    'boys_function', 'boys_function_array',
     # cartpure
     'cart_to_pure_low',
     #cholesky
@@ -82,6 +82,12 @@ __all__ = [
 
 def boys_function(long m, double t):
     return boys.boys_function(m, t)
+
+
+def boys_function_array(long mmax, double t):
+    cdef np.ndarray[double] output = np.zeros(mmax+1)
+    boys.boys_function_array(mmax, t, &output[0])
+    return output
 
 
 #
