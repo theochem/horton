@@ -113,8 +113,8 @@ In case of the electron density, this can be done as follows:
 
     rho = obasis.compute_grid_density_dm(dm_full, grid.points)
 
-Several other quantities can also be evaluated on the grid. For more
-details, please refer to:
+It is assumed that ``dm_full`` is symmetric. Several other quantities can also
+be evaluated on the grid. For more details, please refer to:
 
 * :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_density_dm`
 * :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_gradient_dm`
