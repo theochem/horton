@@ -774,95 +774,95 @@ void GB4LibInt::add(
 
     int mmax = libint_args[0].am + libint_args[1].am + libint_args[2].am + libint_args[3].am;
     double kernel[28];
-    laplace_of_potential(rho, t, mmax, kernel);
+    laplace_of_potential(pfac, rho, t, mmax, kernel);
 
 #define TEST_END_BOYS mmax--; if (mmax<0) goto end_boys;
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(0))
-    erieval.LIBINT_T_SS_EREP_SS(0)[0] = pfac*kernel[0]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(0)[0] = kernel[0]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(1))
-    erieval.LIBINT_T_SS_EREP_SS(1)[0] = pfac*kernel[1]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(1)[0] = kernel[1]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(2))
-    erieval.LIBINT_T_SS_EREP_SS(2)[0] = pfac*kernel[2]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(2)[0] = kernel[2]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(3))
-    erieval.LIBINT_T_SS_EREP_SS(3)[0] = pfac*kernel[3]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(3)[0] = kernel[3]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(4))
-    erieval.LIBINT_T_SS_EREP_SS(4)[0] = pfac*kernel[4]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(4)[0] = kernel[4]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(5))
-    erieval.LIBINT_T_SS_EREP_SS(5)[0] = pfac*kernel[5]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(5)[0] = kernel[5]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(6))
-    erieval.LIBINT_T_SS_EREP_SS(6)[0] = pfac*kernel[6]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(6)[0] = kernel[6]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(7))
-    erieval.LIBINT_T_SS_EREP_SS(7)[0] = pfac*kernel[7]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(7)[0] = kernel[7]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(8))
-    erieval.LIBINT_T_SS_EREP_SS(8)[0] = pfac*kernel[8]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(8)[0] = kernel[8]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(9))
-    erieval.LIBINT_T_SS_EREP_SS(9)[0] = pfac*kernel[9]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(9)[0] = kernel[9]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(10))
-    erieval.LIBINT_T_SS_EREP_SS(10)[0] = pfac*kernel[10]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(10)[0] = kernel[10]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(11))
-    erieval.LIBINT_T_SS_EREP_SS(11)[0] = pfac*kernel[11]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(11)[0] = kernel[11]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(12))
-    erieval.LIBINT_T_SS_EREP_SS(12)[0] = pfac*kernel[12]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(12)[0] = kernel[12]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(13))
-    erieval.LIBINT_T_SS_EREP_SS(13)[0] = pfac*kernel[13]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(13)[0] = kernel[13]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(14))
-    erieval.LIBINT_T_SS_EREP_SS(14)[0] = pfac*kernel[14]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(14)[0] = kernel[14]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(15))
-    erieval.LIBINT_T_SS_EREP_SS(15)[0] = pfac*kernel[15]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(15)[0] = kernel[15]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(16))
-    erieval.LIBINT_T_SS_EREP_SS(16)[0] = pfac*kernel[16]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(16)[0] = kernel[16]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(17))
-    erieval.LIBINT_T_SS_EREP_SS(17)[0] = pfac*kernel[17]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(17)[0] = kernel[17]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(18))
-    erieval.LIBINT_T_SS_EREP_SS(18)[0] = pfac*kernel[18]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(18)[0] = kernel[18]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(19))
-    erieval.LIBINT_T_SS_EREP_SS(19)[0] = pfac*kernel[19]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(19)[0] = kernel[19]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(20))
-    erieval.LIBINT_T_SS_EREP_SS(20)[0] = pfac*kernel[20]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(20)[0] = kernel[20]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(21))
-    erieval.LIBINT_T_SS_EREP_SS(21)[0] = pfac*kernel[21]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(21)[0] = kernel[21]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(22))
-    erieval.LIBINT_T_SS_EREP_SS(22)[0] = pfac*kernel[22]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(22)[0] = kernel[22]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(23))
-    erieval.LIBINT_T_SS_EREP_SS(23)[0] = pfac*kernel[23]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(23)[0] = kernel[23]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(24))
-    erieval.LIBINT_T_SS_EREP_SS(24)[0] = pfac*kernel[24]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(24)[0] = kernel[24]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(25))
-    erieval.LIBINT_T_SS_EREP_SS(25)[0] = pfac*kernel[25]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(25)[0] = kernel[25]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(26))
-    erieval.LIBINT_T_SS_EREP_SS(26)[0] = pfac*kernel[26]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(26)[0] = kernel[26]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(27))
-    erieval.LIBINT_T_SS_EREP_SS(27)[0] = pfac*kernel[27]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(27)[0] = kernel[27]; TEST_END_BOYS;
 #endif
 #if LIBINT2_DEFINED(eri,LIBINT_T_SS_EREP_SS(28))
-    erieval.LIBINT_T_SS_EREP_SS(28)[0] = pfac*kernel[28]; TEST_END_BOYS;
+    erieval.LIBINT_T_SS_EREP_SS(28)[0] = kernel[28]; TEST_END_BOYS;
 #endif
 end_boys:
 
@@ -919,17 +919,21 @@ end_boys:
 }
 
 
-void GB4ElectronRepulsionIntegralLibInt::laplace_of_potential(double rho, double t, long mmax, double* output) {
+void GB4ElectronRepulsionIntegralLibInt::laplace_of_potential(double prefac, double rho, double t, long mmax, double* output) {
+    boys_function_array(mmax, t, output);
+    prefac *= 2.0*M_PI/rho;
     for (long m=0; m<=mmax; m++) {
-        output[m] = 2.0*M_PI/rho*boys_function(m, t);
+        output[m] *= prefac;
     }
 }
 
 
-void GB4ErfIntegralLibInt::laplace_of_potential(double rho, double t, long mmax, double* output) {
+void GB4ErfIntegralLibInt::laplace_of_potential(double prefac, double rho, double t, long mmax, double* output) {
+    double efac = mu*mu/(mu*mu + rho);
+    boys_function_array(mmax, t*efac, output);
+    prefac *= 2.0*M_PI/rho*sqrt(efac);
     for (long m=0; m<=mmax; m++) {
-        double efac;
-        efac = pow(mu, 2)/(pow(mu, 2)+rho);
-        output[m] = (2.0*M_PI*sqrt(efac)*pow(efac, m))/rho*boys_function(m, t*efac);
+        output[m] *= prefac;
+        prefac *= efac;
     }
 }

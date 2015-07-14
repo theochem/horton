@@ -70,6 +70,11 @@ double boys_function(long m, double t) {
 }
 
 void boys_function_array(long mmax, double t, double *output) {
+    //for (long m=0; m <= mmax; m++) {
+    //    output[m] = boys_function(m, t);
+    //}
+    //return;
+
     if (mmax < 0 || mmax > BOYS_MAX_M || t < 0) {
         throw std::domain_error("Arguments to Boys function are outside the valid domain.");
     }
