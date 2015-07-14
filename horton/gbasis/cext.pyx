@@ -863,6 +863,7 @@ cdef class GOBasis(GBasis):
 
            dm
                 A density matrix. For now, this must be a DenseTwoIndex object.
+                It is assumed to be symmetric.
 
            points
                 A Numpy array with grid points, shape (npoint,3).
@@ -891,6 +892,7 @@ cdef class GOBasis(GBasis):
 
         # Check the output array
         assert output.flags['C_CONTIGUOUS']
+        assert output.dtype == np.double
         npoint = output.shape[0]
         if grid_fn.dim_output == 1:
             assert output.ndim == 1
@@ -945,14 +947,14 @@ cdef class GOBasis(GBasis):
 
     def compute_grid_gradient_dm(self, dm,
                                  np.ndarray[double, ndim=2] points not None,
-                                 np.ndarray[double, ndim=2] output=None,
-                                 double epsilon=0):
+                                 np.ndarray[double, ndim=2] output=None):
         '''Compute the electron density gradient on a grid for a given density matrix.
 
            **Arguments:**
 
            dm
                 A density matrix. For now, this must be a DenseTwoIndex object.
+                It is assumed to be symmetric.
 
            points
                 A Numpy array with grid points, shape (npoint,3).
@@ -963,28 +965,24 @@ cdef class GOBasis(GBasis):
                 A Numpy array for the output, shape (npoint,3). When not given,
                 it will be allocated.
 
-           epsilon
-                Allow errors on the density of this magnitude for the sake of
-                efficiency.
-
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
         if output is None:
             output = np.zeros((points.shape[0], 3), float)
-        self._compute_grid1_dm(dm, points, GB1DMGridGradientFn(self.max_shell_type), output, epsilon)
+        self._compute_grid1_dm(dm, points, GB1DMGridGradientFn(self.max_shell_type), output)
         return output
 
     def compute_grid_gga_dm(self, dm,
                             np.ndarray[double, ndim=2] points not None,
-                            np.ndarray[double, ndim=2] output=None,
-                            double epsilon=0):
+                            np.ndarray[double, ndim=2] output=None):
         '''Compute the electron density and gradient on a grid for a given density matrix.
 
            **Arguments:**
 
            dm
                 A density matrix. For now, this must be a DenseTwoIndex object.
+                It is assumed to be symmetric.
 
            points
                 A Numpy array with grid points, shape (npoint,3).
@@ -993,18 +991,15 @@ cdef class GOBasis(GBasis):
 
            output
                 A Numpy array for the output, shape (npoint,4). When not given,
-                it will be allocated.
-
-           epsilon
-                Allow errors on the density of this magnitude for the sake of
-                efficiency.
+                it will be allocated. The first column contains the density.
+                The last three columns contain the gradient.
 
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
         if output is None:
             output = np.zeros((points.shape[0], 4), float)
-        self._compute_grid1_dm(dm, points, GB1DMGridGGAFn(self.max_shell_type), output, epsilon)
+        self._compute_grid1_dm(dm, points, GB1DMGridGGAFn(self.max_shell_type), output)
         return output
 
     def compute_grid_kinetic_dm(self, dm,
@@ -1016,6 +1011,7 @@ cdef class GOBasis(GBasis):
 
            dm
                 A density matrix. For now, this must be a DenseTwoIndex object.
+                It is assumed to be symmetric.
 
            points
                 A Numpy array with grid points, shape (npoint,3).
@@ -1040,14 +1036,14 @@ cdef class GOBasis(GBasis):
 
     def compute_grid_hessian_dm(self, dm,
                                 np.ndarray[double, ndim=2] points not None,
-                                np.ndarray[double, ndim=2] output=None,
-                                double epsilon=0):
+                                np.ndarray[double, ndim=2] output=None):
         '''Compute the electron density Hessian on a grid for a given density matrix.
 
            **Arguments:**
 
            dm
                 A density matrix. For now, this must be a DenseTwoIndex object.
+                It is assumed to be symmetric.
 
            points
                 A Numpy array with grid points, shape (npoint,3).
@@ -1056,24 +1052,26 @@ cdef class GOBasis(GBasis):
 
            output
                 A Numpy array for the output, shape (npoint,6). When not given,
-                it will be allocated.
+                it will be allocated. The columns are assigned as follows:
 
-           epsilon
-                Allow errors on the density of this magnitude for the sake of
-                efficiency.
+                * 0: element (0, 0) of the Hessian
+                * 1: element (0, 1) of the Hessian
+                * 2: element (0, 2) of the Hessian
+                * 3: element (1, 1) of the Hessian
+                * 4: element (1, 2) of the Hessian
+                * 5: element (2, 2) of the Hessian
 
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
         if output is None:
             output = np.zeros((points.shape[0], 6), float)
-        self._compute_grid1_dm(dm, points, GB1DMGridHessianFn(self.max_shell_type), output, epsilon)
+        self._compute_grid1_dm(dm, points, GB1DMGridHessianFn(self.max_shell_type), output)
         return output
 
     def compute_grid_mgga_dm(self, dm,
                              np.ndarray[double, ndim=2] points not None,
-                             np.ndarray[double, ndim=2] output=None,
-                             double epsilon=0):
+                             np.ndarray[double, ndim=2] output=None):
         '''Compute the MGGA quantities for a given density matrix.
 
            This includes the density, the gradient, the Laplacian and the
@@ -1083,6 +1081,7 @@ cdef class GOBasis(GBasis):
 
            dm
                 A density matrix. For now, this must be a DenseTwoIndex object.
+                It is assumed to be symmetric.
 
            points
                 A Numpy array with grid points, shape (npoint,3).
@@ -1090,19 +1089,23 @@ cdef class GOBasis(GBasis):
            **Optional arguments:**
 
            output
-                A Numpy array for the output, shape (npoint,7). When not given,
-                it will be allocated.
+                A Numpy array for the output, shape (npoint,6). When not given,
+                it will be allocated. The assignment of the columns is as
+                follows:
 
-           epsilon
-                Allow errors on the density of this magnitude for the sake of
-                efficiency.
+                * 0: density
+                * 1: gradient x
+                * 2: gradient y
+                * 3: gradient z
+                * 4: laplacian
+                * 5: kinetic energy density
 
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
         '''
         if output is None:
             output = np.zeros((points.shape[0], 6), float)
-        self._compute_grid1_dm(dm, points, GB1DMGridMGGAFn(self.max_shell_type), output, epsilon)
+        self._compute_grid1_dm(dm, points, GB1DMGridMGGAFn(self.max_shell_type), output)
         return output
 
     def compute_grid_hartree_dm(self, dm,
@@ -1114,18 +1117,16 @@ cdef class GOBasis(GBasis):
 
            dm
                 A density matrix. For now, this must be a DenseTwoIndex object.
+                It is assumed to be symmetric.
 
            points
                 A Numpy array with grid points, shape (npoint,3).
 
-           grid_fn
-                A grid function.
-
            **Optional arguments:**
 
            output
-                A Numpy array for the output. When not given, it will be
-                allocated.
+                A Numpy array for the output, shape (npoint,). When not given,
+                it will be allocated.
 
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
@@ -1159,6 +1160,7 @@ cdef class GOBasis(GBasis):
 
            dm
                 A density matrix. For now, this must be a DenseTwoIndex object.
+                It is assumed to be symmetric.
 
            coordinates
                 A (N, 3) float numpy array with Cartesian coordinates of the
@@ -1170,14 +1172,11 @@ cdef class GOBasis(GBasis):
            points
                 A Numpy array with grid points, shape (npoint,3).
 
-           grid_fn
-                A grid function.
-
            **Optional arguments:**
 
            output
-                A Numpy array for the output. When not given, it will be
-                allocated.
+                A Numpy array for the output, shape (npoint, 1). When not given,
+                it will be allocated.
 
            **Warning:** the results are added to the output array! This may
            be useful to combine results from different spin components.
@@ -1191,7 +1190,7 @@ cdef class GOBasis(GBasis):
                            np.ndarray[double, ndim=1] weights not None,
                            np.ndarray pots not None,
                            GB1DMGridFn grid_fn not None, fock):
-        '''Compute a two-index operator based on some potential grid in real-space
+        '''Compute a Fock operator from a some sort of potential
 
            **Arguments:**
 
@@ -1202,7 +1201,8 @@ cdef class GOBasis(GBasis):
                 A Numpy array with integration weights, shape (npoint,).
 
            pots
-                A Numpy array with potential data on the grid.
+                A Numpy array with the derivative of the energy toward the
+                density-related quantities at all grid points.
 
            grid_fn
                 A grid function.
@@ -1238,7 +1238,7 @@ cdef class GOBasis(GBasis):
     def compute_grid_density_fock(self, np.ndarray[double, ndim=2] points not None,
                                   np.ndarray[double, ndim=1] weights not None,
                                   np.ndarray[double, ndim=1] pots not None, fock):
-        '''Compute a two-index operator based on a density potential grid in real-space
+        '''Compute a Fock operator from a density potential
 
            **Arguments:**
 
@@ -1249,7 +1249,8 @@ cdef class GOBasis(GBasis):
                 A Numpy array with integration weights, shape (npoint,).
 
            pots
-                A Numpy array with density potential data, shape (npoint,).
+                A Numpy array with the derivative of the energy toward the
+                density at all grid points, shape (npoint,).
 
            fock
                 A two-index operator. For now, this must be a DenseTwoIndex
@@ -1262,7 +1263,7 @@ cdef class GOBasis(GBasis):
     def compute_grid_gradient_fock(self, np.ndarray[double, ndim=2] points not None,
                                    np.ndarray[double, ndim=1] weights not None,
                                    np.ndarray[double, ndim=2] pots not None, fock):
-        '''Compute a two-index operator based on a density potential grid in real-space
+        '''Compute a Fock operator from a density gradient potential
 
            **Arguments:**
 
@@ -1273,7 +1274,9 @@ cdef class GOBasis(GBasis):
                 A Numpy array with integration weights, shape (npoint,).
 
            pots
-                A Numpy array with gradient potential data, shape (npoint, 3).
+                A Numpy array with the derivative of the energy toward the
+                density gradient components at all grid points, shape (npoint,
+                3).
 
            fock
                 A two-index operator. For now, this must be a DenseTwoIndex
@@ -1286,7 +1289,7 @@ cdef class GOBasis(GBasis):
     def compute_grid_gga_fock(self, np.ndarray[double, ndim=2] points not None,
                                     np.ndarray[double, ndim=1] weights not None,
                                     np.ndarray[double, ndim=2] pots not None, fock):
-        '''Compute a two-index operator based on GGA potential data in real-space
+        '''Compute a Fock operator from GGA potential data
 
            **Arguments:**
 
@@ -1297,7 +1300,9 @@ cdef class GOBasis(GBasis):
                 A Numpy array with integration weights, shape (npoint,).
 
            pots
-                A Numpy array with GGA potential data, shape (npoint, 4).
+                A Numpy array with the derivative of the energy toward GGA
+                ingredients (density and gradient) at all grid points, shape
+                (npoint, 4).
 
            fock
                 A two-index operator. For now, this must be a DenseTwoIndex
@@ -1311,7 +1316,7 @@ cdef class GOBasis(GBasis):
     def compute_grid_kinetic_fock(self, np.ndarray[double, ndim=2] points not None,
                                   np.ndarray[double, ndim=1] weights not None,
                                   np.ndarray[double, ndim=1] pots not None, fock):
-        '''Compute a two-index operator based on a kientic energy density potential grid in real-space
+        '''Compute a Fock operator from a kientic-energy-density potential
 
            **Arguments:**
 
@@ -1322,8 +1327,8 @@ cdef class GOBasis(GBasis):
                 A Numpy array with integration weights, shape (npoint,).
 
            pots
-                A Numpy array with kinetic energy density potential data, shape
-                (npoint,).
+                A Numpy array with the derivative of the energy toward the
+                kinetic energy density at all grid points, shape (npoint,).
 
            fock
                 A one-body operator. For now, this must be a DenseOneBody
@@ -1336,7 +1341,7 @@ cdef class GOBasis(GBasis):
     def compute_grid_hessian_fock(self, np.ndarray[double, ndim=2] points not None,
                                   np.ndarray[double, ndim=1] weights not None,
                                   np.ndarray[double, ndim=2] pots not None, fock):
-        '''Compute a two-index operator based on a hessian potential in real-space
+        '''Compute a Fock operator from a density hessian potential
 
            **Arguments:**
 
@@ -1347,9 +1352,16 @@ cdef class GOBasis(GBasis):
                 A Numpy array with integration weights, shape (npoint,).
 
            pots
-                A Numpy array with hessian potential data, i.e. derivative of
-                functional toward components of the Hessian at all grid points,
-                shape (npoint, 6).
+                A Numpy array with the derivative of energy toward components of
+                the Hessian at all grid points, shape (npoint, 6). The columns
+                are assigned as follows:
+
+                * 0: element (0, 0) of the Hessian
+                * 1: element (0, 1) of the Hessian
+                * 2: element (0, 2) of the Hessian
+                * 3: element (1, 1) of the Hessian
+                * 4: element (1, 2) of the Hessian
+                * 5: element (2, 2) of the Hessian
 
            fock
                 A one-body operator. For now, this must be a DenseOneBody
@@ -1362,7 +1374,7 @@ cdef class GOBasis(GBasis):
     def compute_grid_mgga_fock(self, np.ndarray[double, ndim=2] points not None,
                                 np.ndarray[double, ndim=1] weights not None,
                                 np.ndarray[double, ndim=2] pots not None, fock):
-        '''Compute a two-index operator based on an MGGA potential in real-space
+        '''Compute a Fock operator based from MGGA potential data
 
            **Arguments:**
 
@@ -1373,9 +1385,16 @@ cdef class GOBasis(GBasis):
                 A Numpy array with integration weights, shape (npoint,).
 
            pots
-                A Numpy array with MGGA potential data, i.e. derivative of
-                functional toward density, gradient, Laplacian and kinetic
-                energy density (npoint, 5).
+                A Numpy array derivative of the energy toward density, gradient,
+                Laplacian and kinetic energy density (npoint, 6). The assignment
+                of the columns is as follows:
+
+                * 0: density
+                * 1: gradient x
+                * 2: gradient y
+                * 3: gradient z
+                * 4: laplacian
+                * 5: kinetic energy density
 
            fock
                 A one-body operator. For now, this must be a DenseOneBody
