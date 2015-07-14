@@ -764,7 +764,7 @@ void GB4LibInt::add(
     const double k1 = exp(-libint_args[order[0]].alpha * libint_args[order[2]].alpha * ab2 * gammap_inv);
     const double k2 = exp(-libint_args[order[1]].alpha * libint_args[order[3]].alpha * cd2 * gammaq_inv);
 #define PI_POW_3_2 5.5683279968317078
-    const double pfac = PI_POW_3_2*k1*k2*pow(eta_inv, 1.5)*coeff;
+    const double pfac = PI_POW_3_2*k1*k2*eta_inv*sqrt(eta_inv)*coeff;
     const double rho = 1.0/(gammaq_inv + gammap_inv);
     const double t = pq2*rho;
 
