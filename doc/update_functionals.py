@@ -41,7 +41,7 @@ with open('%s/cached/libxc-%s/funcs_key.c' % (qaworkdir, libxc_version)) as f:
         if line.startswith('{'):
             words = line.strip()[1:-3].split(',')
             key = words[0][1:-1]
-            if len(key) > 0 and 'mgga' not in key:
+            if len(key) > 0:
                 keys.append(key)
 
 # sort the functions
@@ -60,7 +60,7 @@ for key in keys:
     splitkeys.append((prefix, mid, suffix))
 
 def cmp_prefix(prefix1, prefix2):
-    l = ['lda', 'gga', 'hyb_gga']
+    l = ['lda', 'gga', 'hyb_gga', 'mgga', 'hyb_mgga']
     pos1 = l.index(prefix1)
     pos2 = l.index(prefix2)
     return cmp(pos1, pos2)
@@ -107,7 +107,9 @@ for key in keys:
         print >> s, '**%s**' % key
         print >> s, '   | %s' % w.name
         for line in w.refs.split('\n'):
-            print >> s, '   | *%s*' % line
+            line = line.strip()
+            if len(line) > 0:
+                print >> s, '   | *%s*' % line
         print >> s
     except ValueError:
         # A bug in libxc ...
