@@ -93,7 +93,7 @@ Download the code
 
 The latest stable source code release of HORTON can be downloaded here:
 
-    https://github.com/theochem/horton/releases/download/2.0.0/horton-2.0.0.tar.gz
+    https://github.com/theochem/horton/releases/download/2.0.1/horton-2.0.1.tar.gz
 
 Choose a suitable directory, e.g. ``~/build``, download and unpack the archive:
 
@@ -101,9 +101,9 @@ Choose a suitable directory, e.g. ``~/build``, download and unpack the archive:
 
     mkdir -p ~/build
     cd ~/build
-    curl -kLO https://github.com/theochem/horton/releases/download/2.0.0/horton-2.0.0.tar.gz
-    tar -xvzf horton-2.0.0.tar.gz
-    cd horton-2.0.0
+    curl -kLO https://github.com/theochem/horton/releases/download/2.0.1/horton-2.0.1.tar.gz
+    tar -xvzf horton-2.0.1.tar.gz
+    cd horton-2.0.1
 
 
 Dependencies for building, installing and testing HORTON
