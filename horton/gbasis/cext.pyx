@@ -63,7 +63,8 @@ __all__ = [
     'get_2index_slice', 'compute_diagonal', 'select_2index',
     # ints
     'GB2OverlapIntegral', 'GB2KineticIntegral',
-    'GB2NuclearAttractionIntegral',
+    'GB2NuclearAttractionIntegral','GB4Integral',
+    'GB4ErfIntegralLibInt',
     'GB4ElectronRepulsionIntegralLibInt',
     # fns
     'GB1DMGridDensityFn', 'GB1DMGridGradientFn',
@@ -110,8 +111,7 @@ def compute_cholesky(GOBasis gobasis, double threshold=1e-8, lf = None):
     cdef np.ndarray result
 
     try:
-        gb4int = new ints.GB4ElectronRepulsionIntegralLibInt(
-                            gobasis.max_shell_type)
+        gb4int = new ints.GB4ElectronRepulsionIntegralLibInt(gobasis.max_shell_type)
         gb4w = new gbw.GB4IntegralWrapper((<gbasis.GOBasis* > gobasis._this),
                             <ints.GB4Integral*> gb4int)
         nvec = cholesky.cholesky(gb4w, &data, threshold)
@@ -803,6 +803,44 @@ cdef class GOBasis(GBasis):
         # done
         return output
 
+    def compute_erf_repulsion(self, output, mu=0.0):
+        '''Compute erf repulsion integrals
+
+           **Argument:**
+
+           output
+                When a ``DenseFourIndex`` object is given, it is used as output
+                argument and its contents are overwritten. When a
+                ``DenseLinalgFactory`` or ``CholeskyLinalgFactory`` is given, it
+                is used to construct the four-index object in which the
+                integrals are stored.
+
+            mu
+                Parameter for the erf(mu r)/r potential. Default det to zero.
+
+           **Returns:** The four-index object with the electron repulsion
+           integrals.
+
+           Keywords: :index:`ERI`, :index:`four-center integrals`
+        '''
+        log.cite('valeev2014', 'the efficient implementation of four-center electron repulsion integrals')
+        # prepare the output array
+#        if isinstance(output, CholeskyLinalgFactory):
+#            gb4int = new ints.GB4ErfIntegralLibInt(gobasis.max_shell_type, mu)
+#            lf = output
+#            output = compute_cholesky(self, gb4int=gb4int, lf=lf)
+#            return output
+        cdef np.ndarray[double, ndim=4] output_array
+        if isinstance(output, LinalgFactory):
+            lf = output
+            output = lf.create_four_index(self.nbasis)
+        output_array = output._array
+        self.check_matrix_four_index(output_array)
+        # call the low-level routine
+        (<gbasis.GOBasis*>self._this).compute_erf_repulsion(&output_array[0, 0, 0, 0], mu)
+        # done
+        return output
+
     def compute_grid_orbitals_exp(self, exp,
                                   np.ndarray[double, ndim=2] points not None,
                                   np.ndarray[long, ndim=1] iorbs not None,
@@ -1478,6 +1516,16 @@ cdef class GB4ElectronRepulsionIntegralLibInt(GB4Integral):
 
     def __cinit__(self, long max_nbasis):
         self._this = <ints.GB4Integral*>(new ints.GB4ElectronRepulsionIntegralLibInt(max_nbasis))
+
+cdef class GB4ErfIntegralLibInt(GB4Integral):
+    '''Wrapper for ints.GB4ElectronRepulsionIntegralLibInt, for testing only'''
+
+    def __cinit__(self, long max_nbasis, double mu):
+        self._this = <ints.GB4Integral*>(new ints.GB4ErfIntegralLibInt(max_nbasis, mu))
+
+    property mu:
+        def __get__(self):
+            return (<ints.GB4ErfIntegralLibInt*>self._this).get_mu()
 
 
 

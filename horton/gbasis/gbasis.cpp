@@ -244,6 +244,11 @@ void GOBasis::compute_electron_repulsion(double* output) {
     compute_four_index(output, &integral);
 }
 
+void GOBasis::compute_erf_repulsion(double* output, double mu) {
+    GB4ErfIntegralLibInt integral = GB4ErfIntegralLibInt(get_max_shell_type(), mu);
+    compute_four_index(output, &integral);
+}
+
 void GOBasis::compute_grid1_exp(long nfn, double* coeffs, long npoint, double* points, long norb, long* iorbs, double* output) {
     // The work array contains the basis functions evaluated at the grid point,
     // and optionally some of its derivatives.

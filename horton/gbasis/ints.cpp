@@ -924,3 +924,12 @@ void GB4ElectronRepulsionIntegralLibInt::laplace_of_potential(double rho, double
         output[m] = 2.0*M_PI/rho*boys_function(m, t);
     }
 }
+
+
+void GB4ErfIntegralLibInt::laplace_of_potential(double rho, double t, long mmax, double* output) {
+    for (long m=0; m<=mmax; m++) {
+        double efac;
+        efac = pow(mu, 2)/(pow(mu, 2)+rho);
+        output[m] = (2.0*M_PI*sqrt(efac)*pow(efac, m))/rho*boys_function(m, t*efac);
+    }
+}

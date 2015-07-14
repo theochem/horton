@@ -173,4 +173,14 @@ class GB4ElectronRepulsionIntegralLibInt : public GB4LibInt {
 };
 
 
+class GB4ErfIntegralLibInt : public GB4LibInt {
+    private:
+        double mu;
+    public:
+        GB4ErfIntegralLibInt(long max_shell_type, double mu) : GB4LibInt(max_shell_type), mu(mu) {};
+        virtual void laplace_of_potential(double rho, double t, long mmax, double* output);
+        const double get_mu() const {return mu;};
+    };
+
+
 #endif

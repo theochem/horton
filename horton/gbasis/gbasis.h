@@ -121,6 +121,7 @@ class GOBasis : public GBasis {
                 The output array with the integrals.
          */
         void compute_electron_repulsion(double* output);
+        void compute_erf_repulsion(double* output, double mu);
 
         /** @brief
                 Computes the (multipole) moment integrals.
