@@ -23,16 +23,17 @@
 
 from string import Template as BaseTemplate
 from glob import glob
-import re, os, stat
+import re, os, stat, numpy as np
 
+from horton.io.iodata import IOData
 from horton.log import log
 from horton.periodic import periodic
-from horton.io.iodata import IOData
 from horton.scripts.common import iter_elements
+from horton.units import angstrom
 
 
 __all__ = [
-    'iter_mults', 'iter_states',
+    'iter_mults', 'iter_states', 'plot_atoms',
     'Template', 'EnergyTable', 'atom_programs',
 ]
 
@@ -178,6 +179,113 @@ def iter_states(elements, max_kation, max_anion, hund):
             # loop over multiplicities
             for mult in iter_mults(nel, hund):
                 yield number, charge, mult
+
+
+def plot_atoms(proatomdb):
+    try:
+        import matplotlib.pyplot as pt
+    except ImportError:
+        if log.do_warning:
+            log.warn('Skipping plots because matplotlib was not found.')
+        return
+
+    def get_color(index):
+        colors = ["#FF0000", "#FFAA00", "#00AA00", "#00AAFF", "#0000FF", "#FF00FF", "#777777"]
+        return colors[index%len(colors)]
+
+    lss = {True: '-', False: ':'}
+    for number in proatomdb.get_numbers():
+        r = proatomdb.get_rgrid(number).radii
+        symbol = periodic[number].symbol
+        charges = proatomdb.get_charges(number)
+        suffix = '%03i_%s' % (number, symbol.lower().rjust(2, '_'))
+
+        # The density (rho)
+        pt.clf()
+        for i, charge in enumerate(charges):
+            record = proatomdb.get_record(number, charge)
+            y = record.rho
+            ls = lss[record.safe]
+            color = get_color(i)
+            label = 'q=%+i' % charge
+            pt.semilogy(r/angstrom, y, lw=2, ls=ls, label=label, color=color)
+        pt.xlim(0, 3)
+        pt.ylim(ymin=1e-5)
+        pt.xlabel('Distance from the nucleus [A]')
+        pt.ylabel('Spherically averaged density [Bohr**-3]')
+        pt.title('Proatoms for element %s (%i)' % (symbol, number))
+        pt.legend(loc=0)
+        fn_png  = 'dens_%s.png' % suffix
+        pt.savefig(fn_png)
+        if log.do_medium:
+            log('Written', fn_png)
+
+        # 4*pi*r**2*rho
+        pt.clf()
+        for i, charge in enumerate(charges):
+            record = proatomdb.get_record(number, charge)
+            y = record.rho
+            ls = lss[record.safe]
+            color = get_color(i)
+            label = 'q=%+i' % charge
+            pt.plot(r/angstrom, 4*np.pi*r**2*y, lw=2, ls=ls, label=label, color=color)
+        pt.xlim(0, 3)
+        pt.ylim(ymin=0.0)
+        pt.xlabel('Distance from the nucleus [A]')
+        pt.ylabel('4*pi*r**2*density [Bohr**-1]')
+        pt.title('Proatoms for element %s (%i)' % (symbol, number))
+        pt.legend(loc=0)
+        fn_png  = 'rdens_%s.png' % suffix
+        pt.savefig(fn_png)
+        if log.do_medium:
+            log('Written', fn_png)
+
+        fukui_data = []
+        if number - charges[0] == 1:
+            record0 = proatomdb.get_record(number, charges[0])
+            fukui_data.append((record0.rho, record0.safe, '%+i' % charges[0]))
+        for i, charge in enumerate(charges[1:]):
+            record0 = proatomdb.get_record(number, charge)
+            record1 = proatomdb.get_record(number, charges[i])
+            fukui_data.append((
+                record0.rho - record1.rho,
+                record0.safe and record1.safe,
+                '%+i-%+i' % (charge, charges[i])
+            ))
+
+        # The Fukui functions
+        pt.clf()
+        for i, (f, safe, label) in enumerate(fukui_data):
+            ls = lss[safe]
+            color = get_color(i)
+            pt.semilogy(r/angstrom, f, lw=2, ls=ls, label=label, color=color, alpha=1.0)
+            pt.semilogy(r/angstrom, -f, lw=2, ls=ls, color=color, alpha=0.2)
+        pt.xlim(0, 3)
+        pt.ylim(ymin=1e-5)
+        pt.xlabel('Distance from the nucleus [A]')
+        pt.ylabel('Fukui function [Bohr**-3]')
+        pt.title('Proatoms for element %s (%i)' % (symbol, number))
+        pt.legend(loc=0)
+        fn_png  = 'fukui_%s.png' % suffix
+        pt.savefig(fn_png)
+        if log.do_medium:
+            log('Written', fn_png)
+
+        # 4*pi*r**2*Fukui
+        pt.clf()
+        for i, (f, safe, label) in enumerate(fukui_data):
+            ls = lss[safe]
+            color = get_color(i)
+            pt.plot(r/angstrom, 4*np.pi*r**2*f, lw=2, ls=ls, label=label, color=color)
+        pt.xlim(0, 3)
+        pt.xlabel('Distance from the nucleus [A]')
+        pt.ylabel('4*pi*r**2*Fukui [Bohr**-1]')
+        pt.title('Proatoms for element %s (%i)' % (symbol, number))
+        pt.legend(loc=0)
+        fn_png  = 'rfukui_%s.png' % suffix
+        pt.savefig(fn_png)
+        if log.do_medium:
+            log('Written', fn_png)
 
 
 class Template(BaseTemplate):
