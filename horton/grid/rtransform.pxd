@@ -73,3 +73,10 @@ cdef extern from "horton/grid/rtransform.h":
         double get_rmin()
         double get_rmax()
         double get_power()
+
+
+    cdef cppclass HyperbolicRTransform:
+        HyperbolicRTransform(double a, double b, int npoint) except +
+
+        double get_a()
+        double get_b()

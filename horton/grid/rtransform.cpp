@@ -253,3 +253,42 @@ double PowerRTransform::deriv3(double t) {
 double PowerRTransform::inv(double r) {
     return pow(r/rmin, 1.0/power)-1;
 }
+
+
+/*
+   HyperbolicRTransform
+*/
+
+HyperbolicRTransform::HyperbolicRTransform(double a, double b, int npoint):
+    RTransform(npoint), a(a), b(b)
+{
+    if (a <= 0.0)
+        throw std::domain_error("a must be strictly positive.");
+    if (b <= 0.0)
+        throw std::domain_error("b must be strictly positive.");
+    if (b*(npoint-1) >= 1.0)
+        throw std::domain_error("b*(npoint-1) must be smaller than one.");
+}
+
+double HyperbolicRTransform::radius(double t) {
+    return a*t/(1-b*t);
+}
+
+double HyperbolicRTransform::deriv(double t) {
+    double x = 1.0/(1-b*t);
+    return a*x*x;
+}
+
+double HyperbolicRTransform::deriv2(double t) {
+    double x = 1.0/(1-b*t);
+    return 2.0*a*b*x*x*x;
+}
+
+double HyperbolicRTransform::deriv3(double t) {
+    double x = 1.0/(1-b*t);
+    return 6.0*a*b*b*x*x*x*x;
+}
+
+double HyperbolicRTransform::inv(double r) {
+    return r/(a+b*r);
+}

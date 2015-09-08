@@ -126,4 +126,21 @@ class PowerRTransform : public RTransform {
         double get_power() {return power;};
     };
 
+
+class HyperbolicRTransform : public RTransform {
+    private:
+        double a, b;
+        double power;
+    public:
+        HyperbolicRTransform(double a, double b, int npoint);
+        virtual double radius(double t);
+        virtual double deriv(double t);
+        virtual double deriv2(double t);
+        virtual double deriv3(double t);
+        virtual double inv(double r);
+
+        double get_a() {return a;};
+        double get_b() {return b;};
+    };
+
 #endif

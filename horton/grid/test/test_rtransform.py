@@ -179,6 +179,12 @@ def test_power_basics():
         check_half(rtf)
 
 
+def test_hyperbolic_basics():
+    rtf = HyperbolicRTransform(0.4/450, 1.0/450, 450)
+    check_consistency(rtf)
+    check_deriv(rtf)
+
+
 def test_identity_properties():
     rtf = IdentityRTransform(100)
     assert rtf.npoint == 100
@@ -223,6 +229,13 @@ def test_power_properties():
         assert rtf.npoint == 100
         assert rtf.power >= 2
         assert isinstance(rtf.get_default_int1d(), StubIntegrator1D)
+
+
+def test_hyperbolic_properties():
+    rtf = HyperbolicRTransform(0.4/450, 1.0/450, 450)
+    assert rtf.a == 0.4/450
+    assert rtf.b == 1.0/450
+    assert rtf.npoint == 450
 
 
 def test_exception_string():
@@ -333,6 +346,25 @@ def test_power_string():
     assert rtf3.npoint == 5
 
 
+def test_hyperbolic_string():
+    rtf1 = HyperbolicRTransform(0.4/450, 1.0/450, 450)
+    s = rtf1.to_string()
+    rtf2 = RTransform.from_string(s)
+    assert rtf1.a == rtf2.a
+    assert rtf1.b == rtf2.b
+    assert rtf1.npoint == rtf2.npoint
+
+    with assert_raises(ValueError):
+        rtf3 = RTransform.from_string('HyperbolicRTransform A 5')
+    with assert_raises(ValueError):
+        rtf3 = RTransform.from_string('HyperbolicRTransform A 5 .1')
+
+    rtf3 = RTransform.from_string('HyperbolicRTransform 0.01 0.02315479 5')
+    assert rtf3.a == 0.01
+    assert rtf3.b == 0.02315479
+    assert rtf3.npoint == 5
+
+
 def test_identity_bounds():
     for npoint in -1, 0, 1:
         with assert_raises(ValueError):
@@ -385,3 +417,18 @@ def test_power_bounds():
         PowerRTransform(1.0, 1.1, 50)
     with assert_raises(ValueError):
         PowerRTransform(1.1, 1.0, 50)
+
+
+def test_hyperbolic_bounds():
+    with assert_raises(ValueError):
+        rtf1 = HyperbolicRTransform(0, 1.0/450, 450)
+    with assert_raises(ValueError):
+        rtf1 = HyperbolicRTransform(-0.1, 1.0/450, 450)
+    with assert_raises(ValueError):
+        rtf1 = HyperbolicRTransform(0.4, 1.0, 450)
+    with assert_raises(ValueError):
+        rtf1 = HyperbolicRTransform(0.4, 0.5, 3)
+    with assert_raises(ValueError):
+        rtf1 = HyperbolicRTransform(0.2, 0.0, 450)
+    with assert_raises(ValueError):
+        rtf1 = HyperbolicRTransform(0.2, -1.0, 450)

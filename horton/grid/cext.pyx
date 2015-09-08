@@ -61,7 +61,7 @@ __all__ = [
     'build_ode2',
     # rtransform
     'RTransform', 'IdentityRTransform', 'LinearRTransform', 'ExpRTransform',
-    'ShiftedExpRTransform', 'PowerRTransform',
+    'ShiftedExpRTransform', 'PowerRTransform', 'HyperbolicRTransform',
     # UniformGrid
     'UniformGrid', 'index_wrap',
     # utils
@@ -919,6 +919,13 @@ cdef class RTransform(object):
             rmax = float(args[1])
             npoint = int(args[2])
             return PowerRTransform(rmin, rmax, npoint)
+        elif clsname == 'HyperbolicRTransform':
+            if len(args) != 3:
+                raise ValueError('The HyperbolicRTransform needs three arguments, got %i.' % len(words))
+            a = float(args[0])
+            b = float(args[1])
+            npoint = int(args[2])
+            return HyperbolicRTransform(a, b, npoint)
         else:
             raise TypeError('Unkown RTransform subclass: %s' % clsname)
 
@@ -1125,6 +1132,32 @@ cdef class PowerRTransform(RTransform):
             raise ValueError('Half method can only be called on a rtransform with an even number of points.')
         rmin = self.radius(1)
         return PowerRTransform(rmin, self.rmax, self.npoint/2)
+
+    def get_default_int1d(self):
+        from horton.grid.int1d import StubIntegrator1D
+        return StubIntegrator1D()
+
+
+cdef class HyperbolicRTransform(RTransform):
+    r'''A Hyperbolic grid (as in the GPAW program).
+
+       The grid points are distributed as follows:
+
+       .. math:: r_i = \frac{ai}{1 - bi}
+    '''
+    def __cinit__(self, double a, double b, int npoint):
+        self._this = <rtransform.RTransform*>(new rtransform.HyperbolicRTransform(a, b, npoint))
+
+    property a:
+        def __get__(self):
+            return (<rtransform.HyperbolicRTransform*>self._this).get_a()
+
+    property b:
+        def __get__(self):
+            return (<rtransform.HyperbolicRTransform*>self._this).get_b()
+
+    def to_string(self):
+        return ' '.join(['HyperbolicRTransform', repr(self.a), repr(self.b), repr(self.npoint)])
 
     def get_default_int1d(self):
         from horton.grid.int1d import StubIntegrator1D
