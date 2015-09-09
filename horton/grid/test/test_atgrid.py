@@ -101,6 +101,11 @@ def test_agspec_string():
         assert (nlls == [26]*20).all()
 
 
+def test_agspec_wrong_string():
+    with assert_raises(ValueError):
+        agspec = AtomicGridSpec('power:0.001:10.0:20')
+
+
 def test_agspec_local_file():
     with tmpdir('horton.scripts.test.test_espfit.test_scripts_symmetry') as dn:
         fn_dest = os.path.join(dn, 'mygrid.txt')
