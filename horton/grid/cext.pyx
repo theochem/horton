@@ -203,8 +203,6 @@ def tridiagsym_solve(np.ndarray[double, ndim=1] diag_mid not None,
 
 
 cdef class Extrapolation(object):
-    cdef cubic_spline.Extrapolation* _this
-
     def __dealloc__(self):
         del self._this
 
@@ -328,13 +326,6 @@ cdef class CubicSpline(object):
             the interval determined by the 1D grid. By default,
             CuspExtrapolation() is used.
     '''
-    cdef cubic_spline.CubicSpline* _this
-    cdef Extrapolation _extrapolation
-    cdef RTransform _rtransform
-    cdef np.ndarray _y
-    cdef np.ndarray _dx
-    cdef np.ndarray _dt
-
     def __cinit__(self,
                   np.ndarray[double, ndim=1] y not None,
                   np.ndarray[double, ndim=1] dx=None,
@@ -705,8 +696,6 @@ cdef class RTransform(object):
        the actual grid points on the r-axis: f(0), f(1), f(2), ... f(npoint-1).
        Different implementation for the function f are available.
     '''
-    cdef rtransform.RTransform* _this
-
     property npoint:
         def __get__(self):
             return self._this.get_npoint()
