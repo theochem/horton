@@ -372,7 +372,7 @@ setup(
         'install_headers': my_install_headers,
     },
     data_files=[
-        ('share/horton/', glob('data/*.*')),
+        ('share/horton', glob('data/*.*')),
         ('share/horton/test', glob('data/test/*.*')),
         ('share/horton/basis', glob('data/basis/*.*')),
         ('share/horton/grids', glob('data/grids/*.txt')),
@@ -380,6 +380,12 @@ setup(
     ] + [
         ('share/horton/examples/%s' % os.path.basename(dn[:-1]), glob('%s/*.py' % dn) + glob('%s/README' % dn))
         for dn in glob('data/examples/*/')
+    ] + [
+        ('include/horton', glob('horton/*.h')),
+        ('include/horton/grid', glob('horton/grid/*.h')),
+        ('include/horton/gbasis', glob('horton/gbasis/*.h')),
+        ('include/horton/espfit', glob('horton/espfit/*.h')),
+        ('include/horton/matrix', glob('horton/matrix/*.h')),
     ],
     package_data={
         'horton': ['*.pxd'],
