@@ -24,7 +24,8 @@
 import numpy as np
 from nose.tools import assert_raises
 from horton import *
-from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf
+from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf, \
+    check_scandium_sc_hf
 
 
 def test_hf_cs_hf():
@@ -33,6 +34,11 @@ def test_hf_cs_hf():
 
 def test_lih_os_hf():
     check_lih_os_hf(PlainSCFSolver(threshold=1e-10))
+
+
+def test_scandium_sc_hf():
+    with assert_raises(NoSCFConvergence):
+        check_scandium_sc_hf(PlainSCFSolver(threshold=1e-10, maxiter=10))
 
 
 def test_hf_water_321g_mistake():
