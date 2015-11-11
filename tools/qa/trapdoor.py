@@ -27,7 +27,7 @@
 
 import argparse
 import os
-import pygit2
+import subprocess
 import sys
 
 
@@ -86,15 +86,17 @@ def run_tests(get_stats):
        messages_master: Set([]) of strings
                          all errors encountered in the master branch
     '''
-    repo = pygit2.Repository('.')
-    ref_feature = repo.head
+    # Get git info
+    name_feature = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).strip()
+    commit_id_feature = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip()
+    commit_id_master = subprocess.check_output(['git', 'rev-parse', 'master']).strip()
+    # Actual work
     counter_feature, messages_feature = get_stats()
-    ref_master = repo.lookup_reference('refs/heads/master')
-    print 'CHECKING OUT %s (%s)' % (ref_master.name, ref_master.peel().id)
-    repo.checkout(ref_master)
+    print 'CHECKING OUT master (%s)' % (commit_id_master)
+    subprocess.call(['git', 'checkout', 'master'])
     counter_master, messages_master = get_stats()
-    print 'CHECKING OUT %s (%s)' % (ref_feature.name, ref_feature.peel().id)
-    repo.checkout(ref_feature)
+    print 'CHECKING OUT %s (%s)' % (name_feature, commit_id_feature)
+    subprocess.call(['git', 'checkout', name_feature])
     return counter_feature, messages_feature, counter_master, messages_master
 
 
