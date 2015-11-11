@@ -41,6 +41,10 @@ def get_stats_cpp_check():
        messages: Set([]) of strings
                  all errors encountered in the current checkout
     '''
+    # Get version
+    command = ['cppcheck', '--version']
+    print 'Using', subprocess.check_output(command, stderr=subprocess.STDOUT).strip()
+
     # Call Cppcheck
     command = ['cppcheck', 'horton', '-q', '--enable=all', '--std=c++11', '--xml',
                '--suppress=missingIncludeSystem']
