@@ -28,7 +28,7 @@ cache:
     # $HOME/depinstall/libxc-2.2.2
 
 install:
- - pip install --upgrade sphinx breathe
+ - pip install --upgrade sphinx breathe pep8 pylint
 
  - bash tools/travis-ci/build_numpy-1.9.1.sh
  - export PYTHONPATH=$HOME/depinstall/numpy-1.9.1/lib/python2.7/site-packages:$PYTHONPATH
@@ -76,4 +76,8 @@ script:
  - ((git rev-parse --verify master &> /dev/null) || (git config remote.origin.fetch refs/heads/*:refs/remotes/origin/*; git fetch origin master --depth=50; git branch master origin/master))
 
 # Run the trapdoor tests
+ - git branch travisci_trapdoor2013
  - python tools/qa/trapdoor_cppcheck.py
+ - mkdir ~/.config
+ - python tools/qa/trapdoor_pep8.py
+ - python tools/qa/trapdoor_pylint.py
