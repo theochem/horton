@@ -40,6 +40,7 @@ def test_water_cs_hfs():
     check_water_cs_hfs(EDIIS2SCFSolver(threshold=1e-6))
 
 
+@attr('slow')
 def test_n2_cs_hfs():
     check_n2_cs_hfs(EDIIS2SCFSolver(threshold=1e-6))
 
@@ -48,9 +49,11 @@ def test_h3_os_hfs():
     check_h3_os_hfs(EDIIS2SCFSolver(threshold=1e-6))
 
 
+@attr('slow')
 def test_co_cs_pbe():
     check_co_cs_pbe(EDIIS2SCFSolver(threshold=1e-5))
 
 
+@attr('slow')
 def test_h3_os_pbe():
     check_h3_os_pbe(EDIIS2SCFSolver(threshold=1e-6))

@@ -261,6 +261,7 @@ def test_esp_cost_solve_regularized():
     assert abs(gradient[10:]).max() < 1e-10
 
 
+@attr('slow')
 def test_compare_cubetools():
     # Load structure from cube file
     fn_cube = context.get_fn('test/jbw_coarse_aedens.cube')

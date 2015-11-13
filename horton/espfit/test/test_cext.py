@@ -26,6 +26,7 @@ from horton import *
 from horton.test.common import get_random_cell
 
 
+@attr('slow')
 def test_pair_ewald3d_invariance_rcut():
     np.random.seed(0)
     alpha_scale = 4.5
