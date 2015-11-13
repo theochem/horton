@@ -45,6 +45,7 @@ def test_wfar():
     assert parse_wfar('4.2:0.3') == (4.2*angstrom, 0.3*angstrom)
 
 
+@attr('slow')
 def test_scripts():
     # Generate some random system with random esp data
     natom = 5
@@ -62,6 +63,7 @@ def test_scripts():
     mol_rho.cube_data = rho_cube_data
 
     # Write the cube file to the tmpdir and run scripts (run 1)
+@attr('slow')
     with tmpdir('horton.scripts.test.test_espfit.test_scripts') as dn:
         mol_esp.to_file(os.path.join(dn, 'esp.cube'))
         check_script('horton-esp-cost.py esp.cube esp.h5 --wnear=0:1.0:0.5', dn)
@@ -71,6 +73,7 @@ def test_scripts():
         check_files(dn, ['esp.h5', 'other.h5', 'foo.h5', 'gen.h5'])
 
     # Write the cube file to the tmpdir and run scripts (run 2)
+@attr('slow')
     with tmpdir('horton.scripts.test.test_espfit.test_scripts2') as dn:
         mol_esp.to_file(os.path.join(dn, 'esp.cube'))
         mol_rho.to_file(os.path.join(dn, 'rho.cube'))
@@ -82,8 +85,10 @@ def test_scripts():
         check_files(dn, ['esp.h5', 'other.h5', 'foo.h5', 'gen.h5'])
 
 
+@attr('slow')
 def test_scripts_symmetry():
     # Write the cube file to the tmpdir and run scripts
+@attr('slow')
     with tmpdir('horton.scripts.test.test_espfit.test_scripts_symmetry') as dn:
         # prepare files
         write_random_lta_cube(dn, 'esp.cube')

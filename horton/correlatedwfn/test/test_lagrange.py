@@ -25,6 +25,7 @@ import numpy as np
 from nose.tools import assert_raises
 from horton import *
 
+@attr('slow')
 def test_ap1rog_lagrange():
     fn_xyz = context.get_fn('test/li2.xyz')
     mol = IOData.from_file(fn_xyz)

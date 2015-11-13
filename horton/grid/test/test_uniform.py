@@ -140,6 +140,7 @@ def test_uig_eval_spline_with_integration():
         assert abs(uig.integrate(data) - expected) < 1e-3
 
 
+@attr('slow')
 def test_uig_eval_spline_3d_random():
     cs = get_cosine_spline()
 
@@ -263,6 +264,7 @@ def test_uig_eval_spline_add_random():
         assert abs(output1 + output2 - output3).max() < 1e-10
 
 
+@attr('slow')
 def test_weight_corrections():
     from horton.part.test.common import get_fake_co
 

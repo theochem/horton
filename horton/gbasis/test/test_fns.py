@@ -456,13 +456,16 @@ def test_dm_kinetic_n2_sto3g():
 def test_dm_kinetic_h3_321g():
     check_dm_kinetic('test/h3_pbe_321g.fchk', 5e-5)
 
+@attr('slow')
 def test_dm_kinetic_co_ccpv5z_cart():
     check_dm_kinetic('test/co_ccpv5z_cart_hf_g03.fchk', 4e-4)
 
+@attr('slow')
 def test_dm_kinetic_co_ccpv5z_pure():
     check_dm_kinetic('test/co_ccpv5z_pure_hf_g03.fchk', 4e-4)
 
 
+@attr('slow')
 def test_kinetic_functional_deriv():
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)
