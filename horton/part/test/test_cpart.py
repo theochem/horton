@@ -57,6 +57,7 @@ def check_jbw_coarse(local):
         assert abs(cpart['pseudo_populations'].sum() - ugrid.integrate(wcor, moldens)) < 1e-10
 
 
+@attr('slow')
 def test_hirshfeld_jbw_coarse_local():
     check_jbw_coarse(True)
 
@@ -96,10 +97,12 @@ def check_fake(scheme, pseudo, dowcor, local, absmean, **kwargs):
         check_proatom_splines(cpart)
 
 
+@attr('slow')
 def test_hirshfeld_fake_local():
     check_fake('h', pseudo=False, dowcor=True, local=True, absmean=0.112)
 
 
+@attr('slow')
 def test_hirshfeld_fake_global():
     check_fake('h', pseudo=False, dowcor=True, local=False, absmean=0.112)
 
@@ -121,10 +124,12 @@ def test_hirshfeld_fake_pseudo_nowcor_global():
 
 
 
+@attr('slow')
 def test_hirshfeld_i_fake_local():
     check_fake('hi', pseudo=False, dowcor=True, local=True, absmean=0.428, threshold=1e-5)
 
 
+@attr('slow')
 def test_hirshfeld_i_fake_global():
     check_fake('hi', pseudo=False, dowcor=True, local=False, absmean=0.428, threshold=1e-5)
 
@@ -145,14 +150,19 @@ def test_hirshfeld_i_fake_pseudo_nowcor_global():
     check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.400, threshold=1e-4)
 
 
+@attr('slow')
+@attr('slow')
 def test_hirshfeld_i_fake_local_greedy():
     check_fake('hi', pseudo=False, dowcor=True, local=True, absmean=0.428, threshold=1e-5, greedy=True)
 
 
+@attr('slow')
+@attr('slow')
 def test_hirshfeld_i_fake_global_greedy():
     check_fake('hi', pseudo=False, dowcor=True, local=False, absmean=0.428, threshold=1e-5, greedy=True)
 
 
+@attr('slow')
 def test_hirshfeld_i_fake_pseudo_local_greedy():
     check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.400, threshold=1e-4, greedy=True)
 
@@ -161,6 +171,7 @@ def test_hirshfeld_i_fake_pseudo_global_greedy():
     check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.400, threshold=1e-4, greedy=True)
 
 
+@attr('slow')
 def test_hirshfeld_i_fake_pseudo_nowcor_local_greedy():
     check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.400, threshold=1e-4, greedy=True)
 
@@ -171,49 +182,65 @@ def test_hirshfeld_i_fake_pseudo_nowcor_global_greedy():
 
 
 
+@attr('slow')
 def test_hirshfeld_e_fake_local():
     check_fake('he', pseudo=False, dowcor=True, local=True, absmean=0.323, threshold=1e-4)
 
 
+@attr('slow')
 def test_hirshfeld_e_fake_global():
     check_fake('he', pseudo=False, dowcor=True, local=False, absmean=0.373, threshold=1e-4)
 
 
+@attr('slow')
 def test_hirshfeld_e_fake_pseudo_local():
     check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4)
 
 
+@attr('slow')
 def test_hirshfeld_e_fake_pseudo_global():
     check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4)
 
 
+@attr('slow')
 def test_hirshfeld_e_fake_pseudo_nowcor_local():
     check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4)
 
 
+@attr('slow')
 def test_hirshfeld_e_fake_pseudo_nowcor_global():
     check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4)
 
 
+@attr('slow')
+@attr('slow')
 def test_hirshfeld_e_fake_local_greedy():
     check_fake('he', pseudo=False, dowcor=True, local=True, absmean=0.323, threshold=1e-4, greedy=True)
 
 
+@attr('slow')
+@attr('slow')
 def test_hirshfeld_e_fake_global_greedy():
     check_fake('he', pseudo=False, dowcor=True, local=False, absmean=0.374, threshold=1e-4, greedy=True)
 
 
+@attr('slow')
+@attr('slow')
 def test_hirshfeld_e_fake_pseudo_local_greedy():
     check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4, greedy=True)
 
 
+@attr('slow')
 def test_hirshfeld_e_fake_pseudo_global_greedy():
     check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4, greedy=True)
 
 
+@attr('slow')
+@attr('slow')
 def test_hirshfeld_e_fake_pseudo_nowcor_local_greedy():
     check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4, greedy=True)
 
 
+@attr('slow')
 def test_hirshfeld_e_fake_pseudo_nowcor_global_greedy():
     check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4, greedy=True)

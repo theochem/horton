@@ -136,7 +136,9 @@ def make_fake_run_script(program, dn):
         print >> f, 'echo "Foo"'
 
 
+@attr('slow')
 def test_script_convert_cp2k():
+@attr('slow')
     with tmpdir('horton.scripts.test.test_atomdb.test_script_convert_cp2k') as dn:
         copy_atom_output('atom_op2.cp2k.out', 8, +2, 3, dn, 'atom.cp2k.out')
         copy_atom_output('atom_op1.cp2k.out', 8, +1, 4, dn, 'atom.cp2k.out')
@@ -156,7 +158,9 @@ def test_script_convert_cp2k():
         assert padb.get_rgrid(8).size == 71
 
 
+@attr('slow')
 def test_script_convert_g09():
+@attr('slow')
     with tmpdir('horton.scripts.test.test_atomdb.test_script_convert_g09') as dn:
         copy_atom_output('atom_014_013_hf_lan.fchk', 14, +1, 2, dn, 'atom.fchk')
         make_fake_run_script('g09', dn)
@@ -171,7 +175,9 @@ def test_script_convert_g09():
         assert padb.get_rgrid(14).size == 49
 
 
+@attr('slow')
 def test_script_convert_g03():
+@attr('slow')
     with tmpdir('horton.scripts.test.test_atomdb.test_script_convert_g03') as dn:
         copy_atom_output('atom_001_001_hf_sto3g.fchk', 1,  0, 2, dn, 'atom.fchk')
         copy_atom_output('atom_001_002_hf_sto3g.fchk', 1, -1, 1, dn, 'atom.fchk')

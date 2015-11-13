@@ -96,6 +96,7 @@ def test_hirshfeld_e_water_hf_sto3g_local():
     check_water_hf_sto3g('he', expecting, local=True)
 
 
+@attr('slow')
 def test_hirshfeld_e_water_hf_sto3g_global():
     expecting = np.array([-0.422794483125, 0.211390419810, 0.211404063315]) # From HiPart
     check_water_hf_sto3g('he', expecting, local=False)
@@ -106,6 +107,7 @@ def test_hirshfeld_e_water_hf_sto3g_local_greedy():
     check_water_hf_sto3g('he', expecting, local=True, greedy=True)
 
 
+@attr('slow')
 def test_hirshfeld_e_water_hf_sto3g_global_greedy():
     expecting = np.array([-0.422794483125, 0.211390419810, 0.211404063315]) # From HiPart
     check_water_hf_sto3g('he', expecting, local=False, greedy=True)
@@ -162,46 +164,58 @@ def test_hirshfeld_msa_hf_lan_global():
     check_msa_hf_lan('h', expecting, local=False)
 
 
+@attr('slow')
 def test_hirshfeld_i_msa_hf_lan_local():
     expecting = np.array([1.14305602, -0.52958298, -0.51787452, -0.51302759, -0.50033981, 0.21958586, 0.23189187, 0.22657354, 0.23938904])
     check_msa_hf_lan('hi', expecting, local=True)
 
 
+@attr('slow')
 def test_hirshfeld_i_msa_hf_lan_global():
     expecting = np.array([1.14305602, -0.52958298, -0.51787452, -0.51302759, -0.50033981, 0.21958586, 0.23189187, 0.22657354, 0.23938904])
     check_msa_hf_lan('hi', expecting, local=False)
 
 
+@attr('slow')
 def test_hirshfeld_i_msa_hf_lan_local_greedy():
     expecting = np.array([1.14305602, -0.52958298, -0.51787452, -0.51302759, -0.50033981, 0.21958586, 0.23189187, 0.22657354, 0.23938904])
     check_msa_hf_lan('hi', expecting, local=True, greedy=True)
 
 
+@attr('slow')
+@attr('slow')
 def test_hirshfeld_i_msa_hf_lan_global_greedy():
     expecting = np.array([1.14305602, -0.52958298, -0.51787452, -0.51302759, -0.50033981, 0.21958586, 0.23189187, 0.22657354, 0.23938904])
     check_msa_hf_lan('hi', expecting, local=False, greedy=True)
 
 
+@attr('slow')
 def test_hirshfeld_e_msa_hf_lan_local():
     expecting = np.array([1.06135407, -0.51795437, -0.50626239, -0.50136175, -0.48867641, 0.22835963, 0.240736, 0.23528162, 0.24816043])
     check_msa_hf_lan('he', expecting, local=True)
 
 
+@attr('slow')
 def test_hirshfeld_e_msa_hf_lan_global():
     expecting = np.array([1.06135407, -0.51795437, -0.50626239, -0.50136175, -0.48867641, 0.22835963, 0.240736, 0.23528162, 0.24816043])
     check_msa_hf_lan('he', expecting, local=False)
 
 
+@attr('slow')
+@attr('slow')
 def test_hirshfeld_e_msa_hf_lan_local_greedy():
     expecting = np.array([1.06135407, -0.51795437, -0.50626239, -0.50136175, -0.48867641, 0.22835963, 0.240736, 0.23528162, 0.24816043])
     check_msa_hf_lan('he', expecting, local=True, greedy=True)
 
 
+@attr('slow')
+@attr('slow')
 def test_hirshfeld_e_msa_hf_lan_global_greedy():
     expecting = np.array([1.06135407, -0.51795437, -0.50626239, -0.50136175, -0.48867641, 0.22835963, 0.240736, 0.23528162, 0.24816043])
     check_msa_hf_lan('he', expecting, local=False, greedy=True)
 
 
+@attr('slow')
 def test_is_msa_hf_lan():
     expecting = np.array([1.1721364, -0.5799622, -0.5654549, -0.5599638, -0.5444145, 0.2606699, 0.2721848, 0.2664377, 0.2783666]) # from HiPart
     check_msa_hf_lan('is', expecting, needs_padb=False)

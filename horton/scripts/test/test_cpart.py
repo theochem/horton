@@ -57,12 +57,14 @@ def check_script_jbw_coarse(scheme):
             assert scheme + '_r1' in f['cpart']
 
 
+@attr('slow')
 def test_script_jbw_coarse_h():
     # other schemes don't work because the cube file is too crappy.
     check_script_jbw_coarse('h')
 
 
 def check_script_lta(fn_sym, suffix, do_spin=False):
+@attr('slow')
     with tmpdir('horton.scripts.test.test_cpart.test_script_lta_coarse_h_%s' % suffix) as dn:
         # prepare files
         if fn_sym is not None:
@@ -106,17 +108,25 @@ def check_script_lta(fn_sym, suffix, do_spin=False):
                     assert ds.shape[1] == 2
 
 
+@attr('slow')
 def test_script_lta():
     check_script_lta(None, 'nosym')
 
 
+@attr('slow')
+@attr('slow')
 def test_script_lta_spin():
     check_script_lta(None, 'nosym_spin', True)
 
 
+@attr('slow')
+@attr('slow')
 def test_script_lta_sym():
     check_script_lta('lta_gulp.cif', 'sym')
 
 
+@attr('slow')
+@attr('slow')
+@attr('slow')
 def test_script_lta_sym_spin():
     check_script_lta('lta_gulp.cif', 'sym_spin', True)
