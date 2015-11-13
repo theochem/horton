@@ -81,6 +81,7 @@ def test_ap1rog_cs_scf():
     assert (abs(energy - -1.151686291339) < 1e-6)
 
 
+@attr('slow')
 def test_ap1rog_cs_scf_restart():
     lf, occ_model, one, er, external, exp_alpha, olp = prepare_hf('6-31G')
 
@@ -88,6 +89,7 @@ def test_ap1rog_cs_scf_restart():
     geminal_solver = RAp1rog(lf, occ_model)
     guess = np.array([-0.1, -0.05, -0.02])
 
+@attr('slow')
     with tmpdir('horton.correlatedwfn.test.test_geminals.test_ap1rog_cs_scf_restart') as dn:
         checkpoint_fn = '%s/checkpoint.h5' % dn
         energy, g, l = geminal_solver(one, er, external['nn'], exp_alpha, olp,

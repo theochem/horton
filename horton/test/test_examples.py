@@ -69,12 +69,14 @@ def test_example_expectation_r():
     check_script('./expectation_r.py', context.get_fn('examples/grid'))
 
 
+@attr('slow')
 def test_example_ap1rog_hubbard():
     required = [context.get_fn('examples/ap1rog/hubbard.py')]
     expected = ['checkpoint.h5']
     check_script_in_tmp('./hubbard.py', required, expected)
 
 
+@attr('slow')
 def test_example_ap1rog_extham_n2():
     required = [context.get_fn('examples/ap1rog/external_hamiltonian_n2_dense.py'),
                 context.get_fn('examples/hf_dft/rhf_n2_dense.py')]
@@ -92,6 +94,7 @@ def test_example_ap1rog_extham_h2():
     check_script_in_tmp('./rhf_h2_cholesky.py; ./external_hamiltonian_h2_cholesky.py', required, expected)
 
 
+@attr('slow')
 def test_example_ap1rog_extham_water():
     required = [context.get_fn('examples/ap1rog/external_hamiltonian_water_dense.py'),
                 context.get_fn('examples/hf_dft/rhf_water_dense.py')]
@@ -106,6 +109,7 @@ def test_example_ap1rog_h2_cholesky_321g():
     check_script_in_tmp('./h2_cholesky_3-21g.py', required, expected)
 
 
+@attr('slow')
 def test_example_ap1rog_h2_cholesky_aug_cc_pvdz():
     required = [context.get_fn('examples/ap1rog/h2_cholesky_aug-cc-pvdz.py')]
     expected = ['checkpoint.h5']
@@ -130,12 +134,15 @@ def test_example_ap1rog_h2_dense_aug_cc_pvdz():
     check_script_in_tmp('./h2_dense_aug-cc-pvdz.py', required, expected)
 
 
+@attr('slow')
 def test_example_ap1rog_water_cholesky_321g():
     required = [context.get_fn('examples/ap1rog/water_cholesky_3-21g.py')]
     expected = ['checkpoint.h5']
     check_script_in_tmp('./water_cholesky_3-21g.py', required, expected)
 
 
+@attr('slow')
+@attr('slow')
 def test_example_ap1rog_water_cholesky_321g_restart():
     required = [context.get_fn('examples/ap1rog/water_cholesky_3-21g.py'),
                 context.get_fn('examples/ap1rog/restart_water_cholesky_3-21g.py')]
@@ -149,12 +156,14 @@ def test_example_ap1rog_water_cholesky_sto3g():
     check_script_in_tmp('./water_cholesky_sto-3g.py', required, expected)
 
 
+@attr('slow')
 def test_example_ap1rog_water_cholesky_cc_pvdz():
     required = [context.get_fn('examples/ap1rog/water_cholesky_cc-pvdz.py')]
     expected = ['checkpoint.h5']
     check_script_in_tmp('./water_cholesky_cc-pvdz.py', required, expected)
 
 
+@attr('slow')
 def test_example_ap1rog_water_dense_321g():
     required = [context.get_fn('examples/ap1rog/water_dense_3-21g.py')]
     expected = ['checkpoint.h5']
@@ -167,18 +176,21 @@ def test_example_ap1rog_water_dense_sto3g():
     check_script_in_tmp('./water_dense_sto-3g.py', required, expected)
 
 
+@attr('slow')
 def test_example_ap1rog_water_dense_cc_pvdz():
     required = [context.get_fn('examples/ap1rog/water_dense_cc-pvdz.py')]
     expected = ['checkpoint.h5']
     check_script_in_tmp('./water_dense_cc-pvdz.py', required, expected)
 
 
+@attr('slow')
 def test_example_ap1rog_water_default():
     required = [context.get_fn('examples/ap1rog/water_default.py')]
     expected = ['checkpoint.h5']
     check_script_in_tmp('./water_default.py', required, expected)
 
 
+@attr('slow')
 def test_example_ap1rog_water_minimal():
     required = [context.get_fn('examples/ap1rog/water_minimal.py')]
     expected = ['checkpoint.h5']
@@ -231,18 +243,21 @@ def test_example_pta_h2_def2_svpd():
     check_script_in_tmp('./pta_h2_def2-svpd.py', required, expected)
 
 
+@attr('slow')
 def test_example_pta_water_431g():
     required = [context.get_fn('examples/perturbation_theory/pta_water_4-31g.py')]
     expected = ['checkpoint.h5']
     check_script_in_tmp('./pta_water_4-31g.py', required, expected)
 
 
+@attr('slow')
 def test_example_pta_water_cc_pvdz():
     required = [context.get_fn('examples/perturbation_theory/pta_water_cc-pvdz.py')]
     expected = ['checkpoint.h5']
     check_script_in_tmp('./pta_water_cc-pvdz.py', required, expected)
 
 
+@attr('slow')
 def test_example_pta_water_def2_svpd():
     required = [context.get_fn('examples/perturbation_theory/pta_water_def2-svpd.py')]
     expected = ['checkpoint.h5']
@@ -267,24 +282,28 @@ def test_example_ptb_h2_def2_svpd():
     check_script_in_tmp('./ptb_h2_def2-svpd.py', required, expected)
 
 
+@attr('slow')
 def test_example_ptb_water_431g():
     required = [context.get_fn('examples/perturbation_theory/ptb_water_4-31g.py')]
     expected = ['checkpoint.h5']
     check_script_in_tmp('./ptb_water_4-31g.py', required, expected)
 
 
+@attr('slow')
 def test_example_ptb_water_cc_pvdz():
     required = [context.get_fn('examples/perturbation_theory/ptb_water_cc-pvdz.py')]
     expected = ['checkpoint.h5']
     check_script_in_tmp('./ptb_water_cc-pvdz.py', required, expected)
 
 
+@attr('slow')
 def test_example_ptb_water_def2_svpd():
     required = [context.get_fn('examples/perturbation_theory/ptb_water_def2-svpd.py')]
     expected = ['checkpoint.h5']
     check_script_in_tmp('./ptb_water_def2-svpd.py', required, expected)
 
 
+@attr('slow')
 def test_example_oe_water():
     required = [context.get_fn('examples/orbital_entanglement/water.py')]
     expected = ['i12.dat', 'checkpoint.h5', 's1.dat', 'orbital_entanglement.png']
@@ -337,12 +356,14 @@ def test_example_rks_water_lda():
     check_script_in_tmp('./rks_water_lda.py', required, expected)
 
 
+@attr('slow')
 def test_example_rks_water_numlda():
     required = [context.get_fn('examples/hf_dft/rks_water_numlda.py')]
     expected = ['water.h5']
     check_script_in_tmp('./rks_water_numlda.py', required, expected)
 
 
+@attr('slow')
 def test_example_rks_water_numgga():
     required = [context.get_fn('examples/hf_dft/rks_water_numgga.py')]
     expected = ['water.h5']
@@ -379,12 +400,14 @@ def test_example_uks_methyl_lda():
     check_script_in_tmp('./uks_methyl_lda.py', required, expected)
 
 
+@attr('slow')
 def test_example_uks_methyl_numlda():
     required = [context.get_fn('examples/hf_dft/uks_methyl_numlda.py')]
     expected = ['methyl.h5']
     check_script_in_tmp('./uks_methyl_numlda.py', required, expected)
 
 
+@attr('slow')
 def test_example_uks_methyl_numgga():
     required = [context.get_fn('examples/hf_dft/uks_methyl_numgga.py')]
     expected = ['methyl.h5']

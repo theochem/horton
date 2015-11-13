@@ -26,6 +26,7 @@ import numpy as np
 from horton.test.common import check_delta
 
 
+@attr('slow')
 def test_ap1rog_one_dm():
     fn_xyz = context.get_fn('test/li2.xyz')
     mol = IOData.from_file(fn_xyz)
