@@ -15,6 +15,7 @@ addons:
      # libtool is needed by libint
      - libtool
      - doxygen
+     - cppcheck
 
 cache:
   directories:
@@ -65,5 +66,15 @@ install:
  - python setup.py build_ext -i -L ${LD_LIBRARY_PATH}
 
 script:
+# Run tests as usual and cleanup
  - nosetests -v
  - (cd doc; make html)
+ - bash cleanfiles.sh
+
+# Get the master branch for a comparative analysis
+ - git config remote.origin.fetch refs/heads/*:refs/remotes/origin/*
+ - git fetch origin master --depth=50
+ - git branch master origin/master
+
+# Run the trapdoor tests
+ - python tools/qa/trapdoor_cppcheck.py

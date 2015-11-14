@@ -28,7 +28,7 @@ class RTransform {
         int npoint;
 
     public:
-        RTransform(int npoint);
+        explicit RTransform(int npoint);
         virtual ~RTransform() {};
         virtual double radius(double t) = 0;
         virtual double deriv(double t) = 0;
