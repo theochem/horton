@@ -65,5 +65,7 @@ install:
  - python setup.py build_ext -i -L ${LD_LIBRARY_PATH}
 
 script:
- - nosetests -v
+# Run first the fast unit tests and then the slow ones
+ - nosetests -v -a '!slow'
+ - nosetests -v -a slow
  - (cd doc; make html)
