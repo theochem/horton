@@ -22,6 +22,8 @@
 
 
 import numpy as np
+from nose.plugins.attrib import attr
+
 from horton import *
 from horton.test.common import get_random_cell
 

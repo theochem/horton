@@ -22,6 +22,8 @@
 
 
 import numpy as np
+from nose.plugins.attrib import attr
+
 from horton import *
 from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf, \
     check_water_cs_hfs, check_n2_cs_hfs, check_h3_os_hfs, check_h3_os_pbe, \

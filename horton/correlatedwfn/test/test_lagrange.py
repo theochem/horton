@@ -23,7 +23,10 @@
 
 import numpy as np
 from nose.tools import assert_raises
+from nose.plugins.attrib import attr
+
 from horton import *
+
 
 @attr('slow')
 def test_ap1rog_lagrange():

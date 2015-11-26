@@ -22,6 +22,7 @@
 
 
 import os, h5py as h5
+from nose.plugins.attrib import attr
 
 from horton import *
 from horton.test.common import check_script, tmpdir
@@ -64,7 +65,6 @@ def test_script_jbw_coarse_h():
 
 
 def check_script_lta(fn_sym, suffix, do_spin=False):
-@attr('slow')
     with tmpdir('horton.scripts.test.test_cpart.test_script_lta_coarse_h_%s' % suffix) as dn:
         # prepare files
         if fn_sym is not None:
@@ -114,19 +114,15 @@ def test_script_lta():
 
 
 @attr('slow')
-@attr('slow')
 def test_script_lta_spin():
     check_script_lta(None, 'nosym_spin', True)
 
 
 @attr('slow')
-@attr('slow')
 def test_script_lta_sym():
     check_script_lta('lta_gulp.cif', 'sym')
 
 
-@attr('slow')
-@attr('slow')
 @attr('slow')
 def test_script_lta_sym_spin():
     check_script_lta('lta_gulp.cif', 'sym_spin', True)

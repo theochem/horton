@@ -22,6 +22,7 @@
 
 
 import numpy as np
+from nose.plugins.attrib import attr
 
 from horton import *
 from horton.part.test.common import check_names, check_proatom_splines, \
@@ -183,7 +184,6 @@ def test_hirshfeld_i_msa_hf_lan_local_greedy():
 
 
 @attr('slow')
-@attr('slow')
 def test_hirshfeld_i_msa_hf_lan_global_greedy():
     expecting = np.array([1.14305602, -0.52958298, -0.51787452, -0.51302759, -0.50033981, 0.21958586, 0.23189187, 0.22657354, 0.23938904])
     check_msa_hf_lan('hi', expecting, local=False, greedy=True)
@@ -202,13 +202,11 @@ def test_hirshfeld_e_msa_hf_lan_global():
 
 
 @attr('slow')
-@attr('slow')
 def test_hirshfeld_e_msa_hf_lan_local_greedy():
     expecting = np.array([1.06135407, -0.51795437, -0.50626239, -0.50136175, -0.48867641, 0.22835963, 0.240736, 0.23528162, 0.24816043])
     check_msa_hf_lan('he', expecting, local=True, greedy=True)
 
 
-@attr('slow')
 @attr('slow')
 def test_hirshfeld_e_msa_hf_lan_global_greedy():
     expecting = np.array([1.06135407, -0.51795437, -0.50626239, -0.50136175, -0.48867641, 0.22835963, 0.240736, 0.23528162, 0.24816043])

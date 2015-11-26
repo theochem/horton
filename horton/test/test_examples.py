@@ -21,6 +21,8 @@
 #pylint: skip-file
 
 
+from nose.plugins.attrib import attr
+
 from horton.test.common import check_script, check_script_in_tmp
 from horton import context
 
@@ -146,7 +148,6 @@ def test_example_ap1rog_water_cholesky_321g():
     check_script_in_tmp('./water_cholesky_3-21g.py', required, expected)
 
 
-@attr('slow')
 @attr('slow')
 def test_example_ap1rog_water_cholesky_321g_restart():
     required = [context.get_fn('examples/ap1rog/water_cholesky_3-21g.py'),

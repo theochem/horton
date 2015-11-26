@@ -21,8 +21,10 @@
 #pylint: skip-file
 
 
-from horton import *
 import numpy as np
+from nose.plugins.attrib import attr
+
+from horton import *
 from horton.test.common import check_delta
 
 

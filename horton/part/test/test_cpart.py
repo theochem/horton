@@ -21,6 +21,8 @@
 #pylint: skip-file
 
 
+from nose.plugins.attrib import attr
+
 from horton import *
 from horton.part.test.common import check_names, check_proatom_splines, \
     get_fake_co, get_fake_pseudo_oo
@@ -151,12 +153,10 @@ def test_hirshfeld_i_fake_pseudo_nowcor_global():
 
 
 @attr('slow')
-@attr('slow')
 def test_hirshfeld_i_fake_local_greedy():
     check_fake('hi', pseudo=False, dowcor=True, local=True, absmean=0.428, threshold=1e-5, greedy=True)
 
 
-@attr('slow')
 @attr('slow')
 def test_hirshfeld_i_fake_global_greedy():
     check_fake('hi', pseudo=False, dowcor=True, local=False, absmean=0.428, threshold=1e-5, greedy=True)
@@ -213,18 +213,15 @@ def test_hirshfeld_e_fake_pseudo_nowcor_global():
 
 
 @attr('slow')
-@attr('slow')
 def test_hirshfeld_e_fake_local_greedy():
     check_fake('he', pseudo=False, dowcor=True, local=True, absmean=0.323, threshold=1e-4, greedy=True)
 
 
 @attr('slow')
-@attr('slow')
 def test_hirshfeld_e_fake_global_greedy():
     check_fake('he', pseudo=False, dowcor=True, local=False, absmean=0.374, threshold=1e-4, greedy=True)
 
 
-@attr('slow')
 @attr('slow')
 def test_hirshfeld_e_fake_pseudo_local_greedy():
     check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4, greedy=True)
@@ -235,7 +232,6 @@ def test_hirshfeld_e_fake_pseudo_global_greedy():
     check_fake('he', pseudo=True, dowcor=True, local=False, absmean=0.396, threshold=1e-4, greedy=True)
 
 
-@attr('slow')
 @attr('slow')
 def test_hirshfeld_e_fake_pseudo_nowcor_local_greedy():
     check_fake('he', pseudo=True, dowcor=True, local=True, absmean=0.396, threshold=1e-4, greedy=True)

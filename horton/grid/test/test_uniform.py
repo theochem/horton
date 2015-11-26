@@ -22,6 +22,7 @@
 
 
 import numpy as np
+from nose.plugins.attrib import attr
 
 from horton import *
 from horton.grid.test.common import *
