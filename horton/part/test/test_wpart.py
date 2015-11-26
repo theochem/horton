@@ -108,7 +108,6 @@ def test_hirshfeld_e_water_hf_sto3g_local_greedy():
     check_water_hf_sto3g('he', expecting, local=True, greedy=True)
 
 
-@attr('slow')
 def test_hirshfeld_e_water_hf_sto3g_global_greedy():
     expecting = np.array([-0.422794483125, 0.211390419810, 0.211404063315]) # From HiPart
     check_water_hf_sto3g('he', expecting, local=False, greedy=True)
@@ -160,6 +159,7 @@ def test_hirshfeld_msa_hf_lan_local():
     check_msa_hf_lan('h', expecting, local=True)
 
 
+@attr('slow')
 def test_hirshfeld_msa_hf_lan_global():
     expecting = np.array([0.56175431, -0.30002709, -0.28602105, -0.28335086, -0.26832878,  0.13681904,  0.14535691,  0.14206876,  0.15097682])
     check_msa_hf_lan('h', expecting, local=False)

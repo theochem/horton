@@ -23,6 +23,7 @@
 
 import numpy as np
 from nose.tools import assert_raises
+from nose.plugins.attrib import attr
 
 from horton import *
 
@@ -167,6 +168,7 @@ def test_cart_pure_domain():
         cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=3, nant=1, npost=0)
 
 
+@attr('slow')
 def test_cart_pure_water_ccpvdz_hf():
     fn_fchk_pure = context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk')
     fn_log_pure = fn_fchk_pure[:-5] + '.log'

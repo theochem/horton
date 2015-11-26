@@ -23,6 +23,8 @@
 
 import numpy as np
 from nose.tools import assert_raises
+from nose.plugins.attrib import attr
+
 from horton import *
 
 from horton.test.common import get_random_cell
@@ -252,6 +254,7 @@ def setup_ranges_rcut(nvec):
     return cell, origin, center, rcut, ranges_begin, ranges_end, ranges_low, ranges_high
 
 
+@attr('slow')
 def test_ranges_rcut_3d():
     counter = 0
     while True:
@@ -367,6 +370,7 @@ def check_select_inside_basic(indexes, shape, origin, center, grid_cell, cell, r
         assert np.linalg.norm(tmp) < rcut
 
 
+@attr('slow')
 def test_select_inside_3d():
     counter = 0
     while True:

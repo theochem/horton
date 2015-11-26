@@ -23,6 +23,7 @@
 
 import numpy as np, os
 from nose.tools import assert_raises
+from nose.plugins.attrib import attr
 
 from horton import *
 from horton.test.common import compare_operators
@@ -267,6 +268,7 @@ def test_grid_lih_321g_hf_esp_some_points():
     check_grid_esp('test/li_h_3-21G_hf_g09.fchk', ref, 1e-8)
 
 
+@attr('slow')
 def test_grid_co_ccpv5z_cart_hf_esp_some_points():
     ref = np.array([ # from cubegen
         [ 0.0,  0.0,  0.0,  10.69443507172],
@@ -282,6 +284,7 @@ def test_grid_co_ccpv5z_cart_hf_esp_some_points():
     check_grid_esp('test/co_ccpv5z_cart_hf_g03.fchk', ref, 1e-3) # cubegen output somehow not reliable?
 
 
+@attr('slow')
 def test_grid_co_ccpv5z_pure_hf_esp_some_points():
     ref = np.array([ # from cubegen
         [ 0.0,  0.0,  0.0,  10.69443507172],

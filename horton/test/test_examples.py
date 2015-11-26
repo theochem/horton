@@ -47,6 +47,7 @@ def test_example_hubbard():
     check_script('./hubbard.py', context.get_fn('examples/hamiltonian'))
 
 
+@attr('slow')
 def test_hamiltonian_fcidump_ao():
     required = [context.get_fn('examples/hamiltonian/dump_fcidump_ao.py'),
                 context.get_fn('examples/hamiltonian/load_fcidump_ao.py')]
@@ -442,6 +443,7 @@ def test_example_wpart():
     check_script_in_tmp('./becke.py', required, expected)
 
 
+@attr('slow')
 def test_example_hf_compare():
     required = [context.get_fn('examples/hf_compare/compare.py')]
     expected = []

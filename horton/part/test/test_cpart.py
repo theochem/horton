@@ -136,6 +136,7 @@ def test_hirshfeld_i_fake_global():
     check_fake('hi', pseudo=False, dowcor=True, local=False, absmean=0.428, threshold=1e-5)
 
 
+@attr('slow')
 def test_hirshfeld_i_fake_pseudo_local():
     check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.400, threshold=1e-4)
 
@@ -144,6 +145,7 @@ def test_hirshfeld_i_fake_pseudo_global():
     check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.400, threshold=1e-4)
 
 
+@attr('slow')
 def test_hirshfeld_i_fake_pseudo_nowcor_local():
     check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.400, threshold=1e-4)
 
