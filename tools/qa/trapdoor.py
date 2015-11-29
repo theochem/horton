@@ -87,7 +87,7 @@ def run_tests(get_stats):
                          all errors encountered in the master branch
     '''
     # Get git info
-    #name_feature = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).strip()
+    name_feature = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).strip()
     commit_id_feature = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip()
     commit_id_master = subprocess.check_output(['git', 'rev-parse', 'master']).strip()
     # Actual work
@@ -97,9 +97,8 @@ def run_tests(get_stats):
     try:
         counter_master, messages_master = get_stats()
     finally:
-        #print 'CHECKING OUT %s (%s)' % (name_feature, commit_id_feature)
-        print 'CHECKING OUT %s (%s)' % ('travisci_trapdoor2013', commit_id_feature)
-        subprocess.call(['git', 'checkout', 'travisci_trapdoor2013'])
+        print 'CHECKING OUT %s (%s)' % (name_feature, commit_id_feature)
+        subprocess.call(['git', 'checkout', name_feature])
     return counter_feature, messages_feature, counter_master, messages_master
 
 
