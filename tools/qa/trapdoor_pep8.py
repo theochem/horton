@@ -28,51 +28,47 @@ import os
 import pep8
 import shutil
 from collections import Counter
-from trapdoor import main
+from trapdoor import TrapdoorProgram
 
 
-# class StatsPep8(object):
-#     '''
-#     '''
-#     def __init__(self):
-#         ''' '''
-#         self.pep8check = pep8.StyleGuide(reporter=CompleteReport, config_file='tools/qa/.pep8')
+class PEP8TrapdoorProgram(TrapdoorProgram):
+    def __init__(self):
+        TrapdoorProgram.__init__(self, 'pep8')
+        self.config_file = os.path.join(self.qaworkdir, 'pep8')
 
-#     def __call__(self):
+    def initialize(self):
+        shutil.copy('tools/qa/.pep8', self.config_file)
 
-def get_stats_pep8_check():
-    '''Run tests using pep8
+    def get_stats(self):
+        '''Run tests using pep8
 
-       Returns
-       -------
-       counter: collections.Counter
-                counts for different error types in the current checkout
-       messages: Set([]) of strings
-                 all errors encountered in the current checkout
-    '''
-    # # Clear counters and messages of checker
-    # self.pep8check.options.report.reset()
-    # Get version
-    print 'USING pep8', pep8.__version__
+           Returns
+           -------
+           counter: collections.Counter
+                    counts for different error types in the current checkout
+           messages: Set([]) of strings
+                     all errors encountered in the current checkout
+        '''
+        # Get version
+        print 'USING pep8', pep8.__version__
 
-    # Call Pep8
-    pep8check = pep8.StyleGuide(reporter=CompleteReport)#, config_file='~/.config/pep8')
-    #pep8check = pep8.StyleGuide(reporter=CompleteReport, max_line_length=100)
-    print 'Excluded :', pep8check.options.exclude
-    print 'Ignored  :', pep8check.options.ignore
-    print 'MaxLength:', pep8check.options.max_line_length
-    pep8check.input_dir('horton')
+        # Call Pep8
+        pep8check = pep8.StyleGuide(reporter=CompleteReport, config_file=self.config_file)
+        print 'Excluded :', pep8check.options.exclude
+        print 'Ignored  :', pep8check.options.ignore
+        print 'MaxLength:', pep8check.options.max_line_length
+        pep8check.input_dir('horton')
 
-    # Parse the output of Pep8 into standard return values
-    counters = Counter(pep8check.options.report.counters)
-    del counters['physical lines']
-    del counters['logical lines']
-    del counters['files']
-    del counters['directories']
-    # message on each error
-    messages = set(pep8check.options.report.complete_message)
-    assert len(messages) == pep8check.options.report.get_count()
-    return counters, messages
+        # Parse the output of Pep8 into standard return values
+        counters = Counter(pep8check.options.report.counters)
+        del counters['physical lines']
+        del counters['logical lines']
+        del counters['files']
+        del counters['directories']
+        # message on each error
+        messages = set(pep8check.options.report.complete_message)
+        assert len(messages) == pep8check.options.report.get_count()
+        return counters, messages
 
 
 class CompleteReport(pep8.StandardReport):
@@ -99,16 +95,6 @@ class CompleteReport(pep8.StandardReport):
                     line = self.lines[line_number - 1]
             self.complete_message.append(message)
 
-    # def reset(self):
-    #     ''' '''
-    #     self.elapsed = 0
-    #     self.total_errors = 0
-    #     self.counters = dict.fromkeys(self._benchmark_keys, 0)
-    #     self.messages = {}
-    #     self.complete_message = []
-
 
 if __name__ == '__main__':
-    shutil.copy('tools/qa/.pep8', os.path.expanduser('~/.config/pep8'))
-    #get_stats_pep8_check = StatsPep8()
-    main(get_stats_pep8_check)
+    PEP8TrapdoorProgram().main()

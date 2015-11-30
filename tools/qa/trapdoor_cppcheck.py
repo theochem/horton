@@ -28,49 +28,53 @@
 import subprocess
 from xml.etree import ElementTree
 from collections import Counter
-from trapdoor import main
+from trapdoor import TrapdoorProgram
 
 
-def get_stats_cpp_check():
-    '''Run tests using Cppcheck
+class CPPCheckTrapdoorProgram(TrapdoorProgram):
+    def __init__(self):
+        TrapdoorProgram.__init__(self, 'cppcheck')
 
-       Returns
-       -------
-       counter: collections.Counter
-                counts for different error types in the current checkout
-       messages: Set([]) of strings
-                 all errors encountered in the current checkout
-    '''
-    # Get version
-    command = ['cppcheck', '--version']
-    print 'Using', subprocess.check_output(command, stderr=subprocess.STDOUT).strip()
+    def get_stats(self):
+        '''Run tests using Cppcheck
 
-    # Call Cppcheck
-    command = ['cppcheck', 'horton', '-q', '--enable=all', '--std=c++11', '--xml',
-               '--suppress=missingIncludeSystem']
-    print 'RUNNING', ' '.join(command)
-    xml_str = subprocess.check_output(command, stderr=subprocess.STDOUT)
-    etree = ElementTree.fromstring(xml_str)
+           Returns
+           -------
+           counter: collections.Counter
+                    counts for different error types in the current checkout
+           messages: Set([]) of strings
+                     all errors encountered in the current checkout
+        '''
+        # Get version
+        command = ['cppcheck', '--version']
+        print 'Using', subprocess.check_output(command, stderr=subprocess.STDOUT).strip()
 
-    # Parse the output of Cppcheck into standard return values
-    counter = Counter()
-    messages = set([])
-    for error in etree:
-        if 'file' not in error.attrib:
-            continue
-        key = '%15s  %40s  %30s' % (
-            error.attrib['severity'],
-            error.attrib['file'].ljust(40),
-            error.attrib['id'].ljust(30),
-        )
-        counter[key] += 1
-        messages.add('%15s  %40s  %s' % (
-            error.attrib['severity'],
-            ('%s:%s' % (error.attrib['file'], error.attrib['line'])).ljust(40),
-            error.attrib['msg'],
-        ))
-    return counter, messages
+        # Call Cppcheck
+        command = ['cppcheck', 'horton', '-q', '--enable=all', '--std=c++11', '--xml',
+                   '--suppress=missingIncludeSystem']
+        print 'RUNNING', ' '.join(command)
+        xml_str = subprocess.check_output(command, stderr=subprocess.STDOUT)
+        etree = ElementTree.fromstring(xml_str)
+
+        # Parse the output of Cppcheck into standard return values
+        counter = Counter()
+        messages = set([])
+        for error in etree:
+            if 'file' not in error.attrib:
+                continue
+            key = '%15s  %40s  %30s' % (
+                error.attrib['severity'],
+                error.attrib['file'].ljust(40),
+                error.attrib['id'].ljust(30),
+            )
+            counter[key] += 1
+            messages.add('%15s  %40s  %s' % (
+                error.attrib['severity'],
+                ('%s:%s' % (error.attrib['file'], error.attrib['line'])).ljust(40),
+                error.attrib['msg'],
+            ))
+        return counter, messages
 
 
 if __name__ == '__main__':
-    main(get_stats_cpp_check)
+    CPPCheckTrapdoorProgram().main()

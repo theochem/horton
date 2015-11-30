@@ -29,52 +29,59 @@ import os
 import shutil
 import subprocess
 from collections import Counter
-from trapdoor import main
+from trapdoor import TrapdoorProgram
 
 
-def get_stats_pylint_check():
-    '''Run tests using Pylint
+class PylintTrapdoorProgram(TrapdoorProgram):
+    def __init__(self):
+        TrapdoorProgram.__init__(self, 'pylint')
+        self.rcfile = os.path.join(self.qaworkdir, 'pylintrc')
 
-       Returns
-       -------
-       counter: collections.Counter
-                counts for different error types in the current checkout
-       messages: Set([]) of strings
-                 all errors encountered in the current checkout
-    '''
-    # get Pylint version
-    command = ['pylint', '--version']
-    print 'USING', subprocess.check_output(command, stderr=subprocess.STDOUT).strip()
+    def initialize(self):
+        shutil.copy('tools/qa/.pylintrc', self.rcfile)
 
-    # call Pylint
-    command = ['pylint', 'horton']
-    command_line = ' '.join(command)
-    print 'RUNNING', command_line
-    proc = subprocess.Popen(command_line, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE, shell=True, universal_newlines=True)
+    def get_stats(self):
+        '''Run tests using Pylint
 
-    # parse the output of Pylint into standard return values
-    lines = proc.stdout.readlines()
-    score = lines[-2].split()[6]
-    print 'SCORE', score
-    counter = Counter()
-    messages = set([])
-    for line in lines:
-        # skip lines that don't contain error messages
-        if '.py:' not in line:
-            continue
-        if line.startswith('Report'):
-            break
-        # extract error information
-        file_name, line = line.strip().split(' ', 1)
-        error_id = line[1:].split(']')[0].split(',')[0]
-        message = line.split(']')[1].strip()
-        counter[error_id] += 1
-        messages.add('%-35s  %-40s  %-s' % (error_id, file_name[:-1], message))
-    return counter, messages
+           Returns
+           -------
+           counter: collections.Counter
+                    counts for different error types in the current checkout
+           messages: Set([]) of strings
+                     all errors encountered in the current checkout
+        '''
+        # get Pylint version
+        command = ['pylint', '--version', '--rcfile=%s' % self.rcfile]
+        version_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
+        print 'USING', version_output.split('\n')[0]
+
+        # call Pylint
+        command = ['pylint', 'horton', '--rcfile=%s' % self.rcfile]
+        command_line = ' '.join(command)
+        print 'RUNNING', command_line
+        proc = subprocess.Popen(command_line, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, shell=True, universal_newlines=True)
+
+        # parse the output of Pylint into standard return values
+        lines = proc.stdout.readlines()
+        score = lines[-2].split()[6]
+        print 'SCORE', score
+        counter = Counter()
+        messages = set([])
+        for line in lines:
+            # skip lines that don't contain error messages
+            if '.py:' not in line:
+                continue
+            if line.startswith('Report'):
+                break
+            # extract error information
+            file_name, line = line.strip().split(' ', 1)
+            error_id = line[1:].split(']')[0].split(',')[0]
+            message = line.split(']')[1].strip()
+            counter[error_id] += 1
+            messages.add('%-35s  %-40s  %-s' % (error_id, file_name[:-1], message))
+        return counter, messages
 
 
 if __name__ == '__main__':
-    # copy .pylintrc file, so that both branches use the same config
-    shutil.copy('tools/qa/.pylintrc', os.path.expanduser('~/.config/pylintrc'))
-    main(get_stats_pylint_check)
+    PylintTrapdoorProgram().main()

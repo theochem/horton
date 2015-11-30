@@ -1,0 +1,7 @@
+numpy-1.9.1
+scipy-0.11.0-numpy-1.9.1
+matplotlib-1.1.0-numpy-1.9.1
+cython-0.17.1
+h5py-2.2.1-numpy-1.9.1
+libint-2.0.3
+libxc-2.2.2

@@ -26,134 +26,135 @@
 
 
 import argparse
+import cPickle
 import os
 import subprocess
 import sys
 
 
-__all__ = ['main']
+__all__ = ['TrapdoorProgram']
 
 
-def main(get_stats):
-    '''Main routine doing all the work for a given code quality check
+class TrapdoorProgram(object):
+    def __init__(self, name):
+        '''Initialize the trapdoor program
 
-       Parameters
-       ----------
-       get_stats : function
-                   This function takes no parameters and returns ``counter`` and
-                   ``messages``. It does quality checks on the source code that is
-                   currently checked out. See ``trapdoor_cppcheck.py`` for an example. The
-                   ``counter`` return value must be of the type ``collections.Counter``.
-                   It counts all types of error messages. The idea is that these counts
-                   should not be allowed to increase. Please use relatively specific keys
-                   in ``counter``, e.g. containing filename and the type of error. The
-                   ``messages`` return value is a ``Set`` of strings with all the
-                   encountered error messages.
+           Parameters
+           ----------
+           name : str
+                  The name of the trapdoor program, e.g. ``'cppcheck'``.
+        '''
+        # Set attributes
+        self.name = name
+        # Get the QAWORKDIR. Create if it does not exist yet.
+        self.qaworkdir = os.getenv('QAWORKDIR', 'qaworkdir')
+        if not os.path.isdir(self.qaworkdir):
+            os.makedirs(self.qaworkdir)
 
-    '''
-    args = parse_args()
-    counter_feature, messages_feature, counter_master, messages_master = run_tests(get_stats)
-    if args.noisy:
-        print_details(counter_feature, messages_feature, counter_master, messages_master)
-    check_deterioration(counter_feature, counter_master)
+    def main(self):
+        args = self.parse_args()
+        if args.mode == 'feature':
+            self.initialize()
+            self.run_tests(args.mode)
+        elif args.mode == 'master':
+            self.run_tests(args.mode)
+        elif args.mode == 'report':
+            self.report(args.noisy)
+
+    def parse_args(self):
+        '''Parse command-line arguments'''
+        parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]))
+        parser.add_argument('mode', choices=['feature', 'master', 'report'])
+        parser.add_argument('-n', '--noisy', default=False, action='store_true',
+            help='Also print output for problems that did not deteriorate.')
+        return parser.parse_args()
+
+    def initialize(self):
+        pass
+
+    def run_tests(self, mode):
+        '''Runs the tests on a single checkout
+
+           Parameters
+           ----------
+           mode: string
+                 A name for the current branch on which the tests are run, typically
+                 ``'feature'`` or ``'master'``.
+
+           The results are written to disk in a file ``trapdoor_results_*.pp``. These
+           files are later used by the report method to analyze the results.
+        '''
+        counter, messages = self.get_stats()
+        fn_pp = 'trapdoor_results_%s_%s.pp' % (self.name, mode)
+        with open(os.path.join(self.qaworkdir, fn_pp), 'w') as f:
+            cPickle.dump((counter, messages), f)
+
+    def get_stats(self):
+        raise NotImplementedError
+
+    def report(self, noisy=False):
+        fn_pp_feature = 'trapdoor_results_%s_feature.pp' % self.name
+        with open(os.path.join(self.qaworkdir, fn_pp_feature)) as f:
+            results_feature = cPickle.load(f)
+        fn_pp_master = 'trapdoor_results_%s_master.pp' % self.name
+        with open(os.path.join(self.qaworkdir, fn_pp_master)) as f:
+            results_master = cPickle.load(f)
+        if noisy:
+            self.print_details(results_feature, results_master)
+        self.check_deterioration(results_feature[0], results_master[0])
+
+    def print_details(self, (counter_feature, messages_feature), (counter_master, messages_master)):
+        '''Print optional detailed report of the test results
+
+           Parameters
+           ----------
+           counter_feature: collections.Counter
+                            counts for different error types in the feature branch
+           messages_feature: Set([]) of strings
+                             all errors encountered in the feature branch
+           counter_master: collections.Counter
+                            counts for different error types in the master branch
+           messages_master: Set([]) of strings
+                             all errors encountered in the master branch
+        '''
+        resolved_messages = sorted(messages_master - messages_feature)
+        if len(resolved_messages) > 0:
+            print 'RESOLVED MESSAGES'
+            for msg in resolved_messages:
+                print msg
+
+        unchanged_messages = sorted(messages_master & messages_feature)
+        if len(unchanged_messages) > 0:
+            print 'UNCHANGED MESSAGES'
+            for msg in unchanged_messages:
+                print msg
+
+        new_messages = sorted(messages_feature - messages_master)
+        if len(new_messages) > 0:
+            print 'NEW MESSAGES'
+            for msg in new_messages:
+                print msg
+
+        resolved_counter = counter_master - counter_feature
+        if len(resolved_counter) > 0:
+            print 'SOME STATISTICS IMPROVED'
+            for key, counter in resolved_counter.iteritems():
+                print '%s  |  %+6i' % (key, -counter)
 
 
-def parse_args():
-    '''Parse command-line arguments'''
-    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]))
-    parser.add_argument('-n', '--noisy', default=False, action='store_true',
-        help='Also print output for problems that did not deteriorate.')
-    return parser.parse_args()
+    def check_deterioration(self, counter_feature, counter_master):
+        '''Check if the counters got worse
 
-
-def run_tests(get_stats):
-    '''Runs the tests on two checkouts and returns counters and messages
-
-       Parameters
-       ----------
-       get_stats: function, no parameters, returns ``counter`` and ``messages``
-                  A function that does quality checks on the source code that is currently
-                  checked out. See ``trapdoor_cppcheck.py`` for an example.
-
-       Returns
-       -------
-       counter_feature: collections.Counter
-                        counts for different error types in the feature branch
-       messages_feature: Set([]) of strings
-                         all errors encountered in the feature branch
-       counter_master: collections.Counter
-                        counts for different error types in the master branch
-       messages_master: Set([]) of strings
-                         all errors encountered in the master branch
-    '''
-    # Get git info
-    name_feature = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).strip()
-    commit_id_feature = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip()
-    commit_id_master = subprocess.check_output(['git', 'rev-parse', 'master']).strip()
-    # Actual work
-    counter_feature, messages_feature = get_stats()
-    print 'CHECKING OUT master (%s)' % (commit_id_master)
-    subprocess.call(['git', 'checkout', 'master'])
-    try:
-        counter_master, messages_master = get_stats()
-    finally:
-        print 'CHECKING OUT %s (%s)' % (name_feature, commit_id_feature)
-        subprocess.call(['git', 'checkout', name_feature])
-    return counter_feature, messages_feature, counter_master, messages_master
-
-
-def print_details(counter_feature, messages_feature, counter_master, messages_master):
-    '''Print optional detailed report of the test results
-
-       Parameters
-       ----------
-       counter_feature: collections.Counter
-                        counts for different error types in the feature branch
-       messages_feature: Set([]) of strings
-                         all errors encountered in the feature branch
-       counter_master: collections.Counter
-                        counts for different error types in the master branch
-       messages_master: Set([]) of strings
-                         all errors encountered in the master branch
-    '''
-    resolved_messages = sorted(messages_master - messages_feature)
-    if len(resolved_messages) > 0:
-        print 'RESOLVED MESSAGES'
-        for msg in resolved_messages:
-            print msg
-
-    unchanged_messages = sorted(messages_master & messages_feature)
-    if len(unchanged_messages) > 0:
-        print 'UNCHANGED MESSAGES'
-        for msg in unchanged_messages:
-            print msg
-
-    new_messages = sorted(messages_feature - messages_master)
-    if len(new_messages) > 0:
-        print 'NEW MESSAGES'
-        for msg in new_messages:
-            print msg
-
-    resolved_counter = counter_master - counter_feature
-    if len(resolved_counter) > 0:
-        print 'SOME STATISTICS IMPROVED'
-        for key, counter in resolved_counter.iteritems():
-            print '%s  |  %+6i' % (key, -counter)
-
-
-def check_deterioration(counter_feature, counter_master):
-    '''Check if the counters got worse
-
-       Parameters
-       ----------
-       counter_feature: collections.Counter
-                        counts for different error types in the feature branch
-       counter_master: collections.Counter
-                        counts for different error types in the master branch
-    '''
-    new_counter = counter_feature - counter_master
-    if len(new_counter) > 0:
-        print 'SOME STATISTICS GOT WORSE'
-        for key, counter in new_counter.iteritems():
-            print '%s  |  %+6i' % (key, counter)
-        sys.exit(-1)
+           Parameters
+           ----------
+           counter_feature: collections.Counter
+                            counts for different error types in the feature branch
+           counter_master: collections.Counter
+                            counts for different error types in the master branch
+        '''
+        new_counter = counter_feature - counter_master
+        if len(new_counter) > 0:
+            print 'SOME STATISTICS GOT WORSE'
+            for key, counter in new_counter.iteritems():
+                print '%s  |  %+6i' % (key, counter)
+            sys.exit(-1)
