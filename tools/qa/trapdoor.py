@@ -101,7 +101,7 @@ class TrapdoorProgram(object):
             results_master = cPickle.load(f)
         if noisy:
             self.print_details(results_feature, results_master)
-        self.check_deterioration(results_feature[0], results_master[0])
+        self.check_deterioration(results_feature, results_master)
 
     def print_details(self, (counter_feature, messages_feature), (counter_master, messages_master)):
         '''Print optional detailed report of the test results
@@ -129,12 +129,6 @@ class TrapdoorProgram(object):
             for msg in unchanged_messages:
                 print msg
 
-        new_messages = sorted(messages_feature - messages_master)
-        if len(new_messages) > 0:
-            print 'NEW MESSAGES'
-            for msg in new_messages:
-                print msg
-
         resolved_counter = counter_master - counter_feature
         if len(resolved_counter) > 0:
             print 'SOME STATISTICS IMPROVED'
@@ -142,16 +136,26 @@ class TrapdoorProgram(object):
                 print '%s  |  %+6i' % (key, -counter)
 
 
-    def check_deterioration(self, counter_feature, counter_master):
+    def check_deterioration(self, (counter_feature, messages_feature), (counter_master, messages_master)):
         '''Check if the counters got worse
 
            Parameters
            ----------
            counter_feature: collections.Counter
                             counts for different error types in the feature branch
+           messages_feature: Set([]) of strings
+                             all errors encountered in the feature branch
            counter_master: collections.Counter
                             counts for different error types in the master branch
+           messages_master: Set([]) of strings
+                             all errors encountered in the master branch
         '''
+        new_messages = sorted(messages_feature - messages_master)
+        if len(new_messages) > 0:
+            print 'NEW MESSAGES'
+            for msg in new_messages:
+                print msg
+
         new_counter = counter_feature - counter_master
         if len(new_counter) > 0:
             print 'SOME STATISTICS GOT WORSE'
