@@ -32,3 +32,7 @@ depends/*.*
 
 # Ignore user configuration for libraries
 setup.cfg
+
+# Ignore testing output
+.coverage
+qaworkdir
