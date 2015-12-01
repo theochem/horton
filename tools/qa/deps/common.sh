@@ -1,8 +1,9 @@
 # This file gets sourced by all install and activate scripts
 
 # Some colors
-COLOR='\033[0;32m'
-RESET='\033[0m'
+GREEN='\e[0;32m'
+RED='\e[0;31m'
+RESET='\e[0m'
 
 # Make sure there is a ${QAWORKDIR}
 [[ -z ${QAWORKDIR} ]] && export QAWORKDIR=${PWD}/qaworkdir

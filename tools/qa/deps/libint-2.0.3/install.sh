@@ -5,7 +5,7 @@ set -e
 source tools/qa/deps/common.sh
 if [ ! -d "${QAWORKDIR}/depinstall/${NAMEVER}/lib" ]; then
 (
-    echo -e "${COLOR}Building and installing ${NAMEVER} from scratch${RESET}"
+    echo -e "${GREEN}Building and installing ${NAMEVER} from scratch${RESET}"
     cd ${QAWORKDIR}
     mkdir -p depbuild
     cd depbuild
@@ -18,5 +18,5 @@ if [ ! -d "${QAWORKDIR}/depinstall/${NAMEVER}/lib" ]; then
     tail install.log
 )
 else
-    echo -e "${COLOR}Using Cached ${NAMEVER}${RESET}"
+    echo -e "${GREEN}Using Cached ${NAMEVER}${RESET}"
 fi
