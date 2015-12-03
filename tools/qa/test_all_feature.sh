@@ -46,6 +46,9 @@ else
     # abort the tests.
     git merge-base --is-ancestor master ${CURRENT_BRANCH} || abort_error "Feature branch is not a direct descendant of master."
 
+    # Check for whitespace errors in every commit
+    ./tools/qa/check_whitespace.py
+
     # Run the first part of the comparative tests if the current branch is not the
     # master branch.
     ./tools/qa/trapdoor_coverage.py feature || report_error "Trapdoor coverage failed (feature branch)"
