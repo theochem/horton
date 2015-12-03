@@ -13,6 +13,8 @@ report_error() {
 
 ### a) Parts that are always done
 
+# Check the author names
+./tools/qa/check_names.py || report_error "Failed author/committer check (current branch)"
 # Activate dependencies
 for DEPDIR in $(cat tools/qa/deps/dirs.txt); do
     [[ -f "tools/qa/deps/${DEPDIR}/activate.sh" ]] && source tools/qa/deps/${DEPDIR}/activate.sh
