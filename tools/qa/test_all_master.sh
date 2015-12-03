@@ -31,14 +31,16 @@ if [ "${CURRENT_BRANCH}" != 'master' ]; then
     # Run trapdoor tests
     ./tools/qa/trapdoor_coverage.py master || report_error "Trapdoor coverage failed (master branch)"
     ./tools/qa/trapdoor_cppcheck.py master || report_error "Trapdoor cppcheck failed (master branch)"
+    ./tools/qa/trapdoor_cpplint.py master || report_error "Trapdoor cpplint failed (master branch)"
     ./tools/qa/trapdoor_pylint.py master || report_error "Trapdoor pylint failed (master branch)"
     ./tools/qa/trapdoor_pep8.py master || report_error "Trapdoor pep8 failed (master branch)"
 
     # Analyze trapdoor results
-    ./tools/qa/trapdoor_coverage.py report || report_error "Trapdoor coverage regressions (master branch)"
-    ./tools/qa/trapdoor_cppcheck.py report || report_error "Trapdoor cppcheck regressions (master branch)"
-    ./tools/qa/trapdoor_pylint.py report || report_error "Trapdoor pylint regressions (master branch)"
-    ./tools/qa/trapdoor_pep8.py report || report_error "Trapdoor pep8 regressions (master branch)"
+    ./tools/qa/trapdoor_coverage.py report || report_error "Trapdoor coverage regressions"
+    ./tools/qa/trapdoor_cppcheck.py report || report_error "Trapdoor cppcheck regressions"
+    ./tools/qa/trapdoor_cpplint.py report || report_error "Trapdoor cpplint regressions"
+    ./tools/qa/trapdoor_pylint.py report || report_error "Trapdoor pylint regressions"
+    ./tools/qa/trapdoor_pep8.py report || report_error "Trapdoor pep8 regressions"
 
     git checkout ${CURRENT_BRANCH}
 
