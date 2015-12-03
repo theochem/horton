@@ -8,6 +8,11 @@ report_error() {
     ((NUM_FAILED++))
 }
 
+abort_error() {
+    echo -e "${RED}${1}${RESET}"
+    echo -e "${RED}TESTS ABORTED (feature branch)${RESET}"
+    exit 1
+}
 
 ### Testing in the current branch
 
@@ -33,7 +38,14 @@ nosetests -v -a slow || report_error "Some slow tests failed (current branch)"
 
 ### b) Parts that depend on the current branch
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-if [ "${CURRENT_BRANCH}" != 'master' ]; then
+if [ "${CURRENT_BRANCH}" == 'master' ]; then
+    # Run the fast tests
+    nosetests -v -a '!slow' || report_error "Some fast tests failed (master branch)"
+else
+    # Check if the feature branch is a proper descendant of the master branch. If not,
+    # abort the tests.
+    git merge-base --is-ancestor master ${CURRENT_BRANCH} || abort_error "Feature branch is not a direct descendant of master."
+
     # Run the first part of the comparative tests if the current branch is not the
     # master branch.
     ./tools/qa/trapdoor_coverage.py feature || report_error "Trapdoor coverage failed (feature branch)"
@@ -41,9 +53,6 @@ if [ "${CURRENT_BRANCH}" != 'master' ]; then
     ./tools/qa/trapdoor_cpplint.py feature || report_error "Trapdoor cpplint failed (feature branch)"
     ./tools/qa/trapdoor_pylint.py feature || report_error "Trapdoor pylint failed (feature branch)"
     ./tools/qa/trapdoor_pep8.py feature || report_error "Trapdoor pep8 failed (feature branch)"
-else
-    # Run the fast tests
-    nosetests -v -a '!slow' || report_error "Some fast tests failed (master branch)"
 fi
 
 # Conclude

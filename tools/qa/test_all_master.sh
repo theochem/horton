@@ -8,11 +8,22 @@ report_error() {
     ((NUM_FAILED++))
 }
 
+abort_error() {
+    echo -e "${RED}${1}${RESET}"
+    echo -e "${RED}TESTS ABORTED (master branch)${RESET}"
+    exit 1
+}
+
 
 ### 2) Testing in the master branch (if that isn't current)
 
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [ "${CURRENT_BRANCH}" != 'master' ]; then
+    # Check if the feature branch is a proper descendant of the master branch. If not,
+    # abort the tests.
+    git merge-base --is-ancestor master ${CURRENT_BRANCH} || abort_error "Feature branch is not a direct descendant of master."
+
+
     git checkout master
 
     # Needed for coverage: rebuild
