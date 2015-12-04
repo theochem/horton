@@ -57,13 +57,12 @@ class PylintTrapdoorProgram(TrapdoorProgram):
 
         # call Pylint
         command = ['pylint', 'horton', '--rcfile=%s' % self.rcfile]
-        command_line = ' '.join(command)
-        print 'RUNNING', command_line
-        proc = subprocess.Popen(command_line, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE, shell=True, universal_newlines=True)
+        print 'RUNNING', ' '.join(command)
+        proc = subprocess.Popen(command, stdout=subprocess.PIPE)
 
         # parse the output of Pylint into standard return values
-        lines = proc.stdout.readlines()
+        output = proc.communicate()[0]
+        lines = output.split('\n')[:-1]
         score = lines[-2].split()[6]
         print 'SCORE', score
         counter = Counter()
