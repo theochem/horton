@@ -38,7 +38,7 @@ class PylintTrapdoorProgram(TrapdoorProgram):
         self.rcfile = os.path.join(self.qaworkdir, 'pylintrc')
 
     def initialize(self):
-        shutil.copy('tools/qa/.pylintrc', self.rcfile)
+        shutil.copy('tools/qa/pylintrc', self.rcfile)
 
     def get_stats(self):
         '''Run tests using Pylint

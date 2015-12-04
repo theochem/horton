@@ -37,7 +37,7 @@ class PEP8TrapdoorProgram(TrapdoorProgram):
         self.config_file = os.path.join(self.qaworkdir, 'pep8')
 
     def initialize(self):
-        shutil.copy('tools/qa/.pep8', self.config_file)
+        shutil.copy('tools/qa/pep8', self.config_file)
 
     def get_stats(self):
         '''Run tests using pep8
