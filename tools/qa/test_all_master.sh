@@ -23,11 +23,15 @@ if [ "${CURRENT_BRANCH}" != 'master' ]; then
     # abort the tests.
     git merge-base --is-ancestor master ${CURRENT_BRANCH} || abort_error "Feature branch is not a direct descendant of master."
 
+    # Copy the required scripts to the work directory, to make sure we're running with
+    # the scripts from the feature branch, not the master branch
+    cp -av ./tools/qa/trapdoor*.py ${QAWORKDIR}/
 
+    # Switch to master
     git checkout master
 
     # Needed for coverage: rebuild
-    # Activate dependencies
+    # Activate dependencies (from master branch, may be different)
     for DEPDIR in $(cat tools/qa/deps/dirs.txt); do
         [[ -f "tools/qa/deps/${DEPDIR}/activate.sh" ]] && source tools/qa/deps/${DEPDIR}/activate.sh
     done
@@ -39,19 +43,19 @@ if [ "${CURRENT_BRANCH}" != 'master' ]; then
     # In-place build of HORTON
     python setup.py build_ext -i -L ${LD_LIBRARY_PATH} || report_error "Failed to build HORTON (master branch)"
 
-    # Run trapdoor tests
-    ./tools/qa/trapdoor_coverage.py master || report_error "Trapdoor coverage failed (master branch)"
-    ./tools/qa/trapdoor_cppcheck.py master || report_error "Trapdoor cppcheck failed (master branch)"
-    ./tools/qa/trapdoor_cpplint.py master || report_error "Trapdoor cpplint failed (master branch)"
-    ./tools/qa/trapdoor_pylint.py master || report_error "Trapdoor pylint failed (master branch)"
-    ./tools/qa/trapdoor_pep8.py master || report_error "Trapdoor pep8 failed (master branch)"
+    # Run trapdoor tests (from QAWORKDIR)
+    ${QAWORKDIR}/trapdoor_coverage.py master || report_error "Trapdoor coverage failed (master branch)"
+    ${QAWORKDIR}/trapdoor_cppcheck.py master || report_error "Trapdoor cppcheck failed (master branch)"
+    ${QAWORKDIR}/trapdoor_cpplint.py master || report_error "Trapdoor cpplint failed (master branch)"
+    ${QAWORKDIR}/trapdoor_pylint.py master || report_error "Trapdoor pylint failed (master branch)"
+    ${QAWORKDIR}/trapdoor_pep8.py master || report_error "Trapdoor pep8 failed (master branch)"
 
-    # Analyze trapdoor results
-    ./tools/qa/trapdoor_coverage.py report || report_error "Trapdoor coverage regressions"
-    ./tools/qa/trapdoor_cppcheck.py report || report_error "Trapdoor cppcheck regressions"
-    ./tools/qa/trapdoor_cpplint.py report || report_error "Trapdoor cpplint regressions"
-    ./tools/qa/trapdoor_pylint.py report || report_error "Trapdoor pylint regressions"
-    ./tools/qa/trapdoor_pep8.py report || report_error "Trapdoor pep8 regressions"
+    # Analyze trapdoor results (from QAWORKDIR)
+    ${QAWORKDIR}/trapdoor_coverage.py report || report_error "Trapdoor coverage regressions"
+    ${QAWORKDIR}/trapdoor_cppcheck.py report || report_error "Trapdoor cppcheck regressions"
+    ${QAWORKDIR}/trapdoor_cpplint.py report || report_error "Trapdoor cpplint regressions"
+    ${QAWORKDIR}/trapdoor_pylint.py report || report_error "Trapdoor pylint regressions"
+    ${QAWORKDIR}/trapdoor_pep8.py report || report_error "Trapdoor pep8 regressions"
 
     git checkout ${CURRENT_BRANCH}
 
