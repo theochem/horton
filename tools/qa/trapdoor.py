@@ -85,6 +85,8 @@ class TrapdoorProgram(object):
            files are later used by the report method to analyze the results.
         '''
         counter, messages = self.get_stats()
+        print 'Number of messages', len(messages)
+        print 'Sum of counts', sum(counter.itervalues())
         fn_pp = 'trapdoor_results_%s_%s.pp' % (self.name, mode)
         with open(os.path.join(self.qaworkdir, fn_pp), 'w') as f:
             cPickle.dump((counter, messages), f)
