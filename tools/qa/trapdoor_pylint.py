@@ -74,11 +74,9 @@ class PylintTrapdoorProgram(TrapdoorProgram):
             if line.startswith('Report'):
                 break
             # extract error information
-            file_name, line = line.strip().split(' ', 1)
-            error_id = line[1:].split(']')[0].split(',')[0]
-            message = line.split(']')[1].strip()
-            counter[error_id] += 1
-            messages.add('%-35s  %-40s  %-s' % (error_id, file_name[:-1], message))
+            msg_id, location, msg = line.split(' ', 2)
+            counter[msg_id] += 1
+            messages.add('%-5s  %-40s  %s' % (msg_id, location, msg))
         return counter, messages
 
 
