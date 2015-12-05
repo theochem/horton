@@ -47,6 +47,7 @@ if [ "${CURRENT_BRANCH}" != 'master' ]; then
     ${QAWORKDIR}/trapdoor_coverage.py master || report_error "Trapdoor coverage failed (master branch)"
     ${QAWORKDIR}/trapdoor_cppcheck.py master || report_error "Trapdoor cppcheck failed (master branch)"
     ${QAWORKDIR}/trapdoor_cpplint.py master || report_error "Trapdoor cpplint failed (master branch)"
+    ${QAWORKDIR}/trapdoor_doxygen.py master || report_error "Trapdoor doxygen failed (master branch)"
     ${QAWORKDIR}/trapdoor_pylint.py master || report_error "Trapdoor pylint failed (master branch)"
     ${QAWORKDIR}/trapdoor_pep8.py master || report_error "Trapdoor pep8 failed (master branch)"
 
@@ -54,6 +55,7 @@ if [ "${CURRENT_BRANCH}" != 'master' ]; then
     ${QAWORKDIR}/trapdoor_coverage.py report || report_error "Trapdoor coverage regressions"
     ${QAWORKDIR}/trapdoor_cppcheck.py report || report_error "Trapdoor cppcheck regressions"
     ${QAWORKDIR}/trapdoor_cpplint.py report || report_error "Trapdoor cpplint regressions"
+    ${QAWORKDIR}/trapdoor_doxygen.py report || report_error "Trapdoor doxygen regressions"
     ${QAWORKDIR}/trapdoor_pylint.py report || report_error "Trapdoor pylint regressions"
     ${QAWORKDIR}/trapdoor_pep8.py report || report_error "Trapdoor pep8 regressions"
 

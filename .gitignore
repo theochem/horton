@@ -10,6 +10,7 @@ doc/*.rst.inc
 doc/tech_ref_literature.rst
 doc/tech_ref_functionals.rst
 doc/doxyxml
+doc/doxygen_warnings.log
 
 # Ignore (in-place) build results
 cext.cpp

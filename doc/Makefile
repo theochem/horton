@@ -52,6 +52,7 @@ clean:
 	rm -f tech_ref_literature.rst
 	rm -f tech_ref_functionals.rst
 	rm -rf doxyxml
+	rm -f doxygen_warnings.log
 
 html: autogendoc
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
