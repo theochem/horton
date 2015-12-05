@@ -50,6 +50,7 @@ if [ "${CURRENT_BRANCH}" != 'master' ]; then
     ${QAWORKDIR}/trapdoor_doxygen.py master || report_error "Trapdoor doxygen failed (master branch)"
     ${QAWORKDIR}/trapdoor_pylint.py master || report_error "Trapdoor pylint failed (master branch)"
     ${QAWORKDIR}/trapdoor_pep8.py master || report_error "Trapdoor pep8 failed (master branch)"
+    ${QAWORKDIR}/trapdoor_pep257.py master || report_error "Trapdoor pep257 failed (master branch)"
 
     # Analyze trapdoor results (from QAWORKDIR)
     ${QAWORKDIR}/trapdoor_coverage.py report || report_error "Trapdoor coverage regressions"
@@ -58,6 +59,7 @@ if [ "${CURRENT_BRANCH}" != 'master' ]; then
     ${QAWORKDIR}/trapdoor_doxygen.py report || report_error "Trapdoor doxygen regressions"
     ${QAWORKDIR}/trapdoor_pylint.py report || report_error "Trapdoor pylint regressions"
     ${QAWORKDIR}/trapdoor_pep8.py report || report_error "Trapdoor pep8 regressions"
+    ${QAWORKDIR}/trapdoor_pep257.py report || report_error "Trapdoor pep257 regressions"
 
     git checkout ${CURRENT_BRANCH}
 

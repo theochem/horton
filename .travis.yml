@@ -29,7 +29,7 @@ cache:
 
 install:
 # Install some common python dependencies
- - pip install --upgrade sphinx breathe pep8 pylint coverage
+ - pip install --upgrade sphinx breathe pep8 pylint coverage pep257
 
 # Get the master branch for a comparative analysis, if not already present.
  - ((git rev-parse --verify master &> /dev/null) || (git config remote.origin.fetch refs/heads/*:refs/remotes/origin/*; git fetch origin master --depth=50; git branch master origin/master))

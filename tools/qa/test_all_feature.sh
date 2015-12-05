@@ -57,6 +57,7 @@ else
     ./tools/qa/trapdoor_doxygen.py feature || report_error "Trapdoor doxygen failed (feature branch)"
     ./tools/qa/trapdoor_pylint.py feature || report_error "Trapdoor pylint failed (feature branch)"
     ./tools/qa/trapdoor_pep8.py feature || report_error "Trapdoor pep8 failed (feature branch)"
+    ./tools/qa/trapdoor_pep257.py feature || report_error "Trapdoor pep257 failed (feature branch)"
 fi
 
 # Conclude
