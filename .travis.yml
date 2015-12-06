@@ -29,7 +29,12 @@ cache:
 
 install:
 # Install some common python dependencies
- - pip install --upgrade sphinx breathe pep8 pylint coverage pep257
+# Note that due to a bug in Astroid-1.4(.1), we can't use pylint 1.5.1, which is the
+# latest version at the time of writing. This is the bug we run into:
+#   https://bitbucket.org/logilab/astroid/issues/277/mulass_assigned_stmts-crash
+# We'll be using pyling 1.4.5 until a newer version comes out that also makes use
+# of a new Astroid release.
+ - pip install --upgrade sphinx breathe pep8 pylint==1.4.5 coverage pep257
 
 # Get the master branch for a comparative analysis, if not already present.
  - ((git rev-parse --verify master &> /dev/null) || (git config remote.origin.fetch refs/heads/*:refs/remotes/origin/*; git fetch origin master --depth=50; git branch master origin/master))
