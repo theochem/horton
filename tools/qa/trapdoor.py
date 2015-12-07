@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 '''Trapdoor driver routines
 
    The ``main`` function in this script runs tests on the feature and on the master
@@ -76,7 +76,8 @@ class TrapdoorProgram(object):
         parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]))
         parser.add_argument('mode', choices=['feature', 'master', 'report'])
         parser.add_argument('-n', '--noisy', default=False, action='store_true',
-            help='Also print output for problems that did not deteriorate.')
+                            help='Also print output for problems that did not '
+                                 'deteriorate.')
         return parser.parse_args()
 
     def initialize(self):
@@ -122,7 +123,8 @@ class TrapdoorProgram(object):
             self.print_details(results_feature, results_master)
         self.check_regression(results_feature, results_master)
 
-    def print_details(self, (counter_feature, messages_feature), (counter_master, messages_master)):
+    def print_details(self, (counter_feature, messages_feature),
+                      (counter_master, messages_master)):
         '''Print optional detailed report of the test results
 
            Parameters
@@ -154,8 +156,8 @@ class TrapdoorProgram(object):
             for key, counter in resolved_counter.iteritems():
                 print '%s  |  %+6i' % (key, -counter)
 
-
-    def check_regression(self, (counter_feature, messages_feature), (counter_master, messages_master)):
+    def check_regression(self, (counter_feature, messages_feature),
+                         (counter_master, messages_master)):
         '''Check if the counters got worse
 
            Parameters

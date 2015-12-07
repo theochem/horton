@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 '''Trapdoor test for PEP257
 
 See https://www.python.org/dev/peps/pep-0257 for the complete PEP.

@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 '''Trapdoor test using pep8
 
    This test calls the pep8 program, see http://pep8.readthedocs.org/.
@@ -87,9 +87,9 @@ class CompleteReport(pep8.StandardReport):
         self._deferred_print.sort()
         for line_number, offset, code, text, doc in self._deferred_print:
             # record the error message specifications.
-            message = '%15s  %50s  %s' % (
+            message = '%15s  %-50s  %s' % (
                 code,
-                ('%s:%s:%s' % (self.filename, self.line_offset + line_number, offset + 1)).ljust(50),
+                ('%s:%s:%s' % (self.filename, self.line_offset + line_number, offset + 1)),
                 text)
             if self._show_source:
                 if line_number > len(self.lines):

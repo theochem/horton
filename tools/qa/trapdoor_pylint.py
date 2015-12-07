@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 '''Trapdoor test using pylint
 
    This test calls the pep8 program, see http://docs.pylint.org/index.html.

@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 '''Trapdoor test using nosetests + coverage
 
    This test calls the nosetests and coverage, see
@@ -57,7 +57,7 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
         # Run fast unit tests with nosetests, with coverage
         command = ['nosetests', '-v', '-a', '!slow', '--with-coverage', '--cover-erase',
                    '--cover-package=%s' % ','.join(config['py_packages'])] + \
-                  config['py_directories']
+                   config['py_directories']
         print 'RUNNING', ' '.join(command)
         proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         output = proc.communicate()[0]
@@ -82,7 +82,8 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
 
         # - coverage
         for line in lines[iline:]:
-            if line == 'Name                                                  Stmts   Miss  Cover   Missing':
+            if line == ('Name                                                  '
+                        'Stmts   Miss  Cover   Missing'):
                 break
             iline += 1
         iline += 2
