@@ -31,8 +31,27 @@ import shutil
 import stat
 import subprocess
 from collections import Counter
-from glob import glob
+from fnmatch import fnmatch
 from trapdoor import TrapdoorProgram
+
+
+def get_cpp_files(config):
+    """Return a list of cpp files according to configuration settings.
+
+    Parameters
+    ----------
+    config : dict
+             A dictionary of configuration settings, loaded with json from trapdoor.cfg.
+    """
+    cpp_files = []
+    for cpp_directory in config["cpp_directories"]:
+        for dirpath, dirnames, filenames in os.walk(cpp_directory):
+            for filename in filenames:
+                if (fnmatch(filename, "*.cpp") or fnmatch(filename, "*.h")) and \
+                   all(not fnmatch(filename, exclude_filter) for exclude_filter in
+                       config["cpp_exclude"]):
+                    cpp_files.append(os.path.join(dirpath, filename))
+    return cpp_files
 
 
 class CPPLintTrapdoorProgram(TrapdoorProgram):
@@ -41,10 +60,11 @@ class CPPLintTrapdoorProgram(TrapdoorProgram):
         self.cpplint_file = os.path.join(self.qaworkdir, 'cpplint.py')
 
     def initialize(self):
+        TrapdoorProgram.initialize(self)
         shutil.copy('tools/qa/cpplint.py', self.cpplint_file)
         os.chmod(self.cpplint_file, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
 
-    def get_stats(self):
+    def get_stats(self, config):
         '''Run tests using cpplint
 
            Returns
@@ -57,13 +77,8 @@ class CPPLintTrapdoorProgram(TrapdoorProgram):
         # Get version
         print 'USING cpplint.py update #409'
 
-        # Collect all cpp files, except for *_inc.cpp and cext.cpp
-        cpp_files = [cpp_file for cpp_file in
-            glob('horton/*.cpp') + glob('horton/*.h') +
-            glob('horton/*/*.cpp') + glob('horton/*/*.h')
-            if not (cpp_file.endswith('_inc.cpp') or cpp_file.endswith('/cext.cpp'))]
-
         # Call cpplint
+        cpp_files = get_cpp_files(config)
         command = [self.cpplint_file] + cpp_files
         print 'RUNNING', ' '.join(command)
         proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)

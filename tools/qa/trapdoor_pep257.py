@@ -38,7 +38,7 @@ class PEP257TrapdoorProgram(TrapdoorProgram):
     def __init__(self):
         TrapdoorProgram.__init__(self, 'pep257')
 
-    def get_stats(self):
+    def get_stats(self, config):
         '''Run tests using pep257
 
            Returns
@@ -53,7 +53,7 @@ class PEP257TrapdoorProgram(TrapdoorProgram):
         print 'USING pep257', subprocess.check_output(command).strip()
 
         # Call doxygen in the doc subdirectory
-        command = ['pep257', 'horton']
+        command = ['pep257'] + config['py_directories']
         print 'RUNNING', ' '.join(command)
         proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         output = proc.communicate()[0]

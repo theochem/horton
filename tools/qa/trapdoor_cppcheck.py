@@ -29,13 +29,14 @@ import subprocess
 from xml.etree import ElementTree
 from collections import Counter
 from trapdoor import TrapdoorProgram
+from trapdoor_cpplint import get_cpp_files
 
 
 class CPPCheckTrapdoorProgram(TrapdoorProgram):
     def __init__(self):
         TrapdoorProgram.__init__(self, 'cppcheck')
 
-    def get_stats(self):
+    def get_stats(self, config):
         '''Run tests using Cppcheck
 
            Returns
@@ -50,8 +51,9 @@ class CPPCheckTrapdoorProgram(TrapdoorProgram):
         print 'USING', subprocess.check_output(command, stderr=subprocess.STDOUT).strip()
 
         # Call Cppcheck
-        command = ['cppcheck', 'horton', '-q', '--enable=all', '--std=c++11', '--xml',
-                   '--suppress=missingIncludeSystem']
+        cpp_files = get_cpp_files(config)
+        command = ['cppcheck'] + cpp_files + ['-q', '--enable=all',
+                   '--std=c++11', '--xml', '--suppress=missingIncludeSystem']
         print 'RUNNING', ' '.join(command)
         xml_str = subprocess.check_output(command, stderr=subprocess.STDOUT)
         etree = ElementTree.fromstring(xml_str)

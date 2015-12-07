@@ -36,9 +36,10 @@ class DoxygenTrapdoorProgram(TrapdoorProgram):
         self.doxyconf_file = os.path.abspath(os.path.join(self.qaworkdir, 'doxygen.conf'))
 
     def initialize(self):
+        TrapdoorProgram.initialize(self)
         shutil.copy('doc/doxygen.conf', self.doxyconf_file)
 
-    def get_stats(self):
+    def get_stats(self, config):
         '''Run tests using doxygen
 
            Returns
@@ -52,21 +53,17 @@ class DoxygenTrapdoorProgram(TrapdoorProgram):
         command = ['doxygen', '--version']
         print 'USING doxygen', subprocess.check_output(command).strip()
 
-        # Clean up results from previous doxygen runs
-        command = ['make', 'clean']
-        print 'RUNNING (in doc)', ' '.join(command)
-        output = subprocess.check_output(command, cwd='doc', stderr=subprocess.STDOUT)
-
         # Call doxygen in the doc subdirectory
         command = ['doxygen', self.doxyconf_file]
-        print 'RUNNING (in doc)', ' '.join(command)
-        subprocess.check_call(command, cwd='doc')
+        print 'RUNNING (in %s)' % config['doxygen_root'], ' '.join(command)
+        subprocess.check_call(command, cwd=config['doxygen_root'])
 
-        # Parse the file doc/doxygen_warnings.log
+        # Parse the file doxygen_warnings log file
         counter = Counter()
         messages = set([])
         prefix = os.getcwd() + '/'
-        with open('doc/doxygen_warnings.log', 'r') as f:
+        fn_warnings = os.path.join(config['doxygen_root'], config['doxygen_warnings'])
+        with open(fn_warnings, 'r') as f:
             for line in f:
                 words = line.split()
                 filename, lineno = words[0].split(':')[:2]

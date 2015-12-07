@@ -27,7 +27,9 @@
 
 import argparse
 import cPickle
+import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -51,6 +53,7 @@ class TrapdoorProgram(object):
         self.qaworkdir = os.getenv('QAWORKDIR', 'qaworkdir')
         if not os.path.isdir(self.qaworkdir):
             os.makedirs(self.qaworkdir)
+        self.trapdoor_config_file = os.path.join(self.qaworkdir, 'trapdoor.cfg')
 
     def main(self):
         args = self.parse_args()
@@ -77,7 +80,7 @@ class TrapdoorProgram(object):
         return parser.parse_args()
 
     def initialize(self):
-        pass
+        shutil.copy('tools/qa/trapdoor.cfg', self.trapdoor_config_file)
 
     def run_tests(self, mode):
         '''Runs the tests on a single checkout
@@ -92,13 +95,18 @@ class TrapdoorProgram(object):
            files are later used by the report method to analyze the results.
         '''
         start_time = time.time()
-        counter, messages = self.get_stats()
+        config = self.load_config()
+        counter, messages = self.get_stats(config)
         print 'NUMBER OF MESSAGES', len(messages)
         print 'SUM OF COUNTERS', sum(counter.itervalues())
         fn_pp = 'trapdoor_results_%s_%s.pp' % (self.name, mode)
         with open(os.path.join(self.qaworkdir, fn_pp), 'w') as f:
             cPickle.dump((counter, messages), f)
         print 'WALL TIME %.1f' % (time.time() - start_time)
+
+    def load_config(self):
+        with open(self.trapdoor_config_file, 'r') as f:
+            return json.load(f)
 
     def get_stats(self):
         raise NotImplementedError

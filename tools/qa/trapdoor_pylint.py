@@ -38,9 +38,10 @@ class PylintTrapdoorProgram(TrapdoorProgram):
         self.rcfile = os.path.join(self.qaworkdir, 'pylintrc')
 
     def initialize(self):
+        TrapdoorProgram.initialize(self)
         shutil.copy('tools/qa/pylintrc', self.rcfile)
 
-    def get_stats(self):
+    def get_stats(self, config):
         '''Run tests using Pylint
 
            Returns
@@ -56,7 +57,7 @@ class PylintTrapdoorProgram(TrapdoorProgram):
         print 'USING', ''.join(version_output.split('\n')[:2])
 
         # call Pylint
-        command = ['pylint', 'horton', '--rcfile=%s' % self.rcfile]
+        command = ['pylint'] + config['py_directories'] + ['--rcfile=%s' % self.rcfile]
         print 'RUNNING', ' '.join(command)
         proc = subprocess.Popen(command, stdout=subprocess.PIPE)
 

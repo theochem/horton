@@ -37,9 +37,10 @@ class PEP8TrapdoorProgram(TrapdoorProgram):
         self.config_file = os.path.join(self.qaworkdir, 'pep8')
 
     def initialize(self):
+        TrapdoorProgram.initialize(self)
         shutil.copy('tools/qa/pep8', self.config_file)
 
-    def get_stats(self):
+    def get_stats(self, config):
         '''Run tests using pep8
 
            Returns
@@ -57,7 +58,9 @@ class PEP8TrapdoorProgram(TrapdoorProgram):
         print 'EXCLUDED FILES', pep8check.options.exclude
         print 'IGNORED MESSAGES', pep8check.options.ignore
         print 'MAX LINE LENGTH', pep8check.options.max_line_length
-        pep8check.input_dir('horton')
+        for py_directory in config['py_directories']:
+            print 'RUNNING pep8', py_directory
+            pep8check.input_dir(py_directory)
 
         # Parse the output of Pep8 into standard return values
         counters = Counter(pep8check.options.report.counters)

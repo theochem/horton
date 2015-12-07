@@ -37,7 +37,7 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
     def __init__(self):
         TrapdoorProgram.__init__(self, 'coverage')
 
-    def get_stats(self):
+    def get_stats(self, config):
         '''Run tests using Cppcheck
 
            Returns
@@ -56,7 +56,8 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
 
         # Run fast unit tests with nosetests, with coverage
         command = ['nosetests', '-v', '-a', '!slow', '--with-coverage', '--cover-erase',
-                   '--cover-package=horton', 'horton']
+                   '--cover-package=%s' % ','.join(config['py_packages'])] + \
+                  config['py_directories']
         print 'RUNNING', ' '.join(command)
         proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         output = proc.communicate()[0]
