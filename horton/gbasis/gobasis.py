@@ -25,7 +25,7 @@ import numpy as np
 
 from horton.context import context
 from horton.gbasis.cext import GOBasis
-from horton.gbasis.iobas import load_basis_atom_map_nwchem
+from horton.gbasis.iobas import load_basis_atom_map_nwchem, load_basis_atom_map_gbs
 from horton.periodic import periodic
 from horton.utils import typecheck_geo
 
@@ -229,6 +229,8 @@ class GOBasisFamily(object):
         """Load the basis set from file."""
         if self.filename.endswith('.nwchem'):
             self.basis_atom_map = load_basis_atom_map_nwchem(self.filename)
+        elif self.filename.endswith('.gbs'):
+            self.basis_atom_map = load_basis_atom_map_gbs(self.filename)
         else:
             raise IOError('File format not supported: %s' % self.filename)
         self._to_arrays()
