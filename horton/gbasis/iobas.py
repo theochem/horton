@@ -86,3 +86,44 @@ def load_basis_atom_map_nwchem(filename):
                 bc.con_coeffs.append(coeffs[i::len(bcs)])
     f.close()
     return basis_atom_map
+
+def load_basis_atom_map_gbs(filename):
+    """ Loads the basis set family from a GBS file
+
+    """
+    from horton.gbasis.gobasis import GOBasisAtom, GOBasisContraction
+
+    basis_atom_map = {}
+    bc = None # The current contraction being loaded
+    cur_atom = None
+    cur_shell_types = None
+    with open(filename, 'r') as f:
+        for line in f:
+            # strip of comments and white space
+            line = line[:line.find('!')].strip()
+            if len(line) == 0:
+                continue
+            if line == '****':
+                continue
+            words = line.split()
+            # if first word is the atomic symbol
+            if words[0].isalpha() and len(words) == 2:
+                cur_atom = words[0]
+            # if first word is the angular momentum
+            elif words[0].isalpha() and len(words) == 3:
+                # A new contraction begins, maybe even a new atom.
+                n = periodic[cur_atom].number
+                cur_shell_types = str_to_shell_types(words[0])
+                empty_contr = [GOBasisContraction(shell_type, [], []) for shell_type in cur_shell_types]
+                try:
+                    basis_atom_map[n].bcs.extend(empty_contr)
+                except KeyError:
+                    basis_atom_map[n] = GOBasisAtom(empty_contr)
+            else:
+                # An extra primitive for the current contraction(s).
+                exponent = fortran_float(words[0])
+                coeffs = [fortran_float(w) for w in words[1:]]
+                for i, bc in enumerate(empty_contr):
+                    bc.alphas.append(exponent)
+                    bc.con_coeffs.append(coeffs[i::len(cur_shell_types)])
+    return basis_atom_map
