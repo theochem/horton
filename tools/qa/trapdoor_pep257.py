@@ -71,14 +71,14 @@ class PEP257TrapdoorProgram(TrapdoorProgram):
                 code, description = lines.pop(0).split(':', 1)
                 code = code.strip()
                 description = description.strip()
-                
+
                 key = '%s %s' % (code, filename)
                 message = '%s  %-40s  %s' % (
                     code,
                     '%s:%s' % (filename, lineno),
                     description
                 )
-                
+
                 counter[key] += 1
                 messages.add(message)
         return counter, messages

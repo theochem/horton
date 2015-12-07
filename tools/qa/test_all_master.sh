@@ -19,9 +19,8 @@ abort_error() {
 
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [ "${CURRENT_BRANCH}" != 'master' ]; then
-    # Check if the feature branch is a proper descendant of the master branch. If not,
-    # abort the tests.
-    git merge-base --is-ancestor master ${CURRENT_BRANCH} || abort_error "Feature branch is not a direct descendant of master."
+    echo "Checking if the master is a direct ancestor of the feature branch"
+    git merge-base --is-ancestor master ${CURRENT_BRANCH} || abort_error "The master branch is not a direct ancestor of the feature branch."
 
     # Copy the required scripts to the work directory, to make sure we're running with
     # the scripts from the feature branch, not the master branch
@@ -37,8 +36,9 @@ if [ "${CURRENT_BRANCH}" != 'master' ]; then
     done
     # Clean stuff
     ./cleanfiles.sh &> /dev/null
-    rm -rf data/refatoms/*.h5
     # Construct the reference atoms
+    echo 'Rebuilding database of reference atoms'
+    rm -rf data/refatoms/*.h5
     (cd data/refatoms; make all) || report_error "Failed to make reference atoms (master branch)"
     # In-place build of HORTON
     python setup.py build_ext -i -L ${LD_LIBRARY_PATH} || report_error "Failed to build HORTON (master branch)"

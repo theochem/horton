@@ -25,9 +25,11 @@ for DEPDIR in $(cat tools/qa/deps/dirs.txt); do
     [[ -f "tools/qa/deps/${DEPDIR}/activate.sh" ]] && source tools/qa/deps/${DEPDIR}/activate.sh
 done
 # Clean stuff
+echo 'Cleaning source tree'
 ./cleanfiles.sh &> /dev/null
-rm -rf data/refatoms/*.h5
 # Construct the reference atoms
+echo 'Rebuilding database of reference atoms'
+rm -rf data/refatoms/*.h5
 (cd data/refatoms; make all) || report_error "Failed to make reference atoms (current branch)"
 # In-place build of HORTON
 python setup.py build_ext -i -L ${LD_LIBRARY_PATH} || report_error "Failed to build HORTON (current branch)"
@@ -42,15 +44,13 @@ if [ "${CURRENT_BRANCH}" == 'master' ]; then
     # Run the fast tests
     nosetests -v -a '!slow' || report_error "Some fast tests failed (master branch)"
 else
-    # Check if the feature branch is a proper descendant of the master branch. If not,
-    # abort the tests.
-    git merge-base --is-ancestor master ${CURRENT_BRANCH} || abort_error "Feature branch is not a direct descendant of master."
+    echo "Checking if the master is a direct ancestor of the feature branch"
+    git merge-base --is-ancestor master ${CURRENT_BRANCH} || abort_error "The master branch is not a direct ancestor of the feature branch."
 
-    # Check for whitespace errors in every commit
+    # Check for whitespace errors in every commit.
     ./tools/qa/check_whitespace.py
 
-    # Run the first part of the comparative tests if the current branch is not the
-    # master branch.
+    # Run the first part of the comparative tests.
     ./tools/qa/trapdoor_coverage.py feature || report_error "Trapdoor coverage failed (feature branch)"
     ./tools/qa/trapdoor_cppcheck.py feature || report_error "Trapdoor cppcheck failed (feature branch)"
     ./tools/qa/trapdoor_cpplint.py feature || report_error "Trapdoor cpplint failed (feature branch)"

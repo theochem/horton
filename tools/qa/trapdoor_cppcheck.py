@@ -47,7 +47,7 @@ class CPPCheckTrapdoorProgram(TrapdoorProgram):
         '''
         # Get version
         command = ['cppcheck', '--version']
-        print 'Using', subprocess.check_output(command, stderr=subprocess.STDOUT).strip()
+        print 'USING', subprocess.check_output(command, stderr=subprocess.STDOUT).strip()
 
         # Call Cppcheck
         command = ['cppcheck', 'horton', '-q', '--enable=all', '--std=c++11', '--xml',

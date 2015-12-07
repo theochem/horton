@@ -20,13 +20,14 @@ def check_names(key, kind):
             # chop of the new-line
             names.discard(line[:-1])
     if len(names) != 0:
-        print 'Unknown %s:' % kind
+        print 'UNKNOWN %s:' % kind
         for name in sorted(names):
             print '   ', name
     return len(names) == 0
 
 
 def main():
+    print 'Checking author and comitter names.'
     pass_a = check_names('a', 'authors')
     pass_c = check_names('c', 'committers')
     if not (pass_a and pass_c):

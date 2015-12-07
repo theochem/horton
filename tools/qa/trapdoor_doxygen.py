@@ -54,12 +54,12 @@ class DoxygenTrapdoorProgram(TrapdoorProgram):
 
         # Clean up results from previous doxygen runs
         command = ['make', 'clean']
-        print 'RUNNING', ' '.join(command)
-        subprocess.check_call(command, cwd='doc')
+        print 'RUNNING (in doc)', ' '.join(command)
+        output = subprocess.check_output(command, cwd='doc', stderr=subprocess.STDOUT)
 
         # Call doxygen in the doc subdirectory
         command = ['doxygen', self.doxyconf_file]
-        print 'RUNNING', ' '.join(command)
+        print 'RUNNING (in doc)', ' '.join(command)
         subprocess.check_call(command, cwd='doc')
 
         # Parse the file doc/doxygen_warnings.log

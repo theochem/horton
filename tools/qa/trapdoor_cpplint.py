@@ -55,7 +55,7 @@ class CPPLintTrapdoorProgram(TrapdoorProgram):
                      all errors encountered in the current checkout
         '''
         # Get version
-        print 'Using update #409 of cpplint'
+        print 'USING cpplint.py update #409'
 
         # Collect all cpp files, except for *_inc.cpp and cext.cpp
         cpp_files = [cpp_file for cpp_file in

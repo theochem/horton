@@ -53,7 +53,7 @@ class PylintTrapdoorProgram(TrapdoorProgram):
         # get Pylint version
         command = ['pylint', '--version', '--rcfile=%s' % self.rcfile]
         version_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
-        print 'USING', version_output.split('\n')[0]
+        print 'USING', ''.join(version_output.split('\n')[:2])
 
         # call Pylint
         command = ['pylint', 'horton', '--rcfile=%s' % self.rcfile]

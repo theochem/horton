@@ -30,6 +30,7 @@ import cPickle
 import os
 import subprocess
 import sys
+import time
 
 
 __all__ = ['TrapdoorProgram']
@@ -53,6 +54,11 @@ class TrapdoorProgram(object):
 
     def main(self):
         args = self.parse_args()
+        print r'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+      ~~~~~~~~~~~~~~~~~'
+        print r'  TRAPDOOR %15s:%-7s                      \          _\( )/_' % (
+            self.name, args.mode)
+        print r'                                                         \          /(o)\ '
+        print r'                                                          +~~~~~~~~~~~~~~~~~~~~'
         if args.mode == 'feature':
             self.initialize()
             self.run_tests(args.mode)
@@ -60,6 +66,7 @@ class TrapdoorProgram(object):
             self.run_tests(args.mode)
         elif args.mode == 'report':
             self.report(args.noisy)
+        print
 
     def parse_args(self):
         '''Parse command-line arguments'''
@@ -84,12 +91,14 @@ class TrapdoorProgram(object):
            The results are written to disk in a file ``trapdoor_results_*.pp``. These
            files are later used by the report method to analyze the results.
         '''
+        start_time = time.time()
         counter, messages = self.get_stats()
-        print 'Number of messages', len(messages)
-        print 'Sum of counts', sum(counter.itervalues())
+        print 'NUMBER OF MESSAGES', len(messages)
+        print 'SUM OF COUNTERS', sum(counter.itervalues())
         fn_pp = 'trapdoor_results_%s_%s.pp' % (self.name, mode)
         with open(os.path.join(self.qaworkdir, fn_pp), 'w') as f:
             cPickle.dump((counter, messages), f)
+        print 'WALL TIME %.1f' % (time.time() - start_time)
 
     def get_stats(self):
         raise NotImplementedError
@@ -103,7 +112,7 @@ class TrapdoorProgram(object):
             results_master = cPickle.load(f)
         if noisy:
             self.print_details(results_feature, results_master)
-        self.check_deterioration(results_feature, results_master)
+        self.check_regression(results_feature, results_master)
 
     def print_details(self, (counter_feature, messages_feature), (counter_master, messages_master)):
         '''Print optional detailed report of the test results
@@ -133,12 +142,12 @@ class TrapdoorProgram(object):
 
         resolved_counter = counter_master - counter_feature
         if len(resolved_counter) > 0:
-            print 'SOME STATISTICS IMPROVED'
+            print 'SOME COUNTERS DECREASED'
             for key, counter in resolved_counter.iteritems():
                 print '%s  |  %+6i' % (key, -counter)
 
 
-    def check_deterioration(self, (counter_feature, messages_feature), (counter_master, messages_master)):
+    def check_regression(self, (counter_feature, messages_feature), (counter_master, messages_master)):
         '''Check if the counters got worse
 
            Parameters
@@ -160,7 +169,9 @@ class TrapdoorProgram(object):
 
         new_counter = counter_feature - counter_master
         if len(new_counter) > 0:
-            print 'SOME STATISTICS GOT WORSE'
+            print 'SOME COUNTERS INCREASED'
             for key, counter in new_counter.iteritems():
                 print '%s  |  %+6i' % (key, counter)
             sys.exit(-1)
+        else:
+            print 'GOOD ENOUGH'

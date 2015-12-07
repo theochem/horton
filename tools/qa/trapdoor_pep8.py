@@ -54,9 +54,9 @@ class PEP8TrapdoorProgram(TrapdoorProgram):
 
         # Call Pep8
         pep8check = pep8.StyleGuide(reporter=CompleteReport, config_file=self.config_file)
-        print 'Excluded :', pep8check.options.exclude
-        print 'Ignored  :', pep8check.options.ignore
-        print 'MaxLength:', pep8check.options.max_line_length
+        print 'EXCLUDED FILES', pep8check.options.exclude
+        print 'IGNORED MESSAGES', pep8check.options.ignore
+        print 'MAX LINE LENGTH', pep8check.options.max_line_length
         pep8check.input_dir('horton')
 
         # Parse the output of Pep8 into standard return values
