@@ -137,3 +137,19 @@ def test_go_basis_desc_water_sto3g():
             0.15432897, 0.53532814, 0.44463454,
         ])).all() < 1e-10
         assert obasis.nbasis == 7
+
+def test_write_gbs():
+    sto3g = GOBasisFamily('original STO-3G', filename=context.get_fn('basis/sto-3g.gbs'))
+    sto3g.load()
+    new_gobasis = write_gbs('./temp_test_write_gbs.gbs', sto3g)
+    new_sto3g = GOBasisFamily('new STO-3G', filename='./temp_test_write_gbs.gbs')
+    new_sto3g.load()
+    for atom, bca in new_sto3g.basis_atom_map.iteritems():
+        old_bca = sto3g.basis_atom_map[atom]
+        for i, contraction in enumerate(bca.bcs):
+            old_contraction = old_bca.bcs[i]
+            assert contraction.shell_type == old_contraction.shell_type
+            assert np.allclose(contraction.alphas, old_contraction.alphas)
+            assert np.allclose(contraction.con_coeffs, old_contraction.con_coeffs)
+    import os
+    os.remove('./temp_test_write_gbs.gbs')

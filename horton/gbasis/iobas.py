@@ -20,13 +20,15 @@
 #--
 '''Input/Output routines for gaussian basis sets'''
 
+import numpy as np
 
 from horton.periodic import periodic
 
 
 __all__ = [
     'str_to_shell_types', 'shell_type_to_str', 'fortran_float',
-    'load_basis_atom_map_nwchem',
+    'load_basis_atom_map_nwchem', 'load_basis_atom_map_gbs',
+    'write_gbs'
 ]
 
 
@@ -127,3 +129,43 @@ def load_basis_atom_map_gbs(filename):
                     bc.alphas.append(exponent)
                     bc.con_coeffs.append(coeffs[i::len(cur_shell_types)])
     return basis_atom_map
+
+def write_gbs(filename, gaussian_basis):
+    """ Writes gaussian basis file from the basis object in HORTON
+
+    Parameters
+    ----------
+    filename: str
+        File name of the new gbs file
+    gaussian_basis: GOBasisFamily
+        Basis set object that contains the name and the contraction information of
+        the basis set
+
+    Raises
+    ------
+    AssertionError
+        If gaussian_basis is not loaded
+
+    """
+    with open(filename, 'w') as f:
+        f.write('!Basis set, {0}, generated using HORTON\n\n'.format(gaussian_basis.name))
+        f.write('****\n')
+        basis_atom_map = gaussian_basis.basis_atom_map
+        assert not basis_atom_map is None, ('GOBasisFamily object was not loaded.'
+                                            ' Fix with `gaussian_basis.load()` before'
+                                            ' passing the gaussian basis object')
+        for atom in sorted(basis_atom_map.keys()):
+            f.write('{0:<6}0\n'.format(periodic[atom].symbol))
+            contractions = basis_atom_map[atom].bcs
+            for contraction in contractions:
+                exponents = contraction.alphas.reshape(contraction.alphas.size, 1)
+                con_coeffs = contraction.con_coeffs
+                if len(contraction.con_coeffs.shape) == 1:
+                    con_coeffs = contraction.con_coeffs.reshape(contraction.con_coeffs.size, 1)
+                con_numbers = np.hstack((exponents, con_coeffs))
+                f.write('{0:<4}{1:<4}1.00\n'.format(shell_type_to_str(contraction.shell_type).upper(),
+                                                    exponents.size))
+                for con_number in con_numbers:
+                    f.write(('{:>17}'*con_number.size).format(*con_number))
+                    f.write('\n')
+            f.write('****\n')
