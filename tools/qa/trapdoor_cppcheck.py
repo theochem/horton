@@ -19,10 +19,10 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Trapdoor test using Cppcheck
+"""Trapdoor test using Cppcheck.
 
-   This test calls the cppcheck program, see http://cppcheck.sourceforge.net/.
-'''
+This test calls the cppcheck program, see http://cppcheck.sourceforge.net/.
+"""
 
 
 import subprocess
@@ -33,19 +33,22 @@ from trapdoor_cpplint import get_cpp_files
 
 
 class CPPCheckTrapdoorProgram(TrapdoorProgram):
+    """A trapdoor program running Cppcheck."""
+
     def __init__(self):
+        """Initialize the CPPCheckTrandoorProgram."""
         TrapdoorProgram.__init__(self, 'cppcheck')
 
     def get_stats(self, config):
-        '''Run tests using Cppcheck
+        """Run tests using Cppcheck.
 
-           Returns
-           -------
-           counter: collections.Counter
-                    counts for different error types in the current checkout
-           messages: Set([]) of strings
-                     all errors encountered in the current checkout
-        '''
+        Returns
+        -------
+        counter : collections.Counter
+                  Counts of the number of messages of a specific type in a certain file.
+        messages : Set([]) of strings
+                   All errors encountered in the current branch.
+        """
         # Get version
         command = ['cppcheck', '--version']
         print 'USING', subprocess.check_output(command, stderr=subprocess.STDOUT).strip()

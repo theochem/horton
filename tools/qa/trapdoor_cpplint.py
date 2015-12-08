@@ -19,11 +19,11 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Trapdoor test using cpplint
+"""Trapdoor test using cpplint.
 
-   This test calls the cpplint program, see
-   https://github.com/google/styleguide/tree/gh-pages/cpplint.
-'''
+This test calls the cpplint program, see
+https://github.com/google/styleguide/tree/gh-pages/cpplint.
+"""
 
 
 import os
@@ -36,7 +36,10 @@ from trapdoor import TrapdoorProgram
 
 
 def get_cpp_files(config):
-    """Return a list of cpp files according to configuration settings.
+    """Return a list of .cpp and .h files according to configuration settings.
+
+    This function will search for all .cpp and .h files in the "cpp_directories" and will
+    exclude some based in fnmatch patterns provided in the "cpp_exclude" setting.
 
     Parameters
     ----------
@@ -55,25 +58,32 @@ def get_cpp_files(config):
 
 
 class CPPLintTrapdoorProgram(TrapdoorProgram):
+    """A trapdoor program running cpplint.py."""
+
     def __init__(self):
+        """Initialize the CPPLintTrapdoorProgram."""
         TrapdoorProgram.__init__(self, 'cpplint')
         self.cpplint_file = os.path.join(self.qaworkdir, 'cpplint.py')
 
-    def initialize(self):
-        TrapdoorProgram.initialize(self)
+    def prepare(self):
+        """Make some preparations in feature branch for running cpplint.py.
+
+        This includes a copy of cpplint.py to QAWORKDIR.
+        """
+        TrapdoorProgram.prepare(self)
         shutil.copy('tools/qa/cpplint.py', self.cpplint_file)
         os.chmod(self.cpplint_file, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
 
     def get_stats(self, config):
-        '''Run tests using cpplint
+        """Run tests using cpplint.py.
 
-           Returns
-           -------
-           counter: collections.Counter
-                    counts for different error types in the current checkout
-           messages: Set([]) of strings
-                     all errors encountered in the current checkout
-        '''
+        Returns
+        -------
+        counter : collections.Counter
+                  Counts of the number of messages of a specific type in a certain file.
+        messages : Set([]) of strings
+                   All errors encountered in the current branch.
+        """
         # Get version
         print 'USING cpplint.py update #409'
 

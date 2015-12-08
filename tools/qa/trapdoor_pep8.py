@@ -19,10 +19,12 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Trapdoor test using pep8
+"""Trapdoor test using pep8.
 
-   This test calls the pep8 program, see http://pep8.readthedocs.org/.
-'''
+This test calls the pep8 program, see http://pep8.readthedocs.org/.
+This program only covers a part of the PEP8 specification, see
+https://www.python.org/dev/peps/pep-0008/. Not everything can be tested by a program.
+"""
 
 import os
 import pep8
@@ -32,24 +34,31 @@ from trapdoor import TrapdoorProgram
 
 
 class PEP8TrapdoorProgram(TrapdoorProgram):
+    """A trapdoor program counting the number of PEP8 messages."""
+
     def __init__(self):
+        """Initialize the PEP8TrapdoorProgram."""
         TrapdoorProgram.__init__(self, 'pep8')
         self.config_file = os.path.join(self.qaworkdir, 'pep8')
 
-    def initialize(self):
-        TrapdoorProgram.initialize(self)
+    def prepare(self):
+        """Make some preparations in feature branch for running pep8.
+
+        This includes a copy of tools/qa/pep8 to QAWORKDIR.
+        """
+        TrapdoorProgram.prepare(self)
         shutil.copy('tools/qa/pep8', self.config_file)
 
     def get_stats(self, config):
-        '''Run tests using pep8
+        """Run tests using pep8.
 
-           Returns
-           -------
-           counter: collections.Counter
-                    counts for different error types in the current checkout
-           messages: Set([]) of strings
-                     all errors encountered in the current checkout
-        '''
+        Returns
+        -------
+        counter : collections.Counter
+                  Counts of the number of messages of a specific type in a certain file.
+        messages : Set([]) of strings
+                   All errors encountered in the current branch.
+        """
         # Get version
         print 'USING pep8', pep8.__version__
 
@@ -75,15 +84,19 @@ class PEP8TrapdoorProgram(TrapdoorProgram):
 
 
 class CompleteReport(pep8.StandardReport):
-    '''
-    Collect and record the results of the checks.
-    '''
+    """Collect and record the results of the checks.
+
+    This subclass is designed to collect all those messages, such that they can be easily
+    used in a trapdoor program.
+    """
+
     def __init__(self, options):
+        """Initialize a CompleteReport instance."""
         super(CompleteReport, self).__init__(options)
         self.complete_message = []
 
     def get_file_results(self):
-        '''Record the result and return the overall count for this file.'''
+        """Record the result and return the overall count for this file."""
         self._deferred_print.sort()
         for line_number, offset, code, text, doc in self._deferred_print:
             # record the error message specifications.

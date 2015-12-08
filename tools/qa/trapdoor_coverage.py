@@ -19,12 +19,12 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Trapdoor test using nosetests + coverage
+"""Trapdoor test using nosetests + coverage.
 
-   This test calls the nosetests and coverage, see
-       nose: https://nose.readthedocs.org/en/latest/#
-       coverage: https://pypi.python.org/pypi/coverage
-'''
+This test calls the nosetests and coverage, see:
+* nose: https://nose.readthedocs.org/en/latest/#
+* coverage: https://pypi.python.org/pypi/coverage
+"""
 
 
 import subprocess
@@ -34,20 +34,22 @@ from trapdoor import TrapdoorProgram
 
 
 class CoverageTrapdoorProgram(TrapdoorProgram):
+    """A trapdoor program running nosetests with coverage analysis."""
+
     def __init__(self):
+        """Initialize the CoverageTrapdoorProgram."""
         TrapdoorProgram.__init__(self, 'coverage')
 
     def get_stats(self, config):
-        '''Run tests using Cppcheck
+        """Run tests using nosetests with coverage analysis.
 
-           Returns
-           -------
-           counter: collections.Counter
-                    counts of the number of untested lines in each file, and counts
-                    of the number of failed and errored tests.
-           messages: Set([]) of strings
-                     all errors encountered in the current checkout
-        '''
+        Returns
+        -------
+        counter : collections.Counter
+                  Counts of the number of messages of a specific type in a certain file.
+        messages : Set([]) of strings
+                   All errors encountered in the current branch.
+        """
         # Get version
         command = ['nosetests', '--version']
         print 'USING', subprocess.check_output(command, stderr=subprocess.STDOUT).strip()
@@ -67,7 +69,7 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
         counter = Counter()
         messages = set([])
 
-        # - tests
+        # - unit tests
         iline = 0
         for line in lines:
             if len(line) == 0:

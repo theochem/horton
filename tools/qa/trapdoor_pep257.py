@@ -19,13 +19,12 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Trapdoor test for PEP257
+"""Trapdoor test using pep257.
 
-See https://www.python.org/dev/peps/pep-0257 for the complete PEP.
-
-This script script uses the pep257 package which only tests for a subset of the PEP257
-guidelines.
-'''
+This trapdoor uses the pep257 program, see https://github.com/GreenSteam/pep257
+The pep257 program only tests for a subset of the PEP257, see
+https://www.python.org/dev/peps/pep-0257. Not everything can be tested by a program.
+"""
 
 
 import os
@@ -35,19 +34,22 @@ from trapdoor import TrapdoorProgram
 
 
 class PEP257TrapdoorProgram(TrapdoorProgram):
+    """A trapdoor program counting the number of pep257 messages."""
+
     def __init__(self):
+        """Initialize a PEP257TrapdoorProgram instance."""
         TrapdoorProgram.__init__(self, 'pep257')
 
     def get_stats(self, config):
-        '''Run tests using pep257
+        """Run tests using pep257.
 
-           Returns
-           -------
-           counter: collections.Counter
-                    counts for different error types in the current checkout
-           messages: Set([]) of strings
-                     all errors encountered in the current checkout
-        '''
+        Returns
+        -------
+        counter : collections.Counter
+                  Counts of the number of messages of a specific type in a certain file.
+        messages : Set([]) of strings
+                   All errors encountered in the current branch.
+        """
         # Get version
         command = ['pep257', '--version']
         print 'USING pep257', subprocess.check_output(command).strip()

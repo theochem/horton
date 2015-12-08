@@ -19,10 +19,10 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Trapdoor test using pylint
+"""Trapdoor test using pylint.
 
-   This test calls the pep8 program, see http://docs.pylint.org/index.html.
-'''
+This test calls the pylint program, see http://docs.pylint.org/index.html.
+"""
 
 
 import os
@@ -33,24 +33,31 @@ from trapdoor import TrapdoorProgram
 
 
 class PylintTrapdoorProgram(TrapdoorProgram):
+    """A trapdoor program counting the number of pylint messages."""
+
     def __init__(self):
+        """Initialize a PylintTrapdoorProgram instance."""
         TrapdoorProgram.__init__(self, 'pylint')
         self.rcfile = os.path.join(self.qaworkdir, 'pylintrc')
 
-    def initialize(self):
-        TrapdoorProgram.initialize(self)
+    def prepare(self):
+        """Make some preparations in feature branch for running pylint.
+
+        This includes a copy of tools/qa/pylintrc to QAWORKDIR.
+        """
+        TrapdoorProgram.prepare(self)
         shutil.copy('tools/qa/pylintrc', self.rcfile)
 
     def get_stats(self, config):
-        '''Run tests using Pylint
+        """Run tests using Pylint.
 
-           Returns
-           -------
-           counter: collections.Counter
-                    counts for different error types in the current checkout
-           messages: Set([]) of strings
-                     all errors encountered in the current checkout
-        '''
+        Returns
+        -------
+        counter : collections.Counter
+                  Counts of the number of messages of a specific type in a certain file.
+        messages : Set([]) of strings
+                   All errors encountered in the current branch.
+        """
         # get Pylint version
         command = ['pylint', '--version', '--rcfile=%s' % self.rcfile]
         version_output = subprocess.check_output(command, stderr=subprocess.STDOUT)

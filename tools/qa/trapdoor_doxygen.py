@@ -19,7 +19,10 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Trapdoor test using doxygen to find undocumented C++ code'''
+"""Trapdoor test using doxygen to find undocumented C++ code.
+
+This test uses doxygen, see http://www.doxygen.org.
+"""
 
 
 import os
@@ -31,24 +34,31 @@ from trapdoor import TrapdoorProgram
 
 
 class DoxygenTrapdoorProgram(TrapdoorProgram):
+    """A trapdoor program counting the number of undocumented C++ functions/methods/..."""
+
     def __init__(self):
+        """Initialize the DoxygenTrapdoorProgram."""
         TrapdoorProgram.__init__(self, 'doxygen')
         self.doxyconf_file = os.path.abspath(os.path.join(self.qaworkdir, 'doxygen.conf'))
 
-    def initialize(self):
-        TrapdoorProgram.initialize(self)
+    def prepare(self):
+        """Make some preparations in feature branch for running doxygen.
+
+        This includes a copy of doc/doxygen.conf to QAWORKDIR.
+        """
+        TrapdoorProgram.prepare(self)
         shutil.copy('doc/doxygen.conf', self.doxyconf_file)
 
     def get_stats(self, config):
-        '''Run tests using doxygen
+        """Run tests using doxygen.
 
-           Returns
-           -------
-           counter: collections.Counter
-                    counts for different error types in the current checkout
-           messages: Set([]) of strings
-                     all errors encountered in the current checkout
-        '''
+        Returns
+        -------
+        counter : collections.Counter
+                  Counts of the number of messages of a specific type in a certain file.
+        messages : Set([]) of strings
+                   All errors encountered in the current branch.
+        """
         # Get version
         command = ['doxygen', '--version']
         print 'USING doxygen', subprocess.check_output(command).strip()
