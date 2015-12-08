@@ -88,8 +88,7 @@ class CPPLintTrapdoorProgram(TrapdoorProgram):
         print 'USING cpplint.py update #409'
 
         # Call cpplint
-        cpp_files = get_cpp_files(config)
-        command = [self.cpplint_file] + cpp_files
+        command = [self.cpplint_file] + get_cpp_files(config)
         print 'RUNNING', ' '.join(command)
         proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         output = proc.communicate()[0]
@@ -106,14 +105,9 @@ class CPPLintTrapdoorProgram(TrapdoorProgram):
             tag = words[-2]
             priority = words[-1]
 
-            key = '%3s %30s %s' % (priority, tag, filename)
-            counter[key] += 1
-            messages.add('%3s %30s %40s  %s' % (
-                priority,
-                tag,
-                ('%s:%s' % (filename, lineno)).ljust(40),
-                description
-            ))
+            counter['%3s %30s %s' % (priority, tag, filename)] += 1
+            messages.add('%3s %30s %-40s  %s' % (
+                priority, tag, ('%s:%s' % (filename, lineno)), description))
 
         return counter, messages
 

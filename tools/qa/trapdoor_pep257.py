@@ -27,7 +27,6 @@ https://www.python.org/dev/peps/pep-0257. Not everything can be tested by a prog
 """
 
 
-import os
 import subprocess
 from collections import Counter
 from trapdoor import TrapdoorProgram

@@ -29,7 +29,6 @@ import cPickle
 import json
 import os
 import shutil
-import subprocess
 import sys
 import time
 
@@ -136,7 +135,7 @@ class TrapdoorProgram(object):
             cPickle.dump((counter, messages), f)
         print 'WALL TIME %.1f' % (time.time() - start_time)
 
-    def get_stats(self):
+    def get_stats(self, config):
         """Run tests using an external program and collect its output
 
         This method must be implemented in a subclass.

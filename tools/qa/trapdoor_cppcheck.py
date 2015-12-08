@@ -55,8 +55,9 @@ class CPPCheckTrapdoorProgram(TrapdoorProgram):
 
         # Call Cppcheck
         cpp_files = get_cpp_files(config)
-        command = ['cppcheck'] + cpp_files + ['-q', '--enable=all',
-                   '--std=c++11', '--xml', '--suppress=missingIncludeSystem']
+        command = ['cppcheck'] + cpp_files + \
+                  ['-q', '--enable=all', '--std=c++11', '--xml',
+                   '--suppress=missingIncludeSystem']
         print 'RUNNING', ' '.join(command)
         xml_str = subprocess.check_output(command, stderr=subprocess.STDOUT)
         etree = ElementTree.fromstring(xml_str)

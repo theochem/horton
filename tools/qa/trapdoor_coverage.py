@@ -28,7 +28,6 @@ This test calls the nosetests and coverage, see:
 
 
 import subprocess
-from xml.etree import ElementTree
 from collections import Counter
 from trapdoor import TrapdoorProgram
 

@@ -27,9 +27,10 @@ https://www.python.org/dev/peps/pep-0008/. Not everything can be tested by a pro
 """
 
 import os
-import pep8
 import shutil
 from collections import Counter
+
+import pep8
 from trapdoor import TrapdoorProgram
 
 
@@ -104,11 +105,6 @@ class CompleteReport(pep8.StandardReport):
                 code,
                 ('%s:%s:%s' % (self.filename, self.line_offset + line_number, offset + 1)),
                 text)
-            if self._show_source:
-                if line_number > len(self.lines):
-                    line = ''
-                else:
-                    line = self.lines[line_number - 1]
             self.complete_message.append(message)
 
 

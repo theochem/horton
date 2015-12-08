@@ -29,7 +29,6 @@ import os
 import shutil
 import subprocess
 from collections import Counter
-from glob import glob
 from trapdoor import TrapdoorProgram
 
 
