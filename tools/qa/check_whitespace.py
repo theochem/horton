@@ -1,11 +1,15 @@
 #!/usr/bin/env python
+"""Script that checks for white space errors in every commit from master to feature.
 
+This script ignores and command-line arguments. Just don't provide any.
+"""
 
 import subprocess
 import sys
 
 
 def main():
+    """Run ``git diff --check`` on every relevant commit."""
     # Get the list of commit ids and descriptions between the current and master branch.
     # The latest one is printed first and the HEAD of the master branch is included
     command = ['git', 'log', 'master^..HEAD', '--pretty=oneline', '--color=never']
