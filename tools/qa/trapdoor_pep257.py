@@ -42,6 +42,11 @@ class PEP257TrapdoorProgram(TrapdoorProgram):
     def get_stats(self, config):
         """Run tests using pep257.
 
+        Parameters
+        ----------
+        config : dict
+                 The dictionary loaded from ``trapdoor.cfg``.
+
         Returns
         -------
         counter : collections.Counter

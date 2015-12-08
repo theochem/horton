@@ -42,6 +42,11 @@ class CPPCheckTrapdoorProgram(TrapdoorProgram):
     def get_stats(self, config):
         """Run tests using Cppcheck.
 
+        Parameters
+        ----------
+        config : dict
+                 The dictionary loaded from ``trapdoor.cfg``.
+
         Returns
         -------
         counter : collections.Counter

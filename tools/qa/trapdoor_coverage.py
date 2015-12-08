@@ -42,6 +42,11 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
     def get_stats(self, config):
         """Run tests using nosetests with coverage analysis.
 
+        Parameters
+        ----------
+        config : dict
+                 The dictionary loaded from ``trapdoor.cfg``.
+
         Returns
         -------
         counter : collections.Counter

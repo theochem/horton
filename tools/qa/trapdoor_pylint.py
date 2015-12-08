@@ -51,6 +51,11 @@ class PylintTrapdoorProgram(TrapdoorProgram):
     def get_stats(self, config):
         """Run tests using Pylint.
 
+        Parameters
+        ----------
+        config : dict
+                 The dictionary loaded from ``trapdoor.cfg``.
+
         Returns
         -------
         counter : collections.Counter

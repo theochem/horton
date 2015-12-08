@@ -53,6 +53,11 @@ class PEP8TrapdoorProgram(TrapdoorProgram):
     def get_stats(self, config):
         """Run tests using pep8.
 
+        Parameters
+        ----------
+        config : dict
+                 The dictionary loaded from ``trapdoor.cfg``.
+
         Returns
         -------
         counter : collections.Counter

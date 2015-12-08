@@ -140,6 +140,11 @@ class TrapdoorProgram(object):
 
         This method must be implemented in a subclass.
 
+        Parameters
+        ----------
+        config : dict
+                 The dictionary loaded from ``trapdoor.cfg``.
+
         Returns
         -------
         counter : collections.Counter
