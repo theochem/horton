@@ -66,18 +66,18 @@ class PylintTrapdoorProgram(TrapdoorProgram):
         # get Pylint version
         command = ['pylint', '--version', '--rcfile=%s' % self.rcfile]
         version_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
-        print 'USING', ''.join(version_output.split('\n')[:2])
+        print 'USING   :', ''.join(version_output.split('\n')[:2])
 
         # call Pylint
         command = ['pylint'] + config['py_directories'] + ['--rcfile=%s' % self.rcfile]
-        print 'RUNNING', ' '.join(command)
+        print 'RUNNING :', ' '.join(command)
         proc = subprocess.Popen(command, stdout=subprocess.PIPE)
 
         # parse the output of Pylint into standard return values
         output = proc.communicate()[0]
         lines = output.split('\n')[:-1]
         score = lines[-2].split()[6]
-        print 'SCORE', score
+        print 'SCORE   :', score
         counter = Counter()
         messages = set([])
         for line in lines:

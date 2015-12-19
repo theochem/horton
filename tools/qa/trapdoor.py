@@ -128,8 +128,8 @@ class TrapdoorProgram(object):
         with open(self.trapdoor_config_file, 'r') as f:
             config = json.load(f)
         counter, messages = self.get_stats(config)
-        print 'NUMBER OF MESSAGES', len(messages)
-        print 'SUM OF COUNTERS', sum(counter.itervalues())
+        print 'NUMBER OF MESSAGES :', len(messages)
+        print 'SUM OF COUNTERS    :', sum(counter.itervalues())
         fn_pp = 'trapdoor_results_%s_%s.pp' % (self.name, mode)
         with open(os.path.join(self.qaworkdir, fn_pp), 'w') as f:
             cPickle.dump((counter, messages), f)

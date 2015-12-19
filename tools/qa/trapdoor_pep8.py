@@ -66,15 +66,15 @@ class PEP8TrapdoorProgram(TrapdoorProgram):
                    All errors encountered in the current branch.
         """
         # Get version
-        print 'USING pep8', pep8.__version__
+        print 'USING PEP8       :', pep8.__version__
 
         # Call Pep8
         pep8check = pep8.StyleGuide(reporter=CompleteReport, config_file=self.config_file)
-        print 'EXCLUDED FILES', pep8check.options.exclude
-        print 'IGNORED MESSAGES', pep8check.options.ignore
-        print 'MAX LINE LENGTH', pep8check.options.max_line_length
+        print 'EXCLUDED FILES   :', pep8check.options.exclude
+        print 'IGNORED MESSAGES :', pep8check.options.ignore
+        print 'MAX LINE LENGTH  :', pep8check.options.max_line_length
         for py_directory in config['py_directories']:
-            print 'RUNNING pep8', py_directory
+            print 'RUNNING          : pep8', py_directory
             pep8check.input_dir(py_directory)
 
         # Parse the output of Pep8 into standard return values
