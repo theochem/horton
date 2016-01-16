@@ -26,9 +26,14 @@ cache:
 
 install:
 # Install HORTON python dependencies with pip.
-# This is split because there seem to be issues with the h5py dependency checking.
- - pip install --upgrade cython numpy scipy
- - pip install --upgrade sphinx breathe h5py matplotlib
+# This is split over multiple calls to have more regular output, which keeps travis happy.
+ - pip install --upgrade cython
+ - pip install --upgrade numpy
+ - pip install --upgrade scipy
+ - pip install --upgrade h5py
+ - pip install --upgrade matplotlib
+ - pip install --upgrade sphinx
+ - pip install --upgrade breathe
 
 # Install QA python dependencies with pip.
  - pip install --upgrade pep8 pylint coverage pep257
