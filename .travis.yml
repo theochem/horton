@@ -24,10 +24,12 @@ cache:
     - $HOME/depinstall/libxc-2.2.2
 
 install:
-# Install HORTON python dependencies with pip
- - pip install --upgrade sphinx breathe numpy scipy cython h5py matplotlib
+# Install HORTON python dependencies with pip.
+# This is split because there seem to be issues with the h5py dependency checking.
+ - pip install --upgrade cython numpy scipy
+ - pip install --upgrade sphinx breathe h5py matplotlib
 
-# Install QA python dependencies with pip
+# Install QA python dependencies with pip.
  - pip install --upgrade pep8 pylint coverage pep257
 
 # Get the master branch for a comparative analysis, if not already present.
