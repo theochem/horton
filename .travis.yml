@@ -57,7 +57,7 @@ install:
 #    the master branch and the feature branch are built. (If they share common
 #    dependencies, these are only built once.) In the end, this script makes sure it
 #    checks out the feature branch again.
- - tools/qa/install_alldeps_twobranches.sh
+ - tools/qa/install_deps_twobranches.sh
 
 script:
 # Run all checks. This script also acts differently, depending on the current branch:
