@@ -4,9 +4,9 @@
 # corresponding environment vars are sourced to make sure the following dependencies
 # can be built properly.
 
-for DEPDIR in $(cat tools/qa/deps/dirs.txt); do
+for DEPDIR in $(cat tools/qa/extra_dependencies.txt); do
 (
-    tools/qa/deps/${DEPDIR}/install.sh || exit -1
-    [[ -f "tools/qa/deps/${DEPDIR}/activate.sh" ]] && source tools/qa/deps/${DEPDIR}/activate.sh
+    tools/qa/${DEPDIR}/install.sh || exit -1
+    [[ -f "tools/qa/${DEPDIR}/activate.sh" ]] && source tools/qa/${DEPDIR}/activate.sh
 )
 done

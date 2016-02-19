@@ -9,6 +9,10 @@ RESET='\e[0m'
 [[ -z ${QAWORKDIR} ]] && export QAWORKDIR=${PWD}/qaworkdir
 [[ -d ${QAWORKDIR} ]] || mkdir -p ${QAWORKDIR}
 
+# Fix directories related to caching
+export CACHED=$QAWORKDIR/cached
+mkdir $CACHED
+
 # Make sure matplotlib does not complain about DISPLAY
 export MATPLOTLIBRC=${QAWORKDIR}
 echo "backend: agg" > $MATPLOTLIBRC/matplotlibrc

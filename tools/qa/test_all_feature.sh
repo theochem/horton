@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source tools/qa/deps/common.sh
+source tools/qa/common.sh
 export NUM_FAILED=0
 
 report_error() {
@@ -21,8 +21,8 @@ abort_error() {
 # Check the author names
 ./tools/qa/check_names.py || report_error "Failed author/committer check (current branch)"
 # Activate dependencies
-for DEPDIR in $(cat tools/qa/deps/dirs.txt); do
-    [[ -f "tools/qa/deps/${DEPDIR}/activate.sh" ]] && source tools/qa/deps/${DEPDIR}/activate.sh
+for DEPDIR in $(cat tools/qa/extra_dependencies.txt); do
+    [[ -f "tools/qa/${DEPDIR}/activate.sh" ]] && source tools/qa/${DEPDIR}/activate.sh
 done
 # Clean stuff
 echo 'Cleaning source tree'

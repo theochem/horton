@@ -31,8 +31,8 @@ if [ "${CURRENT_BRANCH}" != 'master' ]; then
 
     # Needed for coverage: rebuild
     # Activate dependencies (from master branch, may be different)
-    for DEPDIR in $(cat tools/qa/deps/dirs.txt); do
-        [[ -f "tools/qa/deps/${DEPDIR}/activate.sh" ]] && source tools/qa/deps/${DEPDIR}/activate.sh
+    for DEPDIR in $(cat tools/qa/extra_dependencies.txt); do
+        [[ -f "tools/qa/${DEPDIR}/activate.sh" ]] && source tools/qa/${DEPDIR}/activate.sh
     done
     # Clean stuff
     ./cleanfiles.sh &> /dev/null

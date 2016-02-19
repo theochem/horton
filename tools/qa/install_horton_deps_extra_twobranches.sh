@@ -3,7 +3,7 @@
 # 1) Build all dependencies of the current branch. This is always needed. If the build
 #    fails, the script exits with -1, letting the build bot know that it should stop.
 
-tools/qa/deps/install_alldeps.sh || exit -1
+tools/qa/install_horton_deps_extra.sh || exit -1
 
 # 2) Get the current branch name. If not master, then check out master and build all
 #    dependencies. Finally check out the current branch again.
@@ -11,7 +11,7 @@ tools/qa/deps/install_alldeps.sh || exit -1
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [ "${CURRENT_BRANCH}" != 'master' ]; then
     git checkout master
-    tools/qa/deps/install_alldeps.sh || exit -1
+    tools/qa/install_horton_deps_extra.sh || exit -1
     git checkout ${CURRENT_BRANCH}
 fi
 

@@ -17,26 +17,20 @@ addons:
      - doxygen
      - cppcheck
 
+env:
+  global:
+     - PIP_WHEEL_DIR=$HOME/.cache/pip/wheels
+     - PIP_FIND_LINKS=file://$HOME/.cache/pip/wheels
+     - QAWORKDIR=$HOME/qaworkdir
+
 cache:
-  pip: true
   directories:
-    - $HOME/virtualenv
-    - $HOME/depinstall/libint-2.0.3
-    - $HOME/depinstall/libxc-2.2.2
+    - $HOME/.cache/pip
+    - $HOME/qaworkdir/cached
 
 install:
-# Install HORTON python dependencies with pip.
-# This is split over multiple calls to have more regular output, which keeps travis happy.
- - pip install --upgrade cython
- - pip install --upgrade numpy
- - pip install --upgrade scipy
- - pip install --upgrade h5py
- - pip install --upgrade matplotlib
- - pip install --upgrade sphinx
- - pip install --upgrade breathe
-
-# Install QA python dependencies with pip.
- - pip install --upgrade pep8 pylint coverage pep257
+# Install all python packages on which HORTON dependens with pip.
+ - tools/qa/install_deps_travis.sh
 
 # Get the master branch for a comparative analysis, if not already present.
  - ((git rev-parse --verify master &> /dev/null) || (git config remote.origin.fetch refs/heads/*:refs/remotes/origin/*; git fetch origin master --depth=50; git branch master origin/master))
@@ -47,11 +41,6 @@ install:
 # BLAS_LIBRARIES must be set because Python thinks it is running in Debian
 # wheezy/sid while it is actually running Ubuntu-12.04. This is Travis-CI specific.
  - export BLAS_LIBRARIES=atlas:cblas
-
-# Set the QAWORKDIR variable. It tells the QA scripts where it is safe to generate files.
-# In case of Travis-CI, this is set to $HOME, such that files in depinstall get picked up
-# for caching.
- - export QAWORKDIR=${HOME}
 
 # Build all required dependencies from source, i.e. the ones not provided by the build
 # infrastructure. These dependencies are built from source for two reasons:
