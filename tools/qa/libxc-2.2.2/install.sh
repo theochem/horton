@@ -3,7 +3,7 @@
 NAMEVER=$(basename $(dirname "${BASH_SOURCE[0]}"))
 set -e
 source tools/qa/common.sh
-if [ ! -d "${QAWORKDIR}/cached/${NAMEVER}/lib" ]; then
+if [ ! -d "${CACHED}/${NAMEVER}/lib" ]; then
 (
     echo -e "${GREEN}Building and installing ${NAMEVER} from scratch${RESET}"
     cd ${QAWORKDIR}
@@ -13,10 +13,10 @@ if [ ! -d "${QAWORKDIR}/cached/${NAMEVER}/lib" ]; then
     tar -xzf libxc-2.2.2.tar.gz
     cd libxc-2.2.2
     echo "Actual build and install. This may take a while."
-    (./configure --prefix=${QAWORKDIR}/cached/${NAMEVER} --enable-shared && make install) &> install.log
+    (./configure --prefix=${CACHED}/${NAMEVER} --enable-shared && make install) &> install.log
     tail install.log
     echo "Copying libcx_2.2.2/src/funcs_key.c for documentation generator"
-    cp src/funcs_key.c ${QAWORKDIR}/cached/${NAMEVER}
+    cp src/funcs_key.c ${CACHED}/${NAMEVER}
 )
 else
     echo -e "${GREEN}Using Cached ${NAMEVER}${RESET}"

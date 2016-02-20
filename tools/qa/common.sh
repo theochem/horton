@@ -10,8 +10,8 @@ RESET='\e[0m'
 [[ -d ${QAWORKDIR} ]] || mkdir -p ${QAWORKDIR}
 
 # Fix directories related to caching
-export CACHED=$QAWORKDIR/cached
-mkdir $CACHED
+export CACHED=${QAWORKDIR}/cached
+mkdir -p ${CACHED}
 
 # Make sure matplotlib does not complain about DISPLAY
 export MATPLOTLIBRC=${QAWORKDIR}
