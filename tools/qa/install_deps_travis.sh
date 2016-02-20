@@ -13,25 +13,25 @@ source tools/qa/common.sh
 pip install --upgrade pip
 pip install wheel
 
+# Packages for testing
+pip install --upgrade nose
 pip install --upgrade pep8
 pip install --upgrade pylint
 pip install --upgrade coverage
 pip install --upgrade pep257
 
+# Packages for HORTON
 pip wheel numpy
 pip install --upgrade numpy
-
-pip wheel cython
-pip install --upgrade cython
-
 pip wheel scipy
 pip install --upgrade scipy
-
+pip wheel matplotlib
+pip install --upgrade matplotlib
+pip wheel cython
+pip install --upgrade cython
 pip wheel h5py
 pip install --upgrade h5py
 
-pip wheel matplotlib
-pip install --upgrade matplotlib
-
+# Packages for HORTON documentation
 pip install --upgrade sphinx
 pip install --upgrade breathe
