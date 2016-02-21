@@ -25,11 +25,10 @@ env:
 
 cache:
   directories:
-    - $HOME/.cache/pip
     - $HOME/qaworkdir/cached
 
 install:
-# Install all python packages on which HORTON dependens with pip.
+# Install all required python packages for HORTON and for testing with pip.
  - tools/qa/install_deps_travis.sh
 
 # Get the master branch for a comparative analysis, if not already present.
