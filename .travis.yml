@@ -23,7 +23,7 @@ env:
      - CACHED=$QAWORKDIR/cached
      - PIP_WHEEL_DIR=$CACHED/wheels
      - PIP_FIND_LINKS=file://$CACHED/wheels
-     - PIP_NO_CACHE_DIR=1
+     - PIP_NO_CACHE_DIR=no
 
 cache:
   directories:
