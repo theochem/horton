@@ -20,10 +20,6 @@ abort_error() {
 
 # Check the author names
 ./tools/qa/check_names.py || report_error "Failed author/committer check (current branch)"
-# Activate dependencies
-for DEPDIR in $(cat tools/qa/extra_dependencies.txt); do
-    [[ -f "tools/qa/${DEPDIR}/activate.sh" ]] && source tools/qa/${DEPDIR}/activate.sh
-done
 # Clean stuff
 echo 'Cleaning source tree'
 ./cleanfiles.sh &> /dev/null

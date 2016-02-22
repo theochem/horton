@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-NAMEVER=$(basename $(dirname "${BASH_SOURCE[0]}"))
+NAMEVER=libint-2.0.3
 set -e
 source tools/qa/common.sh
 if [ ! -d "${CACHED}/${NAMEVER}/lib" ]; then
@@ -14,7 +14,7 @@ if [ ! -d "${CACHED}/${NAMEVER}/lib" ]; then
     cd libint-2.0.3-stable
     echo "Actual build and install. This may take a while."
     echo "Every 100th line of the build output is shown to keep Travis-CI happy without generating too much output"
-    (CONFIG_SHELL=$(which sh) ./configure --prefix=${CACHED}/${NAMEVER} --enable-shared && make install) 2>&1 | tee install.log | awk '!(NR % 100)'
+    (CONFIG_SHELL=$(which sh) CFLAGS='-fPIC' CPPFLAGS='-fPIC' ./configure --with-cxx-optflags='-O1' --prefix=${CACHED}/${NAMEVER} && make install) 2>&1 | tee install.log | awk '!(NR % 100)'
     tail install.log
 )
 else

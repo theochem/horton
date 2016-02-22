@@ -1,0 +1,19 @@
+[{
+    "name": "libxc",
+    "title": "LibXC",
+    "homepage": "http://www.tddft.org/programs/octopus/wiki/index.php/Libxc",
+    "version_ci": "2.2.2",
+    "version_requirement": "==2.2.2",
+    "install_command": "./tools/qa/install_libxc-2.2.2.sh",
+    "source_url": "http://www.tddft.org/programs/octopus/down.php?file=libxc/libxc-2.2.2.tar.gz",
+    "purpose": "cext"
+}, {
+    "name": "libint",
+    "title": "LibInt",
+    "homepage": "http://sourceforge.net/p/libint/home",
+    "version_ci": "2.0.3",
+    "version_requirement": "==2.0.3",
+    "install_command": "./tools/qa/install_libint-2.0.3.sh",
+    "source_url": "http://downloads.sourceforge.net/project/libint/libint-for-mpqc/libint-2.0.3-stable.tgz",
+    "purpose": "cext"
+}]

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-NAMEVER=$(basename $(dirname "${BASH_SOURCE[0]}"))
+NAMEVER=libxc-2.2.2
 set -e
 source tools/qa/common.sh
 if [ ! -d "${CACHED}/${NAMEVER}/lib" ]; then
@@ -13,10 +13,9 @@ if [ ! -d "${CACHED}/${NAMEVER}/lib" ]; then
     tar -xzf libxc-2.2.2.tar.gz
     cd libxc-2.2.2
     echo "Actual build and install. This may take a while."
-    (./configure --prefix=${CACHED}/${NAMEVER} --enable-shared && make install) &> install.log
-    tail install.log
-    echo "Copying libcx_2.2.2/src/funcs_key.c for documentation generator"
+    (CFLAGS='-fPIC' CPPFLAGS='-fPIC' FCCPP=-ffreestanding ./configure --prefix=${CACHED}/${NAMEVER} && make install) &> install.log
     cp src/funcs_key.c ${CACHED}/${NAMEVER}
+    tail install.log
 )
 else
     echo -e "${GREEN}Using Cached ${NAMEVER}${RESET}"

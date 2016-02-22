@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source tools/qa/deps/common.sh
+source tools/qa/common.sh
 export NUM_FAILED=0
 
 report_error() {
@@ -29,11 +29,6 @@ if [ "${CURRENT_BRANCH}" != 'master' ]; then
     # Switch to master
     git checkout master
 
-    # Needed for coverage: rebuild
-    # Activate dependencies (from master branch, may be different)
-    for DEPDIR in $(cat tools/qa/extra_dependencies.txt); do
-        [[ -f "tools/qa/${DEPDIR}/activate.sh" ]] && source tools/qa/${DEPDIR}/activate.sh
-    done
     # Clean stuff
     ./cleanfiles.sh &> /dev/null
     # Construct the reference atoms

@@ -21,12 +21,23 @@
 #--
 #!/usr/bin/env python
 
-libxc_version = '2.2.2'
+# Load dependency information -> libxc version
+import json
+with open('../dependencies.txt') as f:
+    dependencies = json.load(f)
+# Order does not matter here. Just make it easy to look things up
+dependencies = dict((d['name'], d) for d in dependencies)
+libxc_version = dependencies['libxc']['version_ci']
+
+# find the qaworkdir
+import os
+qaworkdir = os.getenv('QAWORKDIR')
+if qaworkdir is None:
+    qaworkdir = '../qaworkdir'
 
 # find all the functional keys by processing funcs_key.c
-
 keys = []
-with open('../depends/libxc-%s/src/funcs_key.c' % libxc_version) as f:
+with open('%s/cached/libxc-%s/funcs_key.c' % (qaworkdir, libxc_version)) as f:
     for line in f:
         if line.startswith('{'):
             words = line.strip()[1:-3].split(',')
