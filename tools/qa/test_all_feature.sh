@@ -28,7 +28,7 @@ echo 'Rebuilding database of reference atoms'
 rm -rf data/refatoms/*.h5
 (cd data/refatoms; make all) || report_error "Failed to make reference atoms (current branch)"
 # In-place build of HORTON
-python setup.py build_ext -i -L ${LD_LIBRARY_PATH} || report_error "Failed to build HORTON (current branch)"
+python setup.py build_ext -i || report_error "Failed to build HORTON (current branch)"
 # Run the slow tests
 nosetests -v -a slow || report_error "Some slow tests failed (current branch)"
 # Build the documentation
