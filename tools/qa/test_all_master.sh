@@ -36,7 +36,7 @@ if [ "${CURRENT_BRANCH}" != 'master' ]; then
     rm -rf data/refatoms/*.h5
     (cd data/refatoms; make all) || report_error "Failed to make reference atoms (master branch)"
     # In-place build of HORTON
-    python setup.py build_ext -i -L ${LD_LIBRARY_PATH} || report_error "Failed to build HORTON (master branch)"
+    python setup.py build_ext -i || report_error "Failed to build HORTON (master branch)"
 
     # Run trapdoor tests (from QAWORKDIR)
     ${QAWORKDIR}/trapdoor_coverage.py master || report_error "Trapdoor coverage failed (master branch)"
