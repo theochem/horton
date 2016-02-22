@@ -19,9 +19,11 @@ addons:
 
 env:
   global:
-     - PIP_WHEEL_DIR=$HOME/.cache/pip/wheels
-     - PIP_FIND_LINKS=file://$HOME/.cache/pip/wheels
      - QAWORKDIR=$HOME/qaworkdir
+     - CACHED=$QAWORKDIR/cached
+     - PIP_WHEEL_DIR=$CACHED/wheels
+     - PIP_FIND_LINKS=file://$CACHED/wheels
+     - PIP_NO_CACHE_DIR=1
 
 cache:
   directories:
@@ -29,7 +31,7 @@ cache:
 
 install:
 # Install all required python packages for HORTON and for testing with pip.
- - tools/qa/install_deps_travis.sh
+ - tools/qa/install_deps_pip.sh
 
 # Get the master branch for a comparative analysis, if not already present.
  - ((git rev-parse --verify master &> /dev/null) || (git config remote.origin.fetch refs/heads/*:refs/remotes/origin/*; git fetch origin master --depth=50; git branch master origin/master))

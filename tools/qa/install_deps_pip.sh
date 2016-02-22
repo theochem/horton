@@ -11,36 +11,37 @@ source tools/qa/common.sh
 
 pip install --upgrade pip
 pip install wheel
+mkdir -p ${PIP_WHEEL_DIR}
 
 # Packages for testing
 pip wheel nose
-pip install --upgrade nose
+pip install --no-index --upgrade nose
 pip wheel pep8
-pip install --upgrade pep8
+pip install --no-index --upgrade pep8
 pip wheel pylint
-pip install --upgrade pylint
+pip install --no-index --upgrade pylint
 pip wheel coverage
-pip install --upgrade coverage
+pip install --no-index --upgrade coverage
 pip wheel pep257
-pip install --upgrade pep257
+pip install --no-index --upgrade pep257
 
 # Packages for HORTON
 pip wheel numpy
-pip install --upgrade numpy
+pip install --no-index --upgrade numpy
 pip wheel scipy
-pip install --upgrade scipy
+pip install --no-index --upgrade scipy
 pip wheel matplotlib
-pip install --upgrade matplotlib
+pip install --no-index --upgrade matplotlib
 pip wheel cython
-pip install --upgrade cython
+pip install --no-index --upgrade cython
 pip wheel h5py
-pip install --upgrade h5py
+pip install --no-index --upgrade h5py
 
 # Packages for HORTON documentation
 pip wheel sphinx
-pip install --upgrade sphinx
+pip install --no-index --upgrade sphinx
 pip wheel breathe
-pip install --upgrade breathe
+pip install --no-index --upgrade breathe
 
 # Remove old wheels
 ./tools/qa/remove_old_wheels.py

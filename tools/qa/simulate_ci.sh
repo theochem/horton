@@ -19,13 +19,13 @@ set -e
 virtualenv ${QAWORKDIR}/venv
 source ${QAWORKDIR}/venv/bin/activate
 
-# 2) Set some environment variables
+# 2) Set some environment variables for pip
 export PIP_WHEEL_DIR=${CACHED}/wheels
 export PIP_FIND_LINKS=file://${CACHED}/wheels
-mkdir -p ${PIP_WHEEL_DIR}
+export PIP_NO_CACHE_DIR=false
 
 # 3) Install dependencies in the virtualenv, just as on travis-ci
-./tools/qa/install_deps_travis.sh
+./tools/qa/install_deps_pip.sh
 
 # 4) Install extra dependencies
 ./tools/qa/install_deps_extra_twobranches.sh
