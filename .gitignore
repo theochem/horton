@@ -11,6 +11,8 @@ doc/tech_ref_literature.rst
 doc/tech_ref_functionals.rst
 doc/doxyxml
 doc/doxygen_warnings.log
+doc/user_download_and_install_linux.rst
+doc/user_download_and_install_mac.rst
 
 # Ignore (in-place) build results
 cext.cpp
