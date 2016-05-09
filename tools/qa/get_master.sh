@@ -24,4 +24,3 @@ else
     echo "  NOT OK. Giving up."
     exit -1
 fi
-
