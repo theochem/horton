@@ -70,7 +70,7 @@ class DoxygenTrapdoorProgram(TrapdoorProgram):
         # Call doxygen in the doc subdirectory, mute output because it only confuses
         command = ['doxygen', self.doxyconf_file]
         print 'RUNNING (in %s)' % config['doxygen_root'], ' '.join(command)
-        with open(os.devnull, 'wB') as devnull:
+        with open(os.devnull, 'wb') as devnull:
             subprocess.check_call(command, cwd=config['doxygen_root'], stdout=devnull, stderr=devnull)
 
         # Parse the file doxygen_warnings log file
