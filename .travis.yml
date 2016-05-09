@@ -51,25 +51,26 @@ install:
 #    such that we can better guarantee HORTON to work with specific versions of
 #    dependencies.
 
-# The following script acts differently, depending on what the current branch is:
+# The behavior of the install script depends on the current branch:
 # 1) If the current branch is the master branch, only the dependencies of the HEAD of the
 #    master branch are built.
-# 2) If the current branch is a feature branch (or a pull request), the dependencies of
-#    the master branch and the feature branch are built. (If they share common
-#    dependencies, these are only built once.) In the end, this script makes sure it
-#    checks out the feature branch again.
+# 2) If the current branch is a feature branch (or a pull request), the dependencies for
+#    this branch are built. Then, the common ancestor of the master and feature branch is
+#    checked out. Also the dependencies of the ancestor commit are built. (If ancestor and
+#    feature share common dependencies, these are only built once.) In the end, the
+#    feature branch is checked out again.
  - tools/qa/install_deps_extra_twobranches.sh
 
 script:
-# Run all checks. This script also acts differently, depending on the current branch:
+# Run all checks. The behavior of the test script also depends on the current branch:
 # 1) If the current branch is the master branch, only the non-comparative tests are
 #    executed: building HORTON, building documentations, fast unit tests, slow unit tests
 #    and some code analysis tools.
 # 2) If the current branch is a feauture branch (or a pull request), it first runs all
 #    checks on the feature branch: building HORTON, building documentation, fast unit
 #    tests + coverage, slow unit tests, all code analysis tools. Then it checks out the
-#    master branch and runs the following tests; building HORTON, fast unit tests +
-#    coverage, all code analysis tools whose output needs to compared to the results from
-#    the feature branch (the trapdoor tests). Finally, it compares the outputs of both
-#    branches to check for regressions.
+#    common ancestor of the master and feature branch. In that commit, it runs the
+#    following tests: building HORTON, fast unit tests + coverage, all code analysis tools
+#    whose output needs to compared to the results from the feature branch (the trapdoor
+#    tests). Finally, it compares the outputs of both branches to check for regressions.
  - tools/qa/test_all_twobranches.sh
