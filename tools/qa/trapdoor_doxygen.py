@@ -67,10 +67,11 @@ class DoxygenTrapdoorProgram(TrapdoorProgram):
         command = ['doxygen', '--version']
         print 'USING doxygen', subprocess.check_output(command).strip()
 
-        # Call doxygen in the doc subdirectory
+        # Call doxygen in the doc subdirectory, mute output because it only confuses
         command = ['doxygen', self.doxyconf_file]
         print 'RUNNING (in %s)' % config['doxygen_root'], ' '.join(command)
-        subprocess.check_call(command, cwd=config['doxygen_root'])
+        with open(os.devnull, 'wB') as devnull:
+            subprocess.check_call(command, cwd=config['doxygen_root'], stdout=devnull, stderr=devnull)
 
         # Parse the file doxygen_warnings log file
         counter = Counter()
