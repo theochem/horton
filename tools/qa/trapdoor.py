@@ -76,7 +76,7 @@ class TrapdoorProgram(object):
         """
         args = self.parse_args()
         print r'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+      ~~~~~~~~~~~~~~~~~'
-        print r'  TRAPDOOR %15s:%-7s                      \          _\( )/_' % (
+        print r'  TRAPDOOR %15s:%-10s                   \          _\( )/_' % (
             self.name, args.mode)
         print r'                                                         \          /(o)\ '
         print r'                                                          +~~~~~~~~~~~~~~~~~~~~'
