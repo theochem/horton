@@ -12,7 +12,7 @@ def main():
     """Run ``git diff --check`` on every relevant commit."""
     # Get the common ancestor with the master branch
     command = ['git', 'merge-base', 'master', 'HEAD']
-    ancestor = subprocess.check_output(command)
+    ancestor = subprocess.check_output(command).strip()
 
     # Get the list of commit ids and descriptions between the current and master branch.
     # The latest one is printed first and the HEAD of the master branch is included
