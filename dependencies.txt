@@ -198,6 +198,17 @@
     "macports_pip": "sphinx",
     "purpose": "doc"
 }, {
+    "name": "sphinx_rdt_theme",
+    "title": "Sphinx Read-The-Docs theme",
+    "version_requirement": ">= 0.1.8",
+    "homepage": "https://github.com/snide/sphinx_rtd_theme",
+    "fedora_22_pip": "sphinx_rdt_theme",
+    "fedora_21_pip": "sphinx_rdt_theme",
+    "ubuntu_15_pip": "sphinx_rdt_theme",
+    "ubuntu_12_pip": "sphinx_rdt_theme",
+    "macports_pip": "sphinx_rdt_theme",
+    "purpose": "doc"
+}, {
     "name": "doxygen",
     "title": "Doxygen",
     "version_requirement": ">= 1.8.6",

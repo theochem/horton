@@ -40,6 +40,8 @@ pip install --no-index --upgrade h5py
 # Packages for HORTON documentation
 pip wheel sphinx
 pip install --no-index --upgrade sphinx
+pip wheel sphinx_rtd_theme
+pip install --no-index --upgrade sphinx_rtd_theme
 pip wheel breathe
 pip install --no-index --upgrade breathe
 
