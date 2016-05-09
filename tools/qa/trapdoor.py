@@ -72,7 +72,7 @@ class TrapdoorProgram(object):
         """Execute the main routine of the trapdoor program.
 
         This includes parsing command-line arguments and running one of the three modes:
-        ``feature``, ``master`` or ``report``.
+        ``feature``, ``ancestor`` or ``report``.
         """
         args = self.parse_args()
         print r'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+      ~~~~~~~~~~~~~~~~~'
@@ -83,7 +83,7 @@ class TrapdoorProgram(object):
         if args.mode == 'feature':
             self.prepare()
             self.run_tests(args.mode)
-        elif args.mode == 'master':
+        elif args.mode == 'ancestor':
             self.run_tests(args.mode)
         elif args.mode == 'report':
             self.report(args.noisy)
@@ -98,14 +98,14 @@ class TrapdoorProgram(object):
                The parsed command-line arguments.
         """
         parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]))
-        parser.add_argument('mode', choices=['feature', 'master', 'report'])
+        parser.add_argument('mode', choices=['feature', 'ancestor', 'report'])
         parser.add_argument('-n', '--noisy', default=False, action='store_true',
                             help='Also print output for problems that did not '
                                  'deteriorate.')
         return parser.parse_args()
 
     def prepare(self):
-        """Prepare for the tests, only once, needed for both feature and master branch.
+        """Prepare for the tests, only once, needed for both feature branch and ancestor.
 
         This usually comes down to copying some config files to the QAWORKDIR. This method
         is only called when in the feature branch.
@@ -119,7 +119,7 @@ class TrapdoorProgram(object):
         ----------
         mode: string
               A name for the current branch on which the tests are run, typically
-              ``'feature'`` or ``'master'``.
+              ``'feature'`` or ``'ancestor'``.
 
         The results are written to disk in a file ``trapdoor_results_*.pp``. These files
         are later used by the report method to analyze the results.
@@ -155,7 +155,7 @@ class TrapdoorProgram(object):
         raise NotImplementedError
 
     def report(self, noisy=False):
-        """Load feature and master results from disk and report on screen.
+        """Load feature and ancestor results from disk and report on screen.
 
         Parameters
         ----------
@@ -165,15 +165,15 @@ class TrapdoorProgram(object):
         fn_pp_feature = 'trapdoor_results_%s_feature.pp' % self.name
         with open(os.path.join(self.qaworkdir, fn_pp_feature)) as f:
             results_feature = cPickle.load(f)
-        fn_pp_master = 'trapdoor_results_%s_master.pp' % self.name
-        with open(os.path.join(self.qaworkdir, fn_pp_master)) as f:
-            results_master = cPickle.load(f)
+        fn_pp_ancestor = 'trapdoor_results_%s_ancestor.pp' % self.name
+        with open(os.path.join(self.qaworkdir, fn_pp_ancestor)) as f:
+            results_ancestor = cPickle.load(f)
         if noisy:
-            self.print_details(results_feature, results_master)
-        self.check_regression(results_feature, results_master)
+            self.print_details(results_feature, results_ancestor)
+        self.check_regression(results_feature, results_ancestor)
 
     def print_details(self, (counter_feature, messages_feature),
-                      (counter_master, messages_master)):
+                      (counter_ancestor, messages_ancestor)):
         """Print optional detailed report of the test results.
 
         Parameters
@@ -182,31 +182,31 @@ class TrapdoorProgram(object):
                           Counts for different error types in the feature branch.
         messages_feature : Set([]) of strings
                            All errors encountered in the feature branch.
-        counter_master : collections.Counter
-                         Counts for different error types in the master branch.
-        messages_master : Set([]) of strings
-                          All errors encountered in the master branch.
+        counter_ancestor : collections.Counter
+                         Counts for different error types in the ancestor.
+        messages_ancestor : Set([]) of strings
+                          All errors encountered in the ancestor.
         """
-        resolved_messages = sorted(messages_master - messages_feature)
+        resolved_messages = sorted(messages_ancestor - messages_feature)
         if len(resolved_messages) > 0:
             print 'RESOLVED MESSAGES'
             for msg in resolved_messages:
                 print msg
 
-        unchanged_messages = sorted(messages_master & messages_feature)
+        unchanged_messages = sorted(messages_ancestor & messages_feature)
         if len(unchanged_messages) > 0:
             print 'UNCHANGED MESSAGES'
             for msg in unchanged_messages:
                 print msg
 
-        resolved_counter = counter_master - counter_feature
+        resolved_counter = counter_ancestor - counter_feature
         if len(resolved_counter) > 0:
             print 'SOME COUNTERS DECREASED'
             for key, counter in resolved_counter.iteritems():
                 print '%s  |  %+6i' % (key, -counter)
 
     def check_regression(self, (counter_feature, messages_feature),
-                         (counter_master, messages_master)):
+                         (counter_ancestor, messages_ancestor)):
         """Check if the counters got worse.
 
         The new errors are printed and if a regression is observed, the program quits with
@@ -218,18 +218,18 @@ class TrapdoorProgram(object):
                           Counts for different error types in the feature branch.
         messages_feature : Set([]) of strings
                            All errors encountered in the feature branch.
-        counter_master : collections.Counter
-                         Counts for different error types in the master branch.
-        messages_master : Set([]) of strings
-                          All errors encountered in the master branch.
+        counter_ancestor : collections.Counter
+                         Counts for different error types in the ancestor.
+        messages_ancestor : Set([]) of strings
+                          All errors encountered in the ancestor.
         """
-        new_messages = sorted(messages_feature - messages_master)
+        new_messages = sorted(messages_feature - messages_ancestor)
         if len(new_messages) > 0:
             print 'NEW MESSAGES'
             for msg in new_messages:
                 print msg
 
-        new_counter = counter_feature - counter_master
+        new_counter = counter_feature - counter_ancestor
         if len(new_counter) > 0:
             print 'SOME COUNTERS INCREASED'
             for key, counter in new_counter.iteritems():

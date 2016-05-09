@@ -33,8 +33,8 @@ install:
 # Install all required python packages for HORTON and for testing with pip.
  - tools/qa/install_deps_pip.sh
 
-# Get the master branch for a comparative analysis, if not already present.
- - ((git rev-parse --verify master &> /dev/null) || (git config remote.origin.fetch refs/heads/*:refs/remotes/origin/*; git fetch origin master --depth=50; git branch master origin/master))
+# Get the master branch and complete feature branch for a comparative analysis.
+ - tools/qa/get_master.sh
 
 # Handle detached-HEAD situations that seem to be common on Travis-CI.
  - tools/qa/fix_detached_head.sh

@@ -8,12 +8,6 @@ report_error() {
     ((NUM_FAILED++))
 }
 
-abort_error() {
-    echo -e "${RED}${1}${RESET}"
-    echo -e "${RED}TESTS ABORTED (feature branch)${RESET}"
-    exit 1
-}
-
 ### Testing in the current branch
 
 ### a) Parts that are always done
@@ -40,8 +34,7 @@ if [ "${CURRENT_BRANCH}" == 'master' ]; then
     # Run the fast tests
     nosetests -v -a '!slow' || report_error "Some fast tests failed (master branch)"
 else
-    echo "Checking if the master is a direct ancestor of the feature branch"
-    git merge-base --is-ancestor master ${CURRENT_BRANCH} || abort_error "The master branch is not a direct ancestor of the feature branch."
+    find_ancestor
 
     # Check for whitespace errors in every commit.
     ./tools/qa/check_whitespace.py

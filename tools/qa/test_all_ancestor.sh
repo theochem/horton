@@ -8,44 +8,36 @@ report_error() {
     ((NUM_FAILED++))
 }
 
-abort_error() {
-    echo -e "${RED}${1}${RESET}"
-    echo -e "${RED}TESTS ABORTED (master branch)${RESET}"
-    exit 1
-}
-
-
-### 2) Testing in the master branch (if that isn't current)
+### 2) Testing in the ancestor with the master branch, unless we are currently on the master branch.
 
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [ "${CURRENT_BRANCH}" != 'master' ]; then
-    echo "Checking if the master is a direct ancestor of the feature branch"
-    git merge-base --is-ancestor master ${CURRENT_BRANCH} || abort_error "The master branch is not a direct ancestor of the feature branch."
+    find_ancestor
 
     # Copy the required scripts to the work directory, to make sure we're running with
-    # the scripts from the feature branch, not the master branch
+    # the scripts from the feature branch, not the ancestor with the master branch.
     cp -av ./tools/qa/trapdoor*.py ${QAWORKDIR}/
 
-    # Switch to master
-    git checkout master
+    # Switch to ancestor
+    git checkout ${ANCESTOR_COMMIT}
 
     # Clean stuff
     ./cleanfiles.sh &> /dev/null
     # Construct the reference atoms
     echo 'Rebuilding database of reference atoms'
     rm -rf data/refatoms/*.h5
-    (cd data/refatoms; make all) || report_error "Failed to make reference atoms (master branch)"
+    (cd data/refatoms; make all) || report_error "Failed to make reference atoms (ancestor)"
     # In-place build of HORTON
-    python setup.py build_ext -i || report_error "Failed to build HORTON (master branch)"
+    python setup.py build_ext -i || report_error "Failed to build HORTON (ancestor)"
 
     # Run trapdoor tests (from QAWORKDIR)
-    ${QAWORKDIR}/trapdoor_coverage.py master || report_error "Trapdoor coverage failed (master branch)"
-    ${QAWORKDIR}/trapdoor_cppcheck.py master || report_error "Trapdoor cppcheck failed (master branch)"
-    ${QAWORKDIR}/trapdoor_cpplint.py master || report_error "Trapdoor cpplint failed (master branch)"
-    ${QAWORKDIR}/trapdoor_doxygen.py master || report_error "Trapdoor doxygen failed (master branch)"
-    ${QAWORKDIR}/trapdoor_pylint.py master || report_error "Trapdoor pylint failed (master branch)"
-    ${QAWORKDIR}/trapdoor_pep8.py master || report_error "Trapdoor pep8 failed (master branch)"
-    ${QAWORKDIR}/trapdoor_pep257.py master || report_error "Trapdoor pep257 failed (master branch)"
+    ${QAWORKDIR}/trapdoor_coverage.py ancestor || report_error "Trapdoor coverage failed (ancestor)"
+    ${QAWORKDIR}/trapdoor_cppcheck.py ancestor || report_error "Trapdoor cppcheck failed (ancestor)"
+    ${QAWORKDIR}/trapdoor_cpplint.py ancestor || report_error "Trapdoor cpplint failed (ancestor)"
+    ${QAWORKDIR}/trapdoor_doxygen.py ancestor || report_error "Trapdoor doxygen failed (ancestor)"
+    ${QAWORKDIR}/trapdoor_pylint.py ancestor || report_error "Trapdoor pylint failed (ancestor)"
+    ${QAWORKDIR}/trapdoor_pep8.py ancestor || report_error "Trapdoor pep8 failed (ancestor)"
+    ${QAWORKDIR}/trapdoor_pep257.py ancestor || report_error "Trapdoor pep257 failed (ancestor)"
 
     # Analyze trapdoor results (from QAWORKDIR)
     ${QAWORKDIR}/trapdoor_coverage.py report || report_error "Trapdoor coverage regressions"
@@ -63,7 +55,7 @@ if [ "${CURRENT_BRANCH}" != 'master' ]; then
         echo -e "${RED}SOME TESTS FAILED, SEE ABOVE.${RESET}"
         exit 1
     fi
-fi
 
-echo -e "${GREEN}ALL TESTS PASSED (master branch)${RESET}"
-exit 0
+    echo -e "${GREEN}ALL TESTS PASSED (ancestor)${RESET}"
+    exit 0
+fi
