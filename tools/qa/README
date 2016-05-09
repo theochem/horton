@@ -1,0 +1,3 @@
+These scripts are used by the continuous integration Travis-CI and the buildbot at
+McMaster U. They can also be used to run the same tests on your local machine, which makes
+it easier to solve problems. The work flow is can be found in .travis.yml.
