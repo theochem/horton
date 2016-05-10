@@ -164,7 +164,7 @@ sure the fast unit tests follow these rules:
 
 * **MM205** When tests use random numbers, use a fixed random seed, such that at every
   execution the same random numbers are used. This avoids that a test breaks every now and
-  then. TODO: write utility code to facilitate this.
+  then.
 
 * **MM206** Avoid tests that just compare the output of a routine with the output from a
   previous initial version of that routine. Such tests need to be redone each time a bug
@@ -264,7 +264,7 @@ document the internals of code. When someone wants to understand your code, addi
 help is highly appreciated in the form of comments. At least include the following
 information:
 
-* **MG0201** A dictionary of local variables, for this variable names that do not speak
+* **MG0201** A dictionary of local variables when variable names that do not speak
   for themselves. Such a dictionary can be written at the level of a single function or
   method, but it also makes sense at a class or even module level when certain variable
   names are consistently throughout. (Such consistency is preferable where possible.)
@@ -308,6 +308,16 @@ Git commit message format (MG04##)
 
 More background can be found here: http://chris.beams.io/posts/git-commit/
 
+Consider setting the following environment variables such that ``vim`` is used as editor
+for the commit messages. It offers syntax highlighting to facilitate writing good commit
+messages:
+
+.. code-block:: bash
+
+    export VISUAL=vim
+    export EDITOR="$VISUAL"
+
+
 Units and unit conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -326,8 +336,8 @@ pep8
 
 See https://pypi.python.org/pypi/pep8
 
-The following errors are caught automatically in Python code by the QA scripts (with pep8
-1.6.2). Those marked with a ``*`` are not strictly PEP8 but are checked also by the pep8
+The following errors are caught automatically in Python code by the QA scripts (with
+pep8). Those marked with a ``*`` are not strictly PEP8 but are checked also by the pep8
 program.
 
 * **E1** Indentation
@@ -441,13 +451,83 @@ See https://pypi.python.org/pypi/pep257
 All errors caught automatically by the pep257 program must be fixed. Keep in mind that
 this program does not cover all recommendations in PEP257.
 
-TODO: overview of messages, as done for pep8 in previous section
+The following list of messages is taken from the documentation of pep257 version 1.0.0.
+
+* Missing Docstrings
+
+    * **D100**: Missing docstring in public module
+    * **D101**: Missing docstring in public class
+    * **D102**: Missing docstring in public method
+    * **D103**: Missing docstring in public function
+    * **D104**: Missing docstring in public package
+    * **D105**: Missing docstring in magic method
+
+* Whitespace Issues
+
+    * **D200**: One-line docstring should fit on one line with quotes
+    * **D201**: No blank lines allowed before function docstring
+    * **D202**: No blank lines allowed after function docstring
+    * **D204**: 1 blank line required after class docstring
+    * **D205**: 1 blank line required between summary line and description
+    * **D206**: Docstring should be indented with spaces, not tabs
+    * **D207**: Docstring is under-indented
+    * **D208**: Docstring is over-indented
+    * **D209**: Multi-line docstring closing quotes should be on a separate line
+    * **D210**: No whitespaces allowed surrounding docstring text
+    * **D211**: No blank lines allowed before class docstring
+
+* Quotes Issues
+
+    * **D300**: Use """triple double quotes"""
+    * **D301**: Use r""" if any backslashes in a docstring
+    * **D302**: Use u""" for Unicode docstrings
+
+* Docstring Content Issues
+
+    * **D400**: First line should end with a period
+    * **D401**: First line should be in imperative mood
+    * **D402**: First line should not be the function’s "signature"
+    * **D403**: First word of the first line should be properly capitalized
+
+
+The following checks are not enforced (by default) because they are not part of PEP257:
+
+* Whitespace Issues
+
+    * **D203**: 1 blank line required before class docstring
+    * **D212**: Multi-line docstring summary should start at the first line
+    * **D213**: Multi-line docstring summary should start at the second line
+
 
 
 PyLint
 ~~~~~~
 
-TODO
+See https://www.pylint.org/.
+
+The complete list of messages can be found here: https://docs.pylint.org/features.html
+Because this list constantly evolves with newer version of PyLint, it is not reproduced
+below.
+
+The following messages are excluded by default: E1608, W1627, E1601, E1603, E1602, E1605,
+E1604, E1607, E1606, W1621, W1620, W1623, W1622, W1625, W1624, W1609, W1608, W1607, W1606,
+W1605, W1604, W1603, W1602, W1601, W1639, W1640, I0021, W1638, I0020, W1618, W1619, W1630,
+W1626, W1637, W1634, W1635, W1610, W1611, W1612, W1613, W1614, W1615, W1616, W1617, W1632,
+W1633, W0704, W1628, W1629, W1636.
+
+The following are excluded because we don't agree:
+
+* **C0103**: invalid-name (C0103). Invalid %s name “%s”%s Used when the name doesn’t match
+  the regular expression associated to its type (constant, variable, class...).
+
+
+The following are excluded due false positives:
+
+* **E0611**: no-name-in-module. No name %r in module %r Used when a name cannot be found
+  in a module.
+
+The PyLint settings used by the QA scripts can be found in ``tools/qa/pylintrc``.
+
 
 
 Code coverage by (fast) unit tests
@@ -772,7 +852,7 @@ When no source is mentioned, the criteria are specific to HORTON.
       exceptions must be defined in the module where they are used.
 
 
-* **MP09** Boolean expressions, implicit True/False
+* **MP09##** Boolean expressions, implicit True/False
 
     * **MP0905** (PEP8) Don't compare boolean values to True or False using == .
 
@@ -796,14 +876,14 @@ When no source is mentioned, the criteria are specific to HORTON.
             if not seq:
             if seq:
 
-         * Not good either:
+        * Not good either:
 
           .. code-block:: python
 
             if len(seq):
             if not len(seq):
 
-          * Recommended explicit form:
+        * Recommended explicit form:
 
           .. code-block:: python
 
@@ -877,32 +957,111 @@ When no source is mentioned, the criteria are specific to HORTON.
 Mindless C++ criteria
 =====================
 
-Coding conventions
-~~~~~~~~~~~~~~~~~~
+CPPCheck
+~~~~~~~~
 
-TODO
+For now, CPPCheck with the default settings is used to check the C++ coding conventions.
+All problems found by CPPCheck must be fixed.
+
+
+Manual checks
+~~~~~~~~~~~~~
+
+The following points should be checked manually. These are taken from the Google C++ Style
+Guide (GCSG). See https://google.github.io/styleguide/cppguide.html
+
+* **MC00##** Header files
+
+    * **MC0001** (GCSG) `#define guard <https://google.github.io/styleguide/cppguide.html#The__define_Guard>`_
+      All header files should have #define guards to prevent multiple inclusion. The
+      format of the symbol name should be ``<PROJECT>_<PATH>_<FILE>_H_``.
+
+    * **MC0004** (GCSG) `Names and Order of Includes <https://google.github.io/styleguide/cppguide.html#Names_and_Order_of_Includes>`_
+      Use standard order for readability and to avoid hidden dependencies: Related header,
+      C library, C++ library, other libraries' ``.h``, your project's ``.h``.
+
+* **MC01##** Scoping
+
+* **MC02##** Classes
+
+    * **MC0202** (GCSG) `Copyable and Movable Types <https://google.github.io/styleguide/cppguide.html#Copyable_Movable_Types>`_
+      Support copying and/or moving if it makes sense for your type. Otherwise, disable
+      the implicitly generated special functions that perform copies and moves.
+
+    * **MC0210** (GCSG) `Declaration Order <https://google.github.io/styleguide/cppguide.html#Declaration_Order>`_
+      Use the specified order of declarations within a class: public: before private:,
+      methods before data members (variables), etc.
+
+* **MC03##** Functions
+
+    * **MC0300** (GCSG) `Parameter Ordering <https://google.github.io/styleguide/cppguide.html#Function_Parameter_Ordering>`_
+
+    * **MC0302** (GCSG) `Reference Arguments <https://google.github.io/styleguide/cppguide.html#Reference_Arguments>`_
+      All parameters passed by reference must be labeled const.
+
+* **MC04##** Other
+
+    * **MC0401** (GCSG) `Variable-Length Arrays and alloca() <https://google.github.io/styleguide/cppguide.html#Variable-Length_Arrays_and_alloca__>`_
+      We do not allow variable-length arrays or alloca().
+
+    * **MC0407** (GCSG) `Preincrement and Predecrement <https://google.github.io/styleguide/cppguide.html#Preincrement_and_Predecrement>`_
+      Use prefix form (``++i``) of the increment and decrement operators with iterators
+      and other template objects.
+
+    * **MC0408** (GCSG) `Use of const <https://google.github.io/styleguide/cppguide.html#Use_of_const>`_
+      Use ``const`` whenever it makes sense. With C++11, ``constexpr`` is a better choice
+      for some uses of ``const``.
+
+* **MC05##** Naming
+
+    * **MC0503** (GCSG) `Variable Names <https://google.github.io/styleguide/cppguide.html#Variable_Names>`_
+      The names of variables and data members are all lowercase, with underscores between
+      words. Data members of classes (but not structs) additionally have trailing
+      underscores. For instance: ``a_local_variable``, ``a_struct_data_member``,
+      ``a_class_data_member_``.
+
+* **MC06##** Comments
+
+* **MC07##** Formatting
+
+
 
 API documentation
 ~~~~~~~~~~~~~~~~~
 
 QA scripts will test if C++ source code documentation is missing.
 
-TODO: add a script that checks if "// UPDATELIBDOCTITLE:" is present in every C++ header
-file.
 
 Coverage testing
 ~~~~~~~~~~~~~~~~
 
-TODO: use gcov for C++ code.
+TODO
 
 
 Mindless Cython criteria
 ========================
 
-* All Python criteria must be followed but nothing can be tested automatically. You have
-  to check manually.
+All Python criteria must be followed but nothing can be tested automatically. You have to
+check everything manually. Because this is horribly inconvenient, the amount of Cython
+code should be kept to a minimum.
 
-In addition ...
+In addition to the Python criteria, also use the following conventions:
 
-* TODO: specific way of accessing pointers to numpy array data.
-* TODO: Order of imports (numpy)
+* **MY0001** Pointers to NumPy array data should be accessed as follows:
+
+  .. code-block:: python
+
+    cdef double* pointer
+    pointer = &array[0]         # for a 1D array
+    pointer = &array[0, 0]      # for a 2D array
+    pointer = &array[0, 0, 0]   # for a 3D array
+    # etc.
+
+* **MY0002** NumPy should be imported in Cython as follows:
+
+  .. code-block:: python
+
+    import numpy as np
+    cimport numpy as np
+    np.import_array()
+    # Other import and cimport lines should be put below.
