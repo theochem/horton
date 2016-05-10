@@ -58,13 +58,13 @@ class PEP257TrapdoorProgram(TrapdoorProgram):
         command = ['pep257', '--version']
         print 'USING pep257', subprocess.check_output(command).strip()
 
-        # Call doxygen in the doc subdirectory
+        # Call pep257 in the directories containing Python code
         command = ['pep257'] + config['py_directories']
         print 'RUNNING', ' '.join(command)
         proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         output = proc.communicate()[0]
 
-        # Parse the file doc/doxygen_warnings.log
+        # Parse the standard output of pep257
         counter = Counter()
         messages = set([])
         lines = output.split('\n')[:-1]
