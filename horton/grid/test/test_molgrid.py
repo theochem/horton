@@ -70,6 +70,17 @@ def test_integrate_hydrogen_trimer_1s():
     assert abs(occupation - 3.0) < 1e-3
 
 
+def test_all_elements():
+    numbers = np.array([1, 118], int)
+    coordinates = np.array([[0.0, 0.0, -1.0], [0.0, 0.0, 1.0]], float)
+    rtf = ExpRTransform(1e-3, 1e1, 10)
+    rgrid = RadialGrid(rtf)
+    while numbers[0] < numbers[1]:
+        BeckeMolGrid(coordinates, numbers, None, (rgrid, 110), random_rotate=False)
+        numbers[0] += 1
+        numbers[1] -= 1
+
+
 def test_molgrid_attrs_subgrid():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
