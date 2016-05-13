@@ -20,11 +20,12 @@
 # --
 
 
+
 import numpy as np, tempfile, shutil
 from contextlib import contextmanager
 import subprocess, os, shlex
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 __all__ = [
@@ -34,7 +35,7 @@ __all__ = [
     'compare_expansions', 'compare_all_expansions', 'compare_dms',
     'compare_all_dms', 'compare_operators', 'compare_occ_model', 'compare_exps',
     'compare_mols', 'compare_symmetries',
-    'tmpdir', 'numpy_seed',
+    'tmpdir', 'numpy_seed', 'truncated_file',
 ]
 
 
@@ -359,7 +360,6 @@ def tmpdir(name):
         shutil.rmtree(dn)
 
 
-@contextmanager
 def numpy_seed(seed=1):
     """Temporarily set NumPy's random seed to a given number.
 
@@ -372,3 +372,31 @@ def numpy_seed(seed=1):
     np.random.seed(seed)
     yield None
     np.random.set_state(state)
+
+
+def truncated_file(name, fn_orig, nline, nadd):
+    """Make a temporary truncated copy of a file.
+
+    Parameters
+    ----------
+    name : str
+           The name of test, used to make a unique temporary directory
+    fn_orig : str
+              The file to be truncated.
+    nline : int
+            The number of lines to retain.
+    nadd : int
+           The number of empty lines to add.
+    """
+    with tmpdir(name) as dn:
+        fn_truncated = '%s/truncated_%i_%s' % (dn, nline, os.path.basename(fn_orig))
+        with open(fn_orig) as f_orig, open(fn_truncated, 'w') as f_truncated:
+            counter = 0
+            for line in f_orig:
+                f_truncated.write(line)
+                counter += 1
+                if counter >= nline:
+                    break
+            for _ in xrange(nadd):
+                f_truncated.write('\n')
+        yield fn_truncated
