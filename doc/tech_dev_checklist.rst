@@ -523,13 +523,15 @@ The following are excluded because we don't agree:
 * **C0103**: invalid-name (C0103). Invalid %s name “%s”%s Used when the name doesn’t match
   the regular expression associated to its type (constant, variable, class...).
 
-
 The following are excluded due false positives:
 
 * **E0611**: no-name-in-module. No name %r in module %r Used when a name cannot be found
   in a module.
 * **E1101**: no-member. %s %r has no %r member Used when a variable is accessed for an
   unexistent member.
+
+* In addition, no doc strings are required for unit tests, i.e. functions starting with
+  ``test_``.
 
 The PyLint settings used by the QA scripts can be found in ``tools/qa/pylintrc``.
 
