@@ -361,7 +361,7 @@ def tmpdir(name):
 
 @contextmanager
 def numpy_seed(seed=1):
-    """Temporarily set NumPy's random seed to a given number
+    """Temporarily set NumPy's random seed to a given number.
 
     Parameters
     ----------
