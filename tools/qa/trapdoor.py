@@ -225,7 +225,7 @@ class TrapdoorProgram(object):
         """
         new_messages = sorted(messages_feature - messages_ancestor)
         if len(new_messages) > 0:
-            print 'NEW MESSAGES'
+            print 'NEW MESSAGES (or moved to a new line)'
             for msg in new_messages:
                 print msg
 
