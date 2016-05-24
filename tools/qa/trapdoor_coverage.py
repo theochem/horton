@@ -101,10 +101,12 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
             if miss > 0:
                 filename = words[0]
                 counter['missed lines in ' + filename] += 1
-                for r in words[4].split(','):
+                for r in words[4:]:
                     r = r.strip()
+                    if r.endswith(','):
+                        r = r[:-1]
                     if len(r) > 0:
-                        messages.add('coverage %s %s' % (filename, r.strip()))
+                        messages.add('coverage %s %s' % (filename, r))
 
         return counter, messages
 
