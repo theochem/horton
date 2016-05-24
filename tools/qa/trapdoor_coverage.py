@@ -86,27 +86,29 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
                 messages.add('nosetests ' + line)
             iline += 1
 
-        # - coverage
+        # - coverage analysis
+        # Go down in the output to the point where the coverage analysis is printed.
         for line in lines[iline:]:
             if line == ('Name                                                  '
                         'Stmts   Miss  Cover   Missing'):
                 break
             iline += 1
         iline += 2
+        # Process line by line
         for line in lines[iline:]:
             if line.startswith('--------'):
                 break
             words = line.split()
-            miss = int(words[2])
+            miss = int(words[2])  # number of lines missed
             if miss > 0:
                 filename = words[0]
-                counter['missed lines in ' + filename] += 1
-                for r in words[4:]:
-                    r = r.strip()
-                    if r.endswith(','):
-                        r = r[:-1]
-                    if len(r) > 0:
-                        messages.add('coverage %s %s' % (filename, r))
+                counter['missed lines in ' + filename] += miss
+                for linenos in words[4:]:
+                    linenos = linenos.strip()
+                    if linenos.endswith(','):
+                        linenos = linenos[:-1]
+                    if len(linenos) > 0:
+                        messages.add('coverage %s %s' % (filename, linenos))
 
         return counter, messages
 
