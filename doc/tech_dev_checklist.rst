@@ -1092,7 +1092,7 @@ In addition to the Python criteria, also use the following conventions:
     # etc.
 
 * **MY0002** NumPy should be imported in Cython in a specific way. (See
-https://github.com/cython/cython/wiki/tutorials-numpy#c-api-initalization)
+  https://github.com/cython/cython/wiki/tutorials-numpy#c-api-initalization)
 
   .. code-block:: python
 
