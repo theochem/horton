@@ -34,7 +34,7 @@ __all__ = [
     'compare_expansions', 'compare_all_expansions', 'compare_dms',
     'compare_all_dms', 'compare_operators', 'compare_occ_model', 'compare_exps',
     'compare_mols', 'compare_symmetries',
-    'tmpdir',
+    'tmpdir', 'numpy_seed',
 ]
 
 
@@ -357,3 +357,18 @@ def tmpdir(name):
         yield dn
     finally:
         shutil.rmtree(dn)
+
+
+@contextmanager
+def numpy_seed(seed=1):
+    """Temporarily set NumPy's random seed to a given number
+
+    Parameters
+    ----------
+    seed : int
+           The seed for NumPy's random number generator.
+    """
+    state = np.random.get_state()
+    np.random.seed(seed)
+    yield None
+    np.random.set_state(state)

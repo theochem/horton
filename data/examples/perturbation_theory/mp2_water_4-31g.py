@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from horton import *
+from horton.test.common import numpy_seed
 
 ###############################################################################
 ## Set up molecule, define basis set ##########################################
@@ -53,4 +54,5 @@ one.iadd(na)
 ## Do RMP2 calculation ########################################################
 ###############################################################################
 mp2 = RMP2(lf, occ_model)
-emp2, tmp2 = mp2(one, er, orb, **{'eref': ehf})
+with numpy_seed():  # reproducible 'random' numbers to make sure it always works
+    emp2, tmp2 = mp2(one, er, orb, **{'eref': ehf})

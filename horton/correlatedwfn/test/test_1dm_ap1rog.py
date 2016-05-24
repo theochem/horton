@@ -24,7 +24,7 @@ import numpy as np
 from nose.plugins.attrib import attr
 
 from horton import *
-from horton.test.common import check_delta
+from horton.test.common import check_delta, numpy_seed
 
 
 @attr('slow')
@@ -58,7 +58,9 @@ def test_ap1rog_one_dm():
 
     # Do AP1roG optimization:
     geminal_solver = RAp1rog(lf, occ_model)
-    energy, g, l = geminal_solver(one, er, external['nn'], exp_alpha, olp, True, **{'checkpoint': -1, 'maxiter': {'orbiter': 0}})
+    with numpy_seed():
+        energy, g, l = geminal_solver(one, er, external['nn'], exp_alpha, olp, True,
+                                      checkpoint=-1, maxiter={'orbiter': 0})
 
     one_mo_ = lf.create_two_index()
     one_mo_.assign_two_index_transform(one, exp_alpha)
@@ -112,5 +114,6 @@ def test_ap1rog_one_dm():
         return a.ravel()
 
     x = one_mo_._array.ravel()
-    dxs = np.random.rand(100, 28*28)*0.00001
-    check_delta(fun, fun_deriv, x, dxs)
+    with numpy_seed():
+        dxs = np.random.rand(100, 28*28)*0.00001
+        check_delta(fun, fun_deriv, x, dxs)
