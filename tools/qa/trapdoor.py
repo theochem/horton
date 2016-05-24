@@ -36,6 +36,25 @@ import time
 __all__ = ['TrapdoorProgram']
 
 
+def _print_messages(header, messages, pattern=None):
+    """Print a set of messages.
+
+    Parameters
+    ----------
+    header : str
+             A Header string, usually uppercase
+    messages : iterable
+               A list of message strings
+    pattern : None or str
+              When given, only messages containing ``pattern`` will be printed.
+    """
+    if len(messages) > 0:
+        print header
+        for msg in messages:
+            if pattern is None or pattern in msg:
+                print msg
+
+
 class TrapdoorProgram(object):
     """Base class for all trapdoor programs.
 
@@ -86,7 +105,7 @@ class TrapdoorProgram(object):
         elif args.mode == 'ancestor':
             self.run_tests(args.mode)
         elif args.mode == 'report':
-            self.report(args.noisy)
+            self.report(args.noisy, args.pattern)
         print
 
     def parse_args(self):
@@ -102,6 +121,8 @@ class TrapdoorProgram(object):
         parser.add_argument('-n', '--noisy', default=False, action='store_true',
                             help='Also print output for problems that did not '
                                  'deteriorate.')
+        parser.add_argument('-f', '--pattern', metavar='PATTERN', dest='pattern',
+                            help='Only print messages containing PATTERN')
         return parser.parse_args()
 
     def prepare(self):
@@ -136,7 +157,7 @@ class TrapdoorProgram(object):
         print 'WALL TIME %.1f' % (time.time() - start_time)
 
     def get_stats(self, config):
-        """Run tests using an external program and collect its output
+        """Run tests using an external program and collect its output.
 
         This method must be implemented in a subclass.
 
@@ -154,13 +175,15 @@ class TrapdoorProgram(object):
         """
         raise NotImplementedError
 
-    def report(self, noisy=False):
+    def report(self, noisy=False, pattern=None):
         """Load feature and ancestor results from disk and report on screen.
 
         Parameters
         ----------
         noisy : bool
                 If True, more detailed screen output is printed.
+        pattern : None or str
+                  When given, only messages containing ``pattern`` will be printed.
         """
         fn_pp_feature = 'trapdoor_results_%s_feature.pp' % self.name
         with open(os.path.join(self.qaworkdir, fn_pp_feature)) as f:
@@ -169,11 +192,11 @@ class TrapdoorProgram(object):
         with open(os.path.join(self.qaworkdir, fn_pp_ancestor)) as f:
             results_ancestor = cPickle.load(f)
         if noisy:
-            self.print_details(results_feature, results_ancestor)
-        self.check_regression(results_feature, results_ancestor)
+            self.print_details(results_feature, results_ancestor, pattern)
+        self.check_regression(results_feature, results_ancestor, pattern)
 
     def print_details(self, (counter_feature, messages_feature),
-                      (counter_ancestor, messages_ancestor)):
+                      (counter_ancestor, messages_ancestor), pattern=None):
         """Print optional detailed report of the test results.
 
         Parameters
@@ -186,18 +209,14 @@ class TrapdoorProgram(object):
                          Counts for different error types in the ancestor.
         messages_ancestor : Set([]) of strings
                           All errors encountered in the ancestor.
+        pattern : None or str
+                  When given, only messages containing ``pattern`` will be printed.
         """
         resolved_messages = sorted(messages_ancestor - messages_feature)
-        if len(resolved_messages) > 0:
-            print 'RESOLVED MESSAGES'
-            for msg in resolved_messages:
-                print msg
+        _print_messages('RESOLVED MESSAGES', resolved_messages, pattern)
 
         unchanged_messages = sorted(messages_ancestor & messages_feature)
-        if len(unchanged_messages) > 0:
-            print 'UNCHANGED MESSAGES'
-            for msg in unchanged_messages:
-                print msg
+        _print_messages('UNCHANGED MESSAGES', unchanged_messages, pattern)
 
         resolved_counter = counter_ancestor - counter_feature
         if len(resolved_counter) > 0:
@@ -206,7 +225,7 @@ class TrapdoorProgram(object):
                 print '%s  |  %+6i' % (key, -counter)
 
     def check_regression(self, (counter_feature, messages_feature),
-                         (counter_ancestor, messages_ancestor)):
+                         (counter_ancestor, messages_ancestor), pattern=None):
         """Check if the counters got worse.
 
         The new errors are printed and if a regression is observed, the program quits with
@@ -222,12 +241,11 @@ class TrapdoorProgram(object):
                          Counts for different error types in the ancestor.
         messages_ancestor : Set([]) of strings
                           All errors encountered in the ancestor.
+        pattern : None or str
+                  When given, only messages containing ``pattern`` will be printed.
         """
         new_messages = sorted(messages_feature - messages_ancestor)
-        if len(new_messages) > 0:
-            print 'NEW MESSAGES (or moved to a new line)'
-            for msg in new_messages:
-                print msg
+        _print_messages('NEW MESSAGES', new_messages, pattern)
 
         new_counter = counter_feature - counter_ancestor
         if len(new_counter) > 0:
@@ -236,4 +254,4 @@ class TrapdoorProgram(object):
                 print '%s  |  %+6i' % (key, counter)
             sys.exit(1)
         else:
-            print 'GOOD ENOUGH'
+            print 'GOOD (ENOUGH)'
