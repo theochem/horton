@@ -520,8 +520,10 @@ W1632, W1633, W1634, W1635, W1636, W1637, W1638, W1639, W1640
 
 The following are excluded because we don't agree:
 
-* **C0103**: invalid-name (C0103). Invalid %s name “%s”%s Used when the name doesn’t match
+* **C0103**: invalid-name. Invalid %s name “%s”%s Used when the name doesn’t match
   the regular expression associated to its type (constant, variable, class...).
+* **I0011**: locally-disabled. Used when an inline option disables a message or a messages
+  category.
 
 The following is disabled to allow access to the protected members of the
 (not-so-well-designed) Matrix classes:
@@ -537,8 +539,8 @@ The following are excluded due false positives:
 * **E1101**: no-member. %s %r has no %r member Used when a variable is accessed for an
   unexistent member.
 
-* In addition, no doc strings are required for unit tests, i.e. functions starting with
-  ``test_``.
+In addition, no doc strings are required for unit tests, i.e. functions starting with
+``test_``.
 
 The PyLint settings used by the QA scripts can be found in ``tools/qa/pylintrc``.
 
