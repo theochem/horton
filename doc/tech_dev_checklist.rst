@@ -538,6 +538,8 @@ The following are excluded due false positives:
   in a module.
 * **E1101**: no-member. %s %r has no %r member Used when a variable is accessed for an
   unexistent member.
+* **R0201**: no-self-use. Method could be a function Used when a method doesn’t use its
+  bound instance, and so could be written as a function.
 
 In addition, no doc strings are required for unit tests, i.e. functions starting with
 ``test_``.
