@@ -528,6 +528,8 @@ The following are excluded due false positives:
 
 * **E0611**: no-name-in-module. No name %r in module %r Used when a name cannot be found
   in a module.
+* **E1101**: no-member. %s %r has no %r member Used when a variable is accessed for an
+  unexistent member.
 
 The PyLint settings used by the QA scripts can be found in ``tools/qa/pylintrc``.
 
