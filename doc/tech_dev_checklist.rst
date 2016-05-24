@@ -337,8 +337,8 @@ pep8
 See https://pypi.python.org/pypi/pep8
 
 The following errors are caught automatically in Python code by the QA scripts (with
-pep8). Those marked with a ``*`` are not strictly PEP8 but are checked also by the pep8
-program.
+pep8 1.6.2). Those marked with a ``*`` are not strictly PEP8 but are checked also by the
+pep8 program.
 
 * **E1** Indentation
     * **E101** indentation contains mixed spaces and tabs
@@ -348,11 +348,9 @@ program.
     * **E114** indentation is not a multiple of four (comment)
     * **E115** expected an indented block (comment)
     * **E116** unexpected indentation (comment)
-    * **E121** (*) continuation line under-indented for hanging indent
     * **E122** continuation line missing indentation or outdented
     * **E124** closing bracket does not match visual indentation
     * **E125** continuation line with same indent as next logical line
-    * **E126** continuation line over-indented for hanging indent
     * **E129** visually indented line with same indent as next logical line
     * **E131** continuation line unaligned for hanging indent
     * **E133** closing bracket is missing indentation
@@ -392,7 +390,7 @@ program.
     * **E402** module level import not at top of file
 
 * **E5** Line length
-    * **E501** (^) line too long (more than 100 characters)
+    * **E501** line too long (more than 100 characters)
     * **E502** the backslash is redundant between brackets
 
 * **E7** Statement
@@ -433,8 +431,10 @@ program.
 
 The following pep8 error codes are disabled.
 
-* Because we don't agree:
+* By default in pep8 (1.6.2):
+    * **E121** (*) continuation line under-indented for hanging indent
     * **E123** (*) closing bracket does not match indentation of opening bracket’s line
+    * **E126** continuation line over-indented for hanging indent
     * **E226** (*) missing whitespace around arithmetic operator
     * **E241** (*) multiple spaces after ‘,’
 
