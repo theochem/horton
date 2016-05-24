@@ -38,6 +38,7 @@ if [ "${CURRENT_BRANCH}" != 'master' ]; then
     ${QAWORKDIR}/trapdoor_pylint.py ancestor || report_error "Trapdoor pylint failed (ancestor)"
     ${QAWORKDIR}/trapdoor_pep8.py ancestor || report_error "Trapdoor pep8 failed (ancestor)"
     ${QAWORKDIR}/trapdoor_pep257.py ancestor || report_error "Trapdoor pep257 failed (ancestor)"
+    ${QAWORKDIR}/trapdoor_import.py ancestor || report_error "Trapdoor import failed (ancestor)"
 
     # Analyze trapdoor results (from QAWORKDIR)
     ${QAWORKDIR}/trapdoor_coverage.py report || report_error "Trapdoor coverage regressions"
@@ -47,6 +48,7 @@ if [ "${CURRENT_BRANCH}" != 'master' ]; then
     ${QAWORKDIR}/trapdoor_pylint.py report || report_error "Trapdoor pylint regressions"
     ${QAWORKDIR}/trapdoor_pep8.py report || report_error "Trapdoor pep8 regressions"
     ${QAWORKDIR}/trapdoor_pep257.py report || report_error "Trapdoor pep257 regressions"
+    ${QAWORKDIR}/trapdoor_import.py report || report_error "Trapdoor import regressions"
 
     git checkout ${CURRENT_BRANCH}
 
