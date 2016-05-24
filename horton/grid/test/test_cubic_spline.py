@@ -20,17 +20,21 @@
 #--
 
 
-import numpy as np, h5py as h5
+import numpy as np
+import h5py as h5
+
 from horton import *
+from horton.test.common import numpy_seed
 
 
 def test_tridiagsym_solve():
     N = 10
     A = np.zeros((N,N), float)
-    # randomize the diagonal
-    A.ravel()[::N+1] = np.random.uniform(1,2,N)
-    # randomize the upper diagonal
-    A.ravel()[1::N+1] = np.random.uniform(-1,0,N-1)
+    with numpy_seed():  # Make random numbers reproducible
+        # randomize the diagonal
+        A.ravel()[::N+1] = np.random.uniform(1,2,N)
+        # randomize the upper diagonal
+        A.ravel()[1::N+1] = np.random.uniform(-1,0,N-1)
     # clone the lower diagonal
     A.ravel()[N::N+1] = A.ravel()[1::N+1]
     # test the inverse for all possible basis vectors
