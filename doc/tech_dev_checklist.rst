@@ -523,6 +523,13 @@ The following are excluded because we don't agree:
 * **C0103**: invalid-name (C0103). Invalid %s name “%s”%s Used when the name doesn’t match
   the regular expression associated to its type (constant, variable, class...).
 
+The following is disabled to allow access to the protected members of the
+(not-so-well-designed) Matrix classes:
+
+* **W0212**: protected-access. Access to a protected member %s of a client class Used when
+  a protected member (i.e. class member with a name beginning with an underscore) is
+  access outside the class or a descendant of the class where it’s defined.
+
 The following are excluded due false positives:
 
 * **E0611**: no-name-in-module. No name %r in module %r Used when a name cannot be found
