@@ -158,6 +158,9 @@ def get_basis_pair_geometry():
     lf = DenseLinalgFactory(obasis0.nbasis)
     exp0 = lf.create_expansion()
 
+    # Occupy all orbitals such that orthogonality is well tested
+    exp0.occupations[:] = 1.0
+
     # core-hamiltonian guess
     olp = obasis0.compute_overlap(lf)
     kin = obasis0.compute_kinetic(lf)
@@ -169,7 +172,8 @@ def get_basis_pair_geometry():
     exp0.check_orthonormality(obasis0.compute_overlap(lf))
 
     # Change geometry
-    mol.coordinates[1,2] += 0.1
+    mol.coordinates[1,2] += 0.5
+    mol.coordinates[0,1] -= 1.5
     obasis1 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
     exp1 = lf.create_expansion()
 
@@ -186,7 +190,6 @@ def test_project_msg_geometry():
     assert (exp1.energies == 0.0).all()
     assert (exp1.occupations == exp0.occupations).all()
     assert abs(exp1.coeffs[:,:5] - exp0.coeffs[:,:5]).max() > 1e-3 # something should change
-    assert (exp1.coeffs[:,5:] == 0.0).all()
 
     # Check orthonormality
     exp1.check_orthonormality(obasis1.compute_overlap(lf))

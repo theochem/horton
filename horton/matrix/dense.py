@@ -1331,26 +1331,33 @@ class DenseExpansion(Expansion):
                 out._array += factor*np.dot(self._coeffs*self.occupations, other._coeffs.T)
         return out
 
-    def assign_dot(self, other, tf2):
+    def assign_dot(self, left, right):
         '''Dot product of orbitals in a DenseExpansion and TwoIndex object
 
            **Arguments:**
 
-           other
-                An expansion object with input orbitals
-
-           tf2
-                A two-index object
+           left, right:
+                An expansion and a two-index object, or a two-index and an expansion
+                object.
 
            The transformed orbitals are stored in self.
         '''
-        check_type('other', other, DenseExpansion)
-        check_type('tf2', tf2, DenseTwoIndex)
-        if not (self.nbasis == other.nbasis):
-            raise TypeError('Both expansions must have the same number of basis functions.')
-        if not (tf2.shape[0] == other.nfn and tf2.shape[1] == self.nfn):
-            raise TypeError('The shape of the two-index object is incompatible with that of the expansions.')
-        self._coeffs[:] = np.dot(other.coeffs, tf2._array)
+        if isinstance(left, DenseExpansion):
+            check_type('left', left, DenseExpansion)
+            check_type('right', right, DenseTwoIndex)
+            if not (self.nbasis == left.nbasis):
+                raise TypeError('Both expansions must have the same number of basis functions.')
+            if not (right.shape[0] == left.nfn and right.shape[1] == self.nfn):
+                raise TypeError('The shape of the two-index object is incompatible with that of the expansions.')
+            self._coeffs[:] = np.dot(left.coeffs, right._array)
+        elif isinstance(right, DenseExpansion):
+            check_type('left', left, DenseTwoIndex)
+            check_type('right', right, DenseExpansion)
+            if not (self.nfn == right.nfn):
+                raise TypeError('Both expansions must have the same number of orbitals.')
+            if not (left.shape[1] == right.nbasis and left.shape[1] == self.nbasis):
+                raise TypeError('The shape of the two-index object is incompatible with that of the expansions.')
+            self._coeffs[:] = np.dot(left._array, right.coeffs)
 
     def assign_occupations(self, occupation):
         '''Assign orbital occupations

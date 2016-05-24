@@ -770,7 +770,7 @@ def test_expansion_to_dm3():
     assert not dm.is_symmetric()
 
 
-def test_expansion_assign_dot():
+def test_expansion_assign_dot1():
     lf = DenseLinalgFactory(2)
     exp0 = lf.create_expansion()
     exp1 = lf.create_expansion()
@@ -779,6 +779,17 @@ def test_expansion_assign_dot():
     tf2.randomize()
     exp1.assign_dot(exp0, tf2)
     assert np.allclose(exp1.coeffs, np.dot(exp0.coeffs, tf2._array))
+
+
+def test_expansion_assign_dot2():
+    lf = DenseLinalgFactory(2)
+    exp0 = lf.create_expansion()
+    exp1 = lf.create_expansion()
+    tf2 = lf.create_two_index()
+    exp0.randomize()
+    tf2.randomize()
+    exp1.assign_dot(tf2, exp0)
+    assert np.allclose(exp1.coeffs, np.dot(tf2._array, exp0.coeffs))
 
 
 def test_expansion_assign_occupations():

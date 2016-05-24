@@ -78,10 +78,11 @@ def project_orbitals_mgs(obasis0, obasis1, exp0, exp1, eps=1e-10):
     olp_21 = olp_both._array[obasis0.nbasis:, :obasis0.nbasis]
     olp_22 = olp_both._array[obasis0.nbasis:, obasis0.nbasis:]
 
-    # construct the projector
+    # Construct the projector. This minimizes the L2 norm between the new and old
+    # orbitals, which does not account for orthonormality.
     projector = np.dot(np.linalg.pinv(olp_22), olp_21)
 
-    # project occupied orbitals
+    # Project occupied orbitals.
     i1 = 0
     for i0 in xrange(exp0.nfn):
         if exp0.occupations[i0] == 0.0:
@@ -105,12 +106,12 @@ def project_orbitals_mgs(obasis0, obasis1, exp0, exp1, eps=1e-10):
 
     # Apply the MGS algorithm to orthogonalize the orbitals
     for i1 in xrange(ntrans):
-        orb = exp1.coeffs[:,i1]
+        orb = exp1.coeffs[:, i1]
 
         # Subtract overlap with previous orbitals
         for j1 in xrange(i1):
-            other = exp1.coeffs[:,j1]
-            orb -= other*dot22(other, orb)/np.sqrt(dot22(orb, orb))
+            other = exp1.coeffs[:, j1]
+            orb -= other*dot22(other, orb)/np.sqrt(dot22(other, other))
 
         # Renormalize
         norm = np.sqrt(dot22(orb, orb))
@@ -173,12 +174,12 @@ def project_orbitals_ortho(olp0, olp1, exp0, exp1):
     olp0, obasis0 = helper_olp(olp0)
     olp1, obasis1 = helper_olp(olp1)
 
-    tmp = olp0.inverse()
-    tmp.idot(olp1)
+    tmp = olp1.inverse()
+    tmp.idot(olp0)
     tf = tmp.sqrt()
 
     # Transform the coefficients
-    exp1.assign_dot(exp0, tf)
+    exp1.assign_dot(tf, exp0)
 
     # Clear the energies in exp1 as they can not be defined in a meaningful way
     exp1.energies[:] = 0.0
