@@ -43,6 +43,7 @@ autogendoc:
 	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python update_functionals.py
 	HORTONDATA=../data PYTHONPATH=../:$(PYTHONPATH) python update_basis.py
 	python update_hf_dft_examples.py
+	python update_install_doc.py
 	doxygen doxygen.conf
 
 clean:
@@ -52,6 +53,9 @@ clean:
 	rm -f tech_ref_literature.rst
 	rm -f tech_ref_functionals.rst
 	rm -rf doxyxml
+	rm -f doxygen_warnings.log
+	rm -f user_download_and_install_linux.rst
+	rm -f user_download_and_install_mac.rst
 
 html: autogendoc
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html

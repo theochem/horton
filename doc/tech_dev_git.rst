@@ -30,7 +30,7 @@ developments into one common source tree.
 
 To refresh your mind on commonly used Git commands, please refer to `Git Reference <http://gitref.org/>`_.
 
-This section goes through the basics of VSC to get you started with developing new features in HORTON. Although the commands
+This section goes through the basics of VCSs to get you started with developing new features in HORTON. Although the commands
 below are specific to Git, the following entails good practices that can be
 generalized and applied to other modern VCS such as Bazaar or Mercurial.
 
@@ -216,10 +216,14 @@ downloaded separately when compiling a development version of HORTON:
 Work flow for adding a new feature
 ==================================
 
-The development of a new feature typically consists of three main steps: (i)
-modifications of the code in a separate branch, (ii) review of the new code,
-fixing problems and (iii) rebase your branch on top of the ``master`` branch and
-publish.
+The development of a new feature typically consists of the following steps:
+
+1. You make modifications of the code in a topic branch. You test and document your
+   modifications, fix problems where needed.
+2. Make a pull request on Github. (Some tests will be automatically executed.) Someone
+   will review your pull request, which usually leads to suggestions to improve
+   your modifications.
+3. As soon as you pull request is up to snuff, it will be merged into the master branch.
 
 .. note::
 
@@ -227,31 +231,27 @@ publish.
     reviewed/merged as early as possible. This takes some planning, as you have to
     figure out how to break your big plans up into smaller steps. In general
     this is a good exercise that will help you write more modular code.
-    Although this seems to be cumbersome, it does save time for
-    everyone involved.
+    Although this seems to be cumbersome, it does save time for everyone involved.
 
-The instructions below are written for the general public, i.e. people that do
-not have access to the Clifford server. When you work with Clifford, the internal
-development server, make the following substitutions below:
-
-* ``master`` branch => ``prerelease`` branch
-* Read-only ``origin`` repository on GitHub with URL ``https://github.com/theochem/horton.git`` =>
-  Read-only ``origin`` repository with URL ``ssh://clifford/horton-release``
-* Writable repository ``review`` for uploading your branches with a URL you created =>
-  Writable repository ``review`` on clifford with URL ``ssh://clifford/horton-2``
+When you intend to make relatively large modifications, it is recommended to discuss these
+first, e.g. on the `HORTON mailing list
+<https://groups.google.com/forum/#!forum/horton-discuss>`_, just to avoid disapointments
+in the long run.
 
 
-Develop the feature in a separate branch
-----------------------------------------
+Develop the feature in a topic branch
+---------------------------------------
 
-0. Clone the public HORTON repository (if not done yet) and enter the source
-   tree:
+0. `Fork <https://help.github.com/articles/fork-a-repo>`_ the public HORTON repository on
+   Github (if not done yet), clone it on your local machine and enter the source tree:
 
    .. code-block:: bash
 
-       $ ~/code> git clone https://github.com/theochem/horton.git
+       $ ~/code> git clone https://github.com/your_account/horton.git
        $ ~/code> cd horton
        $ ~/.../horton:master>
+
+   where ``your_account`` needs to be replaced by your Github account name.
 
 1. Switch to the ``master`` branch, if needed:
 
@@ -269,7 +269,7 @@ Develop the feature in a separate branch
 
     $ ~/.../horton:master> git pull origin
 
-3. Make a new branch, say ``bar``, and switch to it:
+3. Make a topic branch, say ``bar``, and switch to it:
 
    .. code-block:: bash
 
@@ -330,56 +330,42 @@ In practice, you'll make a couple of commits before a new feature is finished. A
 committing the changes and testing them thoroughly, you are ready for the next step.
 
 
-Make your branch available for review
--------------------------------------
+Make your branch available for review with a pull request (PR)
+--------------------------------------------------------------
 
 In order to let others look at your code, you have to make your branch
-available by pushing it to a remote server. One may use `GitHub
-<http://www.github.com>`_ for this purpose.
+available by pushing it to your forked Github repository.
 
-1. Configure your repository for the remote server:
-
-   .. code-block:: bash
-
-      git remote add review <paste_your_remote_url_here>
-
-2. Push your branch to the remote server:
+1. Push your branch to the remote server:
 
    .. code-block:: bash
 
-      git push review bar:bar
+      git push origin bar:bar
 
-Now send the URL of your remote server and the name of the branch to a peer for
-review. If you are looking for someone to review your code, post a request on
-the `HORTON mailing list <https://groups.google.com/d/forum/horton-discuss>`_.
+2. Now go to the Github website and make a `Pull Request
+   <https://help.github.com/articles/using-pull-requests/>`_ with the ``master`` branch of
+   the ``theochem/horton`` repository as the destination. As soon as you do this, a series
+   of basic QA tests will be executed to check for common problems. If these basic QA
+   tests pass, someone will review your branch manually based on the
+   :ref:`tech_dev_checklist`. You fix all the issues brought up during the review by
+   making additional commits or, if you really messed up, by rewriting your branch. As
+   soon as you push your changes back to the branch in your forked repository, they will
+   show up in the PR, which triggers again the QA tests. When there are no further
+   comments, your branch is ready to be merged.
 
-Unless, you have written spotless code, you will make some further modifications
-to the code after review, commit these and push them to the remote server for
-review again. When there are no furher comments, it is time to move to the next
-step.
 
+Merging your pull request with the master branch
+------------------------------------------------
 
-Rebase your branch on top of the ``master`` branch
---------------------------------------------------
+You don't have to do anything for this, unless other branches got merged into
+the master branch after you started your topic branch. In that case, you need to rebase
+your topic branch on the current ``master`` branch and rerun all tests. This can be done
+with the following steps:
 
-It is likely that, while developing your branch, the ``master`` branch
-has evolved with new commits added by other developers. You need to append your
-branch to the new HEAD of the ``master`` branch with ``git rebase``.
+1. `Synchronize <https://help.github.com/articles/syncing-a-fork/>`_ the ``master`` branch
+   in your fork with the official HORTON repository.
 
-1. Switch to the ``master`` branch:
-
-   .. code-block:: bash
-
-      $ ~/.../horton:bar> git checkout master
-      $ ~/.../horton:master>
-
-2. Get the latest version of the source code:
-
-   .. code-block:: bash
-
-      $ ~/.../horton:master> git pull
-
-3. Switch to your working branch:
+3. Switch to your topic branch:
 
    .. code-block:: bash
 
@@ -400,25 +386,24 @@ branch to the new HEAD of the ``master`` branch with ``git rebase``.
 
       $ ~/.../horton:bar-1> git rebase master
 
-    This command will try to apply the patches from your working branch on top of the
-    ``master`` branch. It may happen that changes in the ``master`` branch are not
-    compatible with yours, such that your patches cannot be simply applied.
-    When that is the case, the ``git rebase`` script will be interrupted and you
-    are instructed on what to do. Do not panic when this happens. If you feel
-    uncertain about how to resolve conflicts, it is time to call your git-savvy friends for help.
+   This command will try to apply the patches from your topic branch on top of the
+   ``master`` branch. It may happen that changes in the ``master`` branch are not
+   compatible with yours, such that your patches cannot be simply applied. When that is
+   the case, the ``git rebase`` script will be interrupted and you are instructed on what
+   to do. Do not panic when this happens. If you feel uncertain about how to resolve
+   conflicts, it is time to call your git-savvy friends for help.
 
 6. After the rebase procedure is complete, run all the tests again. If needed, fix
    problems and commit the changes.
 
-7. Upload the commits to your remote server:
+7. Upload the commits to your fork:
 
    .. code-block:: bash
 
-      $ ~/.../horton:bar-1> git push review bar-1:bar-1
+      $ ~/.../horton:bar-1> git push origin -f bar-1:bar
 
-Now, you can get in touch with one of the HORTON developers (at the `HORTON
-mailing list <https://groups.google.com/d/forum/horton-discuss>`_) to transfer
-these new patches to the public ``master`` branch of HORTON.
+   This will rewrite the history of your topic branch, which will also show up in the PR.
+   All automatic QA tests will be executed again.
 
 
 Common issues

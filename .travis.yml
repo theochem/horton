@@ -15,57 +15,62 @@ addons:
      # libtool is needed by libint
      - libtool
      - doxygen
+     - cppcheck
+
+env:
+  global:
+     - QAWORKDIR=$HOME/qaworkdir
+     - CACHED=$QAWORKDIR/cached
+     - PIP_WHEEL_DIR=$CACHED/wheels
+     - PIP_FIND_LINKS=file://$CACHED/wheels
+     - PIP_NO_CACHE_DIR=no
 
 cache:
   directories:
-    - $HOME/depinstall/numpy-1.9.1
-    - $HOME/depinstall/scipy-0.11.0
-    - $HOME/depinstall/cython-0.17.1
-    - $HOME/depinstall/h5py-2.2.1
-    - $HOME/depinstall/matplotlib-1.1.0
-    - $HOME/depinstall/libint-2.0.3
-    # $HOME/depinstall/libxc-2.2.2
+    - $HOME/qaworkdir/cached
 
 install:
- - pip install --upgrade sphinx breathe
+# Install all required python packages for HORTON and for testing with pip.
+ - tools/qa/install_deps_pip.sh
 
- - bash tools/travis-ci/build_numpy-1.9.1.sh
- - export PYTHONPATH=$HOME/depinstall/numpy-1.9.1/lib/python2.7/site-packages:$PYTHONPATH
+# Get the master branch and complete feature branch for a comparative analysis.
+ - tools/qa/get_master.sh
 
- - bash tools/travis-ci/build_scipy-0.11.0.sh
- - export PYTHONPATH=$HOME/depinstall/scipy-0.11.0/lib/python2.7/site-packages:$PYTHONPATH
-
- - bash tools/travis-ci/build_cython-0.17.1.sh
- - export PYTHONPATH=$HOME/depinstall/cython-0.17.1/lib/python2.7/site-packages:$PYTHONPATH
-
- - bash tools/travis-ci/build_h5py-2.2.1.sh
- - export PYTHONPATH=$HOME/depinstall/h5py-2.2.1/lib/python2.7/site-packages:$PYTHONPATH
-
- - bash tools/travis-ci/build_matplotlib-1.1.0.sh
- - export PYTHONPATH=$HOME/depinstall/matplotlib-1.1.0/lib/python2.7/site-packages:$PYTHONPATH
- - mkdir -p ~/.matplotlib/
-# Ugly trick to avoid that the colon gets interpreted by the YAML parser.
- - |-
-   echo "backend : Agg" > ~/.matplotlib/matplotlibrc
-
-# - bash tools/travis-ci/build_libxc-2.2.2.sh
-# - export LD_LIBRARY_PATH=$HOME/depinstall/libxc-2.2.2/lib:$LD_LIBRARY_PATH
-# - export CPATH=$HOME/depinstall/libxc-2.2.2/include:$CPATH
-
- - bash tools/travis-ci/build_libint-2.0.3.sh
- - export LD_LIBRARY_PATH=$HOME/depinstall/libint-2.0.3/lib:$LD_LIBRARY_PATH
- - export CPATH=$HOME/depinstall/libint-2.0.3/include/libint2:$CPATH
-
- - (cd data/refatoms; make all; cd ../..)
+# Handle detached-HEAD situations that seem to be common on Travis-CI.
+ - tools/qa/fix_detached_head.sh
 
 # BLAS_LIBRARIES must be set because Python thinks it is running in Debian
-# wheezy/sid while it is actually running Ubuntu-12.04.
+# wheezy/sid while it is actually running Ubuntu-12.04. This is Travis-CI specific.
  - export BLAS_LIBRARIES=atlas:cblas
- - (cd depends; make libxc)
- - python setup.py build_ext -i -L ${LD_LIBRARY_PATH}
+
+# Build all required dependencies from source, i.e. the ones not provided by the build
+# infrastructure. These dependencies are built from source for two reasons:
+# 1) Travis limits the packages that can be installed in the container-based
+#    build bots.
+# 2) For these dependencies, we want to have a good control over which version is used,
+#    such that we can better guarantee HORTON to work with specific versions of
+#    dependencies.
+
+# The behavior of the install script depends on the current branch:
+# 1) If the current branch is the master branch, only the dependencies of the HEAD of the
+#    master branch are built.
+# 2) If the current branch is a feature branch (or a pull request), the dependencies for
+#    this branch are built. Then, the common ancestor of the master and feature branch is
+#    checked out. Also the dependencies of the ancestor commit are built. (If ancestor and
+#    feature share common dependencies, these are only built once.) In the end, the
+#    feature branch is checked out again.
+ - tools/qa/install_deps_extra_twobranches.sh
 
 script:
-# Run first the fast unit tests and then the slow ones
- - nosetests -v -a '!slow'
- - nosetests -v -a slow
- - (cd doc; make html)
+# Run all checks. The behavior of the test script also depends on the current branch:
+# 1) If the current branch is the master branch, only the non-comparative tests are
+#    executed: building HORTON, building documentations, fast unit tests, slow unit tests
+#    and some code analysis tools.
+# 2) If the current branch is a feauture branch (or a pull request), it first runs all
+#    checks on the feature branch: building HORTON, building documentation, fast unit
+#    tests + coverage, slow unit tests, all code analysis tools. Then it checks out the
+#    common ancestor of the master and feature branch. In that commit, it runs the
+#    following tests: building HORTON, fast unit tests + coverage, all code analysis tools
+#    whose output needs to compared to the results from the feature branch (the trapdoor
+#    tests). Finally, it compares the outputs of both branches to check for regressions.
+ - tools/qa/test_all_twobranches.sh

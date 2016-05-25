@@ -18,7 +18,6 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-#pylint: skip-file
 
 
 import numpy as np
@@ -33,7 +32,7 @@ def check_response(fn):
     if hasattr(mol, 'exp_beta'):
         exps.append(mol.exp_beta)
     for exp in exps:
-        response = compute_noninteracting_response(mol.exp_alpha, operators)
+        response = compute_noninteracting_response(exp, operators)
         assert np.isfinite(response).all()
         assert abs(response.sum(axis=0)).max() < 1e-3
         evals = np.linalg.eigvalsh(response)

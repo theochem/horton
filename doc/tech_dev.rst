@@ -26,8 +26,8 @@ Developer Documentation
 .. toctree::
    :maxdepth: 3
 
-   tech_dev_coding_guidelines
    tech_dev_git
+   tech_dev_checklist
    tech_dev_documentation
    tech_dev_unit_tests
    tech_dev_examples

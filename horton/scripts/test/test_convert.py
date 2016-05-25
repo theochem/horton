@@ -18,7 +18,6 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-#pylint: skip-file
 
 from horton.test.common import check_script, tmpdir
 from horton.scripts.test.common import copy_files, check_files
