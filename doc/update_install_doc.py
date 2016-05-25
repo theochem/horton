@@ -14,34 +14,44 @@ def mywrap(s):
 def format_packages(key, dependencies, result):
     names = []
     names_doc = []
+    names_dev = []
     for d in dependencies:
         name = d.get(key)
         if name is not None:
             if d['purpose'] == 'doc':
                 names_doc.append(name)
+            elif d['purpose'] == 'dev':
+                names_dev.append(name)
             else:
                 names.append(name)
     names = ' '.join(names)
     names_doc = ' '.join(names_doc)
+    names_dev = ' '.join(names_dev)
 
     if len(names) > 0:
         result['dependencies_%s' % key] = mywrap(names)
     if len(names_doc) > 0:
         result['doc_dependencies_%s' % key] = mywrap(names_doc)
+    if len(names_dev) > 0:
+        result['dev_dependencies_%s' % key] = mywrap(names_dev)
 
 
 def format_list(suffix, line_formatter, dependencies, result):
     lines = []
     lines_doc = []
+    lines_dev = []
     for d in dependencies:
         line = line_formatter(d)
         if line is not None:
             if d['purpose'] == 'doc':
                 lines_doc.append(line)
+            elif d['purpose'] == 'dev':
+                lines_dev.append(line)
             else:
                 lines.append(line)
     result['dependencies_%s' % suffix] = '\n'.join(lines)
     result['doc_dependencies_%s' % suffix] = '\n'.join(lines_doc)
+    result['dev_dependencies_%s' % suffix] = '\n'.join(lines_dev)
 
 
 def formatter_rst(d):

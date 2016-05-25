@@ -242,4 +242,74 @@
     "ubuntu_15_deb": "python-docutils",
     "ubuntu_12_deb": "python-docutils",
     "purpose": "doc"
+}, {
+    "name": "pylint",
+    "title": "PyLint",
+    "version_requirement": ">= 1.5.0",
+    "homepage": "https://www.pylint.org/",
+    "fedora_22_pip": "pylint",
+    "fedora_21_pip": "pylint",
+    "ubuntu_15_pip": "pylint",
+    "ubuntu_12_pip": "pylint",
+    "macports_pip": "pylint",
+    "purpose": "dev"
+}, {
+    "name": "pep8",
+    "title": "pep8",
+    "version_requirement": ">= 1.7.0",
+    "homepage": "http://pep8.readthedocs.io/",
+    "fedora_22_pip": "pep8",
+    "fedora_21_pip": "pep8",
+    "ubuntu_15_pip": "pep8",
+    "ubuntu_12_pip": "pep8",
+    "macports_pip": "pep8",
+    "purpose": "dev"
+}, {
+    "name": "pep257",
+    "title": "pep257",
+    "version_requirement": ">= 0.7.0",
+    "homepage": "http://pep257.readthedocs.io/",
+    "fedora_22_pip": "pep257",
+    "fedora_21_pip": "pep257",
+    "ubuntu_15_pip": "pep257",
+    "ubuntu_12_pip": "pep257",
+    "macports_pip": "pep257",
+    "purpose": "dev"
+}, {
+    "name": "coverage",
+    "title": "coverage",
+    "version_requirement": ">= 4.1",
+    "homepage": "https://coverage.readthedocs.io/",
+    "fedora_22_pip": "coverage",
+    "fedora_21_pip": "coverage",
+    "ubuntu_15_pip": "coverage",
+    "ubuntu_12_pip": "coverage",
+    "macports_pip": "coverage",
+    "purpose": "dev"
+}, {
+    "name": "cppcheck",
+    "title": "Cppcheck",
+    "version_requirement": ">= 1.52",
+    "homepage": "http://cppcheck.sourceforge.net/",
+    "fedora_22_rpm": "cppcheck",
+    "fedora_21_rpm": "cppcheck",
+    "ubuntu_15_deb": "cppcheck",
+    "ubuntu_12_deb": "cppcheck",
+    "macports_name": "cppcheck",
+    "macports_url": "https://trac.macports.org/browser/trunk/dports/devel/cppcheck/Portfile",
+    "macports_command": "sudo port install cppcheck",
+    "purpose": "dev"
+}, {
+    "name": "git",
+    "title": "Git",
+    "version_requirement": ">= 1.8",
+    "homepage": "https://git-scm.com/",
+    "fedora_22_rpm": "git",
+    "fedora_21_rpm": "git",
+    "ubuntu_15_deb": "git",
+    "ubuntu_12_deb": "git",
+    "macports_name": "git",
+    "macports_url": "https://trac.macports.org/browser/trunk/dports/devel/git/Portfile",
+    "macports_command": "sudo port install git",
+    "purpose": "dev"
 }]

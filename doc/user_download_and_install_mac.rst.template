@@ -274,3 +274,24 @@ The documentation is compiled and viewed as follows:
 .. code-block:: bash
 
     (cd doc; make html; open _build/html/index.html)
+
+
+Development tools
+=================
+
+If you want to contribute to the development of HORTON, you'll need to install at least
+the following dependencies:
+
+${dev_dependencies_rst}
+
+The following list of ports is recommended:
+
+${doc_dependencies_macports_rst}
+
+For the python development tools, we recommend that you install the latest versions with
+``pip``.
+
+.. code-block:: bash
+
+${dev_dependencies_macports_command}
+    pip install --user --upgrade ${dev_dependencies_macports_pip}
