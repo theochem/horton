@@ -89,7 +89,7 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
 
         # Run the coverage program for a full report. This separate call is needed
         # since coverage-4.1.
-        command = ['coverage', 'report', '-m']
+        command = ['coverage', 'report', '-m', '--omit=%s' % ','.join(config['py_test_files'])]
         print 'RUNNING', ' '.join(command)
         proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         output = proc.communicate()[0]
