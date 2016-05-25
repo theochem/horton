@@ -62,6 +62,7 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
 
         # Run fast unit tests with nosetests, with coverage
         command = ['nosetests', '-v', '-a', '!slow', '--with-coverage', '--cover-erase',
+                   '--cover-branches',
                    '--cover-package=%s' % ','.join(config['py_packages'])] + \
                    config['py_directories']
         print 'RUNNING', ' '.join(command)
@@ -69,11 +70,11 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
         output = proc.communicate()[0]
         lines = [line.strip() for line in output.split('\n')]
 
-        # Parse the output
+        # Results will be stored in the following variables
         counter = Counter()
         messages = set([])
 
-        # - unit tests
+        # Parse the output of the unit tests
         iline = 0
         for line in lines:
             if len(line) == 0:
@@ -86,16 +87,19 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
                 messages.add('nosetests ' + line)
             iline += 1
 
-        # - coverage analysis
-        # Go down in the output to the point where the coverage analysis is printed.
-        for line in lines[iline:]:
-            if line == ('Name                                                  '
-                        'Stmts   Miss  Cover   Missing'):
-                break
-            iline += 1
-        iline += 2
+        # Run the coverage program for a full report. This separate call is needed
+        # since coverage-4.1.
+        command = ['coverage', 'report', '-m']
+        print 'RUNNING', ' '.join(command)
+        proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        output = proc.communicate()[0]
+        lines = [line.strip() for line in output.split('\n')]
+
+        # Parse coverage output
+        # Remove the first two lines
+        lines = lines[2:]
         # Process line by line
-        for line in lines[iline:]:
+        for line in lines:
             if line.startswith('--------'):
                 break
             words = line.split()
