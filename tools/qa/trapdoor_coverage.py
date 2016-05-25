@@ -107,7 +107,7 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
             if miss > 0:
                 filename = words[0]
                 counter['missed lines in ' + filename] += miss
-                for linenos in words[4:]:
+                for linenos in words[5:]:
                     linenos = linenos.strip()
                     if linenos.endswith(','):
                         linenos = linenos[:-1]
