@@ -23,12 +23,14 @@
 
 import numpy as np
 
-from horton.log import log
-from horton.units import angstrom
 from horton.grid.cext import UniformGrid
-from horton.espfit.cext import setup_esp_cost_cube, multiply_dens_mask, \
+
+from .cext import setup_esp_cost_cube, multiply_dens_mask, \
     multiply_near_mask, multiply_far_mask
-from horton.utils import typecheck_geo
+
+from .modularity.utils import typecheck_geo
+from .modularity.units import angstrom
+from .modularity.log import log
 
 
 __all__ = ['ESPCost', 'setup_weights']
