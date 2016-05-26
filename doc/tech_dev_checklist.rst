@@ -164,7 +164,7 @@ sure the fast unit tests follow these rules:
 
 * **MM205** When tests use random numbers, use a fixed random seed, such that at every
   execution the same random numbers are used. This avoids that a test breaks every now and
-  then.
+  then. See :ref:`tech_dev_unit_tests_random`.
 
 * **MM206** Avoid tests that just compare the output of a routine with the output from a
   previous initial version of that routine. Such tests need to be redone each time a bug

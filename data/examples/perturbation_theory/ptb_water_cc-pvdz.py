@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from horton import *
+from horton.test.common import numpy_seed
 
 ###############################################################################
 ## Set up molecule, define basis set ##########################################
@@ -55,4 +56,5 @@ energy, g, l = ap1rog(one, er, external['nn'], orb, olp, True)
 ## Do PTb calculation #########################################################
 ###############################################################################
 ptb = PTb(lf, occ_model)
-energyptb, amplitudes = ptb(one, er, orb, g, **{'eref': energy, 'ecore': external['nn'], 'threshold': 1e-6})
+with numpy_seed():  # reproducible 'random' numbers to make sure it always works
+    energyptb, amplitudes = ptb(one, er, orb, g, **{'eref': energy, 'ecore': external['nn'], 'threshold': 1e-6})

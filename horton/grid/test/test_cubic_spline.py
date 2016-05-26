@@ -20,32 +20,37 @@
 #--
 
 
-import numpy as np, h5py as h5
+import numpy as np
+import h5py as h5
+
 from horton import *
+from horton.test.common import numpy_seed
 
 
 def test_tridiagsym_solve():
     N = 10
     A = np.zeros((N,N), float)
-    # randomize the diagonal
-    A.ravel()[::N+1] = np.random.uniform(1,2,N)
-    # randomize the upper diagonal
-    A.ravel()[1::N+1] = np.random.uniform(-1,0,N-1)
-    # clone the lower diagonal
-    A.ravel()[N::N+1] = A.ravel()[1::N+1]
-    # test the inverse for all possible basis vectors
-    Ainv = np.linalg.inv(A)
-    for i in xrange(N):
-        right = np.zeros(N, float)
-        right[i] = 1.0
-        solution = np.zeros(N, float)
-        tridiagsym_solve(
-            A.ravel()[::N+1].copy(),
-            A.ravel()[N::N+1].copy(),
-            right, solution
-        )
-        error = abs(solution - Ainv[:,i]).max()
-        assert(error < 1e-12)
+    for irep in xrange(100):
+        with numpy_seed(irep):  # Make random numbers reproducible
+            # randomize the diagonal
+            A.ravel()[::N+1] = np.random.uniform(1,2,N)
+            # randomize the upper diagonal
+            A.ravel()[1::N+1] = np.random.uniform(-1,0,N-1)
+        # clone the lower diagonal
+        A.ravel()[N::N+1] = A.ravel()[1::N+1]
+        # test the inverse for all possible basis vectors
+        Ainv = np.linalg.inv(A)
+        for i in xrange(N):
+            right = np.zeros(N, float)
+            right[i] = 1.0
+            solution = np.zeros(N, float)
+            tridiagsym_solve(
+                A.ravel()[::N+1].copy(),
+                A.ravel()[N::N+1].copy(),
+                right, solution
+            )
+            error = abs(solution - Ainv[:,i]).max()
+            assert(error < 1e-9)
 
 
 def test_basics_identity():

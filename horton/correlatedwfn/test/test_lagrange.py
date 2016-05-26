@@ -25,6 +25,7 @@ from nose.tools import assert_raises
 from nose.plugins.attrib import attr
 
 from horton import *
+from horton.test.common import numpy_seed
 
 
 @attr('slow')
@@ -58,12 +59,13 @@ def test_ap1rog_lagrange():
 
     # Do AP1roG optimization:
     geminal_solver = RAp1rog(lf, occ_model)
-    energy, g = geminal_solver(one, er, external['nn'], exp_alpha, olp, False)
+    with numpy_seed():
+        energy, g = geminal_solver(one, er, external['nn'], exp_alpha, olp, False)
+        geminal_solver.lagrange.assign(np.random.rand(3,25))
+        x = geminal_solver.geminal._array.ravel(order='C')
+        dxs = np.random.rand(200, 3*25)*(0.001)
+        check_delta(x, dxs, geminal_solver)
 
-    geminal_solver.lagrange.assign(np.random.rand(3,25))
-    x = geminal_solver.geminal._array.ravel(order='C')
-    dxs = np.random.rand(200, 3*25)*(0.001)
-    check_delta(x, dxs, geminal_solver)
 
 def fun(x, ham):
     iiaa = ham.get_auxmatrix('gppqq')
@@ -76,6 +78,7 @@ def fun(x, ham):
     lagrangian += np.dot(coeff.ravel(order='C'), ham.vector_function_geminal(x.ravel(order='C'), iiaa, iaia, one, fock))
     return lagrangian
 
+
 def fun_deriv(x, ham):
     iiaa = ham.get_auxmatrix('gppqq')
     iaia = ham.get_auxmatrix('lpqpq')
@@ -87,6 +90,7 @@ def fun_deriv(x, ham):
 
     gradient = ham.vector_function_lagrange(coeff,gmat, iiaa, iaia, one, fock)
     return gradient.ravel(order='C')
+
 
 def check_delta(x, dxs, ham):
     """Check the difference between two function values using the analytical gradient

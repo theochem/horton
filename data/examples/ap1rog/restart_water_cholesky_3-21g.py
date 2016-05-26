@@ -1,5 +1,7 @@
 #!/usr/bin/env python
+
 from horton import *
+from horton.test.common import numpy_seed
 
 # Set up molecule, define basis set
 # ---------------------------------
@@ -39,4 +41,5 @@ project_orbitals_ortho(old.olp, olp, old.exp_alpha, exp_alpha)
 # Do OO-AP1roG optimization
 # -------------------------
 ap1rog = RAp1rog(lf, occ_model)
-energy, g, l = ap1rog(one, two, core_energy, exp_alpha, olp, True)
+with numpy_seed():  # reproducible 'random' numbers to make sure it always works
+    energy, g, l = ap1rog(one, two, core_energy, exp_alpha, olp, True)

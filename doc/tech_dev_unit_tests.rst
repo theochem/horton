@@ -60,7 +60,9 @@ with ``test_``. In these modules, all functions with a name that starts with
 ``test_`` are picked up by Nosetests. Tests that do not follow this convention
 are simply ignored.
 
-The basic structure of a test is as follows::
+The basic structure of a test is as follows:
+
+.. code-block:: python
 
     def test_sum():
         a = 1
@@ -74,8 +76,9 @@ test (similar to what you have in mind) and start modifying it.
 Most test packages in ``horton`` contain a ``common`` module that contains useful
 functions that facilitate the development of tests. An important example is the
 ``check_delta`` function to test if analytical derivatives are properly
-implemented. This is a simple example::
+implemented. This is a simple example:
 
+.. code-block:: python
 
     import numpy as np
     from horton.common import check_delta
@@ -105,7 +108,9 @@ Writing tests that need a temporary directory
 ---------------------------------------------
 
 A context manager is implemented in ``horton.test.common`` to simplify tests
-that need a temporary working directory. It can be used as follows::
+that need a temporary working directory. It can be used as follows:
+
+.. code-block:: python
 
     from horton.test.common import tmpdir
 
@@ -117,3 +122,30 @@ that need a temporary working directory. It can be used as follows::
 On most systems, this temporary directory is a subdirectory of ``/tmp``. The
 argument ``'horton.somemodule.test.test_something'`` will occur in the directory
 name, such that it can be easily recognized if needed.
+
+
+.. _tech_dev_unit_tests_random:
+
+Writing tests that use random numbers
+-------------------------------------
+
+Tests that make use of random numbers can be problematic when they only fail sometimes for
+very specific and rare values of the random numbers. To avoid issues with such corner
+cases, one must fix the random seed in the tests as follows:
+
+.. code-block:: python
+
+    from horton.test.common import numpy_seed
+
+    def test_foo():
+        # Some deterministic test code here.
+        # ...
+        # The part of test that uses random numbers should be repeated several times
+        # with different random numbers to make use of the randomness.
+        for irep in xrange(100):
+            # Fix the seed differently but determinstically at each repetition.
+            with numpy_seed(irep):
+                # Test code that uses numpy.random should go here.
+
+The test ``test_tridiagsym_solve`` in ``horton/grid/test/test_cubic_spline.py`` is a
+realistic example that properly uses random numbers.
