@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
+import numpy as np
+
 from horton import *
+from horton.test.common import numpy_seed
 
 ###############################################################################
 ## Define Occupation model, expansion coefficients and overlap ################
@@ -37,4 +40,5 @@ scf_solver(ham, lf, olp, occ_model, orb)
 ## Do OO-AP1roG optimization ##################################################
 ###############################################################################
 ap1rog = RAp1rog(lf, occ_model)
-energy, c, l = ap1rog(kin, two, 0, orb, olp, True)
+with numpy_seed():  # reproducible 'random' numbers to make sure it always works
+    energy, c, l = ap1rog(kin, two, 0, orb, olp, True)
