@@ -115,6 +115,10 @@ def test_solve_poisson_becke_sa():
 
     assert abs(v.y - soly).max()/abs(soly).max() < 1e-6
     assert abs(v.dx - sold).max()/abs(sold).max() < 1e-4
+    # Test the boundary condition at zero and infinity
+    assert v.extrapolation.l == 0
+    np.testing.assert_allclose(v.extrapolation.amp_left, np.sqrt(2/np.pi)/sigma)
+    np.testing.assert_allclose(v.extrapolation.amp_right, 1.0)
 
 
 def test_solve_poisson_becke_gaussian_dipole():
@@ -128,7 +132,7 @@ def test_solve_poisson_becke_gaussian_dipole():
     rhoy = -r/sigma**2*np.exp(-0.5*(r/sigma)**2)/sigma**3/(2*np.pi)**1.5
     rhod = (-1.0+r**2/sigma**2)/sigma**2*np.exp(-0.5*(r/sigma)**2)/sigma**3/(2*np.pi)**1.5
     rho = CubicSpline(rhoy, rhod, rtf)
-    v = solve_poisson_becke([rho]*4)[1] #Not interested in first spline
+    v = solve_poisson_becke([rho]*4)[1]  # Not interested in first spline, i.e. l=0
 
     s2s = np.sqrt(2)*sigma
     # The potential corresponding to Y_1^0(\Omega), can be found by deriving
@@ -142,6 +146,8 @@ def test_solve_poisson_becke_gaussian_dipole():
         pt.clf()
         pt.plot(r[:n], -soly[:n], label='exact',marker='*')
         pt.plot(r[:n], -v.y[:n], label='spline',marker='*')
+        r2 = np.linspace(1e-5, 2e-4, 50)
+        pt.plot(r2, -v(r2), label='spline eval',marker='*')
         pt.xscale('log')
         pt.yscale('log')
         pt.legend(loc=0)
@@ -149,3 +155,7 @@ def test_solve_poisson_becke_gaussian_dipole():
 
     assert abs(v.y - soly).max()/abs(soly).max() < 1e-6
     assert abs(v.dx - sold).max()/abs(sold).max() < 1e-4
+    # Test the boundary condition at zero and infinity
+    assert v.extrapolation.l == 1
+    np.testing.assert_allclose(v.extrapolation.amp_left, -2.0/3.0/np.sqrt(2*np.pi)/sigma**3)
+    np.testing.assert_allclose(v.extrapolation.amp_right, -1.0)

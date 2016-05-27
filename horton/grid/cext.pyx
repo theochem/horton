@@ -52,7 +52,7 @@ __all__ = [
     'becke_helper_atom',
     # cubic_spline
     'Extrapolation', 'ZeroExtrapolation', 'CuspExtrapolation',
-    'PowerExtrapolation', 'tridiagsym_solve', 'CubicSpline',
+    'PowerExtrapolation', 'PotentialExtrapolation', 'tridiagsym_solve', 'CubicSpline',
     'compute_cubic_spline_int_weights',
     # evaluate
     'index_wrap', 'eval_spline_cube', 'eval_spline_grid',
@@ -246,6 +246,11 @@ cdef class Extrapolation(object):
                 raise ValueError('PowerExtrapolation takes one argument.')
             power = float(words[1])
             return PowerExtrapolation(power)
+        elif words[0] == 'PotentialExtrapolation':
+            if len(words) != 2:
+                raise ValueError('PotentialExtrapolation takes one argument.')
+            l = int(words[1])
+            return PotentialExtrapolation(l)
         else:
             raise NotImplementedError
 
@@ -268,12 +273,36 @@ cdef class PowerExtrapolation(Extrapolation):
         self._this = <cubic_spline.Extrapolation*>(new cubic_spline.PowerExtrapolation(power))
 
     property power:
-        '''The power parameters'''
+        '''The power parameter'''
         def __get__(self):
             return (<cubic_spline.PowerExtrapolation*>self._this).get_power()
 
     def to_string(self):
         return 'PowerExtrapolation %s' % repr(self.power)
+
+
+cdef class PotentialExtrapolation(Extrapolation):
+    """Zero at the right side, power law at the left side"""
+    def __cinit__(self, long l):
+        self._this = <cubic_spline.Extrapolation*>(new cubic_spline.PotentialExtrapolation(l))
+
+    property l:
+        """The angular momentum parameter"""
+        def __get__(self):
+            return (<cubic_spline.PotentialExtrapolation*>self._this).get_l()
+
+    property amp_left:
+        """The amplitude of the polynomial on the left side"""
+        def __get__(self):
+            return (<cubic_spline.PotentialExtrapolation*>self._this).get_amp_left()
+
+    property amp_right:
+        """The amplitude of the polynomial on the right side"""
+        def __get__(self):
+            return (<cubic_spline.PotentialExtrapolation*>self._this).get_amp_right()
+
+    def to_string(self):
+        return 'PotentialExtrapolation %s' % repr(self.l)
 
 
 cdef class CubicSpline(object):
