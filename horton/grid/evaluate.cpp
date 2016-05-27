@@ -175,7 +175,7 @@ void eval_decomposition_grid(CubicSpline** splines, double* center,
                         splines[0]->eval(&d, &s, 1);
                         *output += s*INV_SQRT_4_PI;
 
-                        if (lmax > 0) {
+                        if ((lmax > 0) && ( d > 0)) {
                             // l > 0
                             work[0] = z;
                             work[1] = x;
