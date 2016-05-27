@@ -22,14 +22,31 @@
 
 import numpy as np
 
-from horton import *
+from horton.cext import compute_nucnuc
+from horton.context import context
+from horton.gbasis.gobasis import get_gobasis
+from horton.grid.molgrid import BeckeMolGrid
+from horton.io.iodata import IOData
+from horton.log import log
+from horton.matrix.dense import DenseLinalgFactory
+from horton.meanfield.builtin import RDiracExchange, UDiracExchange
+from horton.meanfield.convergence import convergence_error_eigen
+from horton.meanfield.gridgroup import RGridGroup, UGridGroup
+from horton.meanfield.guess import guess_core_hamiltonian
+from horton.meanfield.hamiltonian import REffHam, UEffHam
+from horton.meanfield.libxc import RLibXCLDA, ULibXCLDA, RLibXCGGA, ULibXCGGA
+from horton.meanfield.observable import RTwoIndexTerm, RDirectTerm, RExchangeTerm
+from horton.meanfield.observable import UTwoIndexTerm, UDirectTerm, UExchangeTerm
+from horton.meanfield.occ import AufbauOccModel, FixedOccModel
+from horton.meanfield.scf_oda import check_cubic
+
 
 
 __all__ = [
     'check_cubic_wrapper', 'check_interpolation', 'check_solve', 'helper_compute',
     'check_hf_cs_hf', 'check_lih_os_hf', 'check_water_cs_hfs',
     'check_n2_cs_hfs', 'check_h3_os_hfs', 'check_h3_os_pbe', 'check_co_cs_pbe',
-    'check_scandium_sc_hf',
+    'check_vanadium_sc_hf',
 ]
 
 
@@ -486,8 +503,15 @@ def check_h3_os_pbe(scf_solver):
 
 
 @log.with_level(log.high)
-def check_scandium_sc_hf(scf_solver):
-    # Scandium atoms
+def check_vanadium_sc_hf(scf_solver):
+    """Try to converge the SCF for the neutral vanadium atom with fixe fractional occupations.
+
+    Parameters
+    ----------
+    scf_solver : one of the SCFSolver types in HORTON
+                 A configured SCF solver that must be tested.
+    """
+    # vanadium atoms
     numbers = np.array([23])
     pseudo_numbers = numbers.astype(float)
     coordinates = np.zeros((1, 3), float)
@@ -514,7 +538,8 @@ def check_scandium_sc_hf(scf_solver):
     ham = REffHam(terms)
 
     # Define fractional occupations of interest. (Spin-compensated case)
-    occ_model = FixedOccModel(np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5]))
+    occ_model = FixedOccModel(np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+                                        1.0, 1.0, 0.5]))
 
     # Allocate orbitals and make the initial guess
     exp_alpha = lf.create_expansion(obasis.nbasis)
