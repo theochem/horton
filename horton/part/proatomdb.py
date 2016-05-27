@@ -316,7 +316,7 @@ class ProAtomDB(object):
            Based on the records present it is determined which records are
            safe to use, i.e. apparently not bound by the basis set.
         '''
-        # Search for diplicates (same number and charge) and only retain the
+        # Search for duplicates (same number and charge) and only retain the
         # lowest in energy for each combination.
         _map = {}
         for r in records:

@@ -45,9 +45,7 @@ class PlainSCFSolver(object):
                 The convergence threshold for the wavefunction
 
            skip_energy
-                When set to True, the final energy is not computed. Note that some
-                DIIS variants need to compute the energy anyway. for these methods
-                this option is irrelevant.
+                When set to True, the final energy is not computed.
         '''
         self.maxiter = maxiter,
         self.threshold = threshold
