@@ -41,7 +41,6 @@ from horton.meanfield.occ import AufbauOccModel, FixedOccModel
 from horton.meanfield.scf_oda import check_cubic
 
 
-
 __all__ = [
     'check_cubic_wrapper', 'check_interpolation', 'check_solve', 'helper_compute',
     'check_hf_cs_hf', 'check_lih_os_hf', 'check_water_cs_hfs',
