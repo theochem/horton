@@ -29,6 +29,8 @@ This test calls the nosetests and coverage, see:
 
 import subprocess
 from collections import Counter
+from xml.etree import ElementTree
+
 from trapdoor import TrapdoorProgram
 
 
@@ -89,30 +91,26 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
 
         # Run the coverage program for a full report. This separate call is needed
         # since coverage-4.1.
-        command = ['coverage', 'report', '-m', '--omit=%s' % ','.join(config['py_test_files'])]
+        fn_coverage = '%s/coverage.xml' % self.qaworkdir
+        command = ['coverage', 'xml', '-o', fn_coverage,
+                   '--omit=%s' % ','.join(config['py_test_files'])]
         print 'RUNNING', ' '.join(command)
         proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         output = proc.communicate()[0]
-        lines = [line.strip() for line in output.split('\n')]
 
-        # Parse coverage output
-        # Remove the first two lines
-        lines = lines[2:]
-        # Process line by line
-        for line in lines:
-            if line.startswith('--------'):
-                break
-            words = line.split()
-            miss = int(words[2])  # number of lines missed
-            if miss > 0:
-                filename = words[0]
-                counter['missed lines in ' + filename] += miss
-                for linenos in words[5:]:
-                    linenos = linenos.strip()
-                    if linenos.endswith(','):
-                        linenos = linenos[:-1]
-                    if len(linenos) > 0:
-                        messages.add('coverage %s %s' % (filename, linenos))
+        # Parse coverage xml output
+        et = ElementTree.parse(fn_coverage)
+        for class_tag in et.getroot().iter('class'):
+            filename = class_tag.attrib['filename']
+            for line_tag in class_tag.iter('line'):
+                if line_tag.attrib['hits'] == '0':
+                    line = line_tag.attrib['number']
+                    for branch_end in line_tag.get('missing-branches', []):
+                        messages.add('coverage missed branch  %s %s->%s' %
+                                     (filename, line, branch_end))
+                        counter['filename'] += 1
+                    messages.add('coverage missed line  %s %s' % (filename, line))
+                    counter['filename'] += 1
 
         return counter, messages
 
