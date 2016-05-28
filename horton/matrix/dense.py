@@ -1345,17 +1345,17 @@ class DenseExpansion(Expansion):
         if isinstance(left, DenseExpansion):
             check_type('left', left, DenseExpansion)
             check_type('right', right, DenseTwoIndex)
-            if not (self.nbasis == left.nbasis):
+            if self.nbasis != left.nbasis:
                 raise TypeError('Both expansions must have the same number of basis functions.')
-            if not (right.shape[0] == left.nfn and right.shape[1] == self.nfn):
+            if right.shape[0] != left.nfn or right.shape[1] != self.nfn:
                 raise TypeError('The shape of the two-index object is incompatible with that of the expansions.')
             self._coeffs[:] = np.dot(left.coeffs, right._array)
         elif isinstance(right, DenseExpansion):
             check_type('left', left, DenseTwoIndex)
             check_type('right', right, DenseExpansion)
-            if not (self.nfn == right.nfn):
+            if self.nfn != right.nfn:
                 raise TypeError('Both expansions must have the same number of orbitals.')
-            if not (left.shape[1] == right.nbasis and left.shape[1] == self.nbasis):
+            if left.shape[1] != right.nbasis or left.shape[1] != self.nbasis:
                 raise TypeError('The shape of the two-index object is incompatible with that of the expansions.')
             self._coeffs[:] = np.dot(left._array, right.coeffs)
 
@@ -1368,7 +1368,7 @@ class DenseExpansion(Expansion):
                 The orbital occupations to be updated. An OneIndex instance
         '''
         check_type('occupation', occupation, DenseOneIndex)
-        if not (self.nbasis == occupation.nbasis):
+        if self.nbasis != occupation.nbasis:
             raise TypeError('The expansion and one-index object must have the same number of basis functions.')
         self._occupations[:] = occupation._array
 

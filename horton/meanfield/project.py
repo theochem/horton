@@ -35,39 +35,40 @@ class ProjectionError(Exception):
 
 
 def project_orbitals_mgs(obasis0, obasis1, exp0, exp1, eps=1e-10):
-    '''Project the orbitals in ``exp0`` (wrt ``obasis0``) on ``obasis1`` and store in ``exp1`` with the modified Gram-Schmidt algorithm.
+    '''Project the orbitals onto a new basis set with the modified Gram-Schmidt algorithm.
 
-       **Arguments:**
+    The orbitals in ``exp0`` (w.r.t. ``obasis0``) are projected onto ``obasis1`` and
+    stored in ``exp1``.
 
-       obasis0
-            The orbital basis for the original wavefunction expansion.
+    Parameters
+    ----------
 
-       obasis1
-            The new orbital basis for the projected wavefunction expansion.
+    obasis0 : GOBasis
+             The orbital basis for the original wavefunction expansion.
+    obasis1 : GOBasis
+             The new orbital basis for the projected wavefunction expansion.
+    exp0 : DenseExpansion
+          The expansion of the original orbitals.
+    exp1 : DenseExpansion
+          An output argument in which the projected orbitals will be stored.
+    eps : float
+         A threshold for the renormalization in the Gram-Schmidt procedure
 
-       exp0
-            The expansion of the original orbitals.
+    Notes
+    -----
 
-       exp1 (output)
-            An output argument in which the projected orbitals will be stored.
+    The projection is based on the Modified Gram-Schmidt (MGS) process. In
+    each iteration of the MGS, a renormalization is carried out. If the norm
+    in this step is smaller than ``eps``, an error is raised.
 
-       **Optional arguments:**
+    Note that ``exp1`` will be incomplete in several ways. The orbital
+    energies are not copied. Only the occupied orbitals in ``exp0`` are
+    projected. Coefficients of higher orbitals are set to zero. The orbital
+    occupations are simply copied. This should be sufficient to construct
+    an initial guess in a new orbital basis set based on a previous solution.
 
-       eps
-            A threshold for the renormalization in the Gram-Schmidt procedure
-
-       The projection is based on the Modified Gram-Schmidt (MGS) process. In
-       each iteration of the MGS, a renormalization is carried out. If the norm
-       in this step is smaller than ``eps``, an error is raised.
-
-       Note that ``exp1`` will be incomplete in several ways. The orbital
-       energies are not copied. Only the occupied orbitals in ``exp0`` are
-       projected. Coefficients of higher orbitals are set to zero. The orbital
-       occupations are simply copied. This should be sufficient to construct
-       an initial guess in a new orbital basis set based on a previous solution.
-
-       If the number of orbitals in ``exp1`` is too small to store all projected
-       orbitals, an error is raised.
+    If the number of orbitals in ``exp1`` is too small to store all projected
+    orbitals, an error is raised.
     '''
     # Compute the overlap matrix of the combined orbital basis
     obasis_both = GOBasis.concatenate(obasis0, obasis1)
@@ -88,7 +89,8 @@ def project_orbitals_mgs(obasis0, obasis1, exp0, exp1, eps=1e-10):
         if exp0.occupations[i0] == 0.0:
             continue
         if i1 > exp1.nfn:
-            raise ProjectionError('Not enough functions available in exp1 to store the projected orbitals.')
+            raise ProjectionError('Not enough functions available in exp1 to store the '
+                                  'projected orbitals.')
         exp1.coeffs[:,i1] = np.dot(projector, exp0.coeffs[:,i0])
         exp1.occupations[i1] = exp0.occupations[i0]
         i1 += 1
@@ -116,46 +118,51 @@ def project_orbitals_mgs(obasis0, obasis1, exp0, exp1, eps=1e-10):
         # Renormalize
         norm = np.sqrt(dot22(orb, orb))
         if norm < eps:
-            raise ProjectionError('The norm of a vector in the MGS algorithm becomes too small. Orbitals are redundant in new basis.')
+            raise ProjectionError('The norm of a vector in the MGS algorithm becomes too '
+                                  'small. Orbitals are redundant in new basis.')
         orb /= norm
 
 
 def project_orbitals_ortho(olp0, olp1, exp0, exp1):
-    r'''Re-orthogonalize the orbitals in ``exp0`` (wrt ``obasis0``) on ``obasis1`` and store in ``exp1``.
+    r'''Re-orthogonalize the orbitals .
 
-       **Arguments:**
+    The orbitals in ``exp0`` (w.r.t. ``obasis0``) are re-orthonormalized w.r.t.
+    ``obasis1`` and stored in ``exp1``.
 
-       olp0
-            A TwoIndex object with the overlap matrix (or alternatively the
-            orbital basis) for the original wavefunction expansion.
+    Parameters
+    ----------
 
-       olp1
-            A TwoIndex object with the overlap matrix (or alternatively the
-            orbital basis) for the projected wavefunction expansion.
+    olp0 : TwoIndex or GOBasis
+           The overlap matrix (or alternatively the orbital basis) for the original
+           wavefunction expansion.
+    olp1 : TwoIndex or GOBasis
+           The overlap matrix (or alternatively the orbital basis) for the projected
+           wavefunction expansion.
+    exp0 : DenseExpansion
+           The expansion of the original orbitals.
+    exp1 : DenseExpansion
+           An output argument in which the projected orbitals will be stored.
 
-       exp0
-            The expansion of the original orbitals.
+    Notes
+    -----
 
-       exp1 (output)
-            An output argument in which the projected orbitals will be stored.
+    This projection just transforms the old orbitals to an orthogonal basis
+    by a multiplicatoin with the square root of the old overlap matrix. The
+    orbitals in this basis are then again multiplied with the inverse square
+    root of the new overlap matrix:
 
-       This projection just transforms the old orbitals to an orthogonal basis
-       by a multiplicatoin with the square root of the old overlap matrix. The
-       orbitals in this basis are then again multiplied with the inverse square
-       root of the new overlap matrix:
+    .. math ::
 
-       .. math ::
+        C_\text{new} = S_\text{new}^{-1/2} S_\text{old}^{1/2} C_\text{old}
 
-            C_\text{new} = S_\text{new}^{-1/2} S_\text{old}^{1/2} C_\text{old}
-
-       This garuantees that :math:`C_\text{new}^T S_\text{new} C_\text{new} = I`
-       if :math:`C_\text{old}^T S_\text{old} C_\text{old} = I`. This approach is
-       simple and robust but the current implementation has some limitations: it
-       only works for projections between basis sets of the same size and it
-       assumes that there is some similarity between the new and old
-       orthogonalized atomic basis sets. The latter is only the case when the
-       old and new atomic basis sets are very similar, e.g. for small geometric
-       changes.
+    This garuantees that :math:`C_\text{new}^T S_\text{new} C_\text{new} = I`
+    if :math:`C_\text{old}^T S_\text{old} C_\text{old} = I`. This approach is
+    simple and robust but the current implementation has some limitations: it
+    only works for projections between basis sets of the same size and it
+    assumes that there is some similarity between the new and old
+    orthogonalized atomic basis sets. The latter is only the case when the
+    old and new atomic basis sets are very similar, e.g. for small geometric
+    changes.
     '''
     if olp0.nbasis != olp1.nbasis:
         raise ValueError('The two basis sets must have the same size')
