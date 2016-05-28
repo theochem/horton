@@ -92,7 +92,7 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
         # Run the coverage program for a full report. This separate call is needed
         # since coverage-4.1.
         fn_coverage = '%s/coverage.xml' % self.qaworkdir
-        command = ['coverage', 'xml', '-m', '-o', fn_coverage,
+        command = ['coverage', 'xml', '-o', fn_coverage,
                    '--omit=%s' % ','.join(config['py_test_files'])]
         print 'RUNNING', ' '.join(command)
         proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
