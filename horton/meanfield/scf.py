@@ -47,7 +47,7 @@ class PlainSCFSolver(object):
            skip_energy
                 When set to True, the final energy is not computed.
         '''
-        self.maxiter = maxiter,
+        self.maxiter = maxiter
         self.threshold = threshold
         self.skip_energy = skip_energy
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 from horton import *
+from horton.test.common import numpy_seed
+
 ###############################################################################
 ## Set up molecule, define basis set ##########################################
 ###############################################################################
@@ -48,7 +50,8 @@ one.iadd(na)
 ## Do OO-AP1roG optimization ##################################################
 ###############################################################################
 ap1rog = RAp1rog(lf, occ_model)
-energy, g, l = ap1rog(one, er, external['nn'], orb, olp, True)
+with numpy_seed():  # reproducible 'random' numbers to make sure it always works
+    energy, g, l = ap1rog(one, er, external['nn'], orb, olp, True)
 
 ###############################################################################
 ## Calculate response density matrices ########################################
