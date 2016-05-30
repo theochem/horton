@@ -21,13 +21,15 @@
 '''Utility functions for the ``horton-cpart.py`` script'''
 
 
+import horton.part
+from horton.part.base import CPart
+
+
 __all__ = ['cpart_schemes']
 
 
 def get_cpart_schemes():
     '''Return a dictionary with all cpart schemes'''
-    import horton.part
-    from horton.part.base import CPart
     cpart_schemes = {}
     for o in vars(horton.part).itervalues():
         if isinstance(o, type) and issubclass(o, CPart) and o.name is not None:

@@ -22,7 +22,7 @@
 
 
 from horton.log import timer
-from horton.matrix import TwoIndex, Expansion
+from horton.matrix.base import TwoIndex, Expansion
 from horton.utils import check_type, check_options
 
 

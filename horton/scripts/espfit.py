@@ -23,7 +23,10 @@
 
 import numpy as np
 
-from horton import IOData, angstrom, ESPCost, LockedH5File
+from horton.io.iodata import IOData
+from horton.io.lockedh5 import LockedH5File
+from horton.units import angstrom
+from horton.espfit.cost import ESPCost
 from horton.scripts.common import reduce_data, parse_h5
 from horton.part.proatomdb import ProAtomDB
 

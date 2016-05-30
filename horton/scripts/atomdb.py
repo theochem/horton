@@ -25,7 +25,9 @@ from string import Template as BaseTemplate
 from glob import glob
 import re, os, stat
 
-from horton import periodic, log, IOData
+from horton.log import log
+from horton.periodic import periodic
+from horton.io.iodata import IOData
 from horton.scripts.common import iter_elements
 
 

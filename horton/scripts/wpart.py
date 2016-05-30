@@ -30,14 +30,15 @@ from horton.meanfield.response import compute_noninteracting_response
 from horton.meanfield.bond_order import compute_bond_orders_cs, \
     compute_bond_orders_os
 
+import horton.part
+from horton.part.base import WPart
 
 __all__ = ['wpart_schemes', 'wpart_slow_analysis']
 
 
 def get_wpart_schemes():
     '''Return a dictionary with all wpart schemes'''
-    import horton.part
-    from horton.part.base import WPart
+
     wpart_schemes = {}
     for o in vars(horton.part).itervalues():
         if isinstance(o, type) and issubclass(o, WPart) and o.name is not None:

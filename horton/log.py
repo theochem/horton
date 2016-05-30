@@ -31,6 +31,7 @@
 import sys, os, datetime, getpass, time, atexit, traceback, resource, urllib
 from contextlib import contextmanager
 from functools import wraps
+from horton import context
 import horton
 
 
@@ -165,7 +166,7 @@ class ScreenLog(object):
 
     def cite(self, key, reason):
         if self._biblio is None:
-            filename = horton.context.get_fn('references.bib')
+            filename = context.get_fn('references.bib')
             self._biblio = Biblio(filename)
         self._biblio.cite(key, reason)
 
