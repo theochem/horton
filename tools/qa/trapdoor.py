@@ -90,14 +90,14 @@ class Message(object):
         else:
             location = str(self.filename)
             if self.lineno is not None:
-                location += '%6i' % str(self.lineno)
+                location += '%6i' % self.lineno
             else:
                 location += ' '*6
-            if msg.charno is not None:
-                location += '%6i' % str(self.charno)
+            if self.charno is not None:
+                location += '%6i' % self.charno
             else:
                 location += ' '*6
-        return '%-60s   %s' % (location, msg.text)
+        return '%-60s   %s' % (location, self.text)
 
 
 def _print_messages(header, messages, pattern=None):
@@ -316,8 +316,7 @@ class TrapdoorProgram(object):
                   When given, only messages containing ``pattern`` will be printed.
         """
         resolved_messages = sorted(messages_ancestor - messages_feature)
-        _print_messages('RESOLVED MESSAGES (also includes messages for which just the '
-                        'line number changed)', resolved_messages, pattern)
+        _print_messages('RESOLVED MESSAGES', resolved_messages, pattern)
 
         unchanged_messages = sorted(messages_ancestor & messages_feature)
         _print_messages('UNCHANGED MESSAGES', unchanged_messages, pattern)
@@ -349,8 +348,7 @@ class TrapdoorProgram(object):
                   When given, only messages containing ``pattern`` will be printed.
         """
         new_messages = sorted(messages_feature - messages_ancestor)
-        _print_messages('NEW MESSAGES (also includes messages for which just the line '
-                        'number changed)', new_messages, pattern)
+        _print_messages('NEW MESSAGES', new_messages, pattern)
 
         new_counter = counter_feature - counter_ancestor
         if len(new_counter) > 0:
