@@ -27,6 +27,7 @@ This model provides the ``TrapdoorProgram`` base class for all trapdoor programs
 import argparse
 import bisect
 import cPickle
+from fnmatch import fnmatch
 import json
 import os
 import shutil
@@ -34,7 +35,7 @@ import sys
 import time
 
 
-__all__ = ['Message', 'TrapdoorProgram']
+__all__ = ['Message', 'TrapdoorProgram', 'get_source_filenames']
 
 
 class Message(object):
@@ -397,3 +398,37 @@ class TrapdoorProgram(object):
             sys.exit(1)
         else:
             print 'GOOD (ENOUGH)'
+
+
+def get_source_filenames(config, language):
+    """Return a list of source files according to configuration settings.
+
+    This function will search for all cpp or py source files in the "XXX_directories" and
+    will exclude some based in fnmatch patterns provided in the "XXX_exclude" setting,
+    where XXX is 'cpp' or 'py'.
+
+    Parameters
+    ----------
+    config : dict
+             A dictionary of configuration settings, loaded with json from trapdoor.cfg.
+    language : str
+               'py' or 'cpp'
+    """
+    if language == 'cpp':
+        source_patterns = ['*.cpp', '*.h']
+    elif language == 'py':
+        source_patterns = ['*.py', '*.pyx']
+    else:
+        raise ValueError('Language must be either \'cpp\' or \'py\'.')
+    source_directories = config['%s_directories' % language]
+    source_exclude = config['%s_exclude' % language]
+    source_filenames = []
+    for source_directory in source_directories:
+        for dirpath, dirnames, filenames in os.walk(source_directory):
+            for filename in filenames:
+                if any(fnmatch(filename, source_pattern) for source_pattern in
+                       source_patterns) and \
+                   all(not fnmatch(filename, exclude_filter) for exclude_filter in
+                       source_exclude):
+                    source_filenames.append(os.path.join(dirpath, filename))
+    return source_filenames
