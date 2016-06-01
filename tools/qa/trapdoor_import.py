@@ -87,7 +87,7 @@ class ImportTrapdoorProgram(TrapdoorProgram):
                             for package in packages:
                                 if u'from %s import' % package in line:
                                     counter['Wrong imports in %s' % path] += 1
-                                    text = 'Wrong import from %s.' % package
+                                    text = 'Wrong import from %s' % package
                                     messages.add(Message(path, lineno, None, text))
 
         return counter, messages

@@ -137,7 +137,7 @@ class Message(object):
                 location += '%6i' % self.charno
             else:
                 location += ' '*6
-        return '%-60s   %s' % (location, self.text)
+        return '%60s   %s' % (location, self.text)
 
 
 def _print_messages(header, messages, pattern=None):
