@@ -24,7 +24,7 @@ def main():
     # Get the directory where we want to remove wheels
     root = os.getenv('PIP_WHEEL_DIR').strip()
     if len(root) == 0:
-        raise ValueError('The environment variable PIP_WHEEK_DIR is not defined.')
+        raise ValueError('The environment variable PIP_WHEEL_DIR is not defined.')
     if not os.path.isdir(root):
         raise ValueError('The PIP_WHEEL_DIR (%s) does not exist.' % root)
     print 'Removing old wheels in %s' % root

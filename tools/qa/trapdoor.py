@@ -59,7 +59,7 @@ class Message(object):
         lineno : int (or None)
                  The line number at which the error is reported, if any.
         charno : int (or None)
-                 The character positionr at which the error is reported, if any.
+                 The character position at which the error is reported, if any.
         text : str
                A description of the problem.
         context : str
@@ -147,9 +147,9 @@ def _print_messages(header, messages, pattern=None):
     Parameters
     ----------
     header : str
-             A Header string, usually uppercase
+             A Header string, usually uppercase.
     messages : iterable
-               A list of message strings
+               A list of Message instances.
     pattern : None or str
               When given, only messages containing ``pattern`` will be printed.
     """

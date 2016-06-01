@@ -24,16 +24,16 @@ def check_names(key, kind):
     command = ['git', 'log', '--format=%%%sN <%%%sE>' % (key, key)]
     names = subprocess.check_output(command).split('\n')[:-1]
 
-    # Turn that list into a set to remove duplications
+    # Turn that list into a set to remove duplicates.
     names = set(names)
 
-    # Make sure the names are in the AUTHORS file
+    # Make sure the names are in the AUTHORS file.
     with open('AUTHORS', 'r') as f:
         for line in f:
             # chop of the new linefeed character, and
             # remove the author from the names set, if it exist.
             names.discard(line[:-1])
-    # Report the names that were not in the AUTHORS file
+    # Report the names that were not in the AUTHORS file.
     if len(names) != 0:
         print 'UNKNOWN %s:' % kind
         for name in sorted(names):
@@ -43,7 +43,7 @@ def check_names(key, kind):
 
 def main():
     """Check all names against AUTHORS and quit with exit code 1 if an error is found."""
-    print 'Checking author and comitter names.'.upper()
+    print 'Checking author and committer names.'.upper()
     pass_a = check_names('a', 'authors')
     pass_c = check_names('c', 'committers')
     if not (pass_a and pass_c):
