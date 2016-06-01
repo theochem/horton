@@ -30,12 +30,12 @@ nosetests -v -a slow || report_error "Some slow tests failed (current branch)"
 
 ### b) Parts that depend on the current branch
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-if [ "${CURRENT_BRANCH}" == 'master' ]; then
+ANCESTOR_COMMIT=$(git merge-base master ${CURRENT_BRANCH})
+CURRENT_COMMIT=$(git rev-parse HEAD)
+if [ "${CURRENT_BRANCH}" == 'master' ] || [ "${CURRENT_COMMIT}" == ${ANCESTOR_COMMIT} ]; then
     # Run the fast tests
     nosetests -v -a '!slow' || report_error "Some fast tests failed (master branch)"
 else
-    find_ancestor
-
     # Check for whitespace errors in every commit.
     ./tools/qa/check_whitespace.py
 
