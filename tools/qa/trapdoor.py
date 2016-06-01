@@ -38,7 +38,36 @@ __all__ = ['Message', 'TrapdoorProgram']
 
 
 class Message(object):
-    def __init__(self, filename, lineno, charno, text, source_line=None):
+    """Error message and meta information.
+
+    This class contains all the machinery that the trapdoor driver uses to decide if
+    a message is new or not. When a context is available, it is used to compare two
+    messages instead of line numbers. If not, the line numbers are used. Line numbers are
+    a relatively poor descriptor for assessing if a message is new in a feature branch.
+    For example, lines may have been inserted or removed, which changes the line numbers
+    without actually changing any code.
+
+    The context of a message is currently just the line of code where the error was
+    reported.
+    """
+
+    def __init__(self, filename, lineno, charno, text, context=None):
+        """Initialize a message.
+
+        Parameters
+        ----------
+        filename : str
+                   The filename for which the message is reported.
+        lineno : int (or None)
+                 The line number at which the error is reported, if any.
+        charno : int (or None)
+                 The character positionr at which the error is reported, if any.
+        text : str
+               A description of the problem.
+        context : str
+                  A string that (almost) uniquely identifies the location of the error
+                  without using line numbers.
+        """
         if lineno is not None and not isinstance(lineno, int):
             raise TypeError('When given, lineno must be integer.')
         if charno is not None and not isinstance(charno, int):
@@ -47,43 +76,57 @@ class Message(object):
         self._lineno = lineno
         self._charno = charno
         self._text = text
-        self._source_line = source_line
+        self._context = context
 
     filename = property(lambda self: self._filename)
     lineno = property(lambda self: self._lineno)
     charno = property(lambda self: self._charno)
     text = property(lambda self: self._text)
-    source_line = property(lambda self: self._source_line)
+    context = property(lambda self: self._context)
 
     def __eq__(self, other):
+        """Test if self is equal to other."""
+        # First come the usualy things for comparisons...
         equal = self.__class__ == other.__class__ \
             and self._filename == other._filename \
             and self._charno == other._charno \
             and self._text == other._text \
-            and self._source_line == other._source_line
+            and self._context == other._context
         if not equal:
             return False
-        if self._source_line is None and other._source_line is None:
+        # If still equal, then only use line numbers if no context is available.
+        if self._context is None and other._context is None:
             return self._lineno == other._lineno
         return True
 
     def __hash__(self):
-        if self._source_line is None:
+        """Return a fast hash.
+
+        The hash only includes the lineno if no context is present. If a context is
+        present, it is used instead and the line number is not included in the hash. This
+        convention is compatible with the code in __eq__.
+        """
+        if self._context is None:
             return hash((self._filename, self._lineno, self._charno, self._text))
         else:
-            return hash((self._filename, self._charno, self._text, self._source_line))
+            return hash((self._filename, self._charno, self._text, self._context))
 
     def __lt__(self, other):
+        """Test if self is less than other."""
         if self.__class__ != other.__class__:
             return self < other
-        tup_self = (self._filename, self._lineno, self._charno, self._text, self._source_line)
-        tup_other = (other._filename, other._lineno, other._charno, other._text, other._source_line)
+        tup_self = (self._filename, self._lineno, self._charno, self._text, self._context)
+        tup_other = (other._filename, other._lineno, other._charno, other._text, other._context)
         return tup_self < tup_other
 
-    def add_source_line(self, source_line):
-        return Message(self._filename, self._lineno, self._charno, self._text, source_line)
+    def add_context(self, context):
+        """Return an identical message with context."""
+        if self._context is not None:
+            raise ValueError('This message already has context.')
+        return Message(self._filename, self._lineno, self._charno, self._text, context)
 
     def __str__(self):
+        """Return a nicely formatted string representation of the message."""
         # Fix the location string
         if self.filename is None:
             location = '(nofile)            '
@@ -215,7 +258,7 @@ class TrapdoorProgram(object):
         counter, messages = self.get_stats(config)
         print 'NUMBER OF MESSAGES :', len(messages)
         print 'ADDING SOURCE ...'
-        self._add_source_lines(messages)
+        self._add_contexts(messages)
         print 'NUMBER OF MESSAGES :', len(messages)
         print 'SUM OF COUNTERS    :', sum(counter.itervalues())
         fn_pp = 'trapdoor_results_%s_%s.pp' % (self.name, mode)
@@ -242,7 +285,7 @@ class TrapdoorProgram(object):
         """
         raise NotImplementedError
 
-    def _add_source_lines(self, all_messages):
+    def _add_contexts(self, all_messages):
         """Add source lines to the messages.
 
         This method has the desired side effect that messages that only differ in line
@@ -270,7 +313,7 @@ class TrapdoorProgram(object):
                     # number counting!
                     while iline+1 == current.lineno:
                         all_messages.discard(current)
-                        all_messages.add(current.add_source_line(line[:-1]))
+                        all_messages.add(current.add_context(line[:-1]))
                         if len(file_messages) == 0:
                             break
                         current = file_messages.pop(0)
@@ -311,9 +354,9 @@ class TrapdoorProgram(object):
         messages_feature : Set([]) of Message instances
                            All errors encountered in the feature branch.
         counter_ancestor : collections.Counter
-                         Counts for different error types in the ancestor.
+                           Counts for different error types in the ancestor.
         messages_ancestor : Set([]) of Message instances
-                          All errors encountered in the ancestor.
+                            All errors encountered in the ancestor.
         pattern : None or str
                   When given, only messages containing ``pattern`` will be printed.
         """
