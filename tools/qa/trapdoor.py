@@ -430,25 +430,28 @@ def get_source_filenames(config, language, unpackaged_only=False):
     exclude = config['%s_exclude' % language]
     packages = config.get('%s_packages' % language, [])
 
+    # Define the filename filter
+    def acceptable(dirpath, filename):
+        """Determine if a filename should be included in the result"""
+        if not any(fnmatch(filename, source_pattern) for source_pattern in source_patterns):
+            return False
+        if not all(not fnmatch(filename, exclude_filter) for exclude_filter in exclude):
+            return False
+        if unpackaged_only:
+            in_package = False
+            for package in packages:
+                if dirpath.startswith(package):
+                    in_package = True
+                    break
+            if in_package:
+                return False
+        return True
+
     # Loop over all files in given directories
     result = []
     for source_directory in directories:
-        for dirpath, dirnames, filenames in os.walk(source_directory):
+        for dirpath, _dirnames, filenames in os.walk(source_directory):
             for filename in filenames:
-                # Apply filters before adding
-                if not any(fnmatch(filename, source_pattern) for source_pattern in
-                           source_patterns):
-                    continue
-                if not all(not fnmatch(filename, exclude_filter) for exclude_filter in
-                           exclude):
-                    continue
-                if unpackaged_only:
-                    in_package = False
-                    for package in packages:
-                        if dirpath.startswith(package):
-                            in_package = True
-                            break
-                    if in_package:
-                        continue
-                result.append(os.path.join(dirpath, filename))
+                if acceptable(dirpath, filename):
+                    result.append(os.path.join(dirpath, filename))
     return result

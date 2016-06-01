@@ -74,8 +74,7 @@ class PylintTrapdoorProgram(TrapdoorProgram):
 
         # call Pylint
         command = ['pylint'] + config['py_packages'] + py_extra + [
-                  '--rcfile=%s' % self.rcfile,
-                  '--ignore=%s' % (','.join(config['py_exclude']))]
+            '--rcfile=%s' % self.rcfile, '--ignore=%s' % (','.join(config['py_exclude']))]
         print 'RUNNING :', ' '.join(command)
         proc = subprocess.Popen(command, stdout=subprocess.PIPE)
 

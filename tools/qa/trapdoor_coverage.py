@@ -110,11 +110,12 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
                         for branch_end in branch_ends.split(','):
                             if branch_end.isdigit():
                                 delta = int(branch_end) - line
-                                messages.add(Message(filename, line, None,
-                                    'Missed branch to line %+i' % (delta)))
+                                msg = Message(filename, line, None,
+                                              'Missed branch to line %+i' % (delta))
                             else:
-                                messages.add(Message(filename, line, None,
-                                    'Missed branch to %s' % branch_end))
+                                msg = Message(filename, line, None,
+                                              'Missed branch to %s' % branch_end)
+                            messages.add(msg)
                             counter[filename] += 1
                     messages.add(Message(filename, line, None, 'Missed line'))
                     counter[filename] += 1

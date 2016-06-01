@@ -105,7 +105,7 @@ class CompleteReport(pep8.StandardReport):
     def get_file_results(self):
         """Record the result and return the overall count for this file."""
         self._deferred_print.sort()
-        for line_number, offset, code, text, doc in self._deferred_print:
+        for line_number, offset, code, text, _doc in self._deferred_print:
             self.complete_messages.add(Message(
                 self.filename, self.line_offset + line_number,
                 offset + 1, '%s: %s' % (code, text)
