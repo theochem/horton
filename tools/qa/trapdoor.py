@@ -39,6 +39,10 @@ __all__ = ['Message', 'TrapdoorProgram']
 
 class Message(object):
     def __init__(self, filename, lineno, charno, text, source_line=None):
+        if lineno is not None and not isinstance(lineno, int):
+            raise TypeError('When given, lineno must be integer.')
+        if charno is not None and not isinstance(charno, int):
+            raise TypeError('When given, charno must be integer.')
         self._filename = filename
         self._lineno = lineno
         self._charno = charno
