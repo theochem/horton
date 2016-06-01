@@ -297,6 +297,9 @@ PotentialExtrapolation::PotentialExtrapolation(long l)
 void PotentialExtrapolation::prepare(CubicSpline* cs) {
     amp_left = cs->y[0]/pow(cs->get_first_x(), l);
     amp_right = cs->y[cs->n-1]*pow(cs->get_last_x(), l+1);
+#ifdef DEBUG
+    printf("PARS POTENTIAL EXTRAPOL cs->y[0]=%f first_x=%f amp_left=%f amp_right=%f\n", cs->y[0], cs->get_first_x(), amp_left, amp_right);
+#endif
 }
 
 double PotentialExtrapolation::eval_left(double x) {
