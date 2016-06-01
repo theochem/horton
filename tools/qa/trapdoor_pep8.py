@@ -31,7 +31,7 @@ import shutil
 from collections import Counter
 
 import pep8
-from trapdoor import TrapdoorProgram
+from trapdoor import TrapdoorProgram, Message
 
 
 class PEP8TrapdoorProgram(TrapdoorProgram):
@@ -84,7 +84,7 @@ class PEP8TrapdoorProgram(TrapdoorProgram):
         del counters['files']
         del counters['directories']
         # message on each error
-        messages = set(pep8check.options.report.complete_message)
+        messages = pep8check.options.report.complete_messages
         assert len(messages) == pep8check.options.report.get_count()
         return counters, messages
 
@@ -99,18 +99,16 @@ class CompleteReport(pep8.StandardReport):
     def __init__(self, options):
         """Initialize a CompleteReport instance."""
         super(CompleteReport, self).__init__(options)
-        self.complete_message = []
+        self.complete_messages = set([])
 
     def get_file_results(self):
         """Record the result and return the overall count for this file."""
         self._deferred_print.sort()
         for line_number, offset, code, text, doc in self._deferred_print:
-            # record the error message specifications.
-            message = '%15s  %-50s  %s' % (
-                code,
-                ('%s:%s:%s' % (self.filename, self.line_offset + line_number, offset + 1)),
-                text)
-            self.complete_message.append(message)
+            self.complete_messages.add(Message(
+                self.filename, self.line_offset + line_number,
+                offset + 1, '%s: %s' % (code, text)
+            ))
 
 
 if __name__ == '__main__':

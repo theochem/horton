@@ -25,6 +25,7 @@ This model provides the ``TrapdoorProgram`` base class for all trapdoor programs
 
 
 import argparse
+import bisect
 import cPickle
 import json
 import os
@@ -33,7 +34,66 @@ import sys
 import time
 
 
-__all__ = ['TrapdoorProgram']
+__all__ = ['Message', 'TrapdoorProgram']
+
+
+class Message(object):
+    def __init__(self, filename, lineno, charno, text, source_line=None):
+        self._filename = filename
+        self._lineno = lineno
+        self._charno = charno
+        self._text = text
+        self._source_line = source_line
+
+    filename = property(lambda self: self._filename)
+    lineno = property(lambda self: self._lineno)
+    charno = property(lambda self: self._charno)
+    text = property(lambda self: self._text)
+    source_line = property(lambda self: self._source_line)
+
+    def __eq__(self, other):
+        equal = self.__class__ == other.__class__ \
+            and self._filename == other._filename \
+            and self._charno == other._charno \
+            and self._text == other._text \
+            and self._source_line == other._source_line
+        if not equal:
+            return False
+        if self._source_line is None and other._source_line is None:
+            return self._lineno == other._lineno
+        return True
+
+    def __hash__(self):
+        if self._source_line is None:
+            return hash((self._filename, self._lineno, self._charno, self._text))
+        else:
+            return hash((self._filename, self._charno, self._text, self._source_line))
+
+    def __lt__(self, other):
+        if self.__class__ != other.__class__:
+            return self < other
+        tup_self = (self._filename, self._lineno, self._charno, self._text, self._source_line)
+        tup_other = (other._filename, other._lineno, other._charno, other._text, other._source_line)
+        return tup_self < tup_other
+
+    def add_source_line(self, source_line):
+        return Message(self._filename, self._lineno, self._charno, self._text, source_line)
+
+    def __str__(self):
+        # Fix the location string
+        if self.filename is None:
+            location = '(nofile)            '
+        else:
+            location = str(self.filename)
+            if self.lineno is not None:
+                location += '%6i' % str(self.lineno)
+            else:
+                location += ' '*6
+            if msg.charno is not None:
+                location += '%6i' % str(self.charno)
+            else:
+                location += ' '*6
+        return '%-60s   %s' % (location, msg.text)
 
 
 def _print_messages(header, messages, pattern=None):
@@ -51,7 +111,7 @@ def _print_messages(header, messages, pattern=None):
     if len(messages) > 0:
         print header
         for msg in messages:
-            if pattern is None or pattern in msg:
+            if pattern is None or pattern in msg.filename:
                 print msg
 
 
@@ -122,7 +182,7 @@ class TrapdoorProgram(object):
                             help='Also print output for problems that did not '
                                  'deteriorate.')
         parser.add_argument('-f', '--pattern', metavar='PATTERN', dest='pattern',
-                            help='Only print messages containing PATTERN')
+                            help='Only print messages whose filename contains PATTERN')
         return parser.parse_args()
 
     def prepare(self):
@@ -149,6 +209,7 @@ class TrapdoorProgram(object):
         with open(self.trapdoor_config_file, 'r') as f:
             config = json.load(f)
         counter, messages = self.get_stats(config)
+        self._add_source_lines(messages)
         print 'NUMBER OF MESSAGES :', len(messages)
         print 'SUM OF COUNTERS    :', sum(counter.itervalues())
         fn_pp = 'trapdoor_results_%s_%s.pp' % (self.name, mode)
@@ -170,10 +231,46 @@ class TrapdoorProgram(object):
         -------
         counter : collections.Counter
                   Counts of the number of messages of a specific type in a certain file.
-        messages : Set([]) of strings
+        messages : Set([]) of Message instances
                    All errors encountered in the current branch.
         """
         raise NotImplementedError
+
+    def _add_source_lines(self, all_messages):
+        """Add source lines to the messages.
+
+        This method has the desired side effect that messages that only differ in line
+        number but that do have the same source line, will be considered identical.
+
+        Parameters
+        ----------
+        all_messages : Set([]) of Message instances
+                       All errors encountered in the current branch.
+        """
+        # 1) Collect all messages in a dictionary, where filenames are keys and values
+        #    are sorted lists of messages. Only messages with a filename and a line number
+        #    must be included.
+        mdict = {}
+        for message in all_messages:
+            if message.filename is not None and message.lineno is not None:
+                l = mdict.setdefault(message.filename, [])
+                bisect.insort(l, message)
+        # 2) Loop over all files and collect source lines
+        for filename, file_messages in mdict.iteritems():
+            with open(filename) as source_file:
+                current = file_messages.pop(0)
+                for iline, line in enumerate(source_file):
+                    # Copy source lines without return char. Mind the one-based line
+                    # number counting!
+                    while iline+1 == current.lineno:
+                        all_messages.discard(current)
+                        all_messages.add(current.add_source_line(line[:-1]))
+                        if len(file_messages) == 0:
+                            break
+                        current = file_messages.pop(0)
+                    # Stop reading the file if there are no messages left.
+                    if len(file_messages) == 0:
+                        break
 
     def report(self, noisy=False, pattern=None):
         """Load feature and ancestor results from disk and report on screen.
@@ -185,12 +282,14 @@ class TrapdoorProgram(object):
         pattern : None or str
                   When given, only messages containing ``pattern`` will be printed.
         """
+        # Load all the trapdoor results from the two branches.
         fn_pp_feature = 'trapdoor_results_%s_feature.pp' % self.name
         with open(os.path.join(self.qaworkdir, fn_pp_feature)) as f:
             results_feature = cPickle.load(f)
         fn_pp_ancestor = 'trapdoor_results_%s_ancestor.pp' % self.name
         with open(os.path.join(self.qaworkdir, fn_pp_ancestor)) as f:
             results_ancestor = cPickle.load(f)
+        # Make the report.
         if noisy:
             self.print_details(results_feature, results_ancestor, pattern)
         self.check_regression(results_feature, results_ancestor, pattern)
@@ -203,11 +302,11 @@ class TrapdoorProgram(object):
         ----------
         counter_feature : collections.Counter
                           Counts for different error types in the feature branch.
-        messages_feature : Set([]) of strings
+        messages_feature : Set([]) of Message instances
                            All errors encountered in the feature branch.
         counter_ancestor : collections.Counter
                          Counts for different error types in the ancestor.
-        messages_ancestor : Set([]) of strings
+        messages_ancestor : Set([]) of Message instances
                           All errors encountered in the ancestor.
         pattern : None or str
                   When given, only messages containing ``pattern`` will be printed.
@@ -236,11 +335,11 @@ class TrapdoorProgram(object):
         ----------
         counter_feature : collections.Counter
                           Counts for different error types in the feature branch.
-        messages_feature : Set([]) of strings
+        messages_feature : Set([]) of Message instances
                            All errors encountered in the feature branch.
         counter_ancestor : collections.Counter
                          Counts for different error types in the ancestor.
-        messages_ancestor : Set([]) of strings
+        messages_ancestor : Set([]) of Message instances
                           All errors encountered in the ancestor.
         pattern : None or str
                   When given, only messages containing ``pattern`` will be printed.
