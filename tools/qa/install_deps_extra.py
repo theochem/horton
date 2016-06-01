@@ -1,18 +1,28 @@
 #!/usr/bin/env python
+"""Installs extra dependencies.
 
-# Run all the install scripts in the proper order. After each install, the
-# corresponding environment vars are sourced to make sure the following dependencies
-# can be built properly.
+Run all the install scripts in the proper order. After each install, the
+corresponding environment vars are sourced to make sure the following dependencies
+can be built properly.
+"""
 
-import json, os
+import json
+import os
 
-# Load the dependencies data
-with open('dependencies.txt') as f:
-    dependencies = json.load(f)
 
-# Install each with an install_command line.
-for d in dependencies:
-    install_command = d.get('install_command')
-    if install_command is not None:
-        print install_command
-        os.system(install_command)
+def main():
+    """Main program."""
+    # Load the dependencies data
+    with open('dependencies.txt') as f:
+        dependencies = json.load(f)
+
+    # Install each with an install_command line.
+    for d in dependencies:
+        install_command = d.get('install_command')
+        if install_command is not None:
+            print install_command
+            os.system(install_command)
+
+
+if __name__ == '__main__':
+    main()

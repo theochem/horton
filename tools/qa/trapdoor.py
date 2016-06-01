@@ -432,7 +432,7 @@ def get_source_filenames(config, language, unpackaged_only=False):
 
     # Define the filename filter
     def acceptable(dirpath, filename):
-        """Determine if a filename should be included in the result"""
+        """Determine if a filename should be included in the result."""
         if not any(fnmatch(filename, source_pattern) for source_pattern in source_patterns):
             return False
         if not all(not fnmatch(filename, exclude_filter) for exclude_filter in exclude):
