@@ -11,9 +11,9 @@ report_error() {
 ### 2) Testing in the ancestor with the master branch, unless we are currently on the master branch.
 
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-if [ "${CURRENT_BRANCH}" != 'master' ]; then
-    find_ancestor
-
+ANCESTOR_COMMIT=$(git merge-base master ${CURRENT_BRANCH})
+CURRENT_COMMIT=$(git rev-parse HEAD)
+if [ "${CURRENT_BRANCH}" != 'master' ] && [ "${CURRENT_COMMIT}" != ${ANCESTOR_COMMIT} ]; then
     # Copy the required scripts to the work directory, to make sure we're running with
     # the scripts from the feature branch, not the ancestor with the master branch.
     cp -av ./tools/qa/trapdoor*.py ${QAWORKDIR}/
@@ -62,4 +62,6 @@ if [ "${CURRENT_BRANCH}" != 'master' ]; then
 
     echo -e "${GREEN}ALL TESTS PASSED (ancestor)${RESET}"
     exit 0
+else
+    echo "No need to test ancestor because HEAD is (merged in) master."
 fi
