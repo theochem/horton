@@ -73,6 +73,16 @@ class NamespaceTrapdoorProgram(TrapdoorProgram):
             # remove extension and replace / by .
             modulename = filename[:filename.rfind('.')].replace('/', '.')
 
+            # Skip if this modulename is not part of a package
+            in_package = False
+            for packagename in config['py_packages']:
+                if modulename.startswith(packagename):
+                    in_package = True
+                    break
+            if not in_package:
+                continue
+
+            # Check all public names of the module.
             module = importlib.import_module(modulename)
             names = dir(module)
             if '__all__' in names:

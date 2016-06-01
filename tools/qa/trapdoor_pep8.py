@@ -70,6 +70,7 @@ class PEP8TrapdoorProgram(TrapdoorProgram):
 
         # Call Pep8
         pep8check = pep8.StyleGuide(reporter=CompleteReport, config_file=self.config_file)
+        pep8check.options.exclude.extend(config['py_exclude'])
         print 'EXCLUDED FILES     :', pep8check.options.exclude
         print 'IGNORED MESSAGES   :', pep8check.options.ignore
         print 'MAX LINE LENGTH    :', pep8check.options.max_line_length

@@ -30,7 +30,7 @@ import shutil
 import subprocess
 from collections import Counter
 
-from trapdoor import TrapdoorProgram, Message
+from trapdoor import TrapdoorProgram, Message, get_source_filenames
 
 
 class PylintTrapdoorProgram(TrapdoorProgram):
@@ -69,9 +69,13 @@ class PylintTrapdoorProgram(TrapdoorProgram):
         version_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         print 'USING   :', ''.join(version_output.split('\n')[:2])
 
+        # Collect python files not present in packages
+        py_extra = get_source_filenames(config, 'py', unpackaged_only=True)
+
         # call Pylint
-        command = ['pylint'] + config['py_directories'] + ['--rcfile=%s' % self.rcfile]
-        #command = ['pylint', 'horton/test/common.py', '--rcfile=%s' % self.rcfile]
+        command = ['pylint'] + config['py_packages'] + py_extra + [
+                  '--rcfile=%s' % self.rcfile,
+                  '--ignore=%s' % (','.join(config['py_exclude']))]
         print 'RUNNING :', ' '.join(command)
         proc = subprocess.Popen(command, stdout=subprocess.PIPE)
 

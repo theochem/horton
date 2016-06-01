@@ -400,7 +400,7 @@ class TrapdoorProgram(object):
             print 'GOOD (ENOUGH)'
 
 
-def get_source_filenames(config, language):
+def get_source_filenames(config, language, unpackaged_only=False):
     """Return a list of source files according to configuration settings.
 
     This function will search for all cpp or py source files in the "XXX_directories" and
@@ -413,22 +413,42 @@ def get_source_filenames(config, language):
              A dictionary of configuration settings, loaded with json from trapdoor.cfg.
     language : str
                'py' or 'cpp'
+    unpackaged_only : bool
+                      When set to True, only files are listed that are not part of a
+                      (Python) package.
     """
+    # Extensions for each language:
     if language == 'cpp':
         source_patterns = ['*.cpp', '*.h']
     elif language == 'py':
         source_patterns = ['*.py', '*.pyx']
     else:
         raise ValueError('Language must be either \'cpp\' or \'py\'.')
-    source_directories = config['%s_directories' % language]
-    source_exclude = config['%s_exclude' % language]
-    source_filenames = []
-    for source_directory in source_directories:
+
+    # Get config settings
+    directories = config['%s_directories' % language]
+    exclude = config['%s_exclude' % language]
+    packages = config.get('%s_packages' % language, [])
+
+    # Loop over all files in given directories
+    result = []
+    for source_directory in directories:
         for dirpath, dirnames, filenames in os.walk(source_directory):
             for filename in filenames:
-                if any(fnmatch(filename, source_pattern) for source_pattern in
-                       source_patterns) and \
-                   all(not fnmatch(filename, exclude_filter) for exclude_filter in
-                       source_exclude):
-                    source_filenames.append(os.path.join(dirpath, filename))
-    return source_filenames
+                # Apply filters before adding
+                if not any(fnmatch(filename, source_pattern) for source_pattern in
+                           source_patterns):
+                    continue
+                if not all(not fnmatch(filename, exclude_filter) for exclude_filter in
+                           exclude):
+                    continue
+                if unpackaged_only:
+                    in_package = False
+                    for package in packages:
+                        if dirpath.startswith(package):
+                            in_package = True
+                            break
+                    if in_package:
+                        continue
+                result.append(os.path.join(dirpath, filename))
+    return result
