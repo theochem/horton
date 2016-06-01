@@ -29,7 +29,8 @@ import os
 import shutil
 import subprocess
 from collections import Counter
-from trapdoor import TrapdoorProgram
+
+from trapdoor import TrapdoorProgram, Message
 
 
 class DoxygenTrapdoorProgram(TrapdoorProgram):
@@ -71,7 +72,8 @@ class DoxygenTrapdoorProgram(TrapdoorProgram):
         command = ['doxygen', self.doxyconf_file]
         print 'RUNNING (in %s)' % config['doxygen_root'], ' '.join(command)
         with open(os.devnull, 'wb') as devnull:
-            subprocess.check_call(command, cwd=config['doxygen_root'], stdout=devnull, stderr=devnull)
+            subprocess.check_call(command, cwd=config['doxygen_root'], stdout=devnull,
+                                  stderr=devnull)
 
         # Parse the file doxygen_warnings log file
         counter = Counter()
@@ -85,14 +87,9 @@ class DoxygenTrapdoorProgram(TrapdoorProgram):
                 if filename.startswith(prefix):
                     filename = filename[len(prefix):]
                 description = ' '.join(words[2:])
-                message = '%-40s  %s' % (
-                    '%s:%s' % (filename, lineno),
-                    description
-                )
-                # doxygen reports duplicate warnings...
-                if message not in messages:
-                    counter[filename] += 1
-                    messages.add(message)
+                message = Message(filename, int(lineno), None, description)
+                counter[filename] += 1
+                messages.add(message)
         return counter, messages
 
 

@@ -147,17 +147,15 @@ class DenseLinalgFactory(LinalgFactory):
     #
 
     def create_one_index(self, nbasis=None):
-        '''Create a DenseOneIndex with defaults from the LinalgFactory
-
+       '''Create a DenseOneIndex with defaults from the LinalgFactory
            **Optional arguments:**
-
            nbasis
-                The number of basis functions. When not given, the
-                default_nbasis value of the DenseLinalgFactory instance will be
-                used.
-        '''
-        nbasis = nbasis or self.default_nbasis
-        return DenseOneIndex(nbasis)
+               The number of basis functions. When not given, the
+               default_nbasis value of the DenseLinalgFactory instance will be
+               used.
+       '''
+       nbasis = nbasis or self.default_nbasis
+       return DenseOneIndex(nbasis)
 
     def _check_one_index_init_args(self, other, nbasis=None):
         '''Is an object is compatible the constructor arguments?'''

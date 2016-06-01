@@ -31,7 +31,7 @@ import shutil
 from collections import Counter
 
 import pep8
-from trapdoor import TrapdoorProgram
+from trapdoor import TrapdoorProgram, Message
 
 
 class PEP8TrapdoorProgram(TrapdoorProgram):
@@ -66,15 +66,15 @@ class PEP8TrapdoorProgram(TrapdoorProgram):
                    All errors encountered in the current branch.
         """
         # Get version
-        print 'USING PEP8       :', pep8.__version__
+        print 'USING PEP8         :', pep8.__version__
 
         # Call Pep8
         pep8check = pep8.StyleGuide(reporter=CompleteReport, config_file=self.config_file)
-        print 'EXCLUDED FILES   :', pep8check.options.exclude
-        print 'IGNORED MESSAGES :', pep8check.options.ignore
-        print 'MAX LINE LENGTH  :', pep8check.options.max_line_length
+        print 'EXCLUDED FILES     :', pep8check.options.exclude
+        print 'IGNORED MESSAGES   :', pep8check.options.ignore
+        print 'MAX LINE LENGTH    :', pep8check.options.max_line_length
         for py_directory in config['py_directories']:
-            print 'RUNNING          : pep8', py_directory
+            print 'RUNNING            : pep8 %s (through Python API)' % py_directory
             pep8check.input_dir(py_directory)
 
         # Parse the output of Pep8 into standard return values
@@ -84,7 +84,7 @@ class PEP8TrapdoorProgram(TrapdoorProgram):
         del counters['files']
         del counters['directories']
         # message on each error
-        messages = set(pep8check.options.report.complete_message)
+        messages = pep8check.options.report.complete_messages
         assert len(messages) == pep8check.options.report.get_count()
         return counters, messages
 
@@ -99,18 +99,16 @@ class CompleteReport(pep8.StandardReport):
     def __init__(self, options):
         """Initialize a CompleteReport instance."""
         super(CompleteReport, self).__init__(options)
-        self.complete_message = []
+        self.complete_messages = set([])
 
     def get_file_results(self):
         """Record the result and return the overall count for this file."""
         self._deferred_print.sort()
         for line_number, offset, code, text, doc in self._deferred_print:
-            # record the error message specifications.
-            message = '%15s  %-50s  %s' % (
-                code,
-                ('%s:%s:%s' % (self.filename, self.line_offset + line_number, offset + 1)),
-                text)
-            self.complete_message.append(message)
+            self.complete_messages.add(Message(
+                self.filename, self.line_offset + line_number,
+                offset + 1, '%s: %s' % (code, text)
+            ))
 
 
 if __name__ == '__main__':

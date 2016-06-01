@@ -29,7 +29,8 @@ https://www.python.org/dev/peps/pep-0257. Not everything can be tested by a prog
 
 import subprocess
 from collections import Counter
-from trapdoor import TrapdoorProgram
+
+from trapdoor import TrapdoorProgram, Message
 
 
 class PEP257TrapdoorProgram(TrapdoorProgram):
@@ -79,11 +80,7 @@ class PEP257TrapdoorProgram(TrapdoorProgram):
                 description = description.strip()
 
                 key = '%s %s' % (code, filename)
-                message = '%s  %-40s  %s' % (
-                    code,
-                    '%s:%s' % (filename, lineno),
-                    description
-                )
+                message = Message(filename, int(lineno), None, '%s %s' % (code, description))
 
                 counter[key] += 1
                 messages.add(message)
