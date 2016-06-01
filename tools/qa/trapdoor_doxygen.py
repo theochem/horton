@@ -29,7 +29,8 @@ import os
 import shutil
 import subprocess
 from collections import Counter
-from trapdoor import TrapdoorProgram
+
+from trapdoor import TrapdoorProgram, Message
 
 
 class DoxygenTrapdoorProgram(TrapdoorProgram):
@@ -85,14 +86,9 @@ class DoxygenTrapdoorProgram(TrapdoorProgram):
                 if filename.startswith(prefix):
                     filename = filename[len(prefix):]
                 description = ' '.join(words[2:])
-                message = '%-40s  %s' % (
-                    '%s:%s' % (filename, lineno),
-                    description
-                )
-                # doxygen reports duplicate warnings...
-                if message not in messages:
-                    counter[filename] += 1
-                    messages.add(message)
+                message = Message(filename, int(lineno), None, description)
+                counter[filename] += 1
+                messages.add(message)
         return counter, messages
 
 
