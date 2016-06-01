@@ -46,9 +46,6 @@ class Message(object):
     a relatively poor descriptor for assessing if a message is new in a feature branch.
     For example, lines may have been inserted or removed, which changes the line numbers
     without actually changing any code.
-
-    The context of a message is currently just the line of code where the error was
-    reported.
     """
 
     def __init__(self, filename, lineno, charno, text, context=None):
@@ -304,22 +301,19 @@ class TrapdoorProgram(object):
             if message.filename is not None and message.lineno is not None:
                 l = mdict.setdefault(message.filename, [])
                 bisect.insort(l, message)
-        # 2) Loop over all files and collect source lines
+        # 2) Loop over all files and collect some source context for each message
         for filename, file_messages in mdict.iteritems():
             with open(filename) as source_file:
-                current = file_messages.pop(0)
-                for iline, line in enumerate(source_file):
-                    # Copy source lines without return char. Mind the one-based line
-                    # number counting!
-                    while iline+1 == current.lineno:
-                        all_messages.discard(current)
-                        all_messages.add(current.add_context(line[:-1]))
-                        if len(file_messages) == 0:
-                            break
-                        current = file_messages.pop(0)
-                    # Stop reading the file if there are no messages left.
-                    if len(file_messages) == 0:
-                        break
+                lines = source_file.readlines()
+                for message in file_messages:
+                    all_messages.discard(message)
+                    # The context starts three lines before the line and ends three lines
+                    # after.
+                    context = ''.join(lines[
+                        max(0, message.lineno - 3):
+                        min(len(lines), message.lineno + 4)
+                    ])
+                    all_messages.add(message.add_context(context))
 
     def report(self, noisy=False, pattern=None):
         """Load feature and ancestor results from disk and report on screen.
