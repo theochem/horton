@@ -17,9 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
-'''Utility functions for the ``horton-wpart.py`` script'''
-
+# --
+"""Utility functions for the ``horton-wpart.py`` script"""
 
 import numpy as np
 
@@ -37,7 +36,7 @@ __all__ = ['wpart_schemes', 'wpart_slow_analysis']
 
 
 def get_wpart_schemes():
-    '''Return a dictionary with all wpart schemes'''
+    """Return a dictionary with all wpart schemes"""
 
     wpart_schemes = {}
     for o in vars(horton.part).itervalues():
@@ -50,7 +49,7 @@ wpart_schemes = get_wpart_schemes()
 
 
 def wpart_slow_analysis(wpart, mol):
-    '''An additional and optional analysis for horton-wpart.py
+    """An additional and optional analysis for horton-wpart.py
 
        This analysis is currently not included in horton/part because it would
        imply additional changes in the API.
@@ -63,7 +62,7 @@ def wpart_slow_analysis(wpart, mol):
        mol
             An instance of IOData. This instance must at least contain an
             obasis, exp_alpha and exp_beta (in case of unrestricted spin) object.
-    '''
+    """
 
     # A) Compute AIM overlap operators
     # --------------------------------
@@ -78,10 +77,10 @@ def wpart_slow_analysis(wpart, mol):
         # Prepare solid harmonics on grids.
         grid = wpart.get_grid(index)
         if wpart.lmax > 0:
-            work = np.zeros((grid.size, npure-1), float)
-            work[:,0] = grid.points[:,2] - wpart.coordinates[index,2]
-            work[:,1] = grid.points[:,0] - wpart.coordinates[index,0]
-            work[:,2] = grid.points[:,1] - wpart.coordinates[index,1]
+            work = np.zeros((grid.size, npure - 1), float)
+            work[:, 0] = grid.points[:, 2] - wpart.coordinates[index, 2]
+            work[:, 1] = grid.points[:, 0] - wpart.coordinates[index, 0]
+            work[:, 2] = grid.points[:, 1] - wpart.coordinates[index, 1]
             if wpart.lmax > 1:
                 fill_pure_polynomials(work, wpart.lmax)
         at_weights = wpart.cache.load('at_weights', index)
@@ -89,14 +88,15 @@ def wpart_slow_analysis(wpart, mol):
         # Convert the weight functions to AIM overlap operators.
         counter = 0
         overlap_operators = {}
-        for l in xrange(wpart.lmax+1):
-            for m in xrange(-l, l+1):
+        for l in xrange(wpart.lmax + 1):
+            for m in xrange(-l, l + 1):
                 op = mol.lf.create_two_index()
                 if counter > 0:
-                    tmp = at_weights*work[:,counter-1]
+                    tmp = at_weights * work[:, counter - 1]
                 else:
                     tmp = at_weights
-                mol.obasis.compute_grid_density_fock(grid.points, grid.weights, tmp, op)
+                mol.obasis.compute_grid_density_fock(grid.points, grid.weights,
+                                                     tmp, op)
                 overlap_operators['olp_%05i' % counter] = op
                 counter += 1
 
@@ -109,7 +109,7 @@ def wpart_slow_analysis(wpart, mol):
         atom_overlap = wpart.cache.load('overlap_operators', index)['olp_00000']
         error_overlap.iadd(atom_overlap)
     error_overlap.iadd(mol.obasis.compute_overlap(mol.lf), -1)
-    error_overlap.iscale(1.0/wpart.natom)
+    error_overlap.iscale(1.0 / wpart.natom)
     for index in xrange(wpart.natom):
         atom_overlap = wpart.cache.load('overlap_operators', index)['olp_00000']
         atom_overlap.iadd(error_overlap, -1)
@@ -120,7 +120,8 @@ def wpart_slow_analysis(wpart, mol):
     operators = []
     for ipure in xrange(npure):
         for iatom in xrange(wpart.natom):
-            operators.append(wpart.cache.load('overlap_operators', iatom)['olp_%05i' % ipure])
+            operators.append(wpart.cache.load('overlap_operators', iatom)[
+                                 'olp_%05i' % ipure])
 
     # B) Compute Wiberg bond orders from the first-order density matrix
     # -----------------------------------------------------------------
@@ -137,7 +138,8 @@ def wpart_slow_analysis(wpart, mol):
         # closed-shell case
         dm_alpha = dm_full.copy()
         dm_alpha.iscale(0.5)
-        bond_orders, valences, free_valences = compute_bond_orders_cs(dm_alpha, operators)
+        bond_orders, valences, free_valences = compute_bond_orders_cs(dm_alpha,
+                                                                      operators)
     else:
         # open-shell case
         dm_alpha = dm_full.copy()
@@ -146,11 +148,12 @@ def wpart_slow_analysis(wpart, mol):
         dm_beta = dm_full.copy()
         dm_beta.iadd(dm_spin, -1.0)
         dm_beta.iscale(0.5)
-        bond_orders, valences, free_valences = compute_bond_orders_os(dm_alpha, dm_beta, operators)
+        bond_orders, valences, free_valences = compute_bond_orders_os(dm_alpha,
+                                                                      dm_beta,
+                                                                      operators)
     wpart.cache.dump('bond_orders', bond_orders, tags='o')
     wpart.cache.dump('valences', valences, tags='o')
     wpart.cache.dump('free_valences', free_valences, tags='o')
-
 
     # C) Non-interacting response
     # ---------------------------
@@ -162,7 +165,8 @@ def wpart_slow_analysis(wpart, mol):
     if dm_spin is None:
         if not hasattr(mol, 'exp_alpha'):
             return
-        xs_response = 2*compute_noninteracting_response(mol.exp_alpha, operators)
+        xs_response = 2 * compute_noninteracting_response(mol.exp_alpha,
+                                                          operators)
     else:
         if not (hasattr(mol, 'exp_alpha') and hasattr(mol, 'exp_beta')):
             return
