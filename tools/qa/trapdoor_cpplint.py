@@ -31,31 +31,8 @@ import shutil
 import stat
 import subprocess
 from collections import Counter
-from fnmatch import fnmatch
 
-from trapdoor import TrapdoorProgram, Message
-
-
-def get_cpp_files(config):
-    """Return a list of .cpp and .h files according to configuration settings.
-
-    This function will search for all .cpp and .h files in the "cpp_directories" and will
-    exclude some based in fnmatch patterns provided in the "cpp_exclude" setting.
-
-    Parameters
-    ----------
-    config : dict
-             A dictionary of configuration settings, loaded with json from trapdoor.cfg.
-    """
-    cpp_files = []
-    for cpp_directory in config["cpp_directories"]:
-        for dirpath, dirnames, filenames in os.walk(cpp_directory):
-            for filename in filenames:
-                if (fnmatch(filename, "*.cpp") or fnmatch(filename, "*.h")) and \
-                   all(not fnmatch(filename, exclude_filter) for exclude_filter in
-                       config["cpp_exclude"]):
-                    cpp_files.append(os.path.join(dirpath, filename))
-    return cpp_files
+from trapdoor import TrapdoorProgram, Message, get_source_filenames
 
 
 class CPPLintTrapdoorProgram(TrapdoorProgram):
@@ -94,7 +71,7 @@ class CPPLintTrapdoorProgram(TrapdoorProgram):
         print 'USING cpplint.py update #456'
 
         # Call cpplint
-        command = [self.cpplint_file] + get_cpp_files(config)
+        command = [self.cpplint_file] + get_source_filenames(config, 'cpp')
         print 'RUNNING', ' '.join(command)
         proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         output = proc.communicate()[0]

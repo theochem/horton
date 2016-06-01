@@ -35,7 +35,7 @@ import os
 import codecs
 from collections import Counter
 
-from trapdoor import TrapdoorProgram, Message
+from trapdoor import TrapdoorProgram, Message, get_source_filenames
 
 
 class ImportTrapdoorProgram(TrapdoorProgram):
@@ -66,29 +66,25 @@ class ImportTrapdoorProgram(TrapdoorProgram):
 
         # Find all (sub)package names, from which one should not import directly
         packages = []
-        for pydir in config['py_directories']:
-            for rootdir, subdirs, filenames in os.walk(pydir):
-                if '__init__.py' in filenames:
-                    packages.append(rootdir.replace('/', '.'))
+        for filename in get_source_filenames(config, 'py'):
+            if filename.endswith('/__init__.py'):
+                packages.append(filename[:-12].replace('/', '.'))
 
         # Loop all python and cython files
-        for pydir in config['py_directories']:
-            for rootdir, subdirs, filenames in os.walk(pydir):
-                for filename in filenames:
-                    # Only consider relevant files
-                    if not (filename.endswith('.py') or filename.endswith('.pyx')):
-                        continue
-                    if filename.startswith('test_') or filename == '__init__.py':
-                        continue
-                    # Look for bad imports
-                    path = os.path.join(rootdir, filename)
-                    with codecs.open(path, encoding='utf-8') as f:
-                        for lineno, line in enumerate(f):
-                            for package in packages:
-                                if u'from %s import' % package in line:
-                                    counter['Wrong imports in %s' % path] += 1
-                                    text = 'Wrong import from %s' % package
-                                    messages.add(Message(path, lineno, None, text))
+        for filename in get_source_filenames(config, 'py'):
+            # Only consider relevant files
+            if os.path.basename(filename).startswith('test_'):
+                continue
+            if filename.endswith('/__init__.py'):
+                continue
+            # Look for bad imports
+            with codecs.open(filename, encoding='utf-8') as f:
+                for lineno, line in enumerate(f):
+                    for package in packages:
+                        if u'from %s import' % package in line:
+                            counter['Wrong imports in %s' % filename] += 1
+                            text = 'Wrong import from %s' % package
+                            messages.add(Message(filename, lineno, None, text))
 
         return counter, messages
 
