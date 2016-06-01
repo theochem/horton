@@ -108,12 +108,16 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
                     branch_ends = line_tag.get('missing-branches')
                     if branch_ends is not None:
                         for branch_end in branch_ends.split(','):
-                            messages.add(Message(filename, line, None,
-                                'Missed branch from line %i to %s' % (line, branch_end)))
+                            if branch_end.isdigit():
+                                delta = int(branch_end) - line
+                                messages.add(Message(filename, line, None,
+                                    'Missed branch to line %+i' % (delta)))
+                            else:
+                                messages.add(Message(filename, line, None,
+                                    'Missed branch to %s' % branch_end))
                             counter[filename] += 1
-                    messages.add(Message(filename, line, None, 'Missed line %i' % line))
+                    messages.add(Message(filename, line, None, 'Missed line'))
                     counter[filename] += 1
-
         return counter, messages
 
 
