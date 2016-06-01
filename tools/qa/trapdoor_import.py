@@ -35,7 +35,7 @@ import os
 import codecs
 from collections import Counter
 
-from trapdoor import TrapdoorProgram
+from trapdoor import TrapdoorProgram, Message
 
 
 class ImportTrapdoorProgram(TrapdoorProgram):
@@ -80,7 +80,7 @@ class ImportTrapdoorProgram(TrapdoorProgram):
                             for py_package in config['py_packages']:
                                 if u'from %s import' % py_package in line:
                                     counter['Wrong imports in %s' % path] += 1
-                                    messages.add('Wrong import: %s:%i' % (path, lineno))
+                                    messages.add(Message(path, lineno, None, 'Wrong import'))
 
         return counter, messages
 
