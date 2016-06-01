@@ -31,7 +31,7 @@
 import sys, os, datetime, getpass, time, atexit, traceback, resource, urllib
 from contextlib import contextmanager
 from functools import wraps
-from horton import context
+from horton.context import context
 import horton
 
 
