@@ -35,7 +35,7 @@ import os
 import codecs
 from collections import Counter
 
-from trapdoor import TrapdoorProgram
+from trapdoor import TrapdoorProgram, Message
 
 
 class ImportTrapdoorProgram(TrapdoorProgram):
@@ -64,6 +64,13 @@ class ImportTrapdoorProgram(TrapdoorProgram):
         counter = Counter()
         messages = set([])
 
+        # Find all (sub)package names, from which one should not import directly
+        packages = []
+        for pydir in config['py_directories']:
+            for rootdir, subdirs, filenames in os.walk(pydir):
+                if '__init__.py' in filenames:
+                    packages.append(rootdir.replace('/', '.'))
+
         # Loop all python and cython files
         for pydir in config['py_directories']:
             for rootdir, subdirs, filenames in os.walk(pydir):
@@ -77,10 +84,11 @@ class ImportTrapdoorProgram(TrapdoorProgram):
                     path = os.path.join(rootdir, filename)
                     with codecs.open(path, encoding='utf-8') as f:
                         for lineno, line in enumerate(f):
-                            for py_package in config['py_packages']:
-                                if u'from %s import' % py_package in line:
+                            for package in packages:
+                                if u'from %s import' % package in line:
                                     counter['Wrong imports in %s' % path] += 1
-                                    messages.add('Wrong import: %s:%i' % (path, lineno))
+                                    text = 'Wrong import from %s' % package
+                                    messages.add(Message(path, lineno, None, text))
 
         return counter, messages
 

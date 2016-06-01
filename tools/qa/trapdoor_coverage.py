@@ -31,7 +31,7 @@ import subprocess
 from collections import Counter
 from xml.etree import ElementTree
 
-from trapdoor import TrapdoorProgram
+from trapdoor import TrapdoorProgram, Message
 
 
 class CoverageTrapdoorProgram(TrapdoorProgram):
@@ -62,6 +62,10 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
         command = ['coverage', '--version']
         print 'USING', subprocess.check_output(command, stderr=subprocess.STDOUT).split('\n')[0]
 
+        # Results will be stored in the following variables
+        counter = Counter()
+        messages = set([])
+
         # Run fast unit tests with nosetests, with coverage
         command = ['nosetests', '-v', '-a', '!slow', '--with-coverage', '--cover-erase',
                    '--cover-branches',
@@ -72,10 +76,6 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
         output = proc.communicate()[0]
         lines = [line.strip() for line in output.split('\n')]
 
-        # Results will be stored in the following variables
-        counter = Counter()
-        messages = set([])
-
         # Parse the output of the unit tests
         iline = 0
         for line in lines:
@@ -83,10 +83,10 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
                 break
             elif line.endswith('FAIL'):
                 counter['unit_tests_failed'] += 1
-                messages.add('nosetests ' + line)
+                messages.add(Message(None, None, None, 'nosetests ' + line))
             elif line.endswith('ERROR'):
                 counter['unit_tests_error'] += 1
-                messages.add('nosetests ' + line)
+                messages.add(Message(None, None, None, 'nosetests ' + line))
             iline += 1
 
         # Run the coverage program for a full report. This separate call is needed
@@ -104,14 +104,20 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
             filename = class_tag.attrib['filename']
             for line_tag in class_tag.iter('line'):
                 if line_tag.attrib['hits'] == '0':
-                    line = line_tag.attrib['number']
-                    for branch_end in line_tag.get('missing-branches', []):
-                        messages.add('coverage missed branch  %s %s->%s' %
-                                     (filename, line, branch_end))
-                        counter['filename'] += 1
-                    messages.add('coverage missed line  %s %s' % (filename, line))
-                    counter['filename'] += 1
-
+                    line = int(line_tag.attrib['number'])
+                    branch_ends = line_tag.get('missing-branches')
+                    if branch_ends is not None:
+                        for branch_end in branch_ends.split(','):
+                            if branch_end.isdigit():
+                                delta = int(branch_end) - line
+                                messages.add(Message(filename, line, None,
+                                    'Missed branch to line %+i' % (delta)))
+                            else:
+                                messages.add(Message(filename, line, None,
+                                    'Missed branch to %s' % branch_end))
+                            counter[filename] += 1
+                    messages.add(Message(filename, line, None, 'Missed line'))
+                    counter[filename] += 1
         return counter, messages
 
 

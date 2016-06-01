@@ -32,7 +32,8 @@ import stat
 import subprocess
 from collections import Counter
 from fnmatch import fnmatch
-from trapdoor import TrapdoorProgram
+
+from trapdoor import TrapdoorProgram, Message
 
 
 def get_cpp_files(config):
@@ -111,8 +112,8 @@ class CPPLintTrapdoorProgram(TrapdoorProgram):
             priority = words[-1]
 
             counter['%3s %30s %s' % (priority, tag, filename)] += 1
-            messages.add('%3s %30s %-40s  %s' % (
-                priority, tag, ('%s:%s' % (filename, lineno)), description))
+            messages.add(Message(filename, int(lineno), None, '%s %s %s' % (
+                priority, tag, description)))
 
         return counter, messages
 

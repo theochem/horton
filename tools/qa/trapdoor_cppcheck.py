@@ -28,7 +28,8 @@ This test calls the cppcheck program, see http://cppcheck.sourceforge.net/.
 import subprocess
 from xml.etree import ElementTree
 from collections import Counter
-from trapdoor import TrapdoorProgram
+
+from trapdoor import TrapdoorProgram, Message
 from trapdoor_cpplint import get_cpp_files
 
 
@@ -79,11 +80,9 @@ class CPPCheckTrapdoorProgram(TrapdoorProgram):
                 error.attrib['id'].ljust(30),
             )
             counter[key] += 1
-            messages.add('%15s  %40s  %s' % (
-                error.attrib['severity'],
-                ('%s:%s' % (error.attrib['file'], error.attrib['line'])).ljust(40),
-                error.attrib['msg'],
-            ))
+            messages.add(Message(error.attrib['file'], int(error.attrib['line']),
+                                 None, '%s %s' % (error.attrib['severity'],
+                                                  error.attrib['msg'])))
         return counter, messages
 
 
