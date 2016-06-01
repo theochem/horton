@@ -79,6 +79,10 @@ class NamespaceTrapdoorProgram(TrapdoorProgram):
                 for name in names:
                     if name in module.__all__:
                         namespace.setdefault(name, []).append(modulename)
+                        if name in config['py_invalid_names']:
+                            counter['Invalid name in namespace'] += 1
+                            messages.add(Message(filename, None, None,
+                                                 'Invalid name in namespace: %s' % name))
             else:
                 counter['Missing __all__'] += 1
                 messages.add(Message(filename, None, None, 'Missing __all__'))
