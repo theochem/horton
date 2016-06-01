@@ -28,8 +28,8 @@ This test calls the cppcheck program, see http://cppcheck.sourceforge.net/.
 import subprocess
 from xml.etree import ElementTree
 from collections import Counter
-from trapdoor import TrapdoorProgram
-from trapdoor_cpplint import get_cpp_files
+
+from trapdoor import TrapdoorProgram, Message, get_source_filenames
 
 
 class CPPCheckTrapdoorProgram(TrapdoorProgram):
@@ -59,8 +59,7 @@ class CPPCheckTrapdoorProgram(TrapdoorProgram):
         print 'USING', subprocess.check_output(command, stderr=subprocess.STDOUT).strip()
 
         # Call Cppcheck
-        cpp_files = get_cpp_files(config)
-        command = ['cppcheck'] + cpp_files + \
+        command = ['cppcheck'] + get_source_filenames(config, 'cpp') + \
                   ['-q', '--enable=all', '--std=c++11', '--xml',
                    '--suppress=missingIncludeSystem']
         print 'RUNNING', ' '.join(command)
@@ -79,11 +78,9 @@ class CPPCheckTrapdoorProgram(TrapdoorProgram):
                 error.attrib['id'].ljust(30),
             )
             counter[key] += 1
-            messages.add('%15s  %40s  %s' % (
-                error.attrib['severity'],
-                ('%s:%s' % (error.attrib['file'], error.attrib['line'])).ljust(40),
-                error.attrib['msg'],
-            ))
+            messages.add(Message(error.attrib['file'], int(error.attrib['line']),
+                                 None, '%s %s' % (error.attrib['severity'],
+                                                  error.attrib['msg'])))
         return counter, messages
 
 

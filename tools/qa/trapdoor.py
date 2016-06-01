@@ -25,7 +25,9 @@ This model provides the ``TrapdoorProgram`` base class for all trapdoor programs
 
 
 import argparse
+import bisect
 import cPickle
+from fnmatch import fnmatch
 import json
 import os
 import shutil
@@ -33,7 +35,110 @@ import sys
 import time
 
 
-__all__ = ['TrapdoorProgram']
+__all__ = ['Message', 'TrapdoorProgram', 'get_source_filenames']
+
+
+class Message(object):
+    """Error message and meta information.
+
+    This class contains all the machinery that the trapdoor driver uses to decide if
+    a message is new or not. When a context is available, it is used to compare two
+    messages instead of line numbers. If not, the line numbers are used. Line numbers are
+    a relatively poor descriptor for assessing if a message is new in a feature branch.
+    For example, lines may have been inserted or removed, which changes the line numbers
+    without actually changing any code.
+    """
+
+    def __init__(self, filename, lineno, charno, text, context=None):
+        """Initialize a message.
+
+        Parameters
+        ----------
+        filename : str
+                   The filename for which the message is reported.
+        lineno : int (or None)
+                 The line number at which the error is reported, if any.
+        charno : int (or None)
+                 The character position at which the error is reported, if any.
+        text : str
+               A description of the problem.
+        context : str
+                  A string that (almost) uniquely identifies the location of the error
+                  without using line numbers.
+        """
+        if lineno is not None and not isinstance(lineno, int):
+            raise TypeError('When given, lineno must be integer.')
+        if charno is not None and not isinstance(charno, int):
+            raise TypeError('When given, charno must be integer.')
+        self._filename = filename
+        self._lineno = lineno
+        self._charno = charno
+        self._text = text
+        self._context = context
+
+    filename = property(lambda self: self._filename)
+    lineno = property(lambda self: self._lineno)
+    charno = property(lambda self: self._charno)
+    text = property(lambda self: self._text)
+    context = property(lambda self: self._context)
+
+    def __eq__(self, other):
+        """Test if self is equal to other."""
+        # First come the usualy things for comparisons...
+        equal = self.__class__ == other.__class__ \
+            and self._filename == other._filename \
+            and self._charno == other._charno \
+            and self._text == other._text \
+            and self._context == other._context
+        if not equal:
+            return False
+        # If still equal, then only use line numbers if no context is available.
+        if self._context is None and other._context is None:
+            return self._lineno == other._lineno
+        return True
+
+    def __hash__(self):
+        """Return a fast hash.
+
+        The hash only includes the lineno if no context is present. If a context is
+        present, it is used instead and the line number is not included in the hash. This
+        convention is compatible with the code in __eq__.
+        """
+        if self._context is None:
+            return hash((self._filename, self._lineno, self._charno, self._text))
+        else:
+            return hash((self._filename, self._charno, self._text, self._context))
+
+    def __lt__(self, other):
+        """Test if self is less than other."""
+        if self.__class__ != other.__class__:
+            return self < other
+        tup_self = (self._filename, self._lineno, self._charno, self._text, self._context)
+        tup_other = (other._filename, other._lineno, other._charno, other._text, other._context)
+        return tup_self < tup_other
+
+    def add_context(self, context):
+        """Return an identical message with context."""
+        if self._context is not None:
+            raise ValueError('This message already has context.')
+        return Message(self._filename, self._lineno, self._charno, self._text, context)
+
+    def __str__(self):
+        """Return a nicely formatted string representation of the message."""
+        # Fix the location string
+        if self.filename is None:
+            location = '(nofile)            '
+        else:
+            location = str(self.filename)
+            if self.lineno is not None:
+                location += '%6i' % self.lineno
+            else:
+                location += ' '*6
+            if self.charno is not None:
+                location += '%6i' % self.charno
+            else:
+                location += ' '*6
+        return '%70s   %s' % (location, self.text)
 
 
 def _print_messages(header, messages, pattern=None):
@@ -42,16 +147,16 @@ def _print_messages(header, messages, pattern=None):
     Parameters
     ----------
     header : str
-             A Header string, usually uppercase
+             A Header string, usually uppercase.
     messages : iterable
-               A list of message strings
+               A list of Message instances.
     pattern : None or str
               When given, only messages containing ``pattern`` will be printed.
     """
     if len(messages) > 0:
         print header
-        for msg in messages:
-            if pattern is None or pattern in msg:
+        for msg in sorted(messages):
+            if pattern is None or pattern in msg.filename:
                 print msg
 
 
@@ -122,7 +227,7 @@ class TrapdoorProgram(object):
                             help='Also print output for problems that did not '
                                  'deteriorate.')
         parser.add_argument('-f', '--pattern', metavar='PATTERN', dest='pattern',
-                            help='Only print messages containing PATTERN')
+                            help='Only print messages whose filename contains PATTERN')
         return parser.parse_args()
 
     def prepare(self):
@@ -150,11 +255,14 @@ class TrapdoorProgram(object):
             config = json.load(f)
         counter, messages = self.get_stats(config)
         print 'NUMBER OF MESSAGES :', len(messages)
+        print 'ADDING SOURCE ...'
+        self._add_contexts(messages)
+        print 'NUMBER OF MESSAGES :', len(messages)
         print 'SUM OF COUNTERS    :', sum(counter.itervalues())
         fn_pp = 'trapdoor_results_%s_%s.pp' % (self.name, mode)
         with open(os.path.join(self.qaworkdir, fn_pp), 'w') as f:
             cPickle.dump((counter, messages), f)
-        print 'WALL TIME %.1f' % (time.time() - start_time)
+        print 'WALL TIME          : %.1f' % (time.time() - start_time)
 
     def get_stats(self, config):
         """Run tests using an external program and collect its output.
@@ -170,10 +278,43 @@ class TrapdoorProgram(object):
         -------
         counter : collections.Counter
                   Counts of the number of messages of a specific type in a certain file.
-        messages : Set([]) of strings
+        messages : Set([]) of Message instances
                    All errors encountered in the current branch.
         """
         raise NotImplementedError
+
+    def _add_contexts(self, all_messages):
+        """Add source lines to the messages.
+
+        This method has the desired side effect that messages that only differ in line
+        number but that do have the same source line, will be considered identical.
+
+        Parameters
+        ----------
+        all_messages : Set([]) of Message instances
+                       All errors encountered in the current branch.
+        """
+        # 1) Collect all messages in a dictionary, where filenames are keys and values
+        #    are sorted lists of messages. Only messages with a filename and a line number
+        #    must be included.
+        mdict = {}
+        for message in all_messages:
+            if message.filename is not None and message.lineno is not None:
+                l = mdict.setdefault(message.filename, [])
+                bisect.insort(l, message)
+        # 2) Loop over all files and collect some source context for each message
+        for filename, file_messages in mdict.iteritems():
+            with open(filename) as source_file:
+                lines = source_file.readlines()
+                for message in file_messages:
+                    all_messages.discard(message)
+                    # The context starts three lines before the line and ends three lines
+                    # after.
+                    context = ''.join(lines[
+                        max(0, message.lineno - 3):
+                        min(len(lines), message.lineno + 4)
+                    ])
+                    all_messages.add(message.add_context(context))
 
     def report(self, noisy=False, pattern=None):
         """Load feature and ancestor results from disk and report on screen.
@@ -185,12 +326,14 @@ class TrapdoorProgram(object):
         pattern : None or str
                   When given, only messages containing ``pattern`` will be printed.
         """
+        # Load all the trapdoor results from the two branches.
         fn_pp_feature = 'trapdoor_results_%s_feature.pp' % self.name
         with open(os.path.join(self.qaworkdir, fn_pp_feature)) as f:
             results_feature = cPickle.load(f)
         fn_pp_ancestor = 'trapdoor_results_%s_ancestor.pp' % self.name
         with open(os.path.join(self.qaworkdir, fn_pp_ancestor)) as f:
             results_ancestor = cPickle.load(f)
+        # Make the report.
         if noisy:
             self.print_details(results_feature, results_ancestor, pattern)
         self.check_regression(results_feature, results_ancestor, pattern)
@@ -203,18 +346,17 @@ class TrapdoorProgram(object):
         ----------
         counter_feature : collections.Counter
                           Counts for different error types in the feature branch.
-        messages_feature : Set([]) of strings
+        messages_feature : Set([]) of Message instances
                            All errors encountered in the feature branch.
         counter_ancestor : collections.Counter
-                         Counts for different error types in the ancestor.
-        messages_ancestor : Set([]) of strings
-                          All errors encountered in the ancestor.
+                           Counts for different error types in the ancestor.
+        messages_ancestor : Set([]) of Message instances
+                            All errors encountered in the ancestor.
         pattern : None or str
                   When given, only messages containing ``pattern`` will be printed.
         """
         resolved_messages = sorted(messages_ancestor - messages_feature)
-        _print_messages('RESOLVED MESSAGES (also includes messages for which just the '
-                        'line number changed)', resolved_messages, pattern)
+        _print_messages('RESOLVED MESSAGES', resolved_messages, pattern)
 
         unchanged_messages = sorted(messages_ancestor & messages_feature)
         _print_messages('UNCHANGED MESSAGES', unchanged_messages, pattern)
@@ -236,18 +378,17 @@ class TrapdoorProgram(object):
         ----------
         counter_feature : collections.Counter
                           Counts for different error types in the feature branch.
-        messages_feature : Set([]) of strings
+        messages_feature : Set([]) of Message instances
                            All errors encountered in the feature branch.
         counter_ancestor : collections.Counter
                          Counts for different error types in the ancestor.
-        messages_ancestor : Set([]) of strings
+        messages_ancestor : Set([]) of Message instances
                           All errors encountered in the ancestor.
         pattern : None or str
                   When given, only messages containing ``pattern`` will be printed.
         """
         new_messages = sorted(messages_feature - messages_ancestor)
-        _print_messages('NEW MESSAGES (also includes messages for which just the line '
-                        'number changed)', new_messages, pattern)
+        _print_messages('NEW MESSAGES', new_messages, pattern)
 
         new_counter = counter_feature - counter_ancestor
         if len(new_counter) > 0:
@@ -257,3 +398,60 @@ class TrapdoorProgram(object):
             sys.exit(1)
         else:
             print 'GOOD (ENOUGH)'
+
+
+def get_source_filenames(config, language, unpackaged_only=False):
+    """Return a list of source files according to configuration settings.
+
+    This function will search for all cpp or py source files in the "XXX_directories" and
+    will exclude some based in fnmatch patterns provided in the "XXX_exclude" setting,
+    where XXX is 'cpp' or 'py'.
+
+    Parameters
+    ----------
+    config : dict
+             A dictionary of configuration settings, loaded with json from trapdoor.cfg.
+    language : str
+               'py' or 'cpp'
+    unpackaged_only : bool
+                      When set to True, only files are listed that are not part of a
+                      (Python) package.
+    """
+    # Extensions for each language:
+    if language == 'cpp':
+        source_patterns = ['*.cpp', '*.h']
+    elif language == 'py':
+        source_patterns = ['*.py', '*.pyx']
+    else:
+        raise ValueError('Language must be either \'cpp\' or \'py\'.')
+
+    # Get config settings
+    directories = config['%s_directories' % language]
+    exclude = config['%s_exclude' % language]
+    packages = config.get('%s_packages' % language, [])
+
+    # Define the filename filter
+    def acceptable(dirpath, filename):
+        """Determine if a filename should be included in the result."""
+        if not any(fnmatch(filename, source_pattern) for source_pattern in source_patterns):
+            return False
+        if not all(not fnmatch(filename, exclude_filter) for exclude_filter in exclude):
+            return False
+        if unpackaged_only:
+            in_package = False
+            for package in packages:
+                if dirpath.startswith(package):
+                    in_package = True
+                    break
+            if in_package:
+                return False
+        return True
+
+    # Loop over all files in given directories
+    result = []
+    for source_directory in directories:
+        for dirpath, _dirnames, filenames in os.walk(source_directory):
+            for filename in filenames:
+                if acceptable(dirpath, filename):
+                    result.append(os.path.join(dirpath, filename))
+    return result

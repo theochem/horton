@@ -540,6 +540,8 @@ The following are excluded due false positives:
   unexistent member.
 * **R0201**: no-self-use. Method could be a function Used when a method doesn’t use its
   bound instance, and so could be written as a function.
+* **C0411**: wrong-import-order. %s comes before %s Used when PEP8 import order is not
+  respected (standard imports first, then third-party libraries, then local imports)
 
 In addition, no doc strings are required for unit tests, i.e. functions starting with
 ``test_``.

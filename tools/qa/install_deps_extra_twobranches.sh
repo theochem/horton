@@ -11,11 +11,14 @@ tools/qa/install_deps_extra.py || exit -1
 #    master and build all dependencies. Finally check out the current branch again.
 
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-if [ "${CURRENT_BRANCH}" != 'master' ]; then
-    find_ancestor
-    git checkout ${ANCESTOR_COMMIT}
-    tools/qa/install_deps_extra.py || exit -1
-    git checkout ${CURRENT_BRANCH}
+ANCESTOR_COMMIT=$(git merge-base master ${CURRENT_BRANCH})
+CURRENT_COMMIT=$(git rev-parse HEAD)
+if [ "${CURRENT_BRANCH}" != 'master' ] && [ "${CURRENT_COMMIT}" != ${ANCESTOR_COMMIT} ]; then
+        git checkout ${ANCESTOR_COMMIT}
+        tools/qa/install_deps_extra.py || exit -1
+        git checkout ${CURRENT_BRANCH}
+else
+    echo "No need to install dependencies of ancestor because HEAD is (merged in) master."
 fi
 
 # Each install script called above must follow some conventions:
