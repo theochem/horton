@@ -20,6 +20,8 @@
 #--
 
 
+from libc.stdint cimport int64_t
+
 cimport rtransform
 
 cdef extern from "horton/grid/cubic_spline.h":
@@ -49,7 +51,7 @@ cdef extern from "horton/grid/cubic_spline.h":
         double get_power()
 
     cdef cppclass PotentialExtrapolation:
-        PotentialExtrapolation(long l) except +
-        long get_l()
+        PotentialExtrapolation(int64_t l) except +
+        int64_t get_l()
         double get_amp_left()
         double get_amp_right()
