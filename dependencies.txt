@@ -1,7 +1,7 @@
 [{
     "name": "gcc",
     "title": "GCC, G++ and GFortran",
-    "version_requirement": ">= 4.5",
+    "version_requirement": ">= 4.9",
     "homepage": "http://gcc.gnu.org",
     "comment": "In principle the Intel compilers or any other of your favorite compilers should work. The GNU compilers are used for development and testing.",
     "fedora_22_rpm": "gcc gcc-c++ gcc-gfortran",
