@@ -61,7 +61,7 @@ class CPPCheckTrapdoorProgram(TrapdoorProgram):
         # Call Cppcheck
         command = ['cppcheck'] + get_source_filenames(config, 'cpp') + \
                   ['-q', '--enable=all', '--std=c++11', '--xml',
-                   '--suppress=missingIncludeSystem']
+                   '--suppress=missingIncludeSystem', '--suppress=unusedFunction']
         print 'RUNNING', ' '.join(command)
         xml_str = subprocess.check_output(command, stderr=subprocess.STDOUT)
         etree = ElementTree.fromstring(xml_str)
@@ -78,9 +78,9 @@ class CPPCheckTrapdoorProgram(TrapdoorProgram):
                 error.attrib['id'].ljust(30),
             )
             counter[key] += 1
+            text = '%s %s %s' % (error.attrib['severity'], error.attrib['id'], error.attrib['msg'])
             messages.add(Message(error.attrib['file'], int(error.attrib['line']),
-                                 None, '%s %s' % (error.attrib['severity'],
-                                                  error.attrib['msg'])))
+                                 None, text))
         return counter, messages
 
 
