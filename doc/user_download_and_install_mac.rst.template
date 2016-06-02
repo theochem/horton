@@ -276,6 +276,8 @@ The documentation is compiled and viewed as follows:
     (cd doc; make html; open _build/html/index.html)
 
 
+.. _mac_install_dev:
+
 Development tools
 =================
 

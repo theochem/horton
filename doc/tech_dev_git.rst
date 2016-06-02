@@ -38,31 +38,8 @@ generalized and applied to other modern VCS such as Bazaar or Mercurial.
 Installing Git
 ==============
 
-On most Linux distributions, git can be installed with a package manager:
-
-* **Ubuntu Linux**:
-
-  .. code-block:: bash
-
-     sudo apt-get install git
-
-* **Fedora Linux 22 (and newer)**:
-
-  .. code-block:: bash
-
-     sudo dnf install git
-
-* **Fedora Linux 21 (and older)**:
-
-  .. code-block:: bash
-
-     sudo yum install git
-
-On Mac OS X, the latest version of git can be installed through MacPorts:
-
-.. code-block:: bash
-
-    sudo port install git
+The installation of git is covered in the sections :ref:`linux_install_dev` (Linux) or
+:ref:`mac_install_dev` (Mac).
 
 
 Git configuration
@@ -85,41 +62,21 @@ We recommend you to set the following in your ``~/.gitconfig`` file:
     [push]
         default = simple
 
-Also, copy the following script into the directory ``.git/hooks/`` as ``pre-commit``, and make it
-executable. This hook imposes some baseline quality checks on each commit:
+Also, install our pre-commit script as follows:
 
 .. code-block:: bash
 
-    #!/bin/bash
+    cp -a tools/pre-commit .git/hooks/
 
-    red="\033[1;31m"
-    color_end="\033[0m"
+This hook imposes some baseline quality checks on each commit:
 
-    # Check unwanted trailing whitespace or space/tab indents;
-    if [[ `git diff --cached --check` ]]; then
-        echo -e "${red}Commit failed: trailing whitespace, trailing empty lines, dos line endings${color_end}"
-        git diff --cached --check
-        exit 1
-    fi
+.. literalinclude :: ../tools/pre-commit
+    :language: bash
+    :caption: tools/pre-commit
 
-    # Check for untracked files (not in .gitignore)
-    if [[ `git status -u data horton doc scripts tools -s | grep "^??"` ]]; then
-        echo -e "${red}Commit failed: untracked files (not in .gitignore).${color_end}"
-        git status -u data horton doc scripts tools -s | grep "^??"
-        exit 1
-    fi
-
-    # Check for new print statements
-    if [[ `git diff --cached | grep '^+' | sed  's/^.//' | sed 's:#.*$::g' | grep 'print '` ]]; then
-        echo -e "${red}Commit failed: print statements${color_end}"
-        git diff --cached | grep '^+' | sed  's/^.//' | sed 's:#.*$::g' | grep print
-        exit 1
-    fi
-
-The last part of the ``pre-commit`` script checks for python ``print``
-lines. These should not be used in the HORTON library. If you think you have
-legitimate reasons to ignore this check, use the ``--no-verify`` option when
-comitting.
+The last part of the ``pre-commit`` script checks for python ``print`` lines. These should
+not be used in the HORTON library. If you think you have legitimate reasons to ignore this
+check, use the ``--no-verify`` option when comitting.
 
 Furthermore, it is useful to include the current branch in your shell prompt. To
 do so, put one of the following in your ``~/.bashrc`` (Linux) or
@@ -127,14 +84,14 @@ do so, put one of the following in your ``~/.bashrc`` (Linux) or
 
 * For terminals with a dark background:
 
-   .. code-block:: bash
+  .. code-block:: bash
 
       GIT_PS='$(__git_ps1 ":%s")'
       export PS1="\[\033[1;32m\]\u@\h\[\033[00m\] \[\033[1;34m\]\w\[\033[00m\]\[\033[1;33m\]${GIT_PS}\[\033[1;34m\]>\[\033[00m\] "
 
 * For terminals with a light background:
 
-   .. code-block:: bash
+  .. code-block:: bash
 
       GIT_PS='$(__git_ps1 ":%s")'
       export PS1="\[\033[2;32m\]\u@\h\[\033[00m\]:\[\033[2;34m\]\w\[\033[3;31m\]${GIT_PS}\[\033[00m\]$ "
