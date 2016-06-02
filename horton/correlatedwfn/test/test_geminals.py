@@ -114,4 +114,4 @@ def test_ap1rog_cs_scf_restart():
                                   True, guess={'geminal': guess},
                                   checkpoint=-1)
 
-    assert (abs(energy - -1.11221603918) < 1e-6)
+    assert (abs(energy - -1.11708356931) < 1e-6)

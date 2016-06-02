@@ -770,7 +770,7 @@ def test_expansion_to_dm3():
     assert not dm.is_symmetric()
 
 
-def test_expansion_assign_dot():
+def test_expansion_assign_dot1():
     lf = DenseLinalgFactory(2)
     exp0 = lf.create_expansion()
     exp1 = lf.create_expansion()
@@ -779,6 +779,48 @@ def test_expansion_assign_dot():
     tf2.randomize()
     exp1.assign_dot(exp0, tf2)
     assert np.allclose(exp1.coeffs, np.dot(exp0.coeffs, tf2._array))
+    # exceptions
+    exp3 = lf.create_expansion(nbasis=3, nfn=2)
+    with assert_raises(TypeError):
+        # mismatch between exp1.nbasis and exp3.nbasis
+        exp1.assign_dot(exp3, tf2)
+    with assert_raises(TypeError):
+        # mismatch between exp3.nbasis and exp1.nbasis
+        exp3.assign_dot(exp1, tf2)
+    tf4 = lf.create_two_index(nbasis=3)
+    exp5 = lf.create_expansion(nbasis=2, nfn=3)
+    with assert_raises(TypeError):
+        # mismatch between exp1.nfn and tf4.shape[0]
+        exp5.assign_dot(exp1, tf4)
+    exp4 = lf.create_expansion(nbasis=3, nfn=3)
+    with assert_raises(TypeError):
+        # mismatch between exp3.nfn and tf4.shape[1]
+        exp3.assign_dot(exp4, tf4)
+
+
+def test_expansion_assign_dot2():
+    lf = DenseLinalgFactory(2)
+    exp0 = lf.create_expansion()
+    exp1 = lf.create_expansion()
+    tf2 = lf.create_two_index()
+    exp0.randomize()
+    tf2.randomize()
+    exp1.assign_dot(tf2, exp0)
+    assert np.allclose(exp1.coeffs, np.dot(tf2._array, exp0.coeffs))
+    # exceptions
+    exp3 = lf.create_expansion(nbasis=3, nfn=2)
+    with assert_raises(TypeError):
+        # mismatch between tf2.shape[1] and exp3.nbasis
+        exp1.assign_dot(tf2, exp3)
+    with assert_raises(TypeError):
+        # mismatch between tf2.shape[0] and exp3.nbasis
+        exp3.assign_dot(tf2, exp1)
+    tf4 = lf.create_two_index(nbasis=3)
+    exp4 = lf.create_expansion(nbasis=3, nfn=3)
+    exp5 = lf.create_expansion(nbasis=3, nfn=2)
+    with assert_raises(TypeError):
+        # mismatch between exp5.nfn and exp4.nfn
+        exp5.assign_dot(tf4, exp4)
 
 
 def test_expansion_assign_occupations():
