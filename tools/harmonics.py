@@ -46,7 +46,7 @@ def get_cart_orb_norm(alpha, nx, ny, nz):
     """Returns the norm of a Cartesian gaussian funcion"""
     return sqrt(
         int(fac2(2*nx-1)*fac2(2*ny-1)*fac2(2*nz-1))
-        /(2*alpha/pi)**1.5
+        /(2*alpha/pi)**(3/S(2))
         /(4*alpha)**(nx+ny+nz)
     )
 
@@ -55,7 +55,7 @@ def get_pure_orb_norm(alpha, l):
     """Returns the norm of a pure gaussian funcion"""
     return sqrt(
         int(fac2(2*l-1))
-        /(2*alpha/pi)**1.5
+        /(2*alpha/pi)**(3/S(2))
         /(4*alpha)**l
     )
 

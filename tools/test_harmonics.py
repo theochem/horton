@@ -20,8 +20,10 @@
 #--
 
 
+from sympy import S, sqrt
+
 try:
-    from harmonics import *
+    from harmonics import get_poly_conversion
 except ImportError:
     from nose.plugins.skip import SkipTest
     raise SkipTest
