@@ -87,7 +87,7 @@ with a package manager:
   some are installed with PIP. LibXC and LibInt2 must be compiled manually as explained in
   :ref:`linux_manual_dependency_install`.
 
-* **Fedora Linux 22 and 23**:
+* **Fedora Linux 22, 23 and 24**:
 
   .. code-block:: bash
 
@@ -250,7 +250,7 @@ Installing the dependencies with a package manager and PIP
       sudo apt-get install ${doc_dependencies_ubuntu_12_deb}
       pip install --user --upgrade ${doc_dependencies_ubuntu_12_pip}
 
-* **Fedora Linux 22 and 23**:
+* **Fedora Linux 22, 23 and 24**:
 
   .. code-block:: bash
 
@@ -303,7 +303,7 @@ with ``pip``.
       sudo apt-get install ${dev_dependencies_ubuntu_12_deb}
       pip install --user --upgrade ${dev_dependencies_ubuntu_12_pip}
 
-* **Fedora Linux 22 and 23**:
+* **Fedora Linux 22, 23 and 24**:
 
   .. code-block:: bash
 
