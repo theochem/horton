@@ -144,10 +144,10 @@ def test_solve_poisson_becke_gaussian_dipole():
         import matplotlib.pyplot as pt
         n = 200
         pt.clf()
-        pt.plot(r[:n], -soly[:n], label='exact',marker='*')
-        pt.plot(r[:n], -v.y[:n], label='spline',marker='*')
+        pt.plot(r[:n], -soly[:n], label='exact', marker='*')
+        pt.plot(r[:n], -v.y[:n], label='spline', marker='*')
         r2 = np.linspace(1e-5, 2e-4, 50)
-        pt.plot(r2, -v(r2), label='spline eval',marker='*')
+        pt.plot(r2, -v(r2), label='spline eval', marker='*')
         pt.xscale('log')
         pt.yscale('log')
         pt.legend(loc=0)
