@@ -33,6 +33,27 @@ from collections import Counter
 from trapdoor import TrapdoorProgram, Message
 
 
+def unwrapped_iter(f):
+    """Iterate over unwrapped lines.
+
+    Parameters
+    ----------
+    f : file
+        A text file with wrapped lines. Wrapping is detected by the presence of a
+        colon at the end of the line.
+    """
+    unwrapped_line = ''
+    for line in f:
+        if line.startswith(' '):
+            unwrapped_line += line[:-1]
+        else:
+            if len(unwrapped_line) > 0:
+                yield unwrapped_line
+            unwrapped_line = line[:-1]
+    if len(unwrapped_line) > 0:
+        yield unwrapped_line
+
+
 class DoxygenTrapdoorProgram(TrapdoorProgram):
     """A trapdoor program counting the number of undocumented C++ functions/methods/..."""
 
@@ -79,14 +100,16 @@ class DoxygenTrapdoorProgram(TrapdoorProgram):
         counter = Counter()
         messages = set([])
         prefix = os.getcwd() + '/'
+
         fn_warnings = os.path.join(config['doxygen_root'], config['doxygen_warnings'])
         with open(fn_warnings, 'r') as f:
-            for line in f:
-                words = line.split()
-                filename, lineno = words[0].split(':')[:2]
+            # Doxygen sometimes wraps lines in the warnings log. That is sad, but we
+            # have to handle it.
+            for line in unwrapped_iter(f):
+                location, description = line.split(None, 1)
+                filename, lineno = location.split(':')[:2]
                 if filename.startswith(prefix):
                     filename = filename[len(prefix):]
-                description = ' '.join(words[2:])
                 message = Message(filename, int(lineno), None, description)
                 counter[filename] += 1
                 messages.add(message)
