@@ -339,6 +339,26 @@ def test_extrapolation_exp_power():
     assert abs(cs.extrapolation.deriv_right(newx[0]) - 2*newx[0]) < 1e-10
 
 
+def test_extrapolation_exp_potential():
+    rtf = ExpRTransform(0.1, 1.0, 10)
+    x = rtf.get_radii()
+    y = 1/(np.exp(-2*x)+x**2)
+    d = -y**2*(np.exp(-2*x)*(-2) + 2*x)
+    for l in 0, 1, 2, 3:
+        cs = CubicSpline(y, d, rtf, extrapolation=PotentialExtrapolation(l))
+        assert cs.extrapolation.l == l
+        np.testing.assert_allclose(cs.extrapolation.amp_left, y[0]/x[0]**l)
+        np.testing.assert_allclose(cs.extrapolation.amp_right, y[-1]*x[-1]**(l+1))
+        newx = np.array([-2.5, -1.1])
+        amp_left = cs.extrapolation.amp_left
+        np.testing.assert_allclose(cs(newx), amp_left*newx**l)
+        np.testing.assert_allclose(cs.deriv(newx), amp_left*l*newx**(l-1))
+        newx = np.array([10.5, 11.5])
+        amp_right = cs.extrapolation.amp_right
+        np.testing.assert_allclose(cs(newx), amp_right/newx**(l+1))
+        np.testing.assert_allclose(cs.deriv(newx), -(l+1)*amp_right/newx**(l+2))
+
+
 def test_consistency_h5():
     with h5.File('horton.grid.test.test_cubic_spline.test_consistency_h5', driver='core', backing_store=False) as chk:
         rtf = ExpRTransform(0.1, 1.0, 10)

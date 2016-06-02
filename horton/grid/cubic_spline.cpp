@@ -277,3 +277,47 @@ double PowerExtrapolation::deriv_left(double x) {
 double PowerExtrapolation::deriv_right(double x) {
     return amp*power*pow(x, power-1);
 }
+
+
+/*
+   PotentialExtrapolation class
+
+   This is used for potentials that obey specific trends at short and long distances,
+   depending at the angular momentum (l) for which they are computed.
+*/
+
+PotentialExtrapolation::PotentialExtrapolation(long l)
+    : l(l), amp_left(0.0), amp_right(0.0) {
+    if (l < 0) {
+        throw std::domain_error("The argument l cannot be negative.");
+    }
+}
+
+
+void PotentialExtrapolation::prepare(CubicSpline* cs) {
+    amp_left = cs->y[0]/pow(cs->get_first_x(), l);
+    amp_right = cs->y[cs->n-1]*pow(cs->get_last_x(), l+1);
+#ifdef DEBUG
+    printf("PARS POTENTIAL EXTRAPOL cs->y[0]=%f first_x=%f amp_left=%f amp_right=%f\n", cs->y[0], cs->get_first_x(), amp_left, amp_right);
+#endif
+}
+
+double PotentialExtrapolation::eval_left(double x) {
+    return amp_left*pow(x, l);
+}
+
+double PotentialExtrapolation::eval_right(double x) {
+    return amp_right/pow(x, l+1);
+}
+
+double PotentialExtrapolation::deriv_left(double x) {
+    if (l==0) {
+        return 0.0;
+    } else {
+        return l*amp_left*pow(x, l-1);
+    }
+}
+
+double PotentialExtrapolation::deriv_right(double x) {
+    return -(l+1)*amp_right/pow(x, l+2);
+}

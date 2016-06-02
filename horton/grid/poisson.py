@@ -24,7 +24,7 @@
 import numpy as np
 
 from horton.log import log, timer
-from horton.grid.cext import CubicSpline, PowerExtrapolation
+from horton.grid.cext import CubicSpline, PotentialExtrapolation
 from horton.grid.ode2 import solve_ode2
 from horton.grid.radial import RadialGrid
 
@@ -80,7 +80,7 @@ def solve_poisson_becke(density_decomposition):
             # and assume that V(r)=B*r**l for small r.
             V_rmin = rgrid.integrate(rho.y*radii**(-l-1))*radii[0]**(l)/(2*l+1)
             bcs = (V_rmin, None, V_rmax, None)
-            v = solve_ode2(b, a, f, bcs, PowerExtrapolation(-l-1))
+            v = solve_ode2(b, a, f, bcs, PotentialExtrapolation(l))
             result.append(v)
             counter += 1
 

@@ -110,4 +110,23 @@ class PowerExtrapolation : public Extrapolation {
     };
 
 
+class PotentialExtrapolation : public Extrapolation {
+    private:
+        long l;
+        double amp_left, amp_right;
+
+    public:
+        PotentialExtrapolation(long l);
+        virtual void prepare(CubicSpline* cs);
+        virtual double eval_left(double x);
+        virtual double eval_right(double x);
+        virtual double deriv_left(double x);
+        virtual double deriv_right(double x);
+        virtual bool has_tail() {return true;};
+        long get_l() {return l;};
+        double get_amp_left() {return amp_left;}
+        double get_amp_right() {return amp_right;}
+    };
+
+
 #endif
