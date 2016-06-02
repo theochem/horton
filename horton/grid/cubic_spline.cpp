@@ -181,7 +181,7 @@ void CubicSpline::eval_deriv(double* new_x, double* new_dx, int new_n) {
             // 1) transform *new_x to t
             double t = rtf->inv(*new_x);
             // 2) find the index of the interval in which t lies.
-            int j = (int)floor(t);
+            int j = static_cast<int>(floor(t));
             if (j == n - 1) j = n - 2;
             // 3) do the interpolation
             double u = t - j;

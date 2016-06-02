@@ -47,6 +47,7 @@ class CubicSpline {
     RTransform* rtf;               //!< Transformation of the x-axis.
     double first_x;                //!< Transformed first grid point.
     double last_x;                 //!< Transformed last grid point.
+
  public:
     double* y;                     //!< The y-values of the spline at each grid point.
     double* dt;                    //!< The derivative towards the t-axis (uniform x-axis).
@@ -236,4 +237,4 @@ class PotentialExtrapolation : public Extrapolation {
 };
 
 
-#endif // HORTON_GRID_CUBIC_SPLINE_H_
+#endif  // HORTON_GRID_CUBIC_SPLINE_H_
