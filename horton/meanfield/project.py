@@ -147,7 +147,7 @@ def project_orbitals_ortho(olp0, olp1, exp0, exp1):
     -----
 
     This projection just transforms the old orbitals to an orthogonal basis
-    by a multiplicatoin with the square root of the old overlap matrix. The
+    by a multiplication with the square root of the old overlap matrix. The
     orbitals in this basis are then again multiplied with the inverse square
     root of the new overlap matrix:
 
@@ -155,7 +155,7 @@ def project_orbitals_ortho(olp0, olp1, exp0, exp1):
 
         C_\text{new} = S_\text{new}^{-1/2} S_\text{old}^{1/2} C_\text{old}
 
-    This garuantees that :math:`C_\text{new}^T S_\text{new} C_\text{new} = I`
+    This guarantees that :math:`C_\text{new}^T S_\text{new} C_\text{new} = I`
     if :math:`C_\text{old}^T S_\text{old} C_\text{old} = I`. This approach is
     simple and robust but the current implementation has some limitations: it
     only works for projections between basis sets of the same size and it
