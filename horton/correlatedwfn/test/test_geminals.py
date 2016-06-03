@@ -78,7 +78,7 @@ def test_ap1rog_cs_scf():
 
     # Do AP1roG optimization:
     geminal_solver = RAp1rog(lf, occ_model)
-    guess = np.array([-0.1, -0.05, -0.02])
+    guess = np.array([-0.09, -0.05, -0.02])
     energy, g, l = geminal_solver(one, er, external['nn'], exp_alpha, olp, True, **{'checkpoint': -1, 'guess': {'geminal': guess}})
     assert (abs(energy - -1.151686291339) < 1e-6)
 
@@ -89,7 +89,7 @@ def test_ap1rog_cs_scf_restart():
 
     # Do AP1roG optimization:
     geminal_solver = RAp1rog(lf, occ_model)
-    guess = np.array([-0.11, -0.05, -0.02])
+    guess = np.array([-0.09, -0.05, -0.02])
 
     with tmpdir('horton.correlatedwfn.test.test_geminals.test_ap1rog_cs_scf_restart') as dn:
         checkpoint_fn = '%s/checkpoint.h5' % dn
