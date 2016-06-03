@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.part.test.common import get_proatomdb_cp2k
 
 

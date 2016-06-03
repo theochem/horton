@@ -24,7 +24,7 @@ from scipy.special import erf
 import numpy as np
 from nose.plugins.attrib import attr
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 @attr('slow')

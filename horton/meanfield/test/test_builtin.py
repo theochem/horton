@@ -20,7 +20,7 @@
 #--
 
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 def test_becke_hartree_n2_hfs_sto3g():

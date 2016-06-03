@@ -23,8 +23,9 @@
 import os, shutil, numpy as np, h5py as h5
 from nose.tools import assert_raises
 
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 from horton.test.common import tmpdir
-from horton import *
 
 
 def test_normalize_nlls():

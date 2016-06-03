@@ -21,7 +21,8 @@
 
 
 import numpy as np
-from horton import *
+
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 def test_line_grid():

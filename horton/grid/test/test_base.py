@@ -21,7 +21,9 @@
 
 
 import numpy as np
-from horton import *
+
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 from horton.grid.test.common import get_cosine_spline
 from horton.test.common import get_random_cell
 

@@ -22,7 +22,8 @@
 
 from nose.tools import assert_raises
 import numpy as np
-from horton import *
+
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 def test_dot_multi():

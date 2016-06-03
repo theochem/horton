@@ -20,9 +20,9 @@
 #--
 
 
-from horton import *
 import numpy as np
 
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 def test_typecheck_geo():
     numbers = np.array([11, 12, 13, 14])

@@ -22,7 +22,7 @@
 
 from nose.plugins.attrib import attr
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.part.test.common import check_names, check_proatom_splines, \
     get_fake_co, get_fake_pseudo_oo
 from horton.scripts.cpart import cpart_schemes
