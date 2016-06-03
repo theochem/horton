@@ -102,14 +102,10 @@ def collect_fields():
     format_packages('fedora_24_pip', dependencies, result)
     format_packages('fedora_22_rpm', dependencies, result)
     format_packages('fedora_22_pip', dependencies, result)
-    format_packages('fedora_21_rpm', dependencies, result)
-    format_packages('fedora_21_pip', dependencies, result)
     format_packages('ubuntu_16_deb', dependencies, result)
     format_packages('ubuntu_16_pip', dependencies, result)
     format_packages('ubuntu_15_deb', dependencies, result)
     format_packages('ubuntu_15_pip', dependencies, result)
-    format_packages('ubuntu_12_deb', dependencies, result)
-    format_packages('ubuntu_12_pip', dependencies, result)
     format_packages('macports_pip', dependencies, result)
 
     # macports stuff

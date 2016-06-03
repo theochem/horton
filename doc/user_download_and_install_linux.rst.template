@@ -87,17 +87,6 @@ with a package manager:
   Hence, some are installed with PIP. LibInt2 must be compiled manually as explained in
   :ref:`linux_manual_dependency_install`.
 
-* **Ubuntu Linux 12.04**:
-
-  .. code-block:: bash
-
-    sudo apt-get install ${dependencies_ubuntu_12_deb}
-    pip install --user --upgrade ${dependencies_ubuntu_12_pip}
-
-  Note that Ubuntu 12.04 does not have up-to-date packages for all dependencies. Hence,
-  some are installed with PIP. LibXC and LibInt2 must be compiled manually as explained in
-  :ref:`linux_manual_dependency_install`.
-
 * **Fedora Linux 24**:
 
   .. code-block:: bash
@@ -109,16 +98,6 @@ with a package manager:
   .. code-block:: bash
 
     sudo dnf install ${dependencies_fedora_22_rpm}
-
-* **Fedora Linux 20 and 21**:
-
-  .. code-block:: bash
-
-    sudo yum install ${dependencies_fedora_21_rpm}
-    pip install --user --upgrade ${dependencies_fedora_21_pip}
-
-  Note that the Numpy version in Fedora 21 (and earlier releases) is too old. Hence it is
-  installed with PIP.
 
 
 .. _linux_manual_dependency_install:
@@ -266,13 +245,6 @@ Installing the dependencies with a package manager and PIP
       sudo apt-get install ${doc_dependencies_ubuntu_15_deb}
       pip install --user --upgrade ${doc_dependencies_ubuntu_15_pip}
 
-* **Ubuntu Linux 12.04**:
-
-  .. code-block:: bash
-
-      sudo apt-get install ${doc_dependencies_ubuntu_12_deb}
-      pip install --user --upgrade ${doc_dependencies_ubuntu_12_pip}
-
 * **Fedora Linux 24**:
 
   .. code-block:: bash
@@ -285,13 +257,6 @@ Installing the dependencies with a package manager and PIP
 
       sudo dnf install ${doc_dependencies_fedora_22_rpm}
       pip install --user --upgrade ${doc_dependencies_fedora_22_pip}
-
-* **Fedora Linux 20 and 21**:
-
-  .. code-block:: bash
-
-      sudo yum install ${doc_dependencies_fedora_21_rpm}
-      pip install --user --upgrade ${doc_dependencies_fedora_21_pip}
 
 You must also manually build LibXC as explained in :ref:`linux_manual_dependency_install`,
 to generate the list of DFT functionals in the documentation.
@@ -334,13 +299,6 @@ with ``pip``.
       sudo apt-get install ${dev_dependencies_ubuntu_15_deb}
       pip install --user --upgrade ${dev_dependencies_ubuntu_15_pip}
 
-* **Ubuntu Linux 12.04**:
-
-  .. code-block:: bash
-
-      sudo apt-get install ${dev_dependencies_ubuntu_12_deb}
-      pip install --user --upgrade ${dev_dependencies_ubuntu_12_pip}
-
 * **Fedora Linux 24**:
 
   .. code-block:: bash
@@ -354,10 +312,3 @@ with ``pip``.
 
       sudo dnf install ${dev_dependencies_fedora_22_rpm}
       pip install --user --upgrade ${dev_dependencies_fedora_22_pip}
-
-* **Fedora Linux 20 and 21**:
-
-  .. code-block:: bash
-
-      sudo yum install ${dev_dependencies_fedora_21_rpm}
-      pip install --user --upgrade ${dev_dependencies_fedora_21_pip}
