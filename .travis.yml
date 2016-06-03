@@ -16,6 +16,9 @@ addons:
      - libhdf5-serial-dev
      # libtool is needed by libint
      - libtool
+    sources:
+     - debiab-sid
+    packages:
      - doxygen
      - cppcheck
 
