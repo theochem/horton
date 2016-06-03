@@ -20,7 +20,7 @@
 #--
 
 
-from horton import periodic
+from horton.periodic import periodic
 from horton.units import angstrom, amu
 
 

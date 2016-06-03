@@ -23,7 +23,7 @@
 import numpy as np
 from nose.plugins.attrib import attr
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.part.test.common import check_names, check_proatom_splines, \
     get_proatomdb_hf_sto3g, get_proatomdb_hf_lan
 from horton.scripts.wpart import wpart_schemes

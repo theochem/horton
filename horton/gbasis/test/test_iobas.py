@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 def test_str_to_shell_types_cart():

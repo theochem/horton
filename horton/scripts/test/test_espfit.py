@@ -23,7 +23,7 @@
 import os, h5py as h5, numpy as np
 from nose.plugins.attrib import attr
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.test.common import check_script, tmpdir
 from horton.scripts.test.common import copy_files, check_files, write_random_lta_cube
 from horton.scripts.espfit import *

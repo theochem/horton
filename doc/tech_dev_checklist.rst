@@ -986,9 +986,13 @@ CPPCheck
 
 See http://cppcheck.sourceforge.net/
 
-CPPCheck is executed with all checks enabled and with the C++11 flag. The only exception
-is ``missingIncludeSystem`` due to the large number of false positives. All other errors
-must be fixed.
+CPPCheck is executed with all checks enabled and with the C++11 flag. The following
+exceptions are added due to false positives:
+
+- ``missingIncludeSystem``
+- ``unusedFunction``
+
+All other errors must be fixed.
 
 
 CPPLint
@@ -996,7 +1000,8 @@ CPPLint
 
 See https://github.com/google/styleguide/tree/gh-pages/cpplint
 
-CPPLint is executed with the default settings. All errors must be fixed.
+CPPLint is executed with the default settings, except that the maximum line length is set
+to 100. All errors must be fixed.
 
 
 Manual checks

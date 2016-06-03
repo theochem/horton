@@ -24,7 +24,7 @@ import numpy as np
 from nose.tools import assert_raises
 from nose.plugins.attrib import attr
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.quadprog import FeasibilityError, BoundedError, ConvergenceError, \
     _counter_to_free, find_1d_root, solve_safe, diagonal_form, \
     solve_constrained, solve_radius

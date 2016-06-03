@@ -36,7 +36,7 @@
 */
 
 
-//#define DEBUG
+// #define DEBUG
 
 #ifdef DEBUG
 #include <cstdio>
@@ -56,14 +56,14 @@ void tridiagsym_solve(double* diag_mid, double* diag_up, double* right,
                       double* solution, int n) {
     // Simple solver for symmetric tridiagonal system. The right hand side and the
     // upper diagonal get screwed during the operation.
-    double denominator, tmp1, tmp2;
+    double tmp1, tmp2;
     int i;
 
     tmp1 = diag_up[0];
     diag_up[0] /= diag_mid[0];
     right[0] /= diag_mid[0];
-    for(i = 1; i < n; i++){
-        denominator = (diag_mid[i] - diag_up[i - 1]*tmp1);
+    for (i = 1; i < n; i++) {
+        double denominator = (diag_mid[i] - diag_up[i - 1]*tmp1);
         if (i < n-1) {
             tmp2 = diag_up[i];
             diag_up[i] /= denominator;
@@ -73,7 +73,7 @@ void tridiagsym_solve(double* diag_mid, double* diag_up, double* right,
     }
 
     solution[n - 1] = right[n - 1];
-    for(i = n - 2; i >= 0; i--) {
+    for (i = n - 2; i >= 0; i--) {
         solution[i] = right[i] - diag_up[i]*solution[i + 1];
     }
 }
@@ -88,7 +88,7 @@ void solve_cubic_spline_system(double* y, double *dt, int npoint) {
     diag_mid[0] = 2.0;
     diag_up[0] = 1.0;
     right[0] = 3.0*(y[1]-y[0]);
-    for (int i=1; i<npoint-1; i++) {
+    for (int i=1; i < npoint-1; i++) {
         diag_mid[i] = 4.0;
         diag_up[i] = 1.0;
         right[i] = 3.0*(y[i+1]-y[i-1]);
@@ -116,7 +116,7 @@ void compute_cubic_spline_int_weights(double* weights, int npoint) {
     // Set y array to zero. d is initialized in solve_cubic_spline_system.
     memset(y, 0, sizeof(double)*npoint);
 
-    for (int ipoint=0; ipoint<npoint; ipoint++) {
+    for (int ipoint=0; ipoint < npoint; ipoint++) {
         // setup the input spline
         if (ipoint > 0) y[ipoint-1] = 0.0;
         y[ipoint] = 1.0;
@@ -124,7 +124,7 @@ void compute_cubic_spline_int_weights(double* weights, int npoint) {
         solve_cubic_spline_system(y, dt, npoint);
         // compute the integral over the spline, which is heavily simplified...
         double weight = y[ipoint];
-        if ((ipoint==0) || (ipoint==npoint-1)) {
+        if ((ipoint == 0) || (ipoint == npoint-1)) {
             weight *= 0.5;
         }
         weight += (dt[0] - dt[npoint-1])/12.0;
@@ -136,17 +136,18 @@ void compute_cubic_spline_int_weights(double* weights, int npoint) {
    CubicSpline class.
 */
 
-CubicSpline::CubicSpline(double* y, double* dt, Extrapolation* extrapolation, RTransform* rtf, int n):
-    extrapolation(extrapolation), rtf(rtf), first_x(0.0), last_x(0.0), y(y), dt(dt), n(n)
-{
-    first_x = rtf->radius(0);
-    last_x = rtf->radius(n-1);
-    extrapolation->prepare(this);
+CubicSpline::CubicSpline(double* y, double* dt, Extrapolation* extrapolation,
+                         RTransform* rtf, int n)
+    : extrapolation(extrapolation), rtf(rtf), first_x(0.0), last_x(0.0),
+      y(y), dt(dt), n(n) {
+  first_x = rtf->radius(0);
+  last_x = rtf->radius(n-1);
+  extrapolation->prepare(this);
 }
 
 
 void CubicSpline::eval(double* new_x, double* new_y, int new_n) {
-    for (int i=0; i<new_n; i++) {
+    for (int i=0; i < new_n; i++) {
         if (*new_x < first_x) {
             // Left extrapolation
             *new_y = extrapolation->eval_left(*new_x);
@@ -154,12 +155,9 @@ void CubicSpline::eval(double* new_x, double* new_y, int new_n) {
             // Cubic Spline interpolation
             // 1) transform *new_x to t
             double t = rtf->inv(*new_x);
-//#ifdef DEBUG
-//            printf("X_TO_T x=%f t=%f\n", *new_x, t);
-//#endif
             // 2) find the index of the interval in which t lies.
-            int j = (int)floor(t);
-            if (j==n - 1) j = n - 2;
+            int j = static_cast<int>(floor(t));
+            if (j == n - 1) j = n - 2;
             // 3) do the interpolation
             double u = t - j;
             double z = y[j+1] - y[j];
@@ -174,7 +172,7 @@ void CubicSpline::eval(double* new_x, double* new_y, int new_n) {
 }
 
 void CubicSpline::eval_deriv(double* new_x, double* new_dx, int new_n) {
-    for (int i=0; i<new_n; i++) {
+    for (int i=0; i < new_n; i++) {
         if (*new_x < first_x) {
             // Left extrapolation
             *new_dx = extrapolation->deriv_left(*new_x);
@@ -183,8 +181,8 @@ void CubicSpline::eval_deriv(double* new_x, double* new_dx, int new_n) {
             // 1) transform *new_x to t
             double t = rtf->inv(*new_x);
             // 2) find the index of the interval in which t lies.
-            int j = (int)floor(t);
-            if (j==n - 1) j = n - 2;
+            int j = static_cast<int>(floor(t));
+            if (j == n - 1) j = n - 2;
             // 3) do the interpolation
             double u = t - j;
             double z = y[j+1] - y[j];
@@ -276,4 +274,45 @@ double PowerExtrapolation::deriv_left(double x) {
 
 double PowerExtrapolation::deriv_right(double x) {
     return amp*power*pow(x, power-1);
+}
+
+
+/*
+   PotentialExtrapolation class
+
+   This is used for potentials that obey specific trends at short and long distances,
+   depending at the angular momentum (l) for which they are computed.
+*/
+
+PotentialExtrapolation::PotentialExtrapolation(int64_t l)
+    : l(l), amp_left(0.0), amp_right(0.0) {
+    if (l < 0) {
+        throw std::domain_error("The argument l cannot be negative.");
+    }
+}
+
+
+void PotentialExtrapolation::prepare(CubicSpline* cs) {
+    amp_left = cs->y[0]/pow(cs->get_first_x(), l);
+    amp_right = cs->y[cs->n-1]*pow(cs->get_last_x(), l+1);
+}
+
+double PotentialExtrapolation::eval_left(double x) {
+    return amp_left*pow(x, l);
+}
+
+double PotentialExtrapolation::eval_right(double x) {
+    return amp_right/pow(x, l+1);
+}
+
+double PotentialExtrapolation::deriv_left(double x) {
+    if (l == 0) {
+        return 0.0;
+    } else {
+        return l*amp_left*pow(x, l-1);
+    }
+}
+
+double PotentialExtrapolation::deriv_right(double x) {
+    return -(l+1)*amp_right/pow(x, l+2);
 }
