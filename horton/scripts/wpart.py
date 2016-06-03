@@ -37,7 +37,6 @@ __all__ = ['wpart_schemes', 'wpart_slow_analysis']
 
 def get_wpart_schemes():
     """Return a dictionary with all wpart schemes"""
-
     wpart_schemes = {}
     for o in vars(horton.part).itervalues():
         if isinstance(o, type) and issubclass(o, WPart) and o.name is not None:
