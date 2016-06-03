@@ -23,7 +23,8 @@
 import numpy as np
 from nose.tools import assert_raises
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 from horton.test.common import get_pentagon_moments, get_point_moments
 
 

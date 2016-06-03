@@ -20,7 +20,7 @@
 #--
 
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.meanfield.test.common import helper_compute
 
 
