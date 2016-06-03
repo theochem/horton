@@ -17,7 +17,8 @@ if [ ! -d "${CACHED}/${NAMEVER}/cppcheck" ]; then
     make SRCDIR=build CFGDIR=${CACHED}/${NAMEVER}/cfg HAVE_RULES=yes CXXFLAGS="-O2 -DNDEBUG -Wall -Wno-sign-compare -Wno-unused-function" &> install.log
     tail install.log
     mkdir ${CACHED}/${NAMEVER}
-    cp cppcheck ${CACHED}/${NAMEVER}
+    cp -av cppcheck ${CACHED}/${NAMEVER}
+    cp -av cfg ${CACHED}/${NAMEVER}
 )
 else
     echo -e "${GREEN}Using Cached ${NAMEVER}${RESET}"
