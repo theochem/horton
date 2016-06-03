@@ -21,10 +21,12 @@
 
 
 try:
-    from harmonics import *
+    from sympy import S, sqrt
 except ImportError:
     from nose.plugins.skip import SkipTest
     raise SkipTest
+
+from harmonics import get_poly_conversion
 
 
 # Comparison with some results from:

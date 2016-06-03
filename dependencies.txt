@@ -4,7 +4,7 @@
     "version_requirement": ">= 4.5",
     "homepage": "http://gcc.gnu.org",
     "comment": "In principle the Intel compilers or any other of your favorite compilers should work. The GNU compilers are used for development and testing.",
-    "fedora_22_rpm": "gcc gcc-c++ gcc-gfortran",
+    "fedora_22_rpm": "gcc gcc-c++ gcc-gfortran redhat-rpm-config",
     "fedora_21_rpm": "gcc gcc-c++ gcc-gfortran",
     "ubuntu_15_deb": "gcc g++ gfortran",
     "ubuntu_12_deb": "gcc g++ gfortran",
@@ -198,15 +198,15 @@
     "macports_pip": "sphinx",
     "purpose": "doc"
 }, {
-    "name": "sphinx_rdt_theme",
+    "name": "sphinx_rtd_theme",
     "title": "Sphinx Read-The-Docs theme",
     "version_requirement": ">= 0.1.8",
     "homepage": "https://github.com/snide/sphinx_rtd_theme",
-    "fedora_22_pip": "sphinx_rdt_theme",
-    "fedora_21_pip": "sphinx_rdt_theme",
-    "ubuntu_15_pip": "sphinx_rdt_theme",
-    "ubuntu_12_pip": "sphinx_rdt_theme",
-    "macports_pip": "sphinx_rdt_theme",
+    "fedora_22_pip": "sphinx_rtd_theme",
+    "fedora_21_pip": "sphinx_rtd_theme",
+    "ubuntu_15_pip": "sphinx_rtd_theme",
+    "ubuntu_12_pip": "sphinx_rtd_theme",
+    "macports_pip": "sphinx_rtd_theme",
     "purpose": "doc"
 }, {
     "name": "doxygen",
