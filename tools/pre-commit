@@ -1,0 +1,25 @@
+#!/bin/bash
+
+red="\033[1;31m"
+color_end="\033[0m"
+
+# Check unwanted trailing whitespace or space/tab indents;
+if [[ `git diff --cached --check` ]]; then
+    echo -e "${red}Commit failed: trailing whitespace, trailing empty lines, DOS/Windows line endings${color_end}"
+    git diff --cached --check
+    exit 1
+fi
+
+# Check for untracked files (not in .gitignore)
+if [[ `git status -u data horton doc scripts tools -s | grep "^??"` ]]; then
+    echo -e "${red}Commit failed: untracked files (not in .gitignore).${color_end}"
+    git status -u data horton doc scripts tools -s | grep "^??"
+    exit 1
+fi
+
+# Check for new print statements
+if [[ `git diff --cached | grep '^+' | sed  's/^.//' | sed 's:#.*$::g' | grep 'print '` ]]; then
+    echo -e "${red}Commit failed: print statements${color_end}"
+    git diff --cached | grep '^+' | sed  's/^.//' | sed 's:#.*$::g' | grep print
+    exit 1
+fi

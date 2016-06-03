@@ -307,6 +307,8 @@ The documentation is compiled and viewed as follows:
     (cd doc; make html; firefox _build/html/index.html)
 
 
+.. _linux_install_dev:
+
 Development tools
 =================
 
