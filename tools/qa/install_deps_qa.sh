@@ -2,8 +2,12 @@
 
 source tools/qa/common.sh
 
-# This script assumes that a virtualenv is created, in which pip will then automatically
-# install the dependencies.
+# Build our own cppcheck
+
+./tools/qa/install_cppcheck-1.73.sh
+
+# The rest of this script assumes that a virtualenv is created, in which pip will then
+# automatically install the dependencies.
 
 # All packages are first wheeled, i.e. a binary package is made, which can be cached.
 
