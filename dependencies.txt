@@ -334,7 +334,10 @@
 }, {
     "name": "cppcheck",
     "title": "Cppcheck",
-    "version_requirement": ">= 1.52",
+    "version_requirement": ">= 1.73",
+    "version_ci": "1.73",
+    "install_command": "./tools/qa/install_cppcheck-1.73.sh",
+    "source_url": "http://downloads.sourceforge.net/project/cppcheck/cppcheck/1.73/cppcheck-1.73.tar.bz2",
     "homepage": "http://cppcheck.sourceforge.net/",
     "fedora_24_rpm": "cppcheck",
     "fedora_22_rpm": "cppcheck",

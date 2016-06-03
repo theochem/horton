@@ -17,7 +17,8 @@ addons:
      # libtool is needed by libint
      - libtool
      - doxygen
-     - cppcheck
+     # libpcre3-dev is needed to build a recent cppcheck
+     - libpcre3-dev
 
 env:
   global:
