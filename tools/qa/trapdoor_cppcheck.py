@@ -25,9 +25,11 @@ This test calls the cppcheck program, see http://cppcheck.sourceforge.net/.
 """
 
 
+from collections import Counter
+from glob import glob
+import os
 import subprocess
 from xml.etree import ElementTree
-from collections import Counter
 
 from trapdoor import TrapdoorProgram, Message, get_source_filenames
 
@@ -54,12 +56,20 @@ class CPPCheckTrapdoorProgram(TrapdoorProgram):
         messages : Set([]) of strings
                    All errors encountered in the current branch.
         """
+        # Look for custom cppcheck build
+        fns_cppcheck = sorted(glob('%s/cached/cppcheck-*/cppcheck' % self.qaworkdir))
+        if len(fns_cppcheck) > 0:
+            binary = os.path.abspath(fns_cppcheck[-1])
+        else:
+            binary = 'cppcheck'
+        print 'USING BINARY', binary
+
         # Get version
-        command = ['cppcheck', '--version']
-        print 'USING', subprocess.check_output(command, stderr=subprocess.STDOUT).strip()
+        command = [binary, '--version']
+        print 'USING VERSION', subprocess.check_output(command, stderr=subprocess.STDOUT).strip()
 
         # Call Cppcheck
-        command = ['cppcheck'] + get_source_filenames(config, 'cpp') + \
+        command = [binary] + get_source_filenames(config, 'cpp') + \
                   ['-q', '--enable=all', '--std=c++11', '--xml',
                    '--suppress=missingIncludeSystem', '--suppress=unusedFunction']
         print 'RUNNING', ' '.join(command)
