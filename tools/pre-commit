@@ -5,7 +5,7 @@ color_end="\033[0m"
 
 # Check unwanted trailing whitespace or space/tab indents;
 if [[ `git diff --cached --check` ]]; then
-    echo -e "${red}Commit failed: trailing whitespace, trailing empty lines, dos line endings${color_end}"
+    echo -e "${red}Commit failed: trailing whitespace, trailing empty lines, DOS/Windows line endings${color_end}"
     git diff --cached --check
     exit 1
 fi
