@@ -36,9 +36,8 @@ cache:
     - $HOME/qaworkdir/cached
 
 install:
-# Install all required python packages for HORTON and for testing with pip. This
-# also installs a recent cppcheck from source
- - tools/qa/install_deps_qa.sh
+# Install all required python packages for HORTON and for testing with pip.
+ - tools/qa/install_deps_pip.sh
 
 # Get the master branch and complete feature branch for a comparative analysis.
  - tools/qa/get_master.sh
