@@ -27,10 +27,14 @@ This test calls the pylint program, see http://docs.pylint.org/index.html.
 
 import os
 import shutil
-import subprocess
 from collections import Counter
 
-from trapdoor import TrapdoorProgram, Message, get_source_filenames
+from trapdoor import TrapdoorProgram, Message, get_source_filenames, run_command
+
+
+def has_failed(returncode, stdout, stderr):
+    """Determine if PyLint has failed."""
+    return returncode < 0 or returncode >= 32
 
 
 class PylintTrapdoorProgram(TrapdoorProgram):
@@ -66,8 +70,8 @@ class PylintTrapdoorProgram(TrapdoorProgram):
         """
         # get Pylint version
         command = ['pylint', '--version', '--rcfile=%s' % self.rcfile]
-        version_output = subprocess.check_output(command, stderr=subprocess.STDOUT)
-        print 'USING   :', ''.join(version_output.split('\n')[:2])
+        version_info = ''.join(run_command(command, verbose=False)[0].split('\n')[:2])
+        print 'USING              :', version_info
 
         # Collect python files not present in packages
         py_extra = get_source_filenames(config, 'py', unpackaged_only=True)
@@ -75,14 +79,12 @@ class PylintTrapdoorProgram(TrapdoorProgram):
         # call Pylint
         command = ['pylint'] + config['py_packages'] + py_extra + [
             '--rcfile=%s' % self.rcfile, '--ignore=%s' % (','.join(config['py_exclude']))]
-        print 'RUNNING :', ' '.join(command)
-        proc = subprocess.Popen(command, stdout=subprocess.PIPE)
+        output = run_command(command, has_failed=has_failed)[0]
 
         # parse the output of Pylint into standard return values
-        output = proc.communicate()[0]
         lines = output.split('\n')[:-1]
         score = lines[-2].split()[6]
-        print 'SCORE   :', score
+        print 'SCORE              :', score
         counter = Counter()
         messages = set([])
         for line in lines:
