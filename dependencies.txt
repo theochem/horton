@@ -208,7 +208,7 @@
     "fedora_21_rpm": "python-pip",
     "ubuntu_16_deb": "python-pip",
     "ubuntu_15_deb": "python-pip",
-    "ubuntu_15_deb": "python-pip",
+    "ubuntu_12_deb": "python-pip",
     "macports_name": "py27-pip",
     "macports_url": "https://trac.macports.org/browser/trunk/dports/python/py-pip/Portfile",
     "macports_command": "sudo port install py27-pip; sudo port select --set pip pip27",
