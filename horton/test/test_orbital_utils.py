@@ -20,8 +20,9 @@
 #--
 
 
-from horton import *
 import numpy as np
+
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 def check_core_active(mol, basis_str, ncore, nactive):
     #

@@ -21,7 +21,9 @@
 
 
 import numpy as np
-from horton import *
+
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 from horton.grid.test.common import get_cosine_spline
 from horton.test.common import get_random_cell
 
@@ -378,3 +380,21 @@ def test_density_decomposition_n2():
             assert last_error > error
         last_error = error
     assert error < 1e-3
+
+    # test sensibility of results at the positions of the nuclei. Here, the potentials
+    # should be finite and non-zero.
+    nucgrid = IntGrid(mol.coordinates, np.ones(mol.natom))
+    # Contribution from s should be non-zero:
+    tmp_s = np.zeros(nucgrid.size)
+    nucgrid.eval_spline(splines[0], mol.coordinates[0], tmp_s)
+    assert tmp_s[0] != 0.0
+    np.testing.assert_almost_equal(tmp_s[0], splines[0](np.array([0.0]))[0])
+    assert np.isfinite(tmp_s).all()
+    # Contribution from p and higher should be zero.
+    # This tested by computing all and comparing to contribution from s
+    # (with proper scale factor).
+    for lmax in xrange(0, lmaxmax+1):
+        tmp = np.zeros(nucgrid.size)
+        nucgrid.eval_decomposition(splines[:(lmax+1)**2], mol.coordinates[0], tmp)
+        np.testing.assert_almost_equal(tmp[0], tmp_s[0]/np.sqrt(4*np.pi))
+        assert np.isfinite(tmp).all()

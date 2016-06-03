@@ -27,10 +27,14 @@ https://www.python.org/dev/peps/pep-0257. Not everything can be tested by a prog
 """
 
 
-import subprocess
 from collections import Counter
 
-from trapdoor import TrapdoorProgram, Message, get_source_filenames
+from trapdoor import TrapdoorProgram, Message, get_source_filenames, run_command
+
+
+def has_failed(returncode, stdout, stderr):
+    """Determine if pep257 has failed."""
+    return stderr.startswith('Usage:') or stderr.startswith('[Errno')
 
 
 class PEP257TrapdoorProgram(TrapdoorProgram):
@@ -57,14 +61,12 @@ class PEP257TrapdoorProgram(TrapdoorProgram):
         """
         # Get version
         command = ['pep257', '--version']
-        print 'USING pep257', subprocess.check_output(command).strip()
+        print 'USING              : pep257', run_command(command, verbose=False)[0].strip()
 
         # Call pep257 in the directories containing Python code
         command = ['pep257'] + config['py_packages'] + \
                   get_source_filenames(config, 'py', unpackaged_only=True)
-        print 'RUNNING', ' '.join(command)
-        proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output = proc.communicate()[0]
+        output = run_command(command, has_failed=has_failed)[1]
 
         # Parse the standard output of pep257
         counter = Counter()

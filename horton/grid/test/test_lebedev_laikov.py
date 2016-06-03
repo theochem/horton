@@ -20,10 +20,11 @@
 #--
 
 
-from horton import *
-from nose.tools import assert_raises
-
 import numpy as np
+
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
+from nose.tools import assert_raises
 
 
 def test_consistency():

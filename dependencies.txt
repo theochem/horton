@@ -1,7 +1,7 @@
 [{
     "name": "gcc",
     "title": "GCC, G++ and GFortran",
-    "version_requirement": ">= 4.5",
+    "version_requirement": ">= 4.9",
     "homepage": "http://gcc.gnu.org",
     "comment": "In principle the Intel compilers or any other of your favorite compilers should work. The GNU compilers are used for development and testing.",
     "fedora_24_rpm": "gcc gcc-c++ gcc-gfortran redhat-rpm-config",
@@ -334,7 +334,10 @@
 }, {
     "name": "cppcheck",
     "title": "Cppcheck",
-    "version_requirement": ">= 1.52",
+    "version_requirement": ">= 1.73",
+    "version_ci": "1.73",
+    "install_command": "./tools/qa/install_cppcheck-1.73.sh",
+    "source_url": "http://downloads.sourceforge.net/project/cppcheck/cppcheck/1.73/cppcheck-1.73.tar.bz2",
     "homepage": "http://cppcheck.sourceforge.net/",
     "fedora_24_rpm": "cppcheck",
     "fedora_22_rpm": "cppcheck",

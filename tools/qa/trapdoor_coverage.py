@@ -27,11 +27,10 @@ This test calls the nosetests and coverage, see:
 """
 
 
-import subprocess
 from collections import Counter
 from xml.etree import ElementTree
 
-from trapdoor import TrapdoorProgram, Message
+from trapdoor import TrapdoorProgram, Message, run_command
 
 
 class CoverageTrapdoorProgram(TrapdoorProgram):
@@ -58,9 +57,9 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
         """
         # Get version
         command = ['nosetests', '--version']
-        print 'USING', subprocess.check_output(command, stderr=subprocess.STDOUT).strip()
+        print 'USING              :', run_command(command, verbose=False)[0].strip()
         command = ['coverage', '--version']
-        print 'USING', subprocess.check_output(command, stderr=subprocess.STDOUT).split('\n')[0]
+        print 'USING              :', run_command(command, verbose=False)[0].split('\n')[0]
 
         # Results will be stored in the following variables
         counter = Counter()
@@ -71,9 +70,7 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
                    '--cover-branches',
                    '--cover-package=%s' % ','.join(config['py_packages'])] + \
                    config['py_directories']
-        print 'RUNNING', ' '.join(command)
-        proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output = proc.communicate()[0]
+        output = run_command(command)[0]
         lines = [line.strip() for line in output.split('\n')]
 
         # Parse the output of the unit tests
@@ -94,9 +91,7 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
         fn_coverage = '%s/coverage.xml' % self.qaworkdir
         command = ['coverage', 'xml', '-o', fn_coverage,
                    '--omit=%s' % ','.join(config['py_test_files'])]
-        print 'RUNNING', ' '.join(command)
-        proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output = proc.communicate()[0]
+        output = run_command(command)[0]
 
         # Parse coverage xml output
         et = ElementTree.parse(fn_coverage)

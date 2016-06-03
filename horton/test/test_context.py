@@ -23,10 +23,10 @@
 import os, subprocess, importlib
 from glob import glob
 from nose.tools import assert_raises
-from horton.test.common import in_horton_source_root
 
 from horton import context
 
+from horton.test.common import in_horton_source_root
 
 def test_context():
     fn = context.get_fn('basis/sto-3g.nwchem')

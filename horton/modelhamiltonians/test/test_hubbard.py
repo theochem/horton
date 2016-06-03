@@ -20,7 +20,8 @@
 #--
 
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 
 def test_1d_hubbard_hamiltonian():
     # Test the half-filled 1-D Hubbard model Hamiltonian

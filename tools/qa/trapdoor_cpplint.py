@@ -29,10 +29,14 @@ https://github.com/google/styleguide/tree/gh-pages/cpplint.
 import os
 import shutil
 import stat
-import subprocess
 from collections import Counter
 
-from trapdoor import TrapdoorProgram, Message, get_source_filenames
+from trapdoor import TrapdoorProgram, Message, get_source_filenames, run_command
+
+
+def has_failed(returncode, stdout, stderr):
+    """Determine if cpplint.py has failed."""
+    return 'FATAL' in stdout
 
 
 class CPPLintTrapdoorProgram(TrapdoorProgram):
@@ -68,13 +72,11 @@ class CPPLintTrapdoorProgram(TrapdoorProgram):
                    All errors encountered in the current branch.
         """
         # Get version
-        print 'USING cpplint.py update #456'
+        print 'USING              : cpplint.py update #456'
 
         # Call cpplint
-        command = [self.cpplint_file] + get_source_filenames(config, 'cpp')
-        print 'RUNNING', ' '.join(command)
-        proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output = proc.communicate()[0]
+        command = [self.cpplint_file, '--linelength=100'] + get_source_filenames(config, 'cpp')
+        output = run_command(command, has_failed=has_failed)[0]
 
         # Parse the output of cpplint into standard return values
         counter = Counter()
@@ -88,7 +90,7 @@ class CPPLintTrapdoorProgram(TrapdoorProgram):
             tag = words[-2]
             priority = words[-1]
 
-            counter['%3s %30s %s' % (priority, tag, filename)] += 1
+            counter['%3s %-30s' % (priority, tag)] += 1
             messages.add(Message(filename, int(lineno), None, '%s %s %s' % (
                 priority, tag, description)))
 

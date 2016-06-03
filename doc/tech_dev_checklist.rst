@@ -518,12 +518,14 @@ W1605, W1606, W1607, W1608, W1609, W1610, W1611, W1612, W1613, W1614, W1615, W16
 W1618, W1619, W1620, W1621, W1622, W1623, W1624, W1625, W1626, W1627, W1628, W1629, W1630,
 W1632, W1633, W1634, W1635, W1636, W1637, W1638, W1639, W1640
 
-The following are excluded because we don't agree:
+The following are excluded because we don't consider them the be fatal:
 
 * **C0103**: invalid-name. Invalid %s name “%s”%s Used when the name doesn’t match
   the regular expression associated to its type (constant, variable, class...).
 * **I0011**: locally-disabled. Used when an inline option disables a message or a messages
   category.
+* **W0613**: unused-argument. Unused argument %r Used when a function or method argument
+  is not used.
 
 The following is disabled to allow access to the protected members of the
 (not-so-well-designed) Matrix classes:
@@ -986,9 +988,13 @@ CPPCheck
 
 See http://cppcheck.sourceforge.net/
 
-CPPCheck is executed with all checks enabled and with the C++11 flag. The only exception
-is ``missingIncludeSystem`` due to the large number of false positives. All other errors
-must be fixed.
+CPPCheck is executed with all checks enabled and with the C++11 flag. The following
+exceptions are added due to false positives:
+
+- ``missingIncludeSystem``
+- ``unusedFunction``
+
+All other errors must be fixed.
 
 
 CPPLint
@@ -996,7 +1002,8 @@ CPPLint
 
 See https://github.com/google/styleguide/tree/gh-pages/cpplint
 
-CPPLint is executed with the default settings. All errors must be fixed.
+CPPLint is executed with the default settings, except that the maximum line length is set
+to 100. All errors must be fixed.
 
 
 Manual checks

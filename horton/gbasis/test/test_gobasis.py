@@ -24,7 +24,8 @@ import numpy as np, os
 from nose.tools import assert_raises
 from nose.plugins.attrib import attr
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 from horton.test.common import compare_operators
 
 

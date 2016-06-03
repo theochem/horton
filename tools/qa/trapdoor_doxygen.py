@@ -27,10 +27,30 @@ This test uses doxygen, see http://www.doxygen.org.
 
 import os
 import shutil
-import subprocess
 from collections import Counter
 
-from trapdoor import TrapdoorProgram, Message
+from trapdoor import TrapdoorProgram, Message, run_command
+
+
+def unwrapped_iter(f):
+    """Iterate over unwrapped lines.
+
+    Parameters
+    ----------
+    f : file
+        A text file with wrapped lines. Wrapping is detected by the presence of a
+        colon at the end of the line.
+    """
+    unwrapped_line = ''
+    for line in f:
+        if line.startswith(' '):
+            unwrapped_line += line[:-1]
+        else:
+            if len(unwrapped_line) > 0:
+                yield unwrapped_line
+            unwrapped_line = line[:-1]
+    if len(unwrapped_line) > 0:
+        yield unwrapped_line
 
 
 class DoxygenTrapdoorProgram(TrapdoorProgram):
@@ -66,27 +86,26 @@ class DoxygenTrapdoorProgram(TrapdoorProgram):
         """
         # Get version
         command = ['doxygen', '--version']
-        print 'USING doxygen', subprocess.check_output(command).strip()
+        print 'USING              : doxygen', run_command(command, verbose=False)[0].strip()
 
         # Call doxygen in the doc subdirectory, mute output because it only confuses
         command = ['doxygen', self.doxyconf_file]
-        print 'RUNNING (in %s)' % config['doxygen_root'], ' '.join(command)
-        with open(os.devnull, 'wb') as devnull:
-            subprocess.check_call(command, cwd=config['doxygen_root'], stdout=devnull,
-                                  stderr=devnull)
+        run_command(command, cwd=config['doxygen_root'])
 
         # Parse the file doxygen_warnings log file
         counter = Counter()
         messages = set([])
         prefix = os.getcwd() + '/'
+
         fn_warnings = os.path.join(config['doxygen_root'], config['doxygen_warnings'])
         with open(fn_warnings, 'r') as f:
-            for line in f:
-                words = line.split()
-                filename, lineno = words[0].split(':')[:2]
+            # Doxygen sometimes wraps lines in the warnings log. That is sad, but we
+            # have to handle it.
+            for line in unwrapped_iter(f):
+                location, description = line.split(None, 1)
+                filename, lineno = location.split(':')[:2]
                 if filename.startswith(prefix):
                     filename = filename[len(prefix):]
-                description = ' '.join(words[2:])
                 message = Message(filename, int(lineno), None, description)
                 counter[filename] += 1
                 messages.add(message)

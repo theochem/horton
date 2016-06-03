@@ -22,7 +22,8 @@
 import numpy as np
 from nose.tools import assert_raises
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 
 def get_h2o_er():
     fn = context.get_fn('test/water.xyz')
