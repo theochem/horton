@@ -65,6 +65,17 @@ Installing dependencies with a package manager
 With popular Linux distributions, most of these dependencies can be installed
 with a package manager:
 
+* **Ubuntu Linux 16.04**:
+
+  .. code-block:: bash
+
+    sudo apt-get install ${dependencies_ubuntu_16_deb}
+
+  Note that Ubuntu 16.04 does not have up-to-date packages for all dependencies. LibInt2
+  must be compiled manually as explained in :ref:`linux_manual_dependency_install`. (The
+  beta version of LibInt2 that comes with Ubuntu 16.04 is compiled with a too low
+  LIBINT2_MAX_AM_ERI value.)
+
 * **Ubuntu Linux 15.04 and 14.04**:
 
   .. code-block:: bash
@@ -87,7 +98,13 @@ with a package manager:
   some are installed with PIP. LibXC and LibInt2 must be compiled manually as explained in
   :ref:`linux_manual_dependency_install`.
 
-* **Fedora Linux 22, 23 and 24**:
+* **Fedora Linux 24**:
+
+  .. code-block:: bash
+
+    sudo dnf install ${dependencies_fedora_24_rpm}
+
+* **Fedora Linux 22 and 23**:
 
   .. code-block:: bash
 
@@ -236,6 +253,12 @@ ${doc_dependencies_rst}
 Installing the dependencies with a package manager and PIP
 ----------------------------------------------------------
 
+* **Ubuntu Linux 16.04**:
+
+  .. code-block:: bash
+
+      sudo apt-get install ${doc_dependencies_ubuntu_16_deb}
+
 * **Ubuntu Linux 15.04 and 14.04**:
 
   .. code-block:: bash
@@ -250,7 +273,13 @@ Installing the dependencies with a package manager and PIP
       sudo apt-get install ${doc_dependencies_ubuntu_12_deb}
       pip install --user --upgrade ${doc_dependencies_ubuntu_12_pip}
 
-* **Fedora Linux 22, 23 and 24**:
+* **Fedora Linux 24**:
+
+  .. code-block:: bash
+
+      sudo dnf install ${doc_dependencies_fedora_24_rpm}
+
+* **Fedora Linux 22 and 23**:
 
   .. code-block:: bash
 
@@ -289,6 +318,13 @@ ${dev_dependencies_rst}
 For the python development tools, we generally recommend installing the latest versions
 with ``pip``.
 
+* **Ubuntu Linux 16.04**:
+
+  .. code-block:: bash
+
+      sudo apt-get install ${dev_dependencies_ubuntu_16_deb}
+      pip install --user --upgrade ${dev_dependencies_ubuntu_16_pip}
+
 * **Ubuntu Linux 15.04 and 14.04**:
 
   .. code-block:: bash
@@ -303,7 +339,14 @@ with ``pip``.
       sudo apt-get install ${dev_dependencies_ubuntu_12_deb}
       pip install --user --upgrade ${dev_dependencies_ubuntu_12_pip}
 
-* **Fedora Linux 22, 23 and 24**:
+* **Fedora Linux 24**:
+
+  .. code-block:: bash
+
+      sudo dnf install ${dev_dependencies_fedora_24_rpm}
+      pip install --user --upgrade ${dev_dependencies_fedora_24_pip}
+
+* **Fedora Linux 22 and 23**:
 
   .. code-block:: bash
 
