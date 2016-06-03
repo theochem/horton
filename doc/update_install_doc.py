@@ -86,7 +86,9 @@ def collect_fields():
     # dependencies_rst and dep_dependencies_rst
     format_list('rst', formatter_rst, dependencies, result)
 
-    # dependencies_fedora_22_rpm and doc_dependencies_fedora_22_rpm
+    # dependencies_* and doc_dependencies_*
+    format_packages('fedora_24_rpm', dependencies, result)
+    format_packages('fedora_24_pip', dependencies, result)
     format_packages('fedora_22_rpm', dependencies, result)
     format_packages('fedora_22_pip', dependencies, result)
     format_packages('fedora_21_rpm', dependencies, result)
