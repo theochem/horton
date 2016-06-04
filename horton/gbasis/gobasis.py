@@ -233,6 +233,7 @@ class GOBasisFamily(object):
             raise IOError('File format not supported: %s' % self.filename)
         self._to_arrays()
         self._to_segmented()
+        self._normalize_contractions()
 
     def _to_arrays(self):
         '''Convert all contraction attributes to numpy arrays'''
@@ -251,6 +252,11 @@ class GOBasisFamily(object):
             new_basis_atom_map[n] = new_ba
         self.basis_atom_map = new_basis_atom_map
 
+    def _normalize_contractions(self):
+        """Renormalize all contractions."""
+        for ba in self.basis_atom_map.itervalues():
+            for bc in ba.bcs:
+                bc.normalize_contraction()
 
 
 go_basis_families_list = [
@@ -390,3 +396,24 @@ class GOBasisContraction(object):
             GOBasisContraction(self.shell_type, self.alphas, self.con_coeffs[:,i])
             for i in xrange(self.con_coeffs.shape[1])
         ]
+
+    def normalize_contraction(self):
+        """Normalize the contraction."""
+        if self.is_generalized():
+            raise NotImplementedError("Only segmented contractions can be normalized.")
+        # Warning! Ugly code ahead to avoid re-implementing the norm of contraction. The
+        # code below (ab)uses the GOBasis machinery to get that result.
+        # 1) Constract a GOBasis object with only this contraction.
+        centers = np.array([[0.0, 0.0, 0.0]])
+        shell_map = np.array([0])
+        nprims = np.array([len(self.alphas)])
+        shell_types = np.array([self.shell_type])
+        alphas = self.alphas
+        con_coeffs = self.con_coeffs
+        gobasis = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+        # 2) Get the first diagonal element of the overlap matrix
+        from horton.matrix.dense import DenseLinalgFactory
+        lf = DenseLinalgFactory(gobasis.nbasis)
+        olpdiag = gobasis.compute_overlap(lf)._array[0, 0]
+        # 3) Normalize the contraction
+        self.con_coeffs /= np.sqrt(olpdiag)

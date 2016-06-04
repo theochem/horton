@@ -565,3 +565,33 @@ def test_basis_atoms():
         icenter += 1
         ibasis_all.extend(ibasis_list)
     assert ibasis_all == range(mol.obasis.nbasis)
+
+
+def check_normalization(number, basis):
+    """Helper function to test the normalization of contracted basis sets.
+
+    Parameters
+    ----------
+    number : int
+             Element to test. (Keep in mind that not all elements are supported in most
+             basis sets.)
+    basis : str
+            The basis set, e.g. cc-pvdz.
+    """
+    # Run test on a Helium atom
+    mol = IOData(coordinates=np.array([[0.0, 0.0, 0.0]]), numbers=np.array([number]))
+
+    # Create a Gaussian basis set
+    obasis = get_gobasis(mol.coordinates, mol.numbers, basis)
+
+    # Create a linalg factory
+    lf = DenseLinalgFactory(obasis.nbasis)
+
+    # Compute Gaussian integrals
+    olp = obasis.compute_overlap(lf)
+    np.testing.assert_almost_equal(np.diag(olp._array), 1.0)
+
+
+def test_normalization_ccpvdz():
+    for number in xrange(1, 18+1):
+        check_normalization(number, 'cc-pvdz')
