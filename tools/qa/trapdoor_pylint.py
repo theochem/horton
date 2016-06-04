@@ -92,7 +92,7 @@ class PylintTrapdoorProgram(TrapdoorProgram):
             if line.startswith('Report'):
                 break
             # extract error information
-            msg_id, keyword, location, msg = line.split(' ', 3)
+            msg_id, _keyword, location, msg = line.split(' ', 3)
             counter[msg_id] += 1
             filename, pos = location.split(':')
             lineno, charno = pos.split(',')
@@ -100,7 +100,7 @@ class PylintTrapdoorProgram(TrapdoorProgram):
             charno = int(charno)
             if charno == 0:
                 charno = None
-            messages.add(Message(filename, lineno, charno, '%s %s %s' % (msg_id, keyword, msg)))
+            messages.add(Message(filename, lineno, charno, '%s %s' % (msg_id, msg)))
         return counter, messages
 
 
