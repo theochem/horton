@@ -62,7 +62,8 @@ class PEP257TrapdoorProgram(TrapdoorProgram):
         # Call pep257 in the directories containing Python code. All files will be
         # checked, including test files. Missing tests are ignored (D103) because they are
         # already detected by PyLint in a better way.
-        command = ['pep257', '--match=.*\.py', '--add-ignore=D103'] + config['py_packages'] + \
+        command = ['pep257', '--match=.*\\.py', '--add-ignore=D103'] + \
+                  config['py_packages'] + \
                   get_source_filenames(config, 'py', unpackaged_only=True)
         print 'RUNNING', ' '.join(command)
         proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
