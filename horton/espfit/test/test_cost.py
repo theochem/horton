@@ -20,7 +20,8 @@
 #--
 
 
-import numpy as np, h5py as h5
+import numpy as np
+import h5py as h5
 from nose.plugins.attrib import attr
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
@@ -32,7 +33,7 @@ nrep = 10  # The number of times random tests are repeated
 
 
 def get_random_esp_cost_cube3d_args(seed=1):
-    """Generate random cube data for a 3D periodic system"""
+    """Generate random cube data for a 3D periodic system."""
     numbers = np.ones(5, int)
     shape = np.array([5, 5, 5])
     pbc = np.array([1, 1, 1])
@@ -47,7 +48,7 @@ def get_random_esp_cost_cube3d_args(seed=1):
 
 
 def get_random_esp_cost_cube0d_args(seed=1):
-    """Generate random cube data for an aperiodic system"""
+    """Generate random cube data for an aperiodic system."""
     shape = np.array([5, 5, 5])
     pbc = np.array([0, 0, 0])
     numbers = np.ones(5, int)
@@ -62,7 +63,7 @@ def get_random_esp_cost_cube0d_args(seed=1):
 
 
 def get_random_esp_cost_cube3d(seed=1):
-    """Construct a random ESP cost function for a 3D periodic system"""
+    """Construct a random ESP cost function for a 3D periodic system."""
     # Some parameters
     coordinates, _numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
        get_random_esp_cost_cube3d_args(seed)
@@ -71,7 +72,7 @@ def get_random_esp_cost_cube3d(seed=1):
 
 
 def get_random_esp_cost_cube0d(seed=1):
-    """Construct a random ESP cost function for an aperiodic system"""
+    """Construct a random ESP cost function for an aperiodic system."""
     # Some parameters
     coordinates, _numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
        get_random_esp_cost_cube0d_args(seed)
@@ -80,13 +81,13 @@ def get_random_esp_cost_cube0d(seed=1):
 
 
 def get_random_shift(seed=1):
-    """Generate a random displacement in 3D Cartesian coordinates"""
+    """Generate a random displacement in 3D Cartesian coordinates."""
     with numpy_seed(seed):
         return np.random.uniform(-3, 3, 3)
 
 
 def get_random_unitary(seed=1):
-    """Return a random 3x3 unitary transformation"""
+    """Return a random 3x3 unitary transformation."""
     with numpy_seed(seed):
         A = np.random.normal(0, 1, (3, 3))
         A = 0.5*(A+A.T)
@@ -94,7 +95,7 @@ def get_random_unitary(seed=1):
 
 
 def translate_random_rvecs(coordinates, rvecs, seed):
-    """Translate nuclei by a random integer linear combination of cell vectors"""
+    """Translate nuclei by a random integer linear combination of cell vectors."""
     result = coordinates.copy()
     with numpy_seed(seed):
         for j in xrange(len(coordinates)):
