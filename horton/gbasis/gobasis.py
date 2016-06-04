@@ -236,7 +236,7 @@ class GOBasisFamily(object):
         self._normalize_contractions()
 
     def _to_arrays(self):
-        '''Convert all contraction attributes to numpy arrays'''
+        """Convert all contraction attributes to numpy arrays."""
         for ba in self.basis_atom_map.itervalues():
             for bc in ba.bcs:
                 bc.to_arrays()
@@ -256,7 +256,7 @@ class GOBasisFamily(object):
         """Renormalize all contractions."""
         for ba in self.basis_atom_map.itervalues():
             for bc in ba.bcs:
-                bc.normalize_contraction()
+                bc.normalize()
 
 
 go_basis_families_list = [
@@ -377,27 +377,20 @@ class GOBasisContraction(object):
         return l
 
     def is_generalized(self):
-        '''Returns True if this is a generalized contraction
-
-           This routine also checks if the con_coeffs attribute is consistent.
-        '''
-        if len(self.con_coeffs.shape) == 2:
-            return True
-        elif len(self.con_coeffs.shape) == 1:
-            return False
-        else:
-            raise ValueError
+        """Returns True if this is a generalized contraction."""
+        return len(self.con_coeffs.shape) >= 2
 
     def get_segmented_bcs(self):
-        '''Returns a list of segmented contractions'''
+        """Returns a list of segmented contractions."""
         if not self.is_generalized():
-            raise TypeError('Conversion to segmented contractions only makes sense for generalized contractions.')
+            raise TypeError('Conversion to segmented contractions only makes sense for '
+                            'generalized contractions.')
         return [
-            GOBasisContraction(self.shell_type, self.alphas, self.con_coeffs[:,i])
+            GOBasisContraction(self.shell_type, self.alphas, self.con_coeffs[:, i])
             for i in xrange(self.con_coeffs.shape[1])
         ]
 
-    def normalize_contraction(self):
+    def normalize(self):
         """Normalize the contraction."""
         if self.is_generalized():
             raise NotImplementedError("Only segmented contractions can be normalized.")

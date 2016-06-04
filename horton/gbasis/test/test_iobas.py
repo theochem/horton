@@ -21,6 +21,7 @@
 
 
 import numpy as np
+from nose.tools import assert_raises
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -57,7 +58,7 @@ def test_fortran_float():
 
 
 def test_go_basis_desc_neon_sto3g():
-    obasis = get_gobasis(np.array([[0.0,0.0,0.0]]), np.array([2]), 'STO-3G')
+    obasis = get_gobasis(np.array([[0.0, 0.0, 0.0]]), np.array([2]), 'STO-3G')
     assert (obasis.shell_map == np.array([0])).all()
     assert (obasis.nprims == np.array([3])).all()
     assert (obasis.shell_types == np.array([0])).all()
@@ -102,9 +103,9 @@ def test_go_basis_desc_water_sto3g():
     fn = context.get_fn('test/water_element.xyz')
     mol = IOData.from_file(fn)
     obasis = get_gobasis(mol.coordinates, mol.numbers, 'STO-3G')
-    assert (obasis.shell_map == np.array([0,1,1,1,2])).all()
-    assert (obasis.nprims == np.array([3,3,3,3,3])).all()
-    assert (obasis.shell_types == np.array([0,0,0,1,0])).all()
+    assert (obasis.shell_map == np.array([0, 1, 1, 1, 2])).all()
+    assert (obasis.nprims == np.array([3, 3, 3, 3, 3])).all()
+    assert (obasis.shell_types == np.array([0, 0, 0, 1, 0])).all()
     expected_alphas = [
         3.42525091, 0.62391373, 0.16885540,
         130.7093200, 23.8088610, 6.4436083,
@@ -122,3 +123,18 @@ def test_go_basis_desc_water_sto3g():
     ]
     np.testing.assert_almost_equal(obasis.con_coeffs, expected_con_coeffs)
     assert obasis.nbasis == 7
+
+
+def test_gobasis_contraction_exceptions():
+    gbc = GOBasisContraction(1, [0.1, 1.0, 10.0], [[-0.3, 1.4], [4.4, 5.5], [2.2, -2.0]])
+    gbc.to_arrays()
+    assert gbc.is_generalized()
+    gbc1, gbc2 = gbc.get_segmented_bcs()
+    assert not gbc1.is_generalized()
+    assert not gbc2.is_generalized()
+    with assert_raises(TypeError):
+        gbc1.get_segmented_bcs()
+    with assert_raises(TypeError):
+        gbc2.get_segmented_bcs()
+    with assert_raises(NotImplementedError):
+        gbc.normalize()
