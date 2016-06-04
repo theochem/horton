@@ -370,18 +370,12 @@ class GOBasisContraction(object):
         self.alphas = np.array(self.alphas)
         self.con_coeffs = np.array(self.con_coeffs)
 
-    def __length__(self):
-        '''Return the length of the contraction'''
-        l = len(self.alphas)
-        assert l == len(self.con_coeffs)
-        return l
-
     def is_generalized(self):
-        """Returns True if this is a generalized contraction."""
+        """Return True if this is a generalized contraction."""
         return len(self.con_coeffs.shape) >= 2
 
     def get_segmented_bcs(self):
-        """Returns a list of segmented contractions."""
+        """Return a list of segmented contractions."""
         if not self.is_generalized():
             raise TypeError('Conversion to segmented contractions only makes sense for '
                             'generalized contractions.')

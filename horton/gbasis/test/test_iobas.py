@@ -125,7 +125,7 @@ def test_go_basis_desc_water_sto3g():
     assert obasis.nbasis == 7
 
 
-def test_gobasis_contraction_exceptions():
+def test_gobasis_contraction():
     gbc = GOBasisContraction(1, [0.1, 1.0, 10.0], [[-0.3, 1.4], [4.4, 5.5], [2.2, -2.0]])
     gbc.to_arrays()
     assert gbc.is_generalized()
