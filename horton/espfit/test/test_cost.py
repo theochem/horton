@@ -34,7 +34,6 @@ nrep = 10  # The number of times random tests are repeated
 
 def get_random_esp_cost_cube3d_args(seed=1):
     """Generate random cube data for a 3D periodic system."""
-    numbers = np.ones(5, int)
     shape = np.array([5, 5, 5])
     pbc = np.array([1, 1, 1])
     with numpy_seed(seed):
@@ -44,14 +43,13 @@ def get_random_esp_cost_cube3d_args(seed=1):
         grid_rvecs += np.random.uniform(-0.1, 0.1, (3, 3))
         vref = np.random.normal(0, 1, shape)
         weights = np.random.uniform(0, 1, shape)
-    return coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights
+    return coordinates, origin, grid_rvecs, shape, pbc, vref, weights
 
 
 def get_random_esp_cost_cube0d_args(seed=1):
     """Generate random cube data for an aperiodic system."""
     shape = np.array([5, 5, 5])
     pbc = np.array([0, 0, 0])
-    numbers = np.ones(5, int)
     with numpy_seed(seed):
         coordinates = np.random.normal(0, 1, (5, 3))
         origin = np.random.uniform(-3, 3, 3)
@@ -59,13 +57,13 @@ def get_random_esp_cost_cube0d_args(seed=1):
         grid_rvecs += np.random.uniform(-0.1, 0.1, (3, 3))
         vref = np.random.normal(0, 1, shape)
         weights = np.random.uniform(0, 1, shape)
-    return coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights
+    return coordinates, origin, grid_rvecs, shape, pbc, vref, weights
 
 
 def get_random_esp_cost_cube3d(seed=1):
     """Construct a random ESP cost function for a 3D periodic system."""
     # Some parameters
-    coordinates, _numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
+    coordinates, origin, grid_rvecs, shape, pbc, vref, weights = \
        get_random_esp_cost_cube3d_args(seed)
     grid = UniformGrid(origin, grid_rvecs, shape, pbc)
     return ESPCost.from_grid_data(coordinates, grid, vref, weights)
@@ -74,7 +72,7 @@ def get_random_esp_cost_cube3d(seed=1):
 def get_random_esp_cost_cube0d(seed=1):
     """Construct a random ESP cost function for an aperiodic system."""
     # Some parameters
-    coordinates, _numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
+    coordinates, origin, grid_rvecs, shape, pbc, vref, weights = \
        get_random_esp_cost_cube0d_args(seed)
     grid = UniformGrid(origin, grid_rvecs, shape, pbc)
     return ESPCost.from_grid_data(coordinates, grid, vref, weights)
@@ -128,7 +126,7 @@ def check_costs(costs, eps0=1e-3, eps1=1e-9):
 def test_esp_cost_cube3d_invariance_origin():
     for irep in xrange(nrep):
         # Some parameters
-        coordinates, _numbers, _origin, grid_rvecs, shape, pbc, vref, weights = \
+        coordinates, _origin, grid_rvecs, shape, pbc, vref, weights = \
             get_random_esp_cost_cube3d_args(irep)
         # Generate costs with displaced origin
         costs = []
@@ -145,7 +143,7 @@ def test_esp_cost_cube3d_invariance_origin():
 def test_esp_cost_cube0d_invariance_origin():
     for irep in xrange(nrep):
         # Some parameters
-        coordinates, _numbers, _origin, grid_rvecs, shape, pbc, vref, weights = \
+        coordinates, _origin, grid_rvecs, shape, pbc, vref, weights = \
             get_random_esp_cost_cube0d_args(irep)
         # Generate costs with displaced origin
         costs = []
@@ -162,7 +160,7 @@ def test_esp_cost_cube0d_invariance_origin():
 def test_esp_cost_cube3d_invariance_rotation():
     for irep in xrange(nrep):
         # Some parameters
-        coordinates, _numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
+        coordinates, origin, grid_rvecs, shape, pbc, vref, weights = \
             get_random_esp_cost_cube3d_args(irep)
         # Generate costs with displaced origin
         costs = []
@@ -181,7 +179,7 @@ def test_esp_cost_cube3d_invariance_rotation():
 def test_esp_cost_cube0d_invariance_rotation():
     for irep in xrange(nrep):
         # Some parameters
-        coordinates, _numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
+        coordinates, origin, grid_rvecs, shape, pbc, vref, weights = \
             get_random_esp_cost_cube0d_args(irep)
         # Generate costs with displaced origin
         costs = []
@@ -200,7 +198,7 @@ def test_esp_cost_cube0d_invariance_rotation():
 def test_esp_cost_cube3d_invariance_images():
     for irep in xrange(nrep):
         # Some parameters
-        coordinates, _numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
+        coordinates, origin, grid_rvecs, shape, pbc, vref, weights = \
             get_random_esp_cost_cube3d_args(irep)
         grid = UniformGrid(origin, grid_rvecs, shape, pbc)
         # Generate costs with displaced origin
@@ -217,7 +215,7 @@ def test_esp_cost_cube3d_invariance_images():
 def test_esp_cost_cube3d_invariance_rcut():
     for irep in xrange(3):  # Repeating this only 3 times because it is so slow.
         # Some parameters
-        coordinates, _numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
+        coordinates, origin, grid_rvecs, shape, pbc, vref, weights = \
             get_random_esp_cost_cube3d_args(irep)
         grid = UniformGrid(origin, grid_rvecs, shape, pbc)
         # Generate costs with displaced origin
@@ -237,14 +235,14 @@ def test_esp_cost_cube3d_invariance_rcut():
 def test_esp_cost_cube3d_gradient():
     for irep in xrange(nrep):
         # Some parameters
-        coordinates, numbers, origin, grid_rvecs, shape, pbc, vref, weights = \
+        coordinates, origin, grid_rvecs, shape, pbc, vref, weights = \
             get_random_esp_cost_cube3d_args(irep)
         grid = UniformGrid(origin, grid_rvecs, shape, pbc)
         cost = ESPCost.from_grid_data(coordinates, grid, vref, weights)
 
         with numpy_seed(irep):
-            x0 = np.random.uniform(-0.5, 0.5, len(numbers)+1)
-            dxs = np.random.uniform(-1e-5, 1e-5, (100, len(numbers)+1))
+            x0 = np.random.uniform(-0.5, 0.5, len(coordinates)+1)
+            dxs = np.random.uniform(-1e-5, 1e-5, (100, len(coordinates)+1))
         check_delta(cost.value, cost.gradient, x0, dxs)
 
 
