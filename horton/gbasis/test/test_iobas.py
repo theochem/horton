@@ -61,8 +61,8 @@ def test_go_basis_desc_neon_sto3g():
     assert (obasis.shell_map == np.array([0])).all()
     assert (obasis.nprims == np.array([3])).all()
     assert (obasis.shell_types == np.array([0])).all()
-    assert abs(obasis.alphas - np.array([6.36242139, 1.15892300, 0.31364979])).all() < 1e-10
-    assert abs(obasis.con_coeffs - np.array([0.15432897, 0.53532814, 0.44463454])).all() < 1e-10
+    np.testing.assert_almost_equal(obasis.alphas, [6.36242139, 1.15892300, 0.31364979])
+    np.testing.assert_almost_equal(obasis.con_coeffs, [0.15432897, 0.53532814, 0.44463454])
 
 
 def test_go_basis_desc_hydrogen_321g():
@@ -105,18 +105,20 @@ def test_go_basis_desc_water_sto3g():
     assert (obasis.shell_map == np.array([0,1,1,1,2])).all()
     assert (obasis.nprims == np.array([3,3,3,3,3])).all()
     assert (obasis.shell_types == np.array([0,0,0,1,0])).all()
-    assert abs(obasis.alphas - np.array([
+    expected_alphas = [
         3.42525091, 0.62391373, 0.16885540,
         130.7093200, 23.8088610, 6.4436083,
         5.0331513, 1.1695961, 0.3803890,
         5.0331513, 1.1695961, 0.3803890,
         3.42525091, 0.62391373, 0.16885540,
-    ])).all() < 1e-10
-    assert abs(obasis.con_coeffs - np.array([
+    ]
+    np.testing.assert_almost_equal(obasis.alphas, expected_alphas)
+    expected_con_coeffs = [
         0.15432897, 0.53532814, 0.44463454,
         0.15432897, 0.53532814, 0.44463454,
-        -0.09996723, 0.15591627, 0.39951283,
-        0.60768372, 0.70011547, 0.39195739,
+        -0.09996723, 0.39951283, 0.70011547,
+        0.15591627, 0.60768372, 0.39195739,
         0.15432897, 0.53532814, 0.44463454,
-    ])).all() < 1e-10
+    ]
+    np.testing.assert_almost_equal(obasis.con_coeffs, expected_con_coeffs)
     assert obasis.nbasis == 7
