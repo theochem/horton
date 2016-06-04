@@ -19,9 +19,9 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-"""Trapdoor test using pep8.
+"""Trapdoor test using pycodestyle.
 
-This test calls the pep8 program, see http://pep8.readthedocs.org/.
+This test calls the pycodestyle program, see http://pycodestyle.readthedocs.org/.
 This program only covers a part of the PEP8 specification, see
 https://www.python.org/dev/peps/pep-0008/. Not everything can be tested by a program.
 """
@@ -30,28 +30,28 @@ import os
 import shutil
 from collections import Counter
 
-import pep8
+import pycodestyle
 from trapdoor import TrapdoorProgram, Message
 
 
-class PEP8TrapdoorProgram(TrapdoorProgram):
-    """A trapdoor program counting the number of PEP8 messages."""
+class PyCodeStyleTrapdoorProgram(TrapdoorProgram):
+    """A trapdoor program counting the number of pycodestyle messages."""
 
     def __init__(self):
-        """Initialize the PEP8TrapdoorProgram."""
-        TrapdoorProgram.__init__(self, 'pep8')
-        self.config_file = os.path.join(self.qaworkdir, 'pep8')
+        """Initialize the PyCodeStyleTrapdoorProgram."""
+        TrapdoorProgram.__init__(self, 'pycodestyle')
+        self.config_file = os.path.join(self.qaworkdir, 'pycodestyle')
 
     def prepare(self):
-        """Make some preparations in feature branch for running pep8.
+        """Make some preparations in feature branch for running pycodestyle.
 
-        This includes a copy of tools/qa/pep8 to QAWORKDIR.
+        This includes a copy of tools/qa/pycodestyle to QAWORKDIR.
         """
         TrapdoorProgram.prepare(self)
-        shutil.copy('tools/qa/pep8', self.config_file)
+        shutil.copy('tools/qa/pycodestyle', self.config_file)
 
     def get_stats(self, config):
-        """Run tests using pep8.
+        """Run tests using pycodestyle.
 
         Parameters
         ----------
@@ -66,31 +66,32 @@ class PEP8TrapdoorProgram(TrapdoorProgram):
                    All errors encountered in the current branch.
         """
         # Get version
-        print 'USING PEP8         :', pep8.__version__
+        print 'USING PYCODESTYLE  :', pycodestyle.__version__
 
-        # Call Pep8
-        pep8check = pep8.StyleGuide(reporter=CompleteReport, config_file=self.config_file)
-        pep8check.options.exclude.extend(config['py_exclude'])
-        print 'EXCLUDED FILES     :', pep8check.options.exclude
-        print 'IGNORED MESSAGES   :', pep8check.options.ignore
-        print 'MAX LINE LENGTH    :', pep8check.options.max_line_length
+        # Call pycodestyle
+        styleguide = pycodestyle.StyleGuide(reporter=CompleteReport,
+                                            config_file=self.config_file)
+        styleguide.options.exclude.extend(config['py_exclude'])
+        print 'EXCLUDED FILES     :', styleguide.options.exclude
+        print 'IGNORED MESSAGES   :', styleguide.options.ignore
+        print 'MAX LINE LENGTH    :', styleguide.options.max_line_length
         for py_directory in config['py_directories']:
-            print 'RUNNING            : pep8 %s (through Python API)' % py_directory
-            pep8check.input_dir(py_directory)
+            print 'RUNNING            : pycodestyle %s (through Python API)' % py_directory
+            styleguide.input_dir(py_directory)
 
-        # Parse the output of Pep8 into standard return values
-        counters = Counter(pep8check.options.report.counters)
+        # Parse the output of PyCodeStyle into standard return values
+        counters = Counter(styleguide.options.report.counters)
         del counters['physical lines']
         del counters['logical lines']
         del counters['files']
         del counters['directories']
         # message on each error
-        messages = pep8check.options.report.complete_messages
-        assert len(messages) == pep8check.options.report.get_count()
+        messages = styleguide.options.report.complete_messages
+        assert len(messages) == styleguide.options.report.get_count()
         return counters, messages
 
 
-class CompleteReport(pep8.StandardReport):
+class CompleteReport(pycodestyle.StandardReport):
     """Collect and record the results of the checks.
 
     This subclass is designed to collect all those messages, such that they can be easily
@@ -108,9 +109,9 @@ class CompleteReport(pep8.StandardReport):
         for line_number, offset, code, text, _doc in self._deferred_print:
             self.complete_messages.add(Message(
                 self.filename, self.line_offset + line_number,
-                offset + 1, '%s: %s' % (code, text)
+                offset + 1, '%s %s' % (code, text)
             ))
 
 
 if __name__ == '__main__':
-    PEP8TrapdoorProgram().main()
+    PyCodeStyleTrapdoorProgram().main()

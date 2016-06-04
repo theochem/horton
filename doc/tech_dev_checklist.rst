@@ -42,7 +42,7 @@ When a pull request is made, a bunch of QA tests are executed to detect common p
 This reduces the burden of the reviewers but it is not a replacement for the remainder of
 the reviewing protocol. We strive to avoid false-positives in the QA scripts such that any
 error encountered must be fixed in the pull request. This implies that some tests (in
-Pylint, pep8, ...) are disabled and must be inspected manually.
+Pylint, Pycodestyle, ...) are disabled and must be inspected manually.
 
 If the automatic QA tests do not pass, fix the issues with additional commits to the
 branch of the pull request. These commits should appear automatically in the PR. When you
@@ -223,8 +223,8 @@ Motivation:
   unreadable and dirty code. Good coding practices also evolve quickly as Cython is
   further developed.
 
-* No QA tools (like pep8, pep257, pylint, ...) exist that do some basic QA assurance.
-  Everything has to be checked manually.
+* No QA tools (like Pycodestyle, pep257, Pylint, ...) exist that do some basic QA
+  assurance. Everything has to be checked manually.
 
 Work as follows:
 
@@ -331,112 +331,23 @@ This section first goes over all the criteria that are checked automatically by 
 programs, listing all enforced rules and exceptions. The last subsection discusses the
 remaining criteria that have to be checked manually.
 
-pep8
-~~~~
+pycodestyle
+~~~~~~~~~~~
 
-See https://pypi.python.org/pypi/pep8
+See http://pycodestyle.readthedocs.io/
 
-The following errors are caught automatically in Python code by the QA scripts (with
-pep8 1.6.2). Those marked with a ``*`` are not strictly PEP8 but are checked also by the
-pep8 program.
+The complete list of error codes can be found here:
+http://pycodestyle.readthedocs.io/en/latest/intro.html#error-codes
 
-* **E1** Indentation
-    * **E101** indentation contains mixed spaces and tabs
-    * **E111** indentation is not a multiple of four
-    * **E112** expected an indented block
-    * **E113** unexpected indentation
-    * **E114** indentation is not a multiple of four (comment)
-    * **E115** expected an indented block (comment)
-    * **E116** unexpected indentation (comment)
-    * **E122** continuation line missing indentation or outdented
-    * **E124** closing bracket does not match visual indentation
-    * **E125** continuation line with same indent as next logical line
-    * **E129** visually indented line with same indent as next logical line
-    * **E131** continuation line unaligned for hanging indent
-    * **E133** closing bracket is missing indentation
+The following pycodestyle error codes are disabled.
 
-* **E2** Whitespace
-    * **E201** whitespace after ‘(‘
-    * **E202** whitespace before ‘)’
-    * **E203** whitespace before ‘:’
-    * **E211** whitespace before ‘(‘
-    * **E221** multiple spaces before operator
-    * **E222** multiple spaces after operator
-    * **E223** tab before operator
-    * **E224** tab after operator
-    * **E225** missing whitespace around operator
-    * **E227** missing whitespace around bitwise or shift operator
-    * **E228** missing whitespace around modulo operator
-    * **E231** missing whitespace after ‘,’, ‘;’, or ‘:’
-    * **E242** (*) tab after ‘,’
-    * **E251** unexpected spaces around keyword / parameter equals
-    * **E261** at least two spaces before inline comment
-    * **E262** inline comment should start with ‘# ‘
-    * **E265** block comment should start with ‘# ‘
-    * **E266** too many leading ‘#’ for block comment
-    * **E271** multiple spaces after keyword
-    * **E272** multiple spaces before keyword
-    * **E273** tab after keyword
-    * **E274** tab before keyword
-
-* **E3** Blank line
-    * **E301** expected 1 blank line, found 0
-    * **E302** expected 2 blank lines, found 0
-    * **E303** too many blank lines (3)
-    * **E304** blank lines found after function decorator
-
-* **E4** Import
-    * **E401** multiple imports on one line
-    * **E402** module level import not at top of file
-
-* **E5** Line length
-    * **E501** line too long (more than 100 characters)
-    * **E502** the backslash is redundant between brackets
-
-* **E7** Statement
-    * **E701** multiple statements on one line (colon)
-    * **E702** multiple statements on one line (semicolon)
-    * **E703** statement ends with a semicolon
-    * **E704** (*) multiple statements on one line (def)
-    * **E711** comparison to None should be ‘if cond is None:’
-    * **E712** comparison to True should be ‘if cond is True:’ or ‘if cond:’
-    * **E713** test for membership should be ‘not in’
-    * **E714** test for object identity should be ‘is not’
-    * **E721** do not compare types, use ‘isinstance()’
-    * **E731** do not assign a lambda expression, use a def
-
-* **E9** Runtime
-    * **E901** SyntaxError or IndentationError
-    * **E902** IOError
-
-* **W1** Indentation warning
-    * **W191** indentation contains tabs
-
-* **W2** Whitespace warning
-    * **W291** trailing whitespace
-    * **W292** no newline at end of file
-    * **W293** blank line contains whitespace
-
-* **W3** Blank line warning
-    * **W391** blank line at end of file
-
-* **W5** Line break warning
-    * **W503** line break occurred before a binary operator
-
-* **W6** Deprecation warning
-    * **W601** .has_key() is deprecated, use ‘in’
-    * **W602** deprecated form of raising exception
-    * **W603** ‘<>’ is deprecated, use ‘!=’
-    * **W604** backticks are deprecated, use ‘repr()’
-
-The following pep8 error codes are disabled.
-
-* By default in pep8 (1.6.2):
+* By default in pycodestyle (2.0.0):
     * **E121** (*) continuation line under-indented for hanging indent
     * **E123** (*) closing bracket does not match indentation of opening bracket’s line
-    * **E126** continuation line over-indented for hanging indent
+    * **E126** (*) continuation line over-indented for hanging indent
     * **E226** (*) missing whitespace around arithmetic operator
     * **E241** (*) multiple spaces after ‘,’
+    * **W503** (*) line break occurred before a binary operator
 
 * Because they cause undesirable false positives:
     * **E127** continuation line over-indented for visual indent
