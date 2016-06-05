@@ -223,7 +223,7 @@ Motivation:
   unreadable and dirty code. Good coding practices also evolve quickly as Cython is
   further developed.
 
-* No QA tools (like Pycodestyle, pep257, Pylint, ...) exist that do some basic QA
+* No QA tools (like Pycodestyle, Pydocstyle, Pylint, ...) exist that do some basic QA
   assurance. Everything has to be checked manually.
 
 Work as follows:
@@ -354,61 +354,24 @@ The following pycodestyle error codes are disabled.
     * **E128** continuation line under-indented for visual indent
 
 
-pep257
-~~~~~~
+Pydocstyle
+~~~~~~~~~~
 
-See https://pypi.python.org/pypi/pep257
+See http://pydocstyle.readthedocs.io/
 
-All errors caught automatically by the pep257 program must be fixed. Keep in mind that
+All errors caught automatically by the Pydocstyle program must be fixed. Keep in mind that
 this program does not cover all recommendations in PEP257.
 
-The following list of messages is taken from the documentation of pep257 version 1.0.0.
+A complete list of error messages can be found here:
+http://pydocstyle.readthedocs.io/en/latest/error_codes.html
 
-* Missing Docstrings
+Pydocstyle is executed with the default settings, except that the following is disabled:
 
-    * **D100**: Missing docstring in public module
-    * **D101**: Missing docstring in public class
-    * **D102**: Missing docstring in public method
     * **D103**: Missing docstring in public function
-    * **D104**: Missing docstring in public package
-    * **D105**: Missing docstring in magic method
 
-* Whitespace Issues
-
-    * **D200**: One-line docstring should fit on one line with quotes
-    * **D201**: No blank lines allowed before function docstring
-    * **D202**: No blank lines allowed after function docstring
-    * **D204**: 1 blank line required after class docstring
-    * **D205**: 1 blank line required between summary line and description
-    * **D206**: Docstring should be indented with spaces, not tabs
-    * **D207**: Docstring is under-indented
-    * **D208**: Docstring is over-indented
-    * **D209**: Multi-line docstring closing quotes should be on a separate line
-    * **D210**: No whitespaces allowed surrounding docstring text
-    * **D211**: No blank lines allowed before class docstring
-
-* Quotes Issues
-
-    * **D300**: Use """triple double quotes"""
-    * **D301**: Use r""" if any backslashes in a docstring
-    * **D302**: Use u""" for Unicode docstrings
-
-* Docstring Content Issues
-
-    * **D400**: First line should end with a period
-    * **D401**: First line should be in imperative mood
-    * **D402**: First line should not be the function’s "signature"
-    * **D403**: First word of the first line should be properly capitalized
-
-
-The following checks are not enforced (by default) because they are not part of PEP257:
-
-* Whitespace Issues
-
-    * **D203**: 1 blank line required before class docstring
-    * **D212**: Multi-line docstring summary should start at the first line
-    * **D213**: Multi-line docstring summary should start at the second line
-
+This is already checked by Pylint and is not enforced for ``test_*`` functions.
+Pycodestyle cannot yet be configured to ignore test functions. (It can only ignore test
+files which is not fine-grained enough for our purposes.)
 
 
 PyLint
