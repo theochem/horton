@@ -379,14 +379,13 @@ PyLint
 
 See https://www.pylint.org/.
 
-The complete list of messages can be found here: https://docs.pylint.org/features.html
-Because this list constantly evolves with newer version of PyLint, it is not reproduced
-below.
+The complete list of error messages can be found here:
+https://docs.pylint.org/features.html
 
 The following messages are excluded by default: I0020, I0021, W0704. (It is not clear what
 these stand for. They are not documented in Pylint.)
 
-The following messages are excluded by default by activaded in our case (related to Python
+The following messages are excluded by default but are activated in our case (related to Python
 3): E1601, E1602, E1603, E1604, E1605, E1606, E1607, E1608, W1601, W1602, W1603, W1604,
 W1605, W1606, W1607, W1608, W1609, W1610, W1611, W1612, W1613, W1614, W1615, W1616, W1617,
 W1618, W1619, W1620, W1621, W1622, W1623, W1624, W1625, W1626, W1627, W1628, W1629, W1630,
@@ -394,7 +393,7 @@ W1632, W1633, W1634, W1635, W1636, W1637, W1638, W1639, W1640
 
 The following are excluded because we don't consider them the be fatal:
 
-* **C0103**: invalid-name. Invalid %s name “%s”%s Used when the name doesn’t match
+* **C0103**: invalid-name. Invalid %s name “%s”%s Used when the name doesn't match
   the regular expression associated to its type (constant, variable, class...).
 * **I0011**: locally-disabled. Used when an inline option disables a message or a messages
   category.
@@ -414,16 +413,27 @@ The following are excluded due false positives:
   in a module.
 * **E1101**: no-member. %s %r has no %r member Used when a variable is accessed for an
   unexistent member.
-* **R0201**: no-self-use. Method could be a function Used when a method doesn’t use its
+* **R0201**: no-self-use. Method could be a function Used when a method doesn't use its
   bound instance, and so could be written as a function.
 * **C0411**: wrong-import-order. %s comes before %s Used when PEP8 import order is not
   respected (standard imports first, then third-party libraries, then local imports)
 
-In addition, no doc strings are required for unit tests, i.e. functions starting with
-``test_``.
+The PyLint settings used by the QA scripts can be found in ``tools/qa/pylintrc``. Some
+of the non-default settings in that file include:
 
-The PyLint settings used by the QA scripts can be found in ``tools/qa/pylintrc``.
+* No doc strings are required for unit tests, i.e. functions starting with ``test_``.
 
+* Variables that are intentionally unused should get the prefix ``_``. These are dummy
+  variables. These may be useful when receiving return values that are not used, e.g.
+
+  .. code-block:: python
+
+    a, _b, c = some_function()  # No intent to use _b
+
+    for dirpath, _dirnames, filenames in os.walk(source_directory):
+        # No intent to use _dirnames in the body of the for loop
+
+* The parameters for the design checks are significantly relaxed.
 
 
 Code coverage by (fast) unit tests
