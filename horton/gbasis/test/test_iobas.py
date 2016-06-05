@@ -71,8 +71,8 @@ def test_go_basis_desc_hydrogen_321g():
     assert (obasis.shell_map == np.array([0,0])).all()
     assert (obasis.nprims == np.array([2,1])).all()
     assert (obasis.shell_types == np.array([0,0])).all()
-    assert abs(obasis.alphas - np.array([5.4471780, 0.8245470, 0.1831920])).all() < 1e-10
-    assert abs(obasis.con_coeffs - np.array([0.1562850, 0.9046910, 1.0000000])).all() < 1e-10
+    np.testing.assert_almost_equal(obasis.alphas, [5.4471780, 0.8245470, 0.1831920])
+    np.testing.assert_almost_equal(obasis.con_coeffs, [0.1562850, 0.9046910, 1.0000000])
     assert obasis.nbasis == 2
 
 
@@ -86,16 +86,17 @@ def test_go_basis_desc_lithium_321g():
     assert (obasis.shell_map == np.array([0,0,0,0,0])).all()
     assert (obasis.nprims == np.array([3,2,2,1,1])).all()
     assert (obasis.shell_types == np.array([0,0,1,0,1])).all()
-    assert abs(obasis.alphas - np.array([
+    np.testing.assert_almost_equal(obasis.alphas, [
         36.8382000, 5.4817200, 1.1132700,
         0.5402050, 0.1022550, 0.5402050, 0.1022550,
         0.0285650, 0.0285650,
-    ])).all() < 1e-10
-    assert abs(obasis.con_coeffs - np.array([
+    ])
+    # Limited precision due to normalization of contractions after loading them from file.
+    np.testing.assert_almost_equal(obasis.con_coeffs, [
         0.0696686, 0.3813460, 0.6817020,
-        -0.2631270, 0.1615460, 1.1433900, 0.9156630,
+        -0.2631270, 1.1433900, 0.1615460, 0.9156630,
         1.0000000, 1.0000000
-    ])).all() < 1e-10
+    ], decimal=4)
     assert obasis.nbasis == 9
 
 
