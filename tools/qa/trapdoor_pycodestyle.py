@@ -40,7 +40,7 @@ class PyCodeStyleTrapdoorProgram(TrapdoorProgram):
     def __init__(self):
         """Initialize the PyCodeStyleTrapdoorProgram."""
         TrapdoorProgram.__init__(self, 'pycodestyle')
-        self.config_file = os.path.join(self.qaworkdir, 'pycodestyle')
+        self.config_file = os.path.join(self.qaworkdir, 'pycodestyle.ini')
 
     def prepare(self):
         """Make some preparations in feature branch for running pycodestyle.
@@ -48,7 +48,7 @@ class PyCodeStyleTrapdoorProgram(TrapdoorProgram):
         This includes a copy of tools/qa/pycodestyle to QAWORKDIR.
         """
         TrapdoorProgram.prepare(self)
-        shutil.copy('tools/qa/pycodestyle', self.config_file)
+        shutil.copy('tools/qa/%s' % os.path.basename(self.config_file), self.config_file)
 
     def get_stats(self, config):
         """Run tests using pycodestyle.
