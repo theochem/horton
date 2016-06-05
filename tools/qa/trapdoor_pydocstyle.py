@@ -19,29 +19,33 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-"""Trapdoor test using pep257.
+"""Trapdoor test using pydocstyle.
 
-This trapdoor uses the pep257 program, see https://github.com/GreenSteam/pep257
-The pep257 program only tests for a subset of the PEP257, see
+This trapdoor uses the pydocstyle program, see http://pydocstyle.readthedocs.io/
+The pydocstyle program only tests for a subset of the PEP257, see
 https://www.python.org/dev/peps/pep-0257. Not everything can be tested by a program.
 """
 
 
-import subprocess
 from collections import Counter
 
-from trapdoor import TrapdoorProgram, Message, get_source_filenames
+from trapdoor import TrapdoorProgram, Message, get_source_filenames, run_command
 
 
-class PEP257TrapdoorProgram(TrapdoorProgram):
-    """A trapdoor program counting the number of pep257 messages."""
+def has_failed(returncode, stdout, stderr):
+    """Determine if pydocstyle has failed."""
+    return stderr.startswith('Usage:') or stderr.startswith('[Errno')
+
+
+class PyDocStyleTrapdoorProgram(TrapdoorProgram):
+    """A trapdoor program counting the number of pydocstyle messages."""
 
     def __init__(self):
-        """Initialize a PEP257TrapdoorProgram instance."""
-        TrapdoorProgram.__init__(self, 'pep257')
+        """Initialize a PyDocStyleTrapdoorProgram instance."""
+        TrapdoorProgram.__init__(self, 'pydocstyle')
 
     def get_stats(self, config):
-        """Run tests using pep257.
+        """Run tests using pydocstyle.
 
         Parameters
         ----------
@@ -56,20 +60,19 @@ class PEP257TrapdoorProgram(TrapdoorProgram):
                    All errors encountered in the current branch.
         """
         # Get version
-        command = ['pep257', '--version']
-        print 'USING pep257', subprocess.check_output(command).strip()
+        command = ['pydocstyle', '--version']
+        version = run_command(command, verbose=False)[0].strip()
+        print 'USING              : pydocstyle', version
 
-        # Call pep257 in the directories containing Python code. All files will be
+        # Call pydocstyle in the directories containing Python code. All files will be
         # checked, including test files. Missing tests are ignored (D103) because they are
         # already detected by PyLint in a better way.
-        command = ['pep257', '--match=.*\\.py', '--add-ignore=D103'] + \
+        command = ['pydocstyle', '--match=.*\\.py', '--add-ignore=D103'] + \
                   config['py_packages'] + \
                   get_source_filenames(config, 'py', unpackaged_only=True)
-        print 'RUNNING', ' '.join(command)
-        proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output = proc.communicate()[0]
+        output = run_command(command, has_failed=has_failed)[1]
 
-        # Parse the standard output of pep257
+        # Parse the standard output of pydocstyle
         counter = Counter()
         messages = set([])
         lines = output.split('\n')[:-1]
@@ -92,4 +95,4 @@ class PEP257TrapdoorProgram(TrapdoorProgram):
 
 
 if __name__ == '__main__':
-    PEP257TrapdoorProgram().main()
+    PyDocStyleTrapdoorProgram().main()

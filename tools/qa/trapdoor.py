@@ -31,11 +31,12 @@ from fnmatch import fnmatch
 import json
 import os
 import shutil
+import subprocess
 import sys
 import time
 
 
-__all__ = ['Message', 'TrapdoorProgram', 'get_source_filenames']
+__all__ = ['Message', 'TrapdoorProgram', 'get_source_filenames', 'run_command']
 
 
 class Message(object):
@@ -455,3 +456,51 @@ def get_source_filenames(config, language, unpackaged_only=False):
                 if acceptable(dirpath, filename):
                     result.append(os.path.join(dirpath, filename))
     return result
+
+
+def run_command(command, verbose=True, cwd=None, has_failed=None):
+    """Run command as subprocess with default settings suitable for trapdoor scripts.
+
+    Parameters
+    ----------
+    command : list of str
+              The command argument to be passed to Popen.
+    verbose : bool
+              When set to False, the command will not be printed on screen.
+    cwd : str
+          The working directory where the command is executed.
+    has_failed : function(returncode, stdout, stderr)
+                 A function that determines if the subprocess has failed. The default
+                 behavior is to check for a non-zero return code.
+
+    Returns
+    -------
+    output : (str, str)
+             if Sucessful, the output collected from stdout and stderr are returned.
+
+    Raises
+    ------
+    In case the subprocess returns a non-zero exit code, the stdout and stderr are printed
+    on screen and RuntimeError is raised.
+    """
+    # Functions to detect failure
+    def default_has_failed(returncode, stdout, stderr):
+        """Default function to detect failed subprocess."""
+        return returncode != 0
+    if has_failed is None:
+        has_failed = default_has_failed
+
+    if verbose:
+        print 'RUNNING            :', ' '.join(command)
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)
+    stdout, stderr = proc.communicate()
+    if has_failed(proc.returncode, stdout, stderr):
+        print 'STDOUT'
+        print '------'
+        print stdout
+        print 'STDERR'
+        print '------'
+        print stderr
+        raise RuntimeError('Subprocess returned non-zero exit status %i' % proc.returncode)
+    else:
+        return stdout, stderr

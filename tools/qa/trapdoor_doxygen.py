@@ -27,10 +27,9 @@ This test uses doxygen, see http://www.doxygen.org.
 
 import os
 import shutil
-import subprocess
 from collections import Counter
 
-from trapdoor import TrapdoorProgram, Message
+from trapdoor import TrapdoorProgram, Message, run_command
 
 
 def unwrapped_iter(f):
@@ -87,14 +86,11 @@ class DoxygenTrapdoorProgram(TrapdoorProgram):
         """
         # Get version
         command = ['doxygen', '--version']
-        print 'USING doxygen', subprocess.check_output(command).strip()
+        print 'USING              : doxygen', run_command(command, verbose=False)[0].strip()
 
         # Call doxygen in the doc subdirectory, mute output because it only confuses
         command = ['doxygen', self.doxyconf_file]
-        print 'RUNNING (in %s)' % config['doxygen_root'], ' '.join(command)
-        with open(os.devnull, 'wb') as devnull:
-            subprocess.check_call(command, cwd=config['doxygen_root'], stdout=devnull,
-                                  stderr=devnull)
+        run_command(command, cwd=config['doxygen_root'])
 
         # Parse the file doxygen_warnings log file
         counter = Counter()

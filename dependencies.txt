@@ -255,15 +255,17 @@
     "macports_pip": "pylint",
     "purpose": "dev"
 }, {
-    "name": "pep8",
-    "title": "pep8",
-    "version_requirement": ">= 1.7.0",
-    "homepage": "http://pep8.readthedocs.io/",
-    "fedora_24_pip": "pep8",
-    "fedora_22_pip": "pep8",
-    "ubuntu_16_pip": "pep8",
-    "ubuntu_15_pip": "pep8",
-    "macports_pip": "pep8",
+    "name": "pycodestyle",
+    "title": "pycodestyle",
+    "version_requirement": ">= 2.0.0",
+    "homepage": "http://pycodestyle.readthedocs.io/",
+    "fedora_24_pip": "pycodestyle",
+    "fedora_22_pip": "pycodestyle",
+    "fedora_21_pip": "pycodestyle",
+    "ubuntu_16_pip": "pycodestyle",
+    "ubuntu_15_pip": "pycodestyle",
+    "ubuntu_12_pip": "pycodestyle",
+    "macports_pip": "pycodestyle",
     "purpose": "dev"
 }, {
     "name": "pep257",
@@ -290,7 +292,10 @@
 }, {
     "name": "cppcheck",
     "title": "Cppcheck",
-    "version_requirement": ">= 1.52",
+    "version_requirement": ">= 1.73",
+    "version_ci": "1.73",
+    "install_command": "./tools/qa/install_cppcheck-1.73.sh",
+    "source_url": "http://downloads.sourceforge.net/project/cppcheck/cppcheck/1.73/cppcheck-1.73.tar.bz2",
     "homepage": "http://cppcheck.sourceforge.net/",
     "fedora_24_rpm": "cppcheck",
     "fedora_22_rpm": "cppcheck",

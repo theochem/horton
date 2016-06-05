@@ -36,8 +36,8 @@ if [ "${CURRENT_BRANCH}" != 'master' ] && [ "${CURRENT_COMMIT}" != ${ANCESTOR_CO
     ${QAWORKDIR}/trapdoor_cpplint.py ancestor || report_error "Trapdoor cpplint failed (ancestor)"
     ${QAWORKDIR}/trapdoor_doxygen.py ancestor || report_error "Trapdoor doxygen failed (ancestor)"
     ${QAWORKDIR}/trapdoor_pylint.py ancestor || report_error "Trapdoor pylint failed (ancestor)"
-    ${QAWORKDIR}/trapdoor_pep8.py ancestor || report_error "Trapdoor pep8 failed (ancestor)"
-    ${QAWORKDIR}/trapdoor_pep257.py ancestor || report_error "Trapdoor pep257 failed (ancestor)"
+    ${QAWORKDIR}/trapdoor_pycodestyle.py ancestor || report_error "Trapdoor pycodestyle failed (ancestor)"
+    ${QAWORKDIR}/trapdoor_pydocstyle.py ancestor || report_error "Trapdoor pydocstyle failed (ancestor)"
     ${QAWORKDIR}/trapdoor_import.py ancestor || report_error "Trapdoor import failed (ancestor)"
     ${QAWORKDIR}/trapdoor_namespace.py ancestor || report_error "Trapdoor namespace failed (ancestor)"
 
@@ -47,8 +47,8 @@ if [ "${CURRENT_BRANCH}" != 'master' ] && [ "${CURRENT_COMMIT}" != ${ANCESTOR_CO
     ${QAWORKDIR}/trapdoor_cpplint.py report || report_error "Trapdoor cpplint regressions"
     ${QAWORKDIR}/trapdoor_doxygen.py report || report_error "Trapdoor doxygen regressions"
     ${QAWORKDIR}/trapdoor_pylint.py report || report_error "Trapdoor pylint regressions"
-    ${QAWORKDIR}/trapdoor_pep8.py report || report_error "Trapdoor pep8 regressions"
-    ${QAWORKDIR}/trapdoor_pep257.py report || report_error "Trapdoor pep257 regressions"
+    ${QAWORKDIR}/trapdoor_pycodestyle.py report || report_error "Trapdoor pycodestyle regressions"
+    ${QAWORKDIR}/trapdoor_pydocstyle.py report || report_error "Trapdoor pydocstyle regressions"
     ${QAWORKDIR}/trapdoor_import.py report || report_error "Trapdoor import regressions"
     ${QAWORKDIR}/trapdoor_namespace.py report || report_error "Trapdoor namespace regressions"
 

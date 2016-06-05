@@ -25,11 +25,12 @@ This test calls the cppcheck program, see http://cppcheck.sourceforge.net/.
 """
 
 
-import subprocess
-from xml.etree import ElementTree
 from collections import Counter
+from glob import glob
+import os
+from xml.etree import ElementTree
 
-from trapdoor import TrapdoorProgram, Message, get_source_filenames
+from trapdoor import TrapdoorProgram, Message, get_source_filenames, run_command
 
 
 class CPPCheckTrapdoorProgram(TrapdoorProgram):
@@ -54,16 +55,23 @@ class CPPCheckTrapdoorProgram(TrapdoorProgram):
         messages : Set([]) of strings
                    All errors encountered in the current branch.
         """
+        # Look for custom cppcheck build
+        fns_cppcheck = sorted(glob('%s/cached/cppcheck-*/cppcheck' % self.qaworkdir))
+        if len(fns_cppcheck) > 0:
+            binary = os.path.abspath(fns_cppcheck[-1])
+        else:
+            binary = 'cppcheck'
+        print 'USING BINARY       :', binary
+
         # Get version
-        command = ['cppcheck', '--version']
-        print 'USING', subprocess.check_output(command, stderr=subprocess.STDOUT).strip()
+        command = [binary, '--version']
+        print 'USING VERSION      :', run_command(command, verbose=False)[0].strip()
 
         # Call Cppcheck
-        command = ['cppcheck'] + get_source_filenames(config, 'cpp') + \
+        command = [binary] + get_source_filenames(config, 'cpp') + \
                   ['-q', '--enable=all', '--std=c++11', '--xml',
                    '--suppress=missingIncludeSystem', '--suppress=unusedFunction']
-        print 'RUNNING', ' '.join(command)
-        xml_str = subprocess.check_output(command, stderr=subprocess.STDOUT)
+        xml_str = run_command(command)[1]
         etree = ElementTree.fromstring(xml_str)
 
         # Parse the output of Cppcheck into standard return values
