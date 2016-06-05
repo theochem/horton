@@ -46,7 +46,7 @@ else
     ./tools/qa/trapdoor_doxygen.py feature || report_error "Trapdoor doxygen failed (feature branch)"
     ./tools/qa/trapdoor_pylint.py feature || report_error "Trapdoor pylint failed (feature branch)"
     ./tools/qa/trapdoor_pycodestyle.py feature || report_error "Trapdoor pycodestyle failed (feature branch)"
-    ./tools/qa/trapdoor_pep257.py feature || report_error "Trapdoor pep257 failed (feature branch)"
+    ./tools/qa/trapdoor_pydocstyle.py feature || report_error "Trapdoor pydocstyle failed (feature branch)"
     ./tools/qa/trapdoor_import.py feature || report_error "Trapdoor import failed (feature branch)"
     ./tools/qa/trapdoor_namespace.py feature || report_error "Trapdoor namespace failed (feature branch)"
 fi
