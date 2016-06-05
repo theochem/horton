@@ -22,8 +22,8 @@ pip wheel pylint
 pip install --no-index --upgrade pylint
 pip wheel coverage
 pip install --no-index --upgrade coverage
-pip wheel pep257
-pip install --no-index --upgrade pep257
+pip wheel pydocstyle
+pip install --no-index --upgrade pydocstyle
 
 # Packages for HORTON
 pip wheel numpy
