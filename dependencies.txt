@@ -268,15 +268,15 @@
     "macports_pip": "pycodestyle",
     "purpose": "dev"
 }, {
-    "name": "pep257",
-    "title": "pep257",
-    "version_requirement": ">= 0.7.0",
-    "homepage": "http://pep257.readthedocs.io/",
-    "fedora_24_pip": "pep257",
-    "fedora_22_pip": "pep257",
-    "ubuntu_16_pip": "pep257",
-    "ubuntu_15_pip": "pep257",
-    "macports_pip": "pep257",
+    "name": "pydocstyle",
+    "title": "pydocstyle",
+    "version_requirement": ">= 1.0.0",
+    "homepage": "http://pydocstyle.readthedocs.io/",
+    "fedora_24_pip": "pydocstyle",
+    "fedora_22_pip": "pydocstyle",
+    "ubuntu_16_pip": "pydocstyle",
+    "ubuntu_15_pip": "pydocstyle",
+    "macports_pip": "pydocstyle",
     "purpose": "dev"
 }, {
     "name": "coverage",
