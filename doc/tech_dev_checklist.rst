@@ -42,7 +42,7 @@ When a pull request is made, a bunch of QA tests are executed to detect common p
 This reduces the burden of the reviewers but it is not a replacement for the remainder of
 the reviewing protocol. We strive to avoid false-positives in the QA scripts such that any
 error encountered must be fixed in the pull request. This implies that some tests (in
-Pylint, pep8, ...) are disabled and must be inspected manually.
+Pylint, Pycodestyle, ...) are disabled and must be inspected manually.
 
 If the automatic QA tests do not pass, fix the issues with additional commits to the
 branch of the pull request. These commits should appear automatically in the PR. When you
@@ -223,8 +223,8 @@ Motivation:
   unreadable and dirty code. Good coding practices also evolve quickly as Cython is
   further developed.
 
-* No QA tools (like pep8, pep257, pylint, ...) exist that do some basic QA assurance.
-  Everything has to be checked manually.
+* No QA tools (like Pycodestyle, Pydocstyle, Pylint, ...) exist that do some basic QA
+  assurance. Everything has to be checked manually.
 
 Work as follows:
 
@@ -331,173 +331,47 @@ This section first goes over all the criteria that are checked automatically by 
 programs, listing all enforced rules and exceptions. The last subsection discusses the
 remaining criteria that have to be checked manually.
 
-pep8
-~~~~
+pycodestyle
+~~~~~~~~~~~
 
-See https://pypi.python.org/pypi/pep8
+See http://pycodestyle.readthedocs.io/
 
-The following errors are caught automatically in Python code by the QA scripts (with
-pep8 1.6.2). Those marked with a ``*`` are not strictly PEP8 but are checked also by the
-pep8 program.
+The complete list of error codes can be found here:
+http://pycodestyle.readthedocs.io/en/latest/intro.html#error-codes
 
-* **E1** Indentation
-    * **E101** indentation contains mixed spaces and tabs
-    * **E111** indentation is not a multiple of four
-    * **E112** expected an indented block
-    * **E113** unexpected indentation
-    * **E114** indentation is not a multiple of four (comment)
-    * **E115** expected an indented block (comment)
-    * **E116** unexpected indentation (comment)
-    * **E122** continuation line missing indentation or outdented
-    * **E124** closing bracket does not match visual indentation
-    * **E125** continuation line with same indent as next logical line
-    * **E129** visually indented line with same indent as next logical line
-    * **E131** continuation line unaligned for hanging indent
-    * **E133** closing bracket is missing indentation
+The following pycodestyle error codes are disabled.
 
-* **E2** Whitespace
-    * **E201** whitespace after ‘(‘
-    * **E202** whitespace before ‘)’
-    * **E203** whitespace before ‘:’
-    * **E211** whitespace before ‘(‘
-    * **E221** multiple spaces before operator
-    * **E222** multiple spaces after operator
-    * **E223** tab before operator
-    * **E224** tab after operator
-    * **E225** missing whitespace around operator
-    * **E227** missing whitespace around bitwise or shift operator
-    * **E228** missing whitespace around modulo operator
-    * **E231** missing whitespace after ‘,’, ‘;’, or ‘:’
-    * **E242** (*) tab after ‘,’
-    * **E251** unexpected spaces around keyword / parameter equals
-    * **E261** at least two spaces before inline comment
-    * **E262** inline comment should start with ‘# ‘
-    * **E265** block comment should start with ‘# ‘
-    * **E266** too many leading ‘#’ for block comment
-    * **E271** multiple spaces after keyword
-    * **E272** multiple spaces before keyword
-    * **E273** tab after keyword
-    * **E274** tab before keyword
-
-* **E3** Blank line
-    * **E301** expected 1 blank line, found 0
-    * **E302** expected 2 blank lines, found 0
-    * **E303** too many blank lines (3)
-    * **E304** blank lines found after function decorator
-
-* **E4** Import
-    * **E401** multiple imports on one line
-    * **E402** module level import not at top of file
-
-* **E5** Line length
-    * **E501** line too long (more than 100 characters)
-    * **E502** the backslash is redundant between brackets
-
-* **E7** Statement
-    * **E701** multiple statements on one line (colon)
-    * **E702** multiple statements on one line (semicolon)
-    * **E703** statement ends with a semicolon
-    * **E704** (*) multiple statements on one line (def)
-    * **E711** comparison to None should be ‘if cond is None:’
-    * **E712** comparison to True should be ‘if cond is True:’ or ‘if cond:’
-    * **E713** test for membership should be ‘not in’
-    * **E714** test for object identity should be ‘is not’
-    * **E721** do not compare types, use ‘isinstance()’
-    * **E731** do not assign a lambda expression, use a def
-
-* **E9** Runtime
-    * **E901** SyntaxError or IndentationError
-    * **E902** IOError
-
-* **W1** Indentation warning
-    * **W191** indentation contains tabs
-
-* **W2** Whitespace warning
-    * **W291** trailing whitespace
-    * **W292** no newline at end of file
-    * **W293** blank line contains whitespace
-
-* **W3** Blank line warning
-    * **W391** blank line at end of file
-
-* **W5** Line break warning
-    * **W503** line break occurred before a binary operator
-
-* **W6** Deprecation warning
-    * **W601** .has_key() is deprecated, use ‘in’
-    * **W602** deprecated form of raising exception
-    * **W603** ‘<>’ is deprecated, use ‘!=’
-    * **W604** backticks are deprecated, use ‘repr()’
-
-The following pep8 error codes are disabled.
-
-* By default in pep8 (1.6.2):
+* By default in pycodestyle (2.0.0):
     * **E121** (*) continuation line under-indented for hanging indent
     * **E123** (*) closing bracket does not match indentation of opening bracket’s line
-    * **E126** continuation line over-indented for hanging indent
+    * **E126** (*) continuation line over-indented for hanging indent
     * **E226** (*) missing whitespace around arithmetic operator
     * **E241** (*) multiple spaces after ‘,’
+    * **W503** (*) line break occurred before a binary operator
 
 * Because they cause undesirable false positives:
     * **E127** continuation line over-indented for visual indent
     * **E128** continuation line under-indented for visual indent
 
 
-pep257
-~~~~~~
+Pydocstyle
+~~~~~~~~~~
 
-See https://pypi.python.org/pypi/pep257
+See http://pydocstyle.readthedocs.io/
 
-All errors caught automatically by the pep257 program must be fixed. Keep in mind that
+All errors caught automatically by the Pydocstyle program must be fixed. Keep in mind that
 this program does not cover all recommendations in PEP257.
 
-The following list of messages is taken from the documentation of pep257 version 1.0.0.
+A complete list of error messages can be found here:
+http://pydocstyle.readthedocs.io/en/latest/error_codes.html
 
-* Missing Docstrings
+Pydocstyle is executed with the default settings, except that the following is disabled:
 
-    * **D100**: Missing docstring in public module
-    * **D101**: Missing docstring in public class
-    * **D102**: Missing docstring in public method
     * **D103**: Missing docstring in public function
-    * **D104**: Missing docstring in public package
-    * **D105**: Missing docstring in magic method
 
-* Whitespace Issues
-
-    * **D200**: One-line docstring should fit on one line with quotes
-    * **D201**: No blank lines allowed before function docstring
-    * **D202**: No blank lines allowed after function docstring
-    * **D204**: 1 blank line required after class docstring
-    * **D205**: 1 blank line required between summary line and description
-    * **D206**: Docstring should be indented with spaces, not tabs
-    * **D207**: Docstring is under-indented
-    * **D208**: Docstring is over-indented
-    * **D209**: Multi-line docstring closing quotes should be on a separate line
-    * **D210**: No whitespaces allowed surrounding docstring text
-    * **D211**: No blank lines allowed before class docstring
-
-* Quotes Issues
-
-    * **D300**: Use """triple double quotes"""
-    * **D301**: Use r""" if any backslashes in a docstring
-    * **D302**: Use u""" for Unicode docstrings
-
-* Docstring Content Issues
-
-    * **D400**: First line should end with a period
-    * **D401**: First line should be in imperative mood
-    * **D402**: First line should not be the function’s "signature"
-    * **D403**: First word of the first line should be properly capitalized
-
-
-The following checks are not enforced (by default) because they are not part of PEP257:
-
-* Whitespace Issues
-
-    * **D203**: 1 blank line required before class docstring
-    * **D212**: Multi-line docstring summary should start at the first line
-    * **D213**: Multi-line docstring summary should start at the second line
-
+This is already checked by Pylint and is not enforced for ``test_*`` functions.
+Pycodestyle cannot yet be configured to ignore test functions. (It can only ignore test
+files which is not fine-grained enough for our purposes.)
 
 
 PyLint
@@ -505,14 +379,13 @@ PyLint
 
 See https://www.pylint.org/.
 
-The complete list of messages can be found here: https://docs.pylint.org/features.html
-Because this list constantly evolves with newer version of PyLint, it is not reproduced
-below.
+The complete list of error messages can be found here:
+https://docs.pylint.org/features.html
 
 The following messages are excluded by default: I0020, I0021, W0704. (It is not clear what
 these stand for. They are not documented in Pylint.)
 
-The following messages are excluded by default by activaded in our case (related to Python
+The following messages are excluded by default but are activated in our case (related to Python
 3): E1601, E1602, E1603, E1604, E1605, E1606, E1607, E1608, W1601, W1602, W1603, W1604,
 W1605, W1606, W1607, W1608, W1609, W1610, W1611, W1612, W1613, W1614, W1615, W1616, W1617,
 W1618, W1619, W1620, W1621, W1622, W1623, W1624, W1625, W1626, W1627, W1628, W1629, W1630,
@@ -520,7 +393,7 @@ W1632, W1633, W1634, W1635, W1636, W1637, W1638, W1639, W1640
 
 The following are excluded because we don't consider them the be fatal:
 
-* **C0103**: invalid-name. Invalid %s name “%s”%s Used when the name doesn’t match
+* **C0103**: invalid-name. Invalid %s name “%s”%s Used when the name doesn't match
   the regular expression associated to its type (constant, variable, class...).
 * **I0011**: locally-disabled. Used when an inline option disables a message or a messages
   category.
@@ -540,16 +413,27 @@ The following are excluded due false positives:
   in a module.
 * **E1101**: no-member. %s %r has no %r member Used when a variable is accessed for an
   unexistent member.
-* **R0201**: no-self-use. Method could be a function Used when a method doesn’t use its
+* **R0201**: no-self-use. Method could be a function Used when a method doesn't use its
   bound instance, and so could be written as a function.
 * **C0411**: wrong-import-order. %s comes before %s Used when PEP8 import order is not
   respected (standard imports first, then third-party libraries, then local imports)
 
-In addition, no doc strings are required for unit tests, i.e. functions starting with
-``test_``.
+The PyLint settings used by the QA scripts can be found in ``tools/qa/pylintrc``. Some
+of the non-default settings in that file include:
 
-The PyLint settings used by the QA scripts can be found in ``tools/qa/pylintrc``.
+* No doc strings are required for unit tests, i.e. functions starting with ``test_``.
 
+* Variables that are intentionally unused should get the prefix ``_``. These are dummy
+  variables. These may be useful when receiving return values that are not used, e.g.
+
+  .. code-block:: python
+
+    a, _b, c = some_function()  # No intent to use _b
+
+    for dirpath, _dirnames, filenames in os.walk(source_directory):
+        # No intent to use _dirnames in the body of the for loop
+
+* The parameters for the design checks are significantly relaxed.
 
 
 Code coverage by (fast) unit tests
