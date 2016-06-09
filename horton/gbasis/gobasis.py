@@ -233,9 +233,10 @@ class GOBasisFamily(object):
             raise IOError('File format not supported: %s' % self.filename)
         self._to_arrays()
         self._to_segmented()
+        self._normalize_contractions()
 
     def _to_arrays(self):
-        '''Convert all contraction attributes to numpy arrays'''
+        """Convert all contraction attributes to numpy arrays."""
         for ba in self.basis_atom_map.itervalues():
             for bc in ba.bcs:
                 bc.to_arrays()
@@ -251,6 +252,11 @@ class GOBasisFamily(object):
             new_basis_atom_map[n] = new_ba
         self.basis_atom_map = new_basis_atom_map
 
+    def _normalize_contractions(self):
+        """Renormalize all contractions."""
+        for ba in self.basis_atom_map.itervalues():
+            for bc in ba.bcs:
+                bc.normalize()
 
 
 go_basis_families_list = [
@@ -364,29 +370,37 @@ class GOBasisContraction(object):
         self.alphas = np.array(self.alphas)
         self.con_coeffs = np.array(self.con_coeffs)
 
-    def __length__(self):
-        '''Return the length of the contraction'''
-        l = len(self.alphas)
-        assert l == len(self.con_coeffs)
-        return l
-
     def is_generalized(self):
-        '''Returns True if this is a generalized contraction
-
-           This routine also checks if the con_coeffs attribute is consistent.
-        '''
-        if len(self.con_coeffs.shape) == 2:
-            return True
-        elif len(self.con_coeffs.shape) == 1:
-            return False
-        else:
-            raise ValueError
+        """Return True if this is a generalized contraction."""
+        return len(self.con_coeffs.shape) >= 2
 
     def get_segmented_bcs(self):
-        '''Returns a list of segmented contractions'''
+        """Return a list of segmented contractions."""
         if not self.is_generalized():
-            raise TypeError('Conversion to segmented contractions only makes sense for generalized contractions.')
+            raise TypeError('Conversion to segmented contractions only makes sense for '
+                            'generalized contractions.')
         return [
-            GOBasisContraction(self.shell_type, self.alphas, self.con_coeffs[:,i])
+            GOBasisContraction(self.shell_type, self.alphas, self.con_coeffs[:, i])
             for i in xrange(self.con_coeffs.shape[1])
         ]
+
+    def normalize(self):
+        """Normalize the contraction."""
+        if self.is_generalized():
+            raise NotImplementedError("Only segmented contractions can be normalized.")
+        # Warning! Ugly code ahead to avoid re-implementing the norm of contraction. The
+        # code below (ab)uses the GOBasis machinery to get that result.
+        # 1) Constract a GOBasis object with only this contraction.
+        centers = np.array([[0.0, 0.0, 0.0]])
+        shell_map = np.array([0])
+        nprims = np.array([len(self.alphas)])
+        shell_types = np.array([self.shell_type])
+        alphas = self.alphas
+        con_coeffs = self.con_coeffs
+        gobasis = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+        # 2) Get the first diagonal element of the overlap matrix
+        from horton.matrix.dense import DenseLinalgFactory
+        lf = DenseLinalgFactory(gobasis.nbasis)
+        olpdiag = gobasis.compute_overlap(lf)._array[0, 0]
+        # 3) Normalize the contraction
+        self.con_coeffs /= np.sqrt(olpdiag)

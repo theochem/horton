@@ -21,6 +21,7 @@
 
 
 import numpy as np
+from nose.tools import assert_raises
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -57,12 +58,12 @@ def test_fortran_float():
 
 
 def test_go_basis_desc_neon_sto3g():
-    obasis = get_gobasis(np.array([[0.0,0.0,0.0]]), np.array([2]), 'STO-3G')
+    obasis = get_gobasis(np.array([[0.0, 0.0, 0.0]]), np.array([2]), 'STO-3G')
     assert (obasis.shell_map == np.array([0])).all()
     assert (obasis.nprims == np.array([3])).all()
     assert (obasis.shell_types == np.array([0])).all()
-    assert abs(obasis.alphas - np.array([6.36242139, 1.15892300, 0.31364979])).all() < 1e-10
-    assert abs(obasis.con_coeffs - np.array([0.15432897, 0.53532814, 0.44463454])).all() < 1e-10
+    np.testing.assert_almost_equal(obasis.alphas, [6.36242139, 1.15892300, 0.31364979])
+    np.testing.assert_almost_equal(obasis.con_coeffs, [0.15432897, 0.53532814, 0.44463454])
 
 
 def test_go_basis_desc_hydrogen_321g():
@@ -70,8 +71,8 @@ def test_go_basis_desc_hydrogen_321g():
     assert (obasis.shell_map == np.array([0,0])).all()
     assert (obasis.nprims == np.array([2,1])).all()
     assert (obasis.shell_types == np.array([0,0])).all()
-    assert abs(obasis.alphas - np.array([5.4471780, 0.8245470, 0.1831920])).all() < 1e-10
-    assert abs(obasis.con_coeffs - np.array([0.1562850, 0.9046910, 1.0000000])).all() < 1e-10
+    np.testing.assert_almost_equal(obasis.alphas, [5.4471780, 0.8245470, 0.1831920])
+    np.testing.assert_almost_equal(obasis.con_coeffs, [0.1562850, 0.9046910, 1.0000000])
     assert obasis.nbasis == 2
 
 
@@ -85,16 +86,17 @@ def test_go_basis_desc_lithium_321g():
     assert (obasis.shell_map == np.array([0,0,0,0,0])).all()
     assert (obasis.nprims == np.array([3,2,2,1,1])).all()
     assert (obasis.shell_types == np.array([0,0,1,0,1])).all()
-    assert abs(obasis.alphas - np.array([
+    np.testing.assert_almost_equal(obasis.alphas, [
         36.8382000, 5.4817200, 1.1132700,
         0.5402050, 0.1022550, 0.5402050, 0.1022550,
         0.0285650, 0.0285650,
-    ])).all() < 1e-10
-    assert abs(obasis.con_coeffs - np.array([
+    ])
+    # Limited precision due to normalization of contractions after loading them from file.
+    np.testing.assert_almost_equal(obasis.con_coeffs, [
         0.0696686, 0.3813460, 0.6817020,
-        -0.2631270, 0.1615460, 1.1433900, 0.9156630,
+        -0.2631270, 1.1433900, 0.1615460, 0.9156630,
         1.0000000, 1.0000000
-    ])).all() < 1e-10
+    ], decimal=4)
     assert obasis.nbasis == 9
 
 
@@ -102,21 +104,38 @@ def test_go_basis_desc_water_sto3g():
     fn = context.get_fn('test/water_element.xyz')
     mol = IOData.from_file(fn)
     obasis = get_gobasis(mol.coordinates, mol.numbers, 'STO-3G')
-    assert (obasis.shell_map == np.array([0,1,1,1,2])).all()
-    assert (obasis.nprims == np.array([3,3,3,3,3])).all()
-    assert (obasis.shell_types == np.array([0,0,0,1,0])).all()
-    assert abs(obasis.alphas - np.array([
+    assert (obasis.shell_map == np.array([0, 1, 1, 1, 2])).all()
+    assert (obasis.nprims == np.array([3, 3, 3, 3, 3])).all()
+    assert (obasis.shell_types == np.array([0, 0, 0, 1, 0])).all()
+    expected_alphas = [
         3.42525091, 0.62391373, 0.16885540,
         130.7093200, 23.8088610, 6.4436083,
         5.0331513, 1.1695961, 0.3803890,
         5.0331513, 1.1695961, 0.3803890,
         3.42525091, 0.62391373, 0.16885540,
-    ])).all() < 1e-10
-    assert abs(obasis.con_coeffs - np.array([
+    ]
+    np.testing.assert_almost_equal(obasis.alphas, expected_alphas)
+    expected_con_coeffs = [
         0.15432897, 0.53532814, 0.44463454,
         0.15432897, 0.53532814, 0.44463454,
-        -0.09996723, 0.15591627, 0.39951283,
-        0.60768372, 0.70011547, 0.39195739,
+        -0.09996723, 0.39951283, 0.70011547,
+        0.15591627, 0.60768372, 0.39195739,
         0.15432897, 0.53532814, 0.44463454,
-    ])).all() < 1e-10
+    ]
+    np.testing.assert_almost_equal(obasis.con_coeffs, expected_con_coeffs)
     assert obasis.nbasis == 7
+
+
+def test_gobasis_contraction():
+    gbc = GOBasisContraction(1, [0.1, 1.0, 10.0], [[-0.3, 1.4], [4.4, 5.5], [2.2, -2.0]])
+    gbc.to_arrays()
+    assert gbc.is_generalized()
+    gbc1, gbc2 = gbc.get_segmented_bcs()
+    assert not gbc1.is_generalized()
+    assert not gbc2.is_generalized()
+    with assert_raises(TypeError):
+        gbc1.get_segmented_bcs()
+    with assert_raises(TypeError):
+        gbc2.get_segmented_bcs()
+    with assert_raises(NotImplementedError):
+        gbc.normalize()
