@@ -386,7 +386,7 @@ The following messages are excluded by default: I0020, I0021, W0704. (It is not 
 these stand for. They are not documented in Pylint.)
 
 The following messages are excluded by default but are activated in our case (related to Python
-3): E1601, E1602, E1603, E1604, E1605, E1606, E1607, E1608, W1601, W1602, W1603, W1604,
+3): E1136, E1601, E1602, E1603, E1604, E1605, E1606, E1607, E1608, W0621, W1601, W1602, W1603, W1604,
 W1605, W1606, W1607, W1608, W1609, W1610, W1611, W1612, W1613, W1614, W1615, W1616, W1617,
 W1618, W1619, W1620, W1621, W1622, W1623, W1624, W1625, W1626, W1627, W1628, W1629, W1630,
 W1632, W1633, W1634, W1635, W1636, W1637, W1638, W1639, W1640
