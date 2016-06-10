@@ -392,12 +392,14 @@ setup(
             depends=get_depends('horton'),
             include_dirs=[np.get_include(), '.'],
             extra_compile_args=['-std=c++11'],
+            cython_directives={"embedsignature": True},
             language="c++"),
         Extension("horton.matrix.cext",
             sources=get_sources('horton/matrix'),
             depends=get_depends('horton/matrix'),
             include_dirs=[np.get_include(), '.'],
             extra_compile_args=['-std=c++11'],
+            cython_directives={"embedsignature": True},
             language="c++"),
         Extension("horton.gbasis.cext",
             sources=get_sources('horton/gbasis') + ['horton/moments.cpp'],
@@ -416,6 +418,7 @@ setup(
             extra_link_args=libint2_config['extra_link_args'] +
                              blas_config['extra_link_args'],
             define_macros=[blas_precompiler],
+            cython_directives={"embedsignature": True},
             language="c++"),
         Extension("horton.grid.cext",
             sources=get_sources('horton/grid') + [
@@ -436,6 +439,7 @@ setup(
             extra_objects=libxc_config['extra_objects'],
             extra_compile_args=libxc_config['extra_compile_args'] + ['-std=c++11'],
             extra_link_args=libxc_config['extra_link_args'],
+            cython_directives={"embedsignature": True},
             language="c++"),
         Extension("horton.espfit.cext",
             sources=get_sources('horton/espfit') + [
@@ -446,6 +450,7 @@ setup(
                 'horton/grid/uniform.pxd', 'horton/grid/uniform.h'],
             include_dirs=[np.get_include(), '.'],
             extra_compile_args=['-std=c++11'],
+            cython_directives={"embedsignature": True},
             language="c++"),
     ],
     headers=get_headers(),

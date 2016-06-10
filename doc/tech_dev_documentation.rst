@@ -125,3 +125,9 @@ The following problems are often encountered:
 
 **Overriden methods in subclasses do not get inherited docstrings**
     Please use the :py:func:`horton.utils.doc_inherit` decorator.
+
+**A signature should be added manually to the `__init__` method in Cython**
+    The current behavior of Cython is not compatible with PEP257. The signature gets
+    assigned to the class docstring instead of the __init__ docstring. This is a bug in
+    Cython that should eventually be fixed. See...
+    See https://groups.google.com/forum/#!searchin/cython-users/embedsignature/cython-users/sXtBF2nh5RI/GjcirKOWqBcJ

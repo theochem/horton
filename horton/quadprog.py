@@ -473,33 +473,27 @@ def solve_radius(a, b, center, radius, r=None, s=None):
 class QPSolver(object):
     '''A Quadratic Programming Solver'''
     def __init__(self, a, b, r=None, s=None, eps=1e-10):
-        r'''
-           The problem is defined as follows;
+        r'''The problem is defined as follows;
 
-           .. math::
-                min_{x} \frac{1}{2} x^T A x - b^T x \\
-                R x = s
-                x \ge 0
+        .. math::
+            \min_x \frac{1}{2} x^T A x - b^T x \\
+            R x = s \\
+            x \ge 0
 
-           **Arguments:**
+        Parameters
+        ----------
 
-           a
-                The symmetric matrix :math:`A \in \mathbb{R}^{n \times n}`
-
-           b
-                The column vector :math:`b \in \mathbb{R}^n`.
-
-           **Optional arguments:**
-
-           r
-                The matrix with constraint coefficients, :math:`R \in \mathbb{R}^{l \times n}`.
-
-           s
-                The matrix with constraint targets, :math:`s \in \mathbb{R}^l`.
-
-           eps
-                A general threshold used for several purposes, e.g. the validity
-                of a solution.
+        a : np.ndarray
+            The symmetric matrix :math:`A \in \mathbb{R}^{n \times n}`
+        b : np.ndarray
+            The column vector :math:`b \in \mathbb{R}^n`.
+        r : np.ndarray or None
+            The matrix with constraint coefficients, :math:`R \in \mathbb{R}^{l \times n}`.
+        s : np.ndarray or None
+            The matrix with constraint targets, :math:`s \in \mathbb{R}^l`.
+        eps : float
+              A general threshold used for several purposes, e.g. the validity of a
+              solution.
         '''
         a, b, r, s = check_constrained_problem(a, b, r, s)
 
