@@ -119,8 +119,7 @@ def wpart_slow_analysis(wpart, mol):
     operators = []
     for ipure in xrange(npure):
         for iatom in xrange(wpart.natom):
-            operators.append(wpart.cache.load('overlap_operators', iatom)[
-                             'olp_%05i' % ipure])
+            operators.append(wpart.cache.load('overlap_operators', iatom)['olp_%05i' % ipure])
 
     # B) Compute Wiberg bond orders from the first-order density matrix
     # -----------------------------------------------------------------
