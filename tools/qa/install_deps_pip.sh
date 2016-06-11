@@ -24,6 +24,8 @@ pip wheel coverage
 pip install --no-index --upgrade coverage
 pip wheel pydocstyle
 pip install --no-index --upgrade pydocstyle
+pip wheel GitPython
+pip install --no-index --upgrade GitPython
 
 # Packages for HORTON
 pip wheel numpy

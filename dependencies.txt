@@ -318,4 +318,15 @@
     "macports_url": "https://trac.macports.org/browser/trunk/dports/devel/git/Portfile",
     "macports_command": "sudo port install git",
     "purpose": "dev"
+}, {
+    "name": "gitpython",
+    "title": "GitPython",
+    "version_requirement": ">= 2.0.5",
+    "homepage": "http://gitpython.readthedocs.io/",
+    "fedora_24_pip": "GitPython",
+    "fedora_22_pip": "GitPython",
+    "ubuntu_16_pip": "GitPython",
+    "ubuntu_15_pip": "GitPython",
+    "macports_pip": "GitPython",
+    "purpose": "dev"
 }]
