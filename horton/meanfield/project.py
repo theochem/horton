@@ -23,7 +23,7 @@
 
 import numpy as np
 from horton.matrix.base import TwoIndex
-from horton.matrix import DenseLinalgFactory
+from horton.matrix.dense import DenseLinalgFactory
 from horton.gbasis.cext import GOBasis
 
 

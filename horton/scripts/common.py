@@ -23,7 +23,12 @@
 
 import os, sys, datetime, numpy as np
 
-from horton import UniformGrid, angstrom, periodic, log, dump_h5, LockedH5File
+from horton.units import angstrom
+from horton.grid.cext import UniformGrid
+from horton.periodic import periodic
+from horton.log import log
+from horton.io.lockedh5 import LockedH5File
+from horton.io.internal import dump_h5
 
 
 __all__ = [

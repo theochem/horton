@@ -22,7 +22,7 @@
 
 
 from horton.log import log, timer
-from horton.matrix import TwoIndex, Expansion
+from horton.matrix.base import TwoIndex, Expansion
 
 
 __all__ = ['guess_core_hamiltonian']

@@ -22,7 +22,9 @@
 
 import shutil, os, numpy as np
 
-from horton import context, UniformGrid, IOData
+from horton import context
+from horton.grid.cext import UniformGrid
+from horton.io.iodata import IOData
 
 
 __all__ = ['copy_files', 'check_files', 'write_random_lta_cube']

@@ -411,12 +411,16 @@ The following are excluded due false positives:
 
 * **E0611**: no-name-in-module. No name %r in module %r Used when a name cannot be found
   in a module.
+* **E1136**: Value ‘%s’ is unsubscriptable emitted when a subscripted value
+  doesn’t support subscription(i.e. doesn’t define __getitem__ method)
 * **E1101**: no-member. %s %r has no %r member Used when a variable is accessed for an
   unexistent member.
 * **R0201**: no-self-use. Method could be a function Used when a method doesn't use its
   bound instance, and so could be written as a function.
 * **C0411**: wrong-import-order. %s comes before %s Used when PEP8 import order is not
   respected (standard imports first, then third-party libraries, then local imports)
+* **W0621**: Redefining name %r from outer scope (line %s) Used when a variable’s
+  name hide a name defined in the outer scope.
 
 The PyLint settings used by the QA scripts can be found in ``tools/qa/pylintrc``. Some
 of the non-default settings in that file include:

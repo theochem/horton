@@ -29,7 +29,7 @@
 import numpy as np
 
 from horton.cache import Cache
-from horton.matrix import Expansion
+from horton.matrix.base import Expansion
 from horton.log import log, timer
 from horton.orbital_utils import compute_unitary_matrix
 from horton.correlatedwfn.stepsearch import RStepSearch

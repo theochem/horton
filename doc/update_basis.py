@@ -24,10 +24,15 @@
 from glob import glob
 from cStringIO import StringIO
 import os
-from horton import periodic
+from horton.periodic import periodic
+from horton.log import log
 from horton.gbasis.gobasis import go_basis_families_list
 
 from common import write_rst_table, write_if_changed
+
+
+log.set_level(log.silent)
+
 
 table = [['Basis set name', 'Supported elements']]
 for family in go_basis_families_list:
