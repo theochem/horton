@@ -82,11 +82,14 @@ class ScreenLog(object):
 
     def with_level(self, level):
         def decorator(fn):
+            @wraps(fn)
             def wrapper(*args, **kwargs):
                 old_level = self._level
                 self.set_level(level)
-                result = fn(*args, **kwargs)
-                self.set_level(old_level)
+                try:
+                    result = fn(*args, **kwargs)
+                finally:
+                    self.set_level(old_level)
                 return result
             return wrapper
         return decorator
