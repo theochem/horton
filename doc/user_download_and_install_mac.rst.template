@@ -21,13 +21,13 @@
 
 ${big_fat_warning}
 
-Download and installation on Mac OS X (10.8--10.10)
+Download and installation on Mac OS X (10.8--10.11)
 ###################################################
 
 Disclaimer
 ==========
 
-HORTON has been tested on Mac OS X 10.8--10.10 using MacPorts. If you
+HORTON has been tested on Mac OS X 10.8--10.11 using MacPorts. If you
 are running any other version of OS X or if you are using other package
 managers, some of the instructions below may not work.
 
@@ -156,7 +156,7 @@ build LibXC, which will work on most systems:
     ${custom_install_libxc}
 
 This results in a LibXC library suitable for compiling HORTON. If this fails,
-consult your local Linux guru to build LibXC. For more info about LibXC, check
+consult your local Mac guru to build LibXC. For more info about LibXC, check
 the website: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 
 **LibInt2**
@@ -169,7 +169,7 @@ build LibInt2, which will work on most systems:
     ${custom_install_libint}
 
 The compilation of LibInt2 takes a few minutes and results in a library suitable for
-compiling HORTON. If this fails, consult your local Linux guru to build LibInt2. For more
+compiling HORTON. If this fails, consult your local Mac guru to build LibInt2. For more
 info about LibInt2, check the website: http://sourceforge.net/p/libint/home
 
 
@@ -185,9 +185,9 @@ The regular build and install is done as follows:
 
     ./setup.py install --user
 
-The ``setup.py`` script makes a reasonable attemp configuring the compiler and
+The ``setup.py`` script makes a reasonable attempt configuring the compiler and
 linker settings for the LibXC, LibInt2 and BLAS libraries. However, this does
-not work in all environments. In case of a faillure, or if a configuration other
+not work in all environments. In case of a failure, or if a configuration other
 than the default is desired, read the following section.
 
 
@@ -221,6 +221,21 @@ following line to your ``matplotlibrc`` file:
 
 This file is located either in ``${HOME}/.matplotlib`` or
 ``${HOME}/.config/matplotlib``.
+
+
+Reference atoms
+===============
+
+This step can be skipped when compiling a stable release from a .tar.gz file
+because these stable releases already contain the reference atoms.
+
+Several parts of Horton make use of reference atomic computations. These files
+are too large to be included in the git revision system. Therefore, they must be
+downloaded separately when compiling a development version of Horton::
+
+    cd data/refatoms
+    make all
+    cd ../..
 
 
 Running the tests

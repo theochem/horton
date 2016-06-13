@@ -92,7 +92,7 @@ completely neglects electron-electron interactions. The orbitals for such a
 one-body Hamiltonian can be computed without any prior guess.
 
 The function :py:func:`~horton.meanfield.guess.guess_core_hamiltonian` can be
-used to compute the core hamiltonian guess. This type of guess does only relies on a
+used to compute the core hamiltonian guess. This type of guess only relies on a
 simple one-body Hamiltonian, usually consisting of the kinetic energy and the
 interaction with the external field. In case of an unrestricted calculation,
 this means that the same initial orbital guess is made for the alpha and beta
@@ -379,7 +379,7 @@ Choose an orbital occupation scheme
 ===================================
 
 Before calling an SCF solver, you have to select a scheme to set the orbital
-occupations after each SCF iteration, even when the occuption numbers are to
+occupations after each SCF iteration, even when the occupation numbers are to
 remain fixed throughout the calculation. You can use any of the following
 three options:
 
@@ -574,7 +574,7 @@ Preparing for a Post-Hartree-Fock calculation
 Once the SCF has converged and you have obtained a set of orbitals, you can use
 these orbitals to convert the integrals from the atomic-orbital (AO) basis to
 the molecular-orbital (MO) basis. Two implementations are available in HORTON:
-(i) using all molecular orbitals or (ii) by specifing a frozen core and active
+(i) using all molecular orbitals or (ii) by specifying a frozen core and active
 set of orbitals. A full example, ``rhf_n2_dense.py``, which covers both options
 and which includes dumping the transformed integrals to a file, is given in the
 section :ref:`hf_dft_complete_examples` below.
@@ -664,7 +664,7 @@ used in which example.
 .. include:: hf_dft_examples.rst.inc
 
 A more elaborate example can be found in ``data/examples/hf_compare``. It
-contains a script that systemtically computes all elements in the periodic table
+contains a script that systematically computes all elements in the periodic table
 (for different charges and multiplicities), and compares the results with
 outputs obtained with Gaussian. See the ``README`` file for instructions how to
 run this example.
