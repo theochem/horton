@@ -96,7 +96,7 @@ The the on-site repulsion :math:`U` is calculated using the method
 
     onsite = modelham.compute_er(lf, U)
 
-Finally, all terms of the 1-dimensinal Hubbard Hamiltonian are combined together
+Finally, all terms of the 1-dimensional Hubbard Hamiltonian are combined together
 and passed to the effective Hamiltonian class, :py:class:`~horton.meanfield.hamiltonian.REffHam`,
 which can then be passed to the restricted Hartree-Fock or DFT modules,
 

@@ -13,7 +13,7 @@ lnratio = (np.log(alpha_high) - np.log(alpha_low))/(nbasis-1)
 # contraction only contains one basis function.
 bcs = []
 for ibasis in xrange(nbasis):
-    alpha = alpha_low**lnratio
+    alpha = alpha_low * np.exp(lnratio * ibasis)
     # arguments of GOBasisContraction:
     #     shell_type, list of exponents, list of contraction coefficients
     bcs.append(GOBasisContraction(0, np.array([alpha]), np.array([1.0])))

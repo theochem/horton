@@ -122,7 +122,7 @@ with the different `backend` modules available. For example, instead of the
 
     lf = CholeskyLinalgFactory()
 
-Making this change will not change any of the preceeding code, provided that the
+Making this change will not change any of the preceding code, provided that the
 same methods and attributes are implemented in this module as well.
 
 Many functions and classes have been implemented into the ``matrix`` package. It

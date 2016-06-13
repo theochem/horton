@@ -36,6 +36,9 @@ depends/*.*
 # Ignore user configuration for libraries
 setup.cfg
 
+# Ignore mac .DS_Store
+.DS_Store
+
 # Ignore testing output
 .coverage
 qaworkdir

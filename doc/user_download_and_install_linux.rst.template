@@ -205,6 +205,15 @@ This file is located in either ``${HOME}/.matplotlib`` or
 ``${HOME}/.config/matplotlib``.
 
 
+Reference atoms
+===============
+
+Several parts of HORTON make use of reference atomic computations. When compiling
+a stable release from a .tar.gz file these reference atoms are already included in
+the release. When building a development version of HORTON, please refer to
+:ref:`ref_build_refatoms` on how to build these reference atoms.
+
+
 Running the tests
 =================
 
