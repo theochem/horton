@@ -158,6 +158,8 @@ There is also a web interface to HORTON's git repository:
 https://github.com/theochem/horton
 
 
+.. _ref_build_refatoms:
+
 Additional steps required to build the development version of HORTON
 ====================================================================
 

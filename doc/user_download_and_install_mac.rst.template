@@ -226,16 +226,10 @@ This file is located either in ``${HOME}/.matplotlib`` or
 Reference atoms
 ===============
 
-This step can be skipped when compiling a stable release from a .tar.gz file
-because these stable releases already contain the reference atoms.
-
-Several parts of Horton make use of reference atomic computations. These files
-are too large to be included in the git revision system. Therefore, they must be
-downloaded separately when compiling a development version of Horton::
-
-    cd data/refatoms
-    make all
-    cd ../..
+Several parts of HORTON make use of reference atomic computations. When compiling
+a stable release from a .tar.gz file these reference atoms are already included in
+the release. When building a development version of HORTON, please refer to
+:ref:`ref_build_refatoms` on how to build these reference atoms.
 
 
 Running the tests
