@@ -91,6 +91,7 @@ def test_hirshfeld_i_water_hf_sto3g_global_greedy():
     check_water_hf_sto3g('hi', expecting, local=False, greedy=True)
 
 
+@log.with_level(log.high)
 def test_hirshfeld_e_water_hf_sto3g_local():
     expecting = np.array([-0.422794483125, 0.211390419810, 0.211404063315]) # From HiPart
     check_water_hf_sto3g('he', expecting, local=True)

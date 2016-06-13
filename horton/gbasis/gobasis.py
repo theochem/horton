@@ -26,6 +26,7 @@ import numpy as np
 from horton.context import context
 from horton.gbasis.cext import GOBasis
 from horton.gbasis.iobas import load_basis_atom_map_nwchem
+from horton.log import log
 from horton.periodic import periodic
 from horton.utils import typecheck_geo
 
@@ -384,6 +385,7 @@ class GOBasisContraction(object):
             for i in xrange(self.con_coeffs.shape[1])
         ]
 
+    @log.with_level(log.silent)
     def normalize(self):
         """Normalize the contraction."""
         if self.is_generalized():
