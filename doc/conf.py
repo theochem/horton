@@ -262,7 +262,7 @@ pngmath_dvipng_args = ['-gamma 1.6', '-D 120']
 
 sys.path.append('../')
 os.environ['HORTONDATA'] = '../data'
-autoclass_content = "class"
+autoclass_content = "init"
 autodoc_member_order = "groupwise"
 autodoc_default_flags = ['members', 'undoc-members', 'inherited-members', 'show-inheritance']
 

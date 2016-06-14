@@ -1186,10 +1186,30 @@ cdef class UniformGrid(object):
         assert shape.shape[0] == 3
         assert pbc.flags['C_CONTIGUOUS']
         assert pbc.shape[0] == 3
-
         self._this = <uniform.UniformGrid*>(new uniform.UniformGrid(
             &origin[0], &grid_rvecs[0, 0], &shape[0], &pbc[0],
         ))
+
+    def __init__(self, np.ndarray[double, ndim=1] origin not None,
+                 np.ndarray[double, ndim=2] grid_rvecs not None,
+                 np.ndarray[long, ndim=1] shape not None,
+                 np.ndarray[long, ndim=1] pbc not None):
+        """__init__(self, ndarray origin, ndarray grid_rvecs, ndarray shape, ndarray pbc)
+        Initialize a UniformGrid instance.
+
+        Parameters
+        ----------
+        origin : np.ndarray[double, ndim=1]
+                 The origin of the uniform grid, where the first grid point is located.
+                 shape=(3,)
+        grid_rvecs : np.ndarray[double, ndim=2]
+                     The rows are real-space basis vectors that define the spacings.
+                     between the grids. shape=(3,3)
+        shape : np.ndarray[long, ndim=1]
+                The shape of the uniform grid, i.e. number of points along each basis.
+        pbc : np.ndarray[long, ndim=1]
+              Three flags (0 or 1) for periodicity along each row in grid_rvecs.
+        """
 
     def __dealloc__(self):
         del self._this
