@@ -345,7 +345,7 @@ print 'BLAS precompiler directive: -D%s' % blas_precompiler[0]
 
 setup(
     name='horton',
-    version='2.0.0',
+    version='2.0.1',
     description='HORTON: Helpful Open-source Research TOol for N-fermion systems.',
     author='Toon Verstraelen',
     author_email='Toon.Verstraelen@UGent.be',

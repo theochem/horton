@@ -77,7 +77,7 @@ def get_version_release():
         release = subprocess.check_output(['git', 'describe']).strip()
     except (subprocess.CalledProcessError, OSError) as e:
         # fall back to the defaul release
-        release = '2.0.0-nogit'
+        release = '2.0.1-nogit'
     # Chop of at the first dash, if any, i.e. X.Y.Z
     if '-' in release:
         version = release.split('-')[0]
