@@ -91,7 +91,7 @@ def iter_subdirs(root):
 
 
 def main():
-    source_dirs = ['.', 'doc', 'data/grids', 'scripts', 'tools'] + \
+    source_dirs = ['.', 'doc', 'data/grids', 'scripts', 'tools', 'tools/qa'] + \
         list(iter_subdirs('horton'))
 
     fixers = [
