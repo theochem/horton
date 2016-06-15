@@ -20,4 +20,5 @@ rm -v data/examples/orbital_entanglement/*.h5
 rm -v data/examples/orbital_entanglement/*.dat
 rm -v data/examples/perturbation_theory/*.h5
 rm -v data/examples/wpart/charges.txt
+rm -v .coverage
 exit 0
