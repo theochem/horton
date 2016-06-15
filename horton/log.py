@@ -545,15 +545,15 @@ head_banner = """\
 \/ || \/
  |_''_|  HORTON is written and maintained by by Toon Verstraelen (1).
 
-         This version contains contributions from Toon Verstraelen (1),
-         Katharina Boguslawski (2), Pawel Tecmer (2), Farnaz Heidar-Zadeh (2),
-         Matthew Chan (2), Taewon D. Kim (2), Yilin Zhao (2), Steven
-         Vandenbrande (1), Derrick Yang (2), Cristina E. González-Espinoza (2),
-         Peter A. Limacher (2), Diego Berrocal (2), Ali Malek (2) and Paul W.
-         Ayers (2)
+         This version contains contributions from Toon Verstraelen (1), Pawel Tecmer (2),
+         Farnaz Heidar-Zadeh (2), Katharina Boguslawski (2), Matthew Chan (2), Yilin Zhao
+         (2), Taewon D. Kim (2), Steven Vandenbrande (1), Derrick Yang (2), Cristina E.
+         González-Espinoza (2), Stijn Fias (3), Peter A. Limacher (2), Diego Berrocal (2),
+         Ali Malek (2) and Paul W. Ayers (2)
 
-         (1) Center for Molecular Modeling, Ghent University, Belgium.
+         (1) Center for Molecular Modeling (CMM), Ghent University, Belgium.
          (2) The Ayers Group at McMaster University, Ontario, Canada.
+         (3) General Chemistry (ALGC), Free University of Brussels, Brussels, Belgium.
 
          More information about HORTON can be found on this website:
          http://theochem.github.com/horton/
