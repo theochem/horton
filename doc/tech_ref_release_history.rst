@@ -22,6 +22,21 @@
 Release history
 ###############
 
+**June 17, 2016. Version 2.0.1**
+
+   - QA framework for automatically testing pull requests on Github with Travis-CI.
+   - Update config files for recent OSX, Ubuntu Linux and Fedora Linux versions.
+   - Fix: contractions of Gaussian functions are normalized when creating new basis sets.
+     (When loading wavefunctions from files that also contain a description of the basi
+     set, these are not renormalized.)
+   - Fix: The numerical Poisson solver now also computes the correct asymptotics in the
+     limit of small radii.
+   - Fix: The two methods to project orbitals onto new basis sets (in
+     ``horton/meanfield/project.py``) contained mistakes, which are now fixed.
+   - Fix: Several unit tests using random data ocassionally failed, which is now fixed.
+   - Many small bug fixes and corrections.
+
+
 **June 11, 2015. Version 2.0.0**
 
    - The (orbital-optimized) AP1roG method (geminal-based wafecuntions).
