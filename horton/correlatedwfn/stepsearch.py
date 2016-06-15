@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 '''Step search methods for orbital rotations
 
    Optimize step length for orbital optimization (``kappa``) and rotate orbitals.

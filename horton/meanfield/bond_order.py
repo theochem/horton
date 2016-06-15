@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 r'''Generic implementation of bond orders for mean-field wavefunctions
 
    In the context bond orders and self-electron delocatization indices (SEDI's)

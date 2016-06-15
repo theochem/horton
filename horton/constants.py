@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 '''Physicochemical constants in atomic units
 
    These are the physical constants defined in this module (in atomic units):

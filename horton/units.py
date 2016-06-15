@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 '''Conversion from and to atomic units
 
    Internally HORTON always uses atomic units. Atomic units are consistent,

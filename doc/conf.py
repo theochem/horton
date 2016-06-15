@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 #
 # HORTON documentation build configuration file, created by
 # sphinx-quickstart on Sun Jul 17 11:14:50 2011.

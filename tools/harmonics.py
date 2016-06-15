@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 """Tools to define the relations between pure and Cartesian gaussian functions.
 
    This module uses sympy for the symbolic manipulations.

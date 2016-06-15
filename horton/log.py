@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 '''Screen logging, timing and citation management
 
    The goal of the screen logger is to track the progress of a computation in

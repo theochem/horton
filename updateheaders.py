@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 
 
 from glob import glob
@@ -27,7 +27,7 @@ import os
 
 
 def strip_header(lines, closing):
-    # search for the header closing line, i.e. '#--\n'
+    # search for the header closing line, i.e. '# --\n'
     counter = 0
     found = False
     for line in lines:
@@ -52,7 +52,7 @@ def fix_python(fn, lines, header_lines):
     # check if a shebang is present
     do_shebang = lines[0].startswith('#!')
     # remove the current header
-    strip_header(lines, '#--\n')
+    strip_header(lines, '# --\n')
     # add new header (insert must be in reverse order)
     for hline in header_lines[::-1]:
         lines.insert(0, ('# '+hline).strip() + '\n')

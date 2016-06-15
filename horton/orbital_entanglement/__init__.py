@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 '''Methods for measuring orbital entanglement'''
 
 from horton.orbital_entanglement.orbital_entanglement import *

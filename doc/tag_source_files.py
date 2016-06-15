@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 '''Script that inserts a commit id in the source files that accompaby the html files
 
    This is useful when people download the source files and start editting and
