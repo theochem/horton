@@ -69,7 +69,7 @@ class PylintTrapdoorProgram(TrapdoorProgram):
                    All errors encountered in the current branch.
         """
         # get Pylint version
-        command = ['pylint', '--version', '--rcfile=%s' % self.rcfile]
+        command = ['python', '-m', 'pylint', '--version', '--rcfile=%s' % self.rcfile]
         version_info = ''.join(run_command(command, verbose=False)[0].split('\n')[:2])
         print 'USING              :', version_info
 
@@ -77,7 +77,7 @@ class PylintTrapdoorProgram(TrapdoorProgram):
         py_extra = get_source_filenames(config, 'py', unpackaged_only=True)
 
         # call Pylint
-        command = ['pylint'] + config['py_packages'] + py_extra + [
+        command = ['python', '-m', 'pylint'] + config['py_packages'] + py_extra + [
             '--rcfile=%s' % self.rcfile, '--ignore=%s' % (','.join(config['py_exclude']))]
         output = run_command(command, has_failed=has_failed)[0]
 
