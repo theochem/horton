@@ -46,6 +46,9 @@ def strip_header(lines, closing):
 
 
 def fix_python(fn, lines, header_lines):
+    # Do not update header of file taken from other project.
+    if fn.endswith('/cpplint.py'):
+        return
     # check if a shebang is present
     do_shebang = lines[0].startswith('#!')
     # remove the current header
