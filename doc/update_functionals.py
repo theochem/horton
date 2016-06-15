@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # HORTON: Helpful Open-source Research TOol for N-fermion systems.
-# Copyright (C) 2011-2015 The HORTON Development Team
+# Copyright (C) 2011-2016 The HORTON Development Team
 #
 # This file is part of HORTON.
 #
@@ -18,12 +18,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
-#!/usr/bin/env python
+# --
 
 # Load dependency information -> libxc version
 import json
-with open('../dependencies.txt') as f:
+with open('../dependencies.json') as f:
     dependencies = json.load(f)
 # Order does not matter here. Just make it easy to look things up
 dependencies = dict((d['name'], d) for d in dependencies)

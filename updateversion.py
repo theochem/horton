@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # HORTON: Helpful Open-source Research TOol for N-fermion systems.
-# Copyright (C) 2011-2015 The HORTON Development Team
+# Copyright (C) 2011-2016 The HORTON Development Team
 #
 # This file is part of HORTON.
 #
@@ -18,8 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
-#!/usr/bin/env python
+# --
 
 import re, sys
 
@@ -29,14 +28,14 @@ rules = [
     ('setup.py', '^    version=\'(...+)\',$'),
     ('horton/__init__.py', '^__version__ = \'(...+)\'$'),
     ('doc/conf.py', '        release = \'(...+)-nogit\'$'),
-    ('doc/user_download_and_install_linux.rst', '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_linux.rst', '^    curl -kLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_linux.rst', '^    tar -xvzf horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_linux.rst', '^    cd horton-(...+)$'),
-    ('doc/user_download_and_install_mac.rst', '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_mac.rst', '^    curl -kLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_mac.rst', '^    tar -xvzf horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_mac.rst', '^    cd horton-(...+)$'),
+    ('doc/user_download_and_install_linux.rst.template', '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
+    ('doc/user_download_and_install_linux.rst.template', '^    curl -kLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
+    ('doc/user_download_and_install_linux.rst.template', '^    tar -xvzf horton-(...+).tar.gz$'),
+    ('doc/user_download_and_install_linux.rst.template', '^    cd horton-(...+)$'),
+    ('doc/user_download_and_install_mac.rst.template', '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
+    ('doc/user_download_and_install_mac.rst.template', '^    curl -kLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
+    ('doc/user_download_and_install_mac.rst.template', '^    tar -xvzf horton-(...+).tar.gz$'),
+    ('doc/user_download_and_install_mac.rst.template', '^    cd horton-(...+)$'),
 ]
 
 

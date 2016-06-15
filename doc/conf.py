@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # HORTON: Helpful Open-source Research TOol for N-fermion systems.
-# Copyright (C) 2011-2015 The HORTON Development Team
+# Copyright (C) 2011-2016 The HORTON Development Team
 #
 # This file is part of HORTON.
 #
@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 #
 # HORTON documentation build configuration file, created by
 # sphinx-quickstart on Sun Jul 17 11:14:50 2011.
@@ -77,7 +77,7 @@ def get_version_release():
         release = subprocess.check_output(['git', 'describe']).strip()
     except (subprocess.CalledProcessError, OSError) as e:
         # fall back to the defaul release
-        release = '2.0.0-nogit'
+        release = '2.0.1-nogit'
     # Chop of at the first dash, if any, i.e. X.Y.Z
     if '-' in release:
         version = release.split('-')[0]

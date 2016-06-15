@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # HORTON: Helpful Open-source Research TOol for N-fermion systems.
-# Copyright (C) 2011-2015 The HORTON Development Team
+# Copyright (C) 2011-2016 The HORTON Development Team
 #
 # This file is part of HORTON.
 #
@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 
 
 import os, sys, platform, ConfigParser, subprocess
@@ -282,7 +282,7 @@ print 'MACHINE=%s' % detect_machine()
 # Load dependency information
 # ---------------------------
 import json
-with open('dependencies.txt') as f:
+with open('dependencies.json') as f:
     dependencies = json.load(f)
 # Order does not matter here. Just make it easy to look things up
 dependencies = dict((d['name'], d) for d in dependencies)
@@ -345,7 +345,7 @@ print 'BLAS precompiler directive: -D%s' % blas_precompiler[0]
 
 setup(
     name='horton',
-    version='2.0.0',
+    version='2.0.1',
     description='HORTON: Helpful Open-source Research TOol for N-fermion systems.',
     author='Toon Verstraelen',
     author_email='Toon.Verstraelen@UGent.be',

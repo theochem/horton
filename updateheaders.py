@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # HORTON: Helpful Open-source Research TOol for N-fermion systems.
-# Copyright (C) 2011-2015 The HORTON Development Team
+# Copyright (C) 2011-2016 The HORTON Development Team
 #
 # This file is part of HORTON.
 #
@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
-#--
+# --
 
 
 from glob import glob
@@ -27,7 +27,7 @@ import os
 
 
 def strip_header(lines, closing):
-    # search for the header closing line, i.e. '#--\n'
+    # search for the header closing line, i.e. '# --\n'
     counter = 0
     found = False
     for line in lines:
@@ -38,19 +38,21 @@ def strip_header(lines, closing):
     if found:
         del lines[:counter]
         # If the header closing is not found, we assume it is not present.
+    # if a shebang is still present, also remove it
+    if len(lines) > 0 and lines[0].startswith('#!'):
+        del lines[0]
     # add a header closing line
     lines.insert(0, closing)
 
 
 def fix_python(fn, lines, header_lines):
+    # Do not update header of file taken from other project.
+    if fn.endswith('/cpplint.py'):
+        return
     # check if a shebang is present
     do_shebang = lines[0].startswith('#!')
     # remove the current header
-    strip_header(lines, '#--\n')
-    # add a pylint line for test files:
-    if os.path.basename(fn).startswith('test_'):
-        if not lines[1].startswith('#pylint: skip-file'):
-            lines.insert(1, '#pylint: skip-file\n')
+    strip_header(lines, '# --\n')
     # add new header (insert must be in reverse order)
     for hline in header_lines[::-1]:
         lines.insert(0, ('# '+hline).strip() + '\n')
@@ -95,7 +97,7 @@ def iter_subdirs(root):
 
 
 def main():
-    source_dirs = ['.', 'doc', 'data/grids', 'scripts', 'tools'] + \
+    source_dirs = ['.', 'doc', 'data/grids', 'scripts', 'tools', 'tools/qa'] + \
         list(iter_subdirs('horton'))
 
     fixers = [
@@ -107,6 +109,7 @@ def main():
         ('*.cpp', fix_c),
         ('*.h', fix_c),
         ('*.rst', fix_rst),
+        ('*.rst.template', fix_rst),
     ]
 
     f = open('HEADER')
