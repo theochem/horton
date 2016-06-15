@@ -19,7 +19,6 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 #--
-#!/usr/bin/env python
 '''Update the table with HF/DFT examples based on files in data/examples/hf_dft.'''
 
 from glob import glob
