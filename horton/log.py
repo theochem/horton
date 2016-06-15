@@ -551,8 +551,8 @@ head_banner = """\
          González-Espinoza (2), Stijn Fias (3), Peter A. Limacher (2), Diego Berrocal (2),
          Ali Malek (2) and Paul W. Ayers (2)
 
-         (1) Center for Molecular Modeling (CMM), Ghent University, Belgium.
-         (2) The Ayers Group at McMaster University, Ontario, Canada.
+         (1) Center for Molecular Modeling (CMM), Ghent University, Ghent, Belgium.
+         (2) The Ayers Group, McMaster University, Hamilton, Ontario, Canada.
          (3) General Chemistry (ALGC), Free University of Brussels, Brussels, Belgium.
 
          More information about HORTON can be found on this website:
