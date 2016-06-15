@@ -22,7 +22,7 @@
 
 # Load dependency information -> libxc version
 import json
-with open('../dependencies.txt') as f:
+with open('../dependencies.json') as f:
     dependencies = json.load(f)
 # Order does not matter here. Just make it easy to look things up
 dependencies = dict((d['name'], d) for d in dependencies)

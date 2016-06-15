@@ -109,7 +109,7 @@ def dict_raise_on_duplicates(ordered_pairs):
 
 def collect_fields():
     # Load the dependencies data
-    with open('../dependencies.txt') as f:
+    with open('../dependencies.json') as f:
         dependencies = json.load(f, object_pairs_hook=dict_raise_on_duplicates)
 
     result = {}
@@ -147,7 +147,7 @@ big_fat_warning = """\
     : WHEN REBUILDING THE DOCUMENTATION. MAKE CHANGES IN
     :     %s
     : OR
-    :     ../dependencies.txt
+    :     ../dependencies.json
     : INSTEAD.
 
 """

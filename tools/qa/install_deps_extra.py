@@ -13,7 +13,7 @@ import os
 def main():
     """Main program."""
     # Load the dependencies data
-    with open('dependencies.txt') as f:
+    with open('dependencies.json') as f:
         dependencies = json.load(f)
 
     # Install each with an install_command line.
