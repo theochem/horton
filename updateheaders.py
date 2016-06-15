@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # HORTON: Helpful Open-source Research TOol for N-fermion systems.
-# Copyright (C) 2011-2015 The HORTON Development Team
+# Copyright (C) 2011-2016 The HORTON Development Team
 #
 # This file is part of HORTON.
 #
@@ -109,6 +109,7 @@ def main():
         ('*.cpp', fix_c),
         ('*.h', fix_c),
         ('*.rst', fix_rst),
+        ('*.rst.template', fix_rst),
     ]
 
     f = open('HEADER')
