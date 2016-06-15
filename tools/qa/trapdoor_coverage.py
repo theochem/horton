@@ -58,7 +58,7 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
         # Get version
         command = ['nosetests', '--version']
         print 'USING              :', run_command(command, verbose=False)[0].strip()
-        command = ['coverage', '--version']
+        command = ['python', '-m', 'coverage', '--version']
         print 'USING              :', run_command(command, verbose=False)[0].split('\n')[0]
 
         # Results will be stored in the following variables
@@ -89,7 +89,7 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
         # Run the coverage program for a full report. This separate call is needed
         # since coverage-4.1.
         fn_coverage = '%s/coverage.xml' % self.qaworkdir
-        command = ['coverage', 'xml', '-o', fn_coverage,
+        command = ['python', '-m', 'coverage', 'xml', '-o', fn_coverage,
                    '--omit=%s' % ','.join(config['py_test_files'])]
         output = run_command(command)[0]
 

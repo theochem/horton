@@ -60,14 +60,14 @@ class PyDocStyleTrapdoorProgram(TrapdoorProgram):
                    All errors encountered in the current branch.
         """
         # Get version
-        command = ['pydocstyle', '--version']
+        command = ['python', '-m', 'pydocstyle', '--version']
         version = run_command(command, verbose=False)[0].strip()
         print 'USING              : pydocstyle', version
 
         # Call pydocstyle in the directories containing Python code. All files will be
         # checked, including test files. Missing tests are ignored (D103) because they are
         # already detected by PyLint in a better way.
-        command = ['pydocstyle', '--match=.*\\.py', '--add-ignore=D103'] + \
+        command = ['python', '-m', 'pydocstyle', '--match=.*\\.py', '--add-ignore=D103'] + \
                   config['py_packages'] + \
                   get_source_filenames(config, 'py', unpackaged_only=True)
         output = run_command(command, has_failed=has_failed)[1]
