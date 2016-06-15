@@ -47,10 +47,6 @@ def fix_python(fn, lines, header_lines):
     do_shebang = lines[0].startswith('#!')
     # remove the current header
     strip_header(lines, '#--\n')
-    # add a pylint line for test files:
-    if os.path.basename(fn).startswith('test_'):
-        if not lines[1].startswith('#pylint: skip-file'):
-            lines.insert(1, '#pylint: skip-file\n')
     # add new header (insert must be in reverse order)
     for hline in header_lines[::-1]:
         lines.insert(0, ('# '+hline).strip() + '\n')
