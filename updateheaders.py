@@ -38,6 +38,9 @@ def strip_header(lines, closing):
     if found:
         del lines[:counter]
         # If the header closing is not found, we assume it is not present.
+    # if a shebang is still present, also remove it
+    if len(lines) > 0 and lines[0].startswith('#!'):
+        del lines[0]
     # add a header closing line
     lines.insert(0, closing)
 
