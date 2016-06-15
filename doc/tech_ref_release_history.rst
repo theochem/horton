@@ -27,8 +27,8 @@ Release history
    - QA framework for automatically testing pull requests on Github with Travis-CI.
    - Update config files for recent OSX, Ubuntu Linux and Fedora Linux versions.
    - Fix: contractions of Gaussian functions are normalized when creating new basis sets.
-     (When loading wavefunctions from files that also contain a description of the basi
-     set, these are not renormalized.)
+     (When loading wavefunctions from files that also contain a description of the basis
+     set, the contractions are not renormalized for the sake of consistency.)
    - Fix: The numerical Poisson solver now also computes the correct asymptotics in the
      limit of small radii.
    - Fix: The two methods to project orbitals onto new basis sets (in
