@@ -326,6 +326,7 @@ cdef class CubicSpline(object):
             the interval determined by the 1D grid. By default,
             CuspExtrapolation() is used.
     '''
+
     def __cinit__(self,
                   np.ndarray[double, ndim=1] y not None,
                   np.ndarray[double, ndim=1] dx=None,
@@ -696,6 +697,7 @@ cdef class RTransform(object):
        the actual grid points on the r-axis: f(0), f(1), f(2), ... f(npoint-1).
        Different implementation for the function f are available.
     '''
+
     property npoint:
         def __get__(self):
             return self._this.get_npoint()
