@@ -32,6 +32,9 @@
 
 import sys, os
 
+from releaseinfo import get_releaseinfo
+
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -70,7 +73,6 @@ copyright = u'2011-2015, The HORTON Development Team'
 #
 
 # version = short X.Y.Z, release = full thing
-from releaseinfo import get_releaseinfo
 ri = get_releaseinfo()
 version = ri['version']
 release = '%s (%s)' % (ri['describe'], ri['doc_release_date'])
