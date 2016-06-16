@@ -27,7 +27,7 @@ import re, sys
 rules = [
     ('setup.py', '^    version=\'(...+)\',$'),
     ('horton/__init__.py', '^__version__ = \'(...+)\'$'),
-    ('doc/conf.py', '        release = \'(...+)-nogit\'$'),
+    ('doc/releaseinfo.py', '    version = \'(...+)\'$'),
     ('doc/user_download_and_install_linux.rst.template', '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
     ('doc/user_download_and_install_linux.rst.template', '^    curl -kLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
     ('doc/user_download_and_install_linux.rst.template', '^    tar -xvzf horton-(...+).tar.gz$'),
