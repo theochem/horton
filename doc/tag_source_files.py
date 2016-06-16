@@ -19,9 +19,9 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Script that inserts a commit id in the source files that accompaby the html files
+'''Script that inserts a commit id in the source files that accompany the html files
 
-   This is useful when people download the source files and start editting and
+   This is useful when people download the source files and start editing and
    e-mailing them instead of using GIT.
 '''
 
