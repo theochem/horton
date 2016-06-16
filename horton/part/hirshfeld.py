@@ -107,8 +107,8 @@ class HirshfeldMixin(object):
 
             for i in xrange(self.natom):
                 n = self.numbers[i]
-                volumes[i] = radial_moments[i,2]/populations[i]
-                ref_volume = self.proatomdb.get_record(n, 0).get_moment(3)/n
+                volumes[i] = radial_moments[i,3]
+                ref_volume = self.proatomdb.get_record(n, 0).get_moment(3)
                 volume_ratios[i] = volumes[i]/ref_volume
                 if n in ref_c6s:
                     c6s[i] = (volume_ratios[i])**2*ref_c6s[n]
