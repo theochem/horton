@@ -22,6 +22,8 @@
 Release history
 ###############
 
+Documentation of all HORTON versions can be found here: http://theochem.github.com/horton/
+
 **June 17, 2016. Version 2.0.1**
 
    - QA framework for automatically testing pull requests on Github with Travis-CI.
