@@ -33,7 +33,6 @@ def test_wpart_schemes():
     assert 'b' in wpart_schemes
     assert 'h' in wpart_schemes
     assert 'hi' in wpart_schemes
-    assert 'he' in wpart_schemes
     assert wpart_schemes['hi'] is HirshfeldIWPart
     assert wpart_schemes['hi'].options == ['lmax', 'threshold', 'maxiter', 'greedy']
     assert not wpart_schemes['hi'].linear
@@ -101,14 +100,6 @@ def test_script_water_sto3g_hi_noderiv():
     check_script_water_sto3g('hi', do_deriv=False)
 
 
-def test_script_water_sto3g_he():
-    check_script_water_sto3g('he')
-
-
-def test_script_water_sto3g_he_noderiv():
-    check_script_water_sto3g('he', do_deriv=False)
-
-
 def check_script_ch3_rohf_sto3g(scheme, do_deriv=True):
     with tmpdir('horton.scripts.test.test_wpart.test_script_ch3_rohf_sto3g_%s' % scheme) as dn:
         fn_fchk = 'ch3_rohf_sto3g_g03.fchk'
@@ -144,11 +135,3 @@ def test_script_ch3_rohf_sto3g_hi():
 
 def test_script_ch3_rohf_sto3g_hi_noderiv():
     check_script_ch3_rohf_sto3g('hi', do_deriv=False)
-
-
-def test_script_ch3_rohf_sto3g_he():
-    check_script_ch3_rohf_sto3g('he')
-
-
-def test_script_ch3_rohf_sto3g_he_noderiv():
-    check_script_ch3_rohf_sto3g('he', do_deriv=False)
