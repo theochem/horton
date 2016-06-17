@@ -91,11 +91,7 @@ def check_fake(scheme, pseudo, dowcor, local, absmean, **kwargs):
     assert abs(charges.sum()) < 1e-2
     assert abs(abs(charges).mean() - absmean) < 1e-3
 
-    if kwargs.get('greedy', False):
-        # In case of a greedy algorithm, one should compare the proatoms
-        # in the partitioning object with proatoms directly evaluate with the
-        # proatom splines
-        check_proatom_splines(cpart)
+    check_proatom_splines(cpart)
 
 
 @attr('slow')
@@ -151,31 +147,3 @@ def test_hirshfeld_i_fake_pseudo_nowcor_local():
 
 def test_hirshfeld_i_fake_pseudo_nowcor_global():
     check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.400, threshold=1e-4)
-
-
-@attr('slow')
-def test_hirshfeld_i_fake_local_greedy():
-    check_fake('hi', pseudo=False, dowcor=True, local=True, absmean=0.428, threshold=1e-5, greedy=True)
-
-
-@attr('slow')
-def test_hirshfeld_i_fake_global_greedy():
-    check_fake('hi', pseudo=False, dowcor=True, local=False, absmean=0.428, threshold=1e-5, greedy=True)
-
-
-@attr('slow')
-def test_hirshfeld_i_fake_pseudo_local_greedy():
-    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.400, threshold=1e-4, greedy=True)
-
-
-def test_hirshfeld_i_fake_pseudo_global_greedy():
-    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.400, threshold=1e-4, greedy=True)
-
-
-@attr('slow')
-def test_hirshfeld_i_fake_pseudo_nowcor_local_greedy():
-    check_fake('hi', pseudo=True, dowcor=True, local=True, absmean=0.400, threshold=1e-4, greedy=True)
-
-
-def test_hirshfeld_i_fake_pseudo_nowcor_global_greedy():
-    check_fake('hi', pseudo=True, dowcor=True, local=False, absmean=0.400, threshold=1e-4, greedy=True)

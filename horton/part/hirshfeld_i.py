@@ -33,13 +33,12 @@ __all__ = ['HirshfeldIWPart', 'HirshfeldICPart']
 
 class HirshfeldIMixin(IterativeProatomMixin):
     name = 'hi'
-    options = ['lmax', 'threshold', 'maxiter', 'greedy']
+    options = ['lmax', 'threshold', 'maxiter']
     linear = False
 
-    def __init__(self, threshold=1e-6, maxiter=500, greedy=False):
+    def __init__(self, threshold=1e-6, maxiter=500):
         self._threshold = threshold
         self._maxiter = maxiter
-        self._greedy = greedy
 
     def _init_log_scheme(self):
         if log.do_medium:
@@ -52,10 +51,7 @@ class HirshfeldIMixin(IterativeProatomMixin):
             log.cite('bultinck2007', 'the use of Hirshfeld-I partitioning')
 
     def get_memory_estimates(self):
-        if self._greedy:
-            return [('Isolated atoms', np.ones(self.natom)*3, 0),] # This is a conservative estimate.
-        else:
-            return []
+        return [('Isolated atoms', np.ones(self.natom)*3, 0),] # This is a conservative estimate.
 
     def get_interpolation_info(self, i, charges=None):
         if charges is None:
@@ -81,11 +77,7 @@ class HirshfeldIMixin(IterativeProatomMixin):
         if grid is None:
             grid = self.get_grid(index)
         key = key + (index, id(grid))
-        if self._greedy:
-            result, new = self.cache.load(*key, alloc=grid.shape)
-        else:
-            result = grid.zeros()
-            new = True
+        result, new = self.cache.load(*key, alloc=grid.shape)
         if new:
             self.eval_spline(index, spline, result, grid, label)
         return result
@@ -127,7 +119,7 @@ class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
 
     def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens,
                  proatomdb, spindens=None, local=True, lmax=3, threshold=1e-6,
-                 maxiter=500, greedy=False):
+                 maxiter=500):
         '''
            **Arguments:** (that are not defined in ``WPart``)
 
@@ -145,11 +137,8 @@ class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
            maxiter
                 The maximum number of iterations. If no convergence is reached
                 in the end, no warning is given.
-
-           greedy
-                Reduce the CPU cost at the expense of more memory consumption.
         '''
-        HirshfeldIMixin.__init__(self, threshold, maxiter, greedy)
+        HirshfeldIMixin.__init__(self, threshold, maxiter)
         HirshfeldWPart.__init__(self, coordinates, numbers, pseudo_numbers,
                                 grid, moldens, proatomdb, spindens, local, lmax)
 
@@ -160,10 +149,7 @@ class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
         )
 
     def eval_proatom(self, index, output, grid=None):
-        if self._greedy:
-            HirshfeldIMixin.eval_proatom(self, index, output, grid)
-        else:
-            HirshfeldWPart.eval_proatom(self, index, output, grid)
+        HirshfeldIMixin.eval_proatom(self, index, output, grid)
 
 
 class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
@@ -172,7 +158,7 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
     def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens,
                  proatomdb, spindens=None, local=True, lmax=3,
                  wcor_numbers=None, wcor_rcut_max=2.0, wcor_rcond=0.1,
-                 threshold=1e-6, maxiter=500, greedy=False):
+                 threshold=1e-6, maxiter=500):
         '''
            **Arguments:** (that are not defined in ``CPart``)
 
@@ -190,11 +176,8 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
            maxiter
                 The maximum number of iterations. If no convergence is reached
                 in the end, no warning is given.
-
-           greedy
-                Reduce the CPU cost at the expense of more memory consumption.
         '''
-        HirshfeldIMixin.__init__(self, threshold, maxiter, greedy)
+        HirshfeldIMixin.__init__(self, threshold, maxiter)
         HirshfeldCPart.__init__(self, coordinates, numbers, pseudo_numbers,
                                 grid, moldens, proatomdb, spindens, local,
                                 lmax, wcor_numbers, wcor_rcut_max, wcor_rcond)
@@ -206,7 +189,4 @@ class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
         )
 
     def eval_proatom(self, index, output, grid=None):
-        if self._greedy:
-            HirshfeldIMixin.eval_proatom(self, index, output, grid)
-        else:
-            HirshfeldCPart.eval_proatom(self, index, output, grid)
+        HirshfeldIMixin.eval_proatom(self, index, output, grid)

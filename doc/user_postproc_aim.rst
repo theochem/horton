@@ -558,10 +558,6 @@ following options to control the efficiency of the program:
   is defined per element. This implies that the tail of the most diffuse anion
   determines the cutoff radius when the ``--compact`` option is used.
 
-* ``--greedy``. This enables a more memory-hungry version of the Iterative and
-  Extended Hirshfeld algorithms that runs considerably faster. This becomes
-  unfeasible for systems with huge unit cells.
-
 * ``--stride STRIDE``. The ``STRIDE`` parameter controls the sub-sampling of the
   cube file prior to the partitioning. It is ``1`` by default.
 

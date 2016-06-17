@@ -34,7 +34,7 @@ def test_wpart_schemes():
     assert 'h' in wpart_schemes
     assert 'hi' in wpart_schemes
     assert wpart_schemes['hi'] is HirshfeldIWPart
-    assert wpart_schemes['hi'].options == ['lmax', 'threshold', 'maxiter', 'greedy']
+    assert wpart_schemes['hi'].options == ['lmax', 'threshold', 'maxiter']
     assert not wpart_schemes['hi'].linear
     assert wpart_schemes['h'].linear
     assert wpart_schemes['b'].linear
