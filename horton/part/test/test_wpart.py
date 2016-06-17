@@ -116,6 +116,8 @@ def check_msa_hf_lan(scheme, expecting, needs_padb=True, **kwargs):
     wpart.do_charges()
     assert abs(wpart['charges'] - expecting).max() < 4e-3
 
+    check_proatom_splines(wpart)
+
 
 def test_hirshfeld_msa_hf_lan_local():
     expecting = np.array([0.56175431, -0.30002709, -0.28602105, -0.28335086, -0.26832878,  0.13681904,  0.14535691,  0.14206876,  0.15097682])
