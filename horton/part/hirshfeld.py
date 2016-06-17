@@ -97,17 +97,15 @@ class HirshfeldMixin(object):
         c6s, new_c6s = self._cache.load('c6s', alloc=self.natom, tags='o')
 
         if new_volumes or new_volume_ratios or new_c6s:
-            self.do_populations()
             self.do_moments()
             radial_moments = self._cache.load('radial_moments')
-            populations = self._cache.load('populations')
 
             if log.do_medium:
                 log('Computing atomic dispersion coefficients.')
 
             for i in xrange(self.natom):
                 n = self.numbers[i]
-                volumes[i] = radial_moments[i,3]
+                volumes[i] = radial_moments[i, 3]
                 ref_volume = self.proatomdb.get_record(n, 0).get_moment(3)
                 volume_ratios[i] = volumes[i]/ref_volume
                 if n in ref_c6s:
