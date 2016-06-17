@@ -1565,10 +1565,7 @@ class DenseTwoIndex(TwoIndex):
         elif isinstance(other, float) or isinstance(other, int):
             self._array[:] = other
         elif isinstance(other, np.ndarray):
-            if other.shape == self.shape:
-                self._array[:] = other
-            else:
-                self._array[:] = other.reshape((self.nbasis, self.nbasis1))
+            self._array[:] = other
         else:
             raise TypeError('Do not know how to assign object of type %s.' % type(other))
 
