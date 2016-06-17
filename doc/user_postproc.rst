@@ -27,5 +27,3 @@ Post-processing
 
    user_postproc_aim
    user_postproc_espfit
-   user_postproc_localization
-   user_postproc_orbital_entanglement
