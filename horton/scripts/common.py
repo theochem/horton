@@ -208,7 +208,7 @@ def store_args(args, grp):
 
 
 def write_part_output(fn_h5, grp_name, part, keys, args):
-    '''Write the output of horton-wpart.py or horton-cpart.py
+    '''Write the output of horton-wpart.py
 
        **Arguments:**
 

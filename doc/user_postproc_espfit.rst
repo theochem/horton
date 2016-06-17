@@ -187,7 +187,7 @@ that use the the ESP cost functions obtained from the ``horton-esp-cost.py`` scr
 
 The ``horton-esp-test.py`` script can be used to test the quality of a given set of
 charges to reproduce the ESP. These charges are typically obtained
-with ``horton-wpart.py`` or ``horton-cpart.py``. This script can be used as follows:
+with ``horton-wpart.py``. This script can be used as follows:
 
 .. code-block:: bash
 

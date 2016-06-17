@@ -24,11 +24,11 @@
 import numpy as np
 
 from horton.log import log
-from horton.part.hirshfeld import HirshfeldWPart, HirshfeldCPart
+from horton.part.hirshfeld import HirshfeldWPart
 from horton.part.iterstock import IterativeProatomMixin
 
 
-__all__ = ['HirshfeldIWPart', 'HirshfeldICPart']
+__all__ = ['HirshfeldIWPart']
 
 
 class HirshfeldIMixin(IterativeProatomMixin):
@@ -73,21 +73,19 @@ class HirshfeldIMixin(IterativeProatomMixin):
         elif pseudo_pop <= 0:
             raise ValueError('Requesting a pro-atom with a negative (pseudo) population')
 
-    def get_somefn(self, index, spline, key, label, grid=None):
-        if grid is None:
-            grid = self.get_grid(index)
+    def get_somefn(self, index, spline, key, label, grid):
         key = key + (index, id(grid))
         result, new = self.cache.load(*key, alloc=grid.shape)
         if new:
             self.eval_spline(index, spline, result, grid, label)
         return result
 
-    def get_isolated(self, index, charge, grid=None):
+    def get_isolated(self, index, charge, grid):
         number = self.numbers[index]
         spline = self.proatomdb.get_spline(number, charge)
         return self.get_somefn(index, spline, ('isolated', charge), 'isolated q=%+i' % charge, grid)
 
-    def eval_proatom(self, index, output, grid=None):
+    def eval_proatom(self, index, output, grid):
         # Greedy version of eval_proatom
         icharge, x = self.get_interpolation_info(index)
         output[:] = self.get_isolated(index, icharge, grid)
@@ -148,45 +146,5 @@ class HirshfeldIWPart(HirshfeldIMixin, HirshfeldWPart):
             HirshfeldIMixin.get_memory_estimates(self)
         )
 
-    def eval_proatom(self, index, output, grid=None):
-        HirshfeldIMixin.eval_proatom(self, index, output, grid)
-
-
-class HirshfeldICPart(HirshfeldIMixin, HirshfeldCPart):
-    '''Iterative Hirshfeld partitioning with uniform grids'''
-
-    def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens,
-                 proatomdb, spindens=None, local=True, lmax=3,
-                 wcor_numbers=None, wcor_rcut_max=2.0, wcor_rcond=0.1,
-                 threshold=1e-6, maxiter=500):
-        '''
-           **Arguments:** (that are not defined in ``CPart``)
-
-           proatomdb
-                In instance of ProAtomDB that contains all the reference atomic
-                densities.
-
-           **Optional arguments:** (that are not defined in ``CPart``)
-
-           threshold
-                The procedure is considered to be converged when the maximum
-                change of the charges between two iterations drops below this
-                threshold.
-
-           maxiter
-                The maximum number of iterations. If no convergence is reached
-                in the end, no warning is given.
-        '''
-        HirshfeldIMixin.__init__(self, threshold, maxiter)
-        HirshfeldCPart.__init__(self, coordinates, numbers, pseudo_numbers,
-                                grid, moldens, proatomdb, spindens, local,
-                                lmax, wcor_numbers, wcor_rcut_max, wcor_rcond)
-
-    def get_memory_estimates(self):
-        return (
-            HirshfeldCPart.get_memory_estimates(self) +
-            HirshfeldIMixin.get_memory_estimates(self)
-        )
-
-    def eval_proatom(self, index, output, grid=None):
+    def eval_proatom(self, index, output, grid):
         HirshfeldIMixin.eval_proatom(self, index, output, grid)

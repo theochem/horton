@@ -123,5 +123,5 @@ Variable names and prefixes
     The alpha - beta electron density (typically as an array of electron density
     values evaluated on a grid.)
 
-:index:`wpart` or :index:`cpart`
+:index:`wpart`
     A partitioning scheme.
