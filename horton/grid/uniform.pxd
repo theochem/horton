@@ -38,19 +38,4 @@ cdef extern from "horton/grid/uniform.h":
         double dist_grid_point(double* center, long* i)
         void delta_grid_point(double* center, long* i)
 
-    cdef cppclass UniformGridWindow:
-        long begin[3]
-        long end[3]
-
-        UniformGridWindow(UniformGrid* ugrid, long* begin, long* end)
-
-        void extend(double* cell, double* local)
-        void wrap(double* local, double* cell)
-
     long index_wrap(long i, long high)
-
-    cdef cppclass Block3Iterator:
-        Block3Iterator(long* begin, long* end, long* shape)
-
-        void copy_block_begin(long* output)
-        void copy_block_end(long* output)

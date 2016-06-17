@@ -27,4 +27,3 @@ cdef class UniformGrid:
 
 cdef class UniformGridWindow:
     cdef UniformGrid _ugrid
-    cdef uniform.UniformGridWindow* _this
