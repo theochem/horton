@@ -218,6 +218,7 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor):
     else:
         copied_script = os.path.join(qaworkdir, os.path.basename(script))
         shutil.copy(script, copied_script)
+        shutil.copy('tools/qa/trapdoor.py', os.path.join(qaworkdir, 'trapdoor.py'))
         # Check out the master branch. (We should be constructing the ancestor etc. but
         # that should come down to the same thing for a PR.)
         repo.heads.master.checkout()
