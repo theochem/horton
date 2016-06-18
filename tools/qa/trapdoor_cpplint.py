@@ -76,7 +76,7 @@ class CPPLintTrapdoorProgram(TrapdoorProgram):
 
         # Call cpplint
         command = [self.cpplint_file, '--linelength=100'] + get_source_filenames(config, 'cpp')
-        output = run_command(command, has_failed=has_failed)[0]
+        output = run_command(command, has_failed=has_failed)[1]
 
         # Parse the output of cpplint into standard return values
         counter = Counter()
