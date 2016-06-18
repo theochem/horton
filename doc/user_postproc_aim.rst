@@ -52,7 +52,6 @@ Becke                    X                                                      
 Hirshfeld                X                           X                           [hirshfeld1977]_
 Iterative Hirshfeld      X                           X                           [bultinck2007]_
 Iterative Stockholder    X                                                       [lillestolen2008]_
-Extended Hirshfeld       X                           X                           [verstraelen2013]_
 **AIM properties**
 Charges                  X                           X
 Spin charges             X
@@ -427,7 +426,6 @@ This script has four important arguments:
     * ``h``: Hirshfeld partitioning. [hirshfeld1977]_
     * ``hi``: Iterative Hirshfeld partitioning. [bultinck2007]_
     * ``is``: Iterative Stockholder partitioning. [lillestolen2008]_
-    * ``he``: Extended Hirshfeld partitioning. [verstraelen2013]_
 
 4. The ``atoms.h5`` argument is only needed for the Hirshfeld variants, not for
    ``b`` and ``is``. The file ``atoms.h5`` contains a database of pro-atoms and
@@ -542,7 +540,6 @@ The script takes three arguments:
 
         * ``h``: Hirshfeld partitioning. [hirshfeld1977]_
         * ``hi``: Iterative Hirshfeld partitioning. [bultinck2007]_
-        * ``he``: Extended Hirshfeld partitioning. [verstraelen2013]_
 
 4. The fourth argument is the pro-atom database generated with ``horton-atomdb.py`` script.
 
@@ -560,10 +557,6 @@ following options to control the efficiency of the program:
   pro-atoms are renormalized after setting the cutoff radii. One cutoff radius
   is defined per element. This implies that the tail of the most diffuse anion
   determines the cutoff radius when the ``--compact`` option is used.
-
-* ``--greedy``. This enables a more memory-hungry version of the Iterative and
-  Extended Hirshfeld algorithms that runs considerably faster. This becomes
-  unfeasible for systems with huge unit cells.
 
 * ``--stride STRIDE``. The ``STRIDE`` parameter controls the sub-sampling of the
   cube file prior to the partitioning. It is ``1`` by default.
@@ -633,7 +626,6 @@ Frequently asked questions
 
     * [verstraelen2011a]_ "Assessment of Atomic Charge Models for Gas-Phase Computations on Polypeptides"
     * [verstraelen2012a]_ "The conformational sensitivity of iterative stockholder partitioning schemes"
-    * [verstraelen2013]_ "Hirshfeld-E Partitioning: AIM Charges with an Improved Trade-off between Robustness and Accurate Electrostatics"
 
     The following are also related to this question, but the list is far from
     complete:
@@ -646,9 +638,9 @@ Frequently asked questions
 
 **What is the recommended level of theory for computing the pro-atom databses?**
 
-    This question is relevant to the following methods implemented in HORTON:
-    Hirshfeld, Hirshfeld-I and Hirshfeld-E, which require a pro-atoms database. They are referred to in this answer
-    as Hirshfeld-like schemes.
+    This question is relevant to the following methods implemented in HORTON: Hirshfeld
+    and Hirshfeld-I, which require a pro-atoms database. They are referred to in this
+    answer as Hirshfeld-like schemes.
 
     In principle, you are free to choose any level of theory. In
     practice, several papers tend to be consistent in the level of theory (and

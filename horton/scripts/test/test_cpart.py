@@ -32,7 +32,6 @@ from horton.scripts.cpart import cpart_schemes
 def test_cpart_schemes():
     assert 'h' in cpart_schemes
     assert 'hi' in cpart_schemes
-    assert 'he' in cpart_schemes
     assert cpart_schemes['hi'] is HirshfeldICPart
 
     for CPartClass in cpart_schemes.itervalues():
