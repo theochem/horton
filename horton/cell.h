@@ -190,45 +190,6 @@ class Cell {
          */
         void set_ranges_rcut(double* center, double rcut, long* ranges_begin,
             long* ranges_end) const;
-
-        /** @brief
-                Selects a list of periodic images inside a cutoff sphere.
-
-            @return
-                The number of periodic images inside the cutoff sphere.
-
-            @param origin
-                A pointer of three doubles with the origin of a supercell.
-
-            @param center
-                The center of the cutoff sphere.
-
-            @param rcut
-                The cutoff radius.
-
-            @param ranges_begin
-                As obtained with set_ranges_rcut.
-
-            @param ranges_end
-                As obtained with set_ranges_rcut.
-
-            @param shape
-                A pointer of three longs with the shape of the supercell.
-
-            @param pbc
-                A pointer to integer flags indicating the periodicity of the
-                supercell along each periodic boundary condition.
-
-            @param indexes
-                A sufficiently large pre-allocated output array to which the
-                indexes of the selected periodic images are written. The number
-                of rows is the product of the lengths of the ranges specified by
-                ranges_begin and ranges_end. The number of columns equals nvec.
-                The elements are stored in row-major order.
-          */
-        long select_inside(double* origin, double* center, double rcut,
-            long* ranges_begin, long* ranges_end, long* shape,
-            long* pbc, long* indexes) const;
 };
 
 /**

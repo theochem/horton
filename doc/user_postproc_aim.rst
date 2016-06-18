@@ -25,54 +25,41 @@ Atoms-in-Molecules (AIM) analysis
 Introduction
 ============
 
-HORTON supports several real-space atoms-in-molecules (AIM) partitioning schemes. For this purpose, a
-wavefunction or an electron density on a grid can be loaded from several file
+HORTON supports several real-space atoms-in-molecules (AIM) partitioning schemes. For this
+purpose, a wavefunction or an electron density on a grid can be loaded from several file
 formats. An overview of all supported file formats can be found here:
 :ref:`ref_file_formats`. For a given wavefunction or cube file, several AIM partitioning
-schemes can be used to derive AIM observables, e.g. atomic charge, atomic
-multipole expansion, etc.
+schemes can be used to derive AIM observables, e.g. atomic charge, atomic multipole
+expansion, etc. An overview of features is given in the following table.
 
-HORTON supports two different approaches to perform the partitioning: WPart
-(based on wavefunction files) and CPart (based on cube files). The WPart and
-CPart implementations are built on the same algorithms but use different types of
-grids for numerical integration. An overview of both implementations is given by
-the following table:
-
-======================== =========================== =========================== ============
-Feature                  WPart                       CPart                       References
-======================== =========================== =========================== ============
-Command-line script      ``horton-wpart.py``         ``horton-cpart.py``
+======================== ============
+Feature                  References
+======================== ============
 **Boundary conditions**
-0D                       X                           X
-1D                                                   X
-2D                                                   X
-3D                                                   X
+0D
+1D
+2D
+3D
 **AIM schemes**
-Becke                    X                                                       [becke1988_multicenter]_
-Hirshfeld                X                           X                           [hirshfeld1977]_
-Iterative Hirshfeld      X                           X                           [bultinck2007]_
-Iterative Stockholder    X                                                       [lillestolen2008]_
+Becke                    [becke1988_multicenter]_
+Hirshfeld                [hirshfeld1977]_
+Iterative Hirshfeld      [bultinck2007]_
+Iterative Stockholder    [lillestolen2008]_
 **AIM properties**
-Charges                  X                           X
-Spin charges             X
-Cartesian multipoles     X                           X
-Pure/harmonic multipoles X                           X
-Radial moments           X                           X
-Dispersion coefficients  X                           X                           [tkatchenko2009]_
-Spherical decomposition  X
-ESP due to each AIM      X                                                       [becke1988_poisson]_
-ESP due to pro-atom      X                           X                           [becke1988_poisson]_
-Wiberg bond order        X
-Kohn-Sham response       X
+Charges
+Spin charges
+Cartesian multipoles
+Pure/harmonic multipoles
+Radial moments
+Dispersion coefficients  [tkatchenko2009]_
+Spherical decomposition
+ESP due to each AIM      [becke1988_poisson]_
+ESP due to pro-atom      [becke1988_poisson]_
+Wiberg bond order
+Kohn-Sham response
 **Extra options**
-Symmetry analysis                                    X
-======================== =========================== =========================== ============
-
-Note that Gaussian cube files can be generated from other programs like CPMD,
-ADF, Siesta, Crystal, etc. The output of all these programs should be compatible
-with HORTON. Moreover, both all-electron and pseudo-potential
-wavefunctions can be partitioned with HORTON. However, very fine grids are required for all-electron
-partitioning with CPart.
+Symmetry analysis
+======================== ============
 
 For almost all the Hirshfeld variants, you must first set up a pro-atom database
 densities, preferably at the same level of theory used for the molecular
@@ -86,13 +73,13 @@ with Python scripts. The ``horton-hdf2csv.py`` script can be used to convert
 (part of) an HDF5 file into the "comma-separated value" (CSV) format, which is
 supported by most spreadsheet software.
 
-The usage of the four scripts (``horton-atomdb.py``, ``horton-wpart.py``,
-``horton-cpart.py`` and ``horton-hdf2csv.py``) will be discussed in :ref:`atomdb`,
-:ref:`wpart`, :ref:`cpart`, and :ref:`hdf2csv`, respectively. All scripts have
-a ``--help`` flag that prints out their complete list of command-line arguments. The penultimate
-section, :ref:`partition`, shows how to use the partitioning code through the
-Python interface. The last section, :ref:`faq`, answers some frequently asked
-questions regarding AIM partitioning with HORTON.
+The usage of the tjree scripts (``horton-atomdb.py``, ``horton-wpart.py``, and
+``horton-hdf2csv.py``) will be discussed in :ref:`atomdb`, :ref:`wpart`, and
+:ref:`hdf2csv`, respectively. All scripts have a ``--help`` flag that prints out their
+complete list of command-line arguments. The penultimate section, :ref:`partition`, shows
+how to use the partitioning code through the Python interface. The last section,
+:ref:`faq`, answers some frequently asked questions regarding AIM partitioning with
+HORTON.
 
 .. _atomdb:
 
@@ -453,133 +440,22 @@ The integration grid can be tuned with :ref:`ref_grid_option`.
     matrix. Also note that for some levels of theory, no 1RDM is constructed,
     including MP4, MP5, ZINDO and QCISD(T).
 
-.. _cpart:
-
-``horton-cpart.py`` -- AIM analysis based on a cube file
-========================================================
-
-The basic usage of ``horton-cpart.py`` is as follows:
-
-.. code-block:: bash
-
-    horton-cpart.py cube output.h5:group {h,hi,he} atoms.h5
-
-The script takes three arguments:
-
-1. The ``cube`` argument can be a Gaussian cube file (possibly generated with
-   another program, e.g. CP2K). Some information must be added to the cube file
-   about the effective core charges that were used. This information is needed
-   to compute the correct net charges. (This is not only relevant for the final
-   output, but also for constructing the proper pro-atoms. When these numbers
-   are not set correctly, you'll get garbage output.)
-
-   For example, given an original cube file with the following header::
-
-           -Quickstep-
-            ELECTRON DENSITY
-              18    0.000000    0.000000    0.000000
-              54    0.183933    0.000000    0.000000
-              75    0.000000    0.187713    0.000000
-              81    0.000000    0.000000    0.190349
-               8    0.000000    0.000000    3.677294    0.000000
-               8    0.000000    4.966200   10.401166    0.000000
-               8    0.000000    0.000000   10.401166    0.000000
-               8    0.000000    4.966200    3.677294    0.000000
-               8    0.000000    2.483100    0.000000    2.243351
-               8    0.000000    7.449300    0.000000   13.174925
-               8    0.000000    2.483100    4.554391    4.206115
-               8    0.000000    2.483100    9.524087    4.206115
-               8    0.000000    7.449300    9.524087   11.212180
-               8    0.000000    7.449300    4.554391   11.212180
-               8    0.000000    4.966200    7.039230    7.709138
-               8    0.000000    0.000000    7.039230    7.709138
-              14    0.000000    2.483100    2.971972    1.606588
-              14    0.000000    2.483100   11.106506    1.606588
-              14    0.000000    7.449300   11.106506   13.811687
-              14    0.000000    7.449300    2.971972   13.811687
-              14    0.000000    2.483100    7.039230    5.959157
-              14    0.000000    7.449300    7.039230    9.459119
-
-   Now consider the case that 6 effective electrons were used for oxygen and 4
-   effective electrons for silicon. Then, the second column in the atom lines
-   has to be set to the effective core charge. (This number is not used in the
-   cube format.) In this case, you get::
-
-           -Quickstep-
-            ELECTRON DENSITY
-              18    0.000000    0.000000    0.000000
-              54    0.183933    0.000000    0.000000
-              75    0.000000    0.187713    0.000000
-              81    0.000000    0.000000    0.190349
-               8    6.0         0.000000    3.677294    0.000000
-               8    6.0         4.966200   10.401166    0.000000
-               8    6.0         0.000000   10.401166    0.000000
-               8    6.0         4.966200    3.677294    0.000000
-               8    6.0         2.483100    0.000000    2.243351
-               8    6.0         7.449300    0.000000   13.174925
-               8    6.0         2.483100    4.554391    4.206115
-               8    6.0         2.483100    9.524087    4.206115
-               8    6.0         7.449300    9.524087   11.212180
-               8    6.0         7.449300    4.554391   11.212180
-               8    6.0         4.966200    7.039230    7.709138
-               8    6.0         0.000000    7.039230    7.709138
-              14    4.0         2.483100    2.971972    1.606588
-              14    4.0         2.483100   11.106506    1.606588
-              14    4.0         7.449300   11.106506   13.811687
-              14    4.0         7.449300    2.971972   13.811687
-              14    4.0         2.483100    7.039230    5.959157
-              14    4.0         7.449300    7.039230    9.459119
-
-2. The output file (HDF5 format) in which the partitioning results are written.
-   Usually, the output file has the extension
-   ``.h5``. The output file is optionally followed by a colon and a group
-   suffix. This suffix can be used to specify a group in the HDF5 output file
-   where the output is stored.
-
-3. The third argument refers to the partitioning scheme:
-
-        * ``h``: Hirshfeld partitioning. [hirshfeld1977]_
-        * ``hi``: Iterative Hirshfeld partitioning. [bultinck2007]_
-
-4. The fourth argument is the pro-atom database generated with ``horton-atomdb.py`` script.
-
-The ``horton-cpart.py`` script computes atomic weight functions, and then derives
-all AIM observables that are implemented for that scheme. These results are
-stored in the specifief HDF5 output file.
-
-The ``horton-cpart.py`` script is somewhat experimental. Always make sure that the
-numbers converge with an increase in the number of grid points. You may need the
-following options to control the efficiency of the program:
-
-* ``--compact COMPACT``. Automatically determine cutoff radii for the pro-atoms,
-  where ``COMPACT`` is the maximum number of electrons lost in the tail after
-  the cutoff radius. 0.001 is typically a reasonable value for ``COMPACT``. The
-  pro-atoms are renormalized after setting the cutoff radii. One cutoff radius
-  is defined per element. This implies that the tail of the most diffuse anion
-  determines the cutoff radius when the ``--compact`` option is used.
-
-* ``--stride STRIDE``. The ``STRIDE`` parameter controls the sub-sampling of the
-  cube file prior to the partitioning. It is ``1`` by default.
-
-To get a complete list of command-line options, run::
-
-    horton-cpart.py --help
 
 .. _partition:
 
 Python interface to the partitioning code
 =========================================
 
-The ``horton-wpart.py`` and ``horton-cpart.py`` scripts have a rather intuitive
-Python interface that allows you to run a more customized analysis. The script
-``data/examples/wpart/becke.py`` is a simple example that runs a Becke partitioning
-to compute charges and that writes the charges into a simple text file.
+The ``horton-wpart.py`` script has a rather intuitive Python interface that allows you to
+run a more customized analysis. The script ``data/examples/wpart/becke.py`` is a simple
+example that runs a Becke partitioning to compute charges and that writes the charges into
+a simple text file.
 
 .. literalinclude:: ../data/examples/wpart/becke.py
 
 The unit tests in the source code contain many small examples that can be used
 as a starting point for similar scripts. These unit tests can be found in
-``horton/part/test/test_wpart.py`` and ``horton/part/test/test_cpart.py``.
+``horton/part/test/test_wpart.py``.
 
 .. _faq:
 

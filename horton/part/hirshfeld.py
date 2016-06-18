@@ -23,10 +23,10 @@
 
 from horton.cache import just_once
 from horton.log import log
-from horton.part.stockholder import StockholderWPart, StockholderCPart
+from horton.part.stockholder import StockholderWPart
 
 
-__all__ = ['HirshfeldWPart', 'HirshfeldCPart']
+__all__ = ['HirshfeldWPart']
 
 
 def check_proatomdb(numbers, pseudo_numbers, proatomdb):
@@ -129,34 +129,3 @@ class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
         HirshfeldMixin. __init__(self, numbers, pseudo_numbers, proatomdb)
         StockholderWPart.__init__(self, coordinates, numbers, pseudo_numbers,
                                   grid, moldens, spindens, local, lmax)
-
-
-class HirshfeldCPart(HirshfeldMixin, StockholderCPart):
-    '''Hirshfeld partitioning with uniform grids'''
-
-    def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens,
-                 proatomdb, spindens=None, local=True, lmax=3,
-                 wcor_numbers=None, wcor_rcut_max=2.0, wcor_rcond=0.1):
-        '''
-           **Arguments:** (that are not defined in ``CPart``)
-
-           proatomdb
-                In instance of ProAtomDB that contains all the reference atomic
-                densities.
-        '''
-        HirshfeldMixin. __init__(self, numbers, pseudo_numbers, proatomdb)
-        StockholderCPart.__init__(self, coordinates, numbers, pseudo_numbers,
-                                  grid, moldens, spindens, local, lmax,
-                                  wcor_numbers, wcor_rcut_max, wcor_rcond)
-
-    def get_cutoff_radius(self, index):
-        '''The radius at which the weight function goes to zero'''
-        rtf = self.get_rgrid(index).rtransform
-        return rtf.radius(rtf.npoint-1)
-
-    def get_wcor_funcs(self, index):
-        number = self.numbers[index]
-        if number in self.wcor_numbers:
-            return [(self.coordinates[index], [self._proatomdb.get_spline(number)])]
-        else:
-            return []

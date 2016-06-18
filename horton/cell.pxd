@@ -46,8 +46,5 @@ cdef extern from "horton/cell.h":
 
         void set_ranges_rcut(double* delta, double rcut, long* ranges_begin,
             long* ranges_end)
-        long select_inside(double* origin, double* center, double rcut,
-            long* ranges_begin, long* ranges_end, long* shape,
-            long* pbc, long* indexes) except +
 
     long smart_wrap(long i, long shape, long pbc)

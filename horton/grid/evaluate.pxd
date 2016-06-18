@@ -25,9 +25,6 @@ cimport cubic_spline
 cimport uniform
 
 cdef extern from "horton/grid/evaluate.h":
-    void eval_spline_cube(cubic_spline.CubicSpline* spline, double* center,
-        double* output, uniform.UniformGrid* ugrid)
-
     void eval_spline_grid(cubic_spline.CubicSpline* spline, double* center,
         double* output, double* points, horton.cell.Cell* cell,
         long npoint)

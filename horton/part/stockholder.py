@@ -25,12 +25,12 @@ import numpy as np
 
 from horton.log import log
 from horton.grid.cext import CubicSpline
-from horton.part.base import WPart, CPart
+from horton.part.base import WPart
 from horton.grid.poisson import solve_poisson_becke
 
 
 __all__ = [
-    'StockholderWPart', 'StockholderCPart',
+    'StockholderWPart',
 ]
 
 
@@ -79,16 +79,14 @@ class StockHolderMixin(object):
         rtf = self.get_rgrid(index).rtransform
         return CubicSpline(rho, deriv, rtf)
 
-    def eval_spline(self, index, spline, output, grid=None, label='noname'):
+    def eval_spline(self, index, spline, output, grid, label='noname'):
         center = self.coordinates[index]
-        if grid is None:
-            grid = self.get_grid(index)
         if log.do_debug:
             number = self.numbers[index]
             log('  Evaluating spline (%s) for atom %i (n=%i) on %i grid points' % (label, index, number, grid.size))
         grid.eval_spline(spline, center, output)
 
-    def eval_proatom(self, index, output, grid=None):
+    def eval_proatom(self, index, output, grid):
         spline = self.get_proatom_spline(index)
         output[:] = 0.0
         self.eval_spline(index, spline, output, grid, label='proatom')
@@ -143,18 +141,3 @@ class StockholderWPart(StockHolderMixin, WPart):
         self.eval_proatom(index, work, self.grid)
         promoldens += work
         proatdens[:] = self.to_atomic_grid(index, work)
-
-
-class StockholderCPart(StockHolderMixin, CPart):
-    def update_pro(self, index, proatdens, promoldens):
-        self.eval_proatom(index, proatdens)
-        promoldens += self.to_sys_grid(index, proatdens)
-
-    def to_sys_grid(self, index, data):
-        if self.local:
-            result = self.grid.zeros()
-            grid = self.get_grid(index)
-            grid.wrap(data, result)
-            return result
-        else:
-            return data

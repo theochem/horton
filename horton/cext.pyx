@@ -331,66 +331,6 @@ cdef class Cell:
             <long*>np.PyArray_DATA(ranges_end))
         return ranges_begin, ranges_end
 
-    def select_inside(self, np.ndarray[double, ndim=1] origin not None,
-                      np.ndarray[double, ndim=1] center not None,
-                      double rcut,
-                      np.ndarray[long, ndim=1] ranges_begin not None,
-                      np.ndarray[long, ndim=1] ranges_end not None,
-                      np.ndarray[long, ndim=1] shape not None,
-                      np.ndarray[long, ndim=1] pbc not None,
-                      np.ndarray[long, ndim=2] indexes not None):
-        '''Select the indexes of periodic images inside a cutoff sphere
-
-           **Arguments:**
-
-           origin
-                The origin of a supercell.
-
-           center
-                The center of the cutoff sphere.
-
-           rcut
-                The cutoff radius.
-
-           ranges_begin, ranges_end
-                As obtained with :py:meth:`horton.cext.Cell.get_ranges_rcut`.
-
-           shape
-                The shape of the supercell
-
-           indexes
-                A sufficiently large output array. The number of rows is the
-                product of the lengths of the ranges specified by ranges_begin
-                and ranges_end. The number of columns equals ``nvec``.
-        '''
-
-        assert origin.flags['C_CONTIGUOUS']
-        assert origin.size == 3
-        assert center.flags['C_CONTIGUOUS']
-        assert center.size == 3
-        assert rcut >= 0
-        assert ranges_begin.flags['C_CONTIGUOUS']
-        assert ranges_begin.size == self.nvec
-        assert ranges_end.flags['C_CONTIGUOUS']
-        assert ranges_end.size == self.nvec
-        assert indexes.flags['C_CONTIGUOUS']
-        nselect_max = np.product(ranges_end - ranges_begin)
-        assert shape.flags['C_CONTIGUOUS']
-        assert shape.shape[0] == self.nvec
-        assert pbc.flags['C_CONTIGUOUS']
-        assert pbc.shape[0] == self.nvec
-        assert indexes.shape[0] == nselect_max
-        assert indexes.shape[1] == self.nvec
-
-        return self._this.select_inside(
-            &origin[0], &center[0], rcut,
-            <long*>np.PyArray_DATA(ranges_begin),
-            <long*>np.PyArray_DATA(ranges_end),
-            <long*>np.PyArray_DATA(shape),
-            <long*>np.PyArray_DATA(pbc),
-            <long*>np.PyArray_DATA(indexes))
-
-
 def smart_wrap(long i, long shape, long pbc):
     '''Returned a standardize modulo operation i % shape if pbc is nonzero, -1 otherwise.'''
     return cell.smart_wrap(i, shape, pbc)
