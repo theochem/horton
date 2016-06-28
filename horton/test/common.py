@@ -21,9 +21,12 @@
 
 
 
-import numpy as np, tempfile, shutil
 from contextlib import contextmanager
-import subprocess, os, shlex
+import numpy as np
+import os
+import shutil
+import subprocess
+import tempfile
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
