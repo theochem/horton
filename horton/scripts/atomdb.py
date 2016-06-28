@@ -28,6 +28,7 @@ import stat
 from string import Template as BaseTemplate
 
 import numpy as np
+import matplotlib.pyplot as pt
 
 from horton.io.iodata import IOData
 from horton.log import log
@@ -197,13 +198,6 @@ def plot_atoms(proatomdb, dn='.'):
     dn : str
          Directory where the PNG files will be written. Local directory if not given.
     """
-    try:
-        import matplotlib.pyplot as pt
-    except ImportError:
-        if log.do_warning:
-            log.warn('Skipping plots because matplotlib was not found.')
-        return
-
     def get_color(index):
         """Return a nice color for a given index."""
         colors = ["#FF0000", "#FFAA00", "#00AA00", "#00AAFF", "#0000FF", "#FF00FF", "#777777"]
