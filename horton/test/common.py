@@ -360,6 +360,7 @@ def tmpdir(name):
         shutil.rmtree(dn)
 
 
+@contextmanager
 def numpy_seed(seed=1):
     """Temporarily set NumPy's random seed to a given number.
 
@@ -374,6 +375,7 @@ def numpy_seed(seed=1):
     np.random.set_state(state)
 
 
+@contextmanager
 def truncated_file(name, fn_orig, nline, nadd):
     """Make a temporary truncated copy of a file.
 
