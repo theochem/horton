@@ -21,12 +21,17 @@
 # --
 
 
-import sys, argparse, numpy as np
+import sys
+import argparse
+import numpy as np
 from glob import glob
 
-from horton import log, lebedev_laikov_npoints, ProAtomDB, periodic, \
-    AtomicGridSpec, ProAtomRecord, __version__, IOData
-from horton.scripts.atomdb import *
+from horton import __version__
+from horton.log import log
+from horton.grid.atgrid import AtomicGridSpec
+from horton.part.proatomdb import ProAtomDB, ProAtomRecord
+from horton.scripts.atomdb import iter_states, plot_atoms, Template, EnergyTable, \
+    atom_programs
 
 
 # All, except underflows, is *not* fine.

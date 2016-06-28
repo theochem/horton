@@ -29,7 +29,7 @@ from horton.part.proatomdb import ProAtomDB
 from horton.test.common import check_script, tmpdir
 from horton.scripts.test.common import copy_files, check_files
 
-from horton.scripts.atomdb import *
+from horton.scripts.atomdb import iter_mults, iter_states, plot_atoms
 
 
 def test_iter_mults():
@@ -196,3 +196,14 @@ def test_script_convert_g03():
         assert padb.get_numbers() == [1, 8]
         assert padb.get_charges(1) == [0, -1]
         assert padb.get_charges(8) == [+1, 0, -1]
+
+
+def test_plot_atoms():
+    padb = ProAtomDB.from_refatoms(numbers=[8, 1], max_kation=1, max_anion=1)
+    with tmpdir('horton.scripts.test.test_atomdb.test_plot_atoms') as dn:
+        plot_atoms(padb, dn)
+        fns = [
+            'dens_001__h.png', 'rdens_001__h.png', 'fukui_001__h.png', 'rfukui_001__h.png',
+            'dens_008__o.png', 'rdens_008__o.png', 'fukui_008__o.png', 'rfukui_008__o.png',
+        ]
+        check_files(dn, fns)
