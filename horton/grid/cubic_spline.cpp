@@ -146,7 +146,7 @@ CubicSpline::CubicSpline(double* y, double* dt, Extrapolation* extrapolation,
 }
 
 
-void CubicSpline::eval(double* new_x, double* new_y, int new_n) {
+void CubicSpline::eval(const double* new_x, double* new_y, int new_n) {
     for (int i=0; i < new_n; i++) {
         if (*new_x < first_x) {
             // Left extrapolation
@@ -171,7 +171,7 @@ void CubicSpline::eval(double* new_x, double* new_y, int new_n) {
     }
 }
 
-void CubicSpline::eval_deriv(double* new_x, double* new_dx, int new_n) {
+void CubicSpline::eval_deriv(const double* new_x, double* new_dx, int new_n) {
     for (int i=0; i < new_n; i++) {
         if (*new_x < first_x) {
             // Left extrapolation

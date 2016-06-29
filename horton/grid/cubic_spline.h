@@ -86,7 +86,7 @@ class CubicSpline {
         @param new_n
             The number of values in new_x.
       */
-    void eval(double* new_x, double* new_y, int new_n);
+    void eval(const double* new_x, double* new_y, int new_n);
 
     /** @brief
             Evaluate the derivative of the cubic spline (dy/dx) in a set of new x values.
@@ -100,7 +100,7 @@ class CubicSpline {
         @param new_n
             The number of values in new_x.
       */
-    void eval_deriv(double* new_x, double* new_dx, int new_n);
+    void eval_deriv(const double* new_x, double* new_dx, int new_n);
 
     //! Return the transformation of the x-axis.
     RTransform* get_rtransform() {return rtf;}

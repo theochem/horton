@@ -466,6 +466,9 @@ class AtomicGridSpec(object):
             rgrid = RadialGrid(RTransformClass(rmin, rmax, nrad))
             nll = int(words[4])
             self._init_members_from_tuple((rgrid, nll))
+        else:
+            raise ValueError('Could not interpret atomic grid specification string: "%s"'
+                             % definition)
 
     def _load(self, filename):
         fn = context.get_fn(filename)

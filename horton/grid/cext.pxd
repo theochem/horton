@@ -20,7 +20,29 @@
 # --
 
 
+cimport numpy as np
+
+cimport cubic_spline
+cimport rtransform
 cimport uniform
+
+
+cdef class Extrapolation(object):
+    cdef cubic_spline.Extrapolation* _this
+
+
+cdef class CubicSpline(object):
+    cdef cubic_spline.CubicSpline* _this
+    cdef Extrapolation _extrapolation
+    cdef RTransform _rtransform
+    cdef np.ndarray _y
+    cdef np.ndarray _dx
+    cdef np.ndarray _dt
+
+
+cdef class RTransform(object):
+    cdef rtransform.RTransform* _this
+
 
 cdef class UniformGrid:
     cdef uniform.UniformGrid* _this
