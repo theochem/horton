@@ -61,7 +61,7 @@ __all__ = [
     'build_ode2',
     # rtransform
     'RTransform', 'IdentityRTransform', 'LinearRTransform', 'ExpRTransform',
-    'ShiftedExpRTransform', 'PowerRTransform', 'HyperbolicRTransform',
+    'PowerRTransform', 'HyperbolicRTransform',
     # UniformGrid
     'UniformGrid', 'index_wrap',
     # utils
@@ -893,14 +893,6 @@ cdef class RTransform(object):
             rmax = float(args[1])
             npoint = int(args[2])
             return ExpRTransform(rmin, rmax, npoint)
-        elif clsname == 'ShiftedExpRTransform':
-            if len(args) != 4:
-                raise ValueError('The ShiftedExpRTransform needs four arguments, got %i.' % len(words))
-            rmin = float(args[0])
-            rshift = float(args[1])
-            rmax = float(args[2])
-            npoint = int(args[3])
-            return ShiftedExpRTransform(rmin, rshift, rmax, npoint)
         elif clsname == 'PowerRTransform':
             if len(args) != 3:
                 raise ValueError('The PowerRTransform needs three arguments, got %i.' % len(words))
@@ -1034,52 +1026,6 @@ cdef class ExpRTransform(RTransform):
             raise ValueError('Half method can only be called on a rtransform with an even number of points.')
         rmin = self.radius(1)
         return ExpRTransform(rmin, self.rmax, self.npoint/2)
-
-
-cdef class ShiftedExpRTransform(RTransform):
-    r'''A shifted exponential grid.
-
-       The grid points are distributed as follows:
-
-       .. math:: r_i = r_0 \alpha^i - r_s
-
-       with
-
-       .. math::
-            r_0 = r_{N-1} + r_s
-
-       .. math::
-            \alpha = \log\left(\frac{r_{N-1}+r_s}{r_0}\right)/(N-1).
-    '''
-    def __cinit__(self, double rmin, double rshift, double rmax, int npoint):
-        self._this = <rtransform.RTransform*>(new rtransform.ShiftedExpRTransform(rmin, rshift, rmax, npoint))
-
-    property rmin:
-        def __get__(self):
-            return (<rtransform.ShiftedExpRTransform*>self._this).get_rmin()
-
-    property rshift:
-        def __get__(self):
-            return (<rtransform.ShiftedExpRTransform*>self._this).get_rshift()
-
-    property rmax:
-        def __get__(self):
-            return (<rtransform.ShiftedExpRTransform*>self._this).get_rmax()
-
-    property r0:
-        def __get__(self):
-            return (<rtransform.ShiftedExpRTransform*>self._this).get_r0()
-
-    property alpha:
-        def __get__(self):
-            return (<rtransform.ShiftedExpRTransform*>self._this).get_alpha()
-
-    def to_string(self):
-        return ' '.join(['ShiftedExpRTransform', repr(self.rmin), repr(self.rshift), repr(self.rmax), repr(self.npoint)])
-
-    def chop(self, npoint):
-        rmax = self.radius(npoint-1)
-        return ShiftedExpRTransform(self.rmin, self.rshift, rmax, npoint)
 
 
 cdef class PowerRTransform(RTransform):

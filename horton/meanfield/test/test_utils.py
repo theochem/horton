@@ -20,7 +20,7 @@
 # --
 
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 def check_spin(fn_fchk, sz0, ssq0, eps):
