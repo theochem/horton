@@ -74,6 +74,17 @@ class GB2NuclearAttractionIntegral: public GB2Integral {
     };
 
 
+class GB2MomentIntegral: public GB2Integral {
+    private:
+        long* xyz;
+        double* center;
+
+    public:
+        GB2MomentIntegral(long max_shell_type, long* xyz, double* center);
+        virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
+    };
+
+
 class GB4Integral : public GBCalculator {
     protected:
         long shell_type0, shell_type1, shell_type2, shell_type3;

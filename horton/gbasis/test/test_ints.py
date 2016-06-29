@@ -2187,6 +2187,84 @@ def test_nuclear_attraction_co_ccpv5z_cart_hf():
     check_g09_nuclear_attraction(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
 
 
+def check_g09_dipole(fn_fchk, dipole_values):
+    mol = IOData.from_file(fn_fchk)
+    nocc=int(np.sum(mol.exp_alpha.occupations))
+    xyz_array = np.array([[1,0,0],[0,1,0],[0,0,1]])
+    center = np.zeros(3)
+    dm_alpha = mol.exp_alpha.to_dm()
+    dipole = []
+    for xyz in xyz_array:
+        dipole_ints = mol.obasis.compute_multipole_moment(xyz, center, mol.lf)
+        ham = REffHam([RTwoIndexTerm(dipole_ints, 'dipole')])
+        ham.reset(dm_alpha)
+        dipole_v = -ham.compute_energy()
+        for i,n in enumerate(mol.pseudo_numbers):
+            dipole_v += n*pow(mol.coordinates[i,0],xyz[0])*pow(mol.coordinates[i,1],xyz[1])* \
+                          pow(mol.coordinates[i,2],xyz[2])
+        dipole.append(dipole_v)
+    np.testing.assert_almost_equal(dipole, dipole_values, decimal=6)
+
+
+def test_dipole_water_sto3g_hf():
+    check_g09_dipole(context.get_fn('test/water_sto3g_hf_g03.fchk'),
+                     np.array([ 5.46423145e-01, -1.25137695e-16,  3.86381228e-01]))
+
+
+def test_dipole_water_ccpvdz_pure_hf():
+    check_g09_dipole(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'),
+                     np.array([ 6.46132274e-01,  3.28892045e-03,  3.40563176e-01]))
+
+
+def test_dipole_ccpvdz_cart_hf():
+    check_g09_dipole(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'),
+                     np.array([ 6.46475310e-01,  3.32969714e-03,  3.41075744e-01]))
+
+
+def test_dipole_co_ccpv5z_pure_hf():
+    check_g09_dipole(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'),
+                     np.array([-2.25401400e+00, -3.22002009e-01,  3.22002009e-01]))
+
+
+def test_dipole_co_ccpv5z_cart_hf():
+    check_g09_dipole(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'),
+                     np.array([-2.25364754e+00, -3.21949654e-01,  3.21949654e-01]))
+
+
+def check_g09_quadrupole(fn_fchk, quadrupole_values):
+    mol = IOData.from_file(fn_fchk)
+    nocc=int(np.sum(mol.exp_alpha.occupations))
+    xyz_array = np.array([[2,0,0],[0,2,0],[0,0,2],[1,1,0],[1,0,1],[0,1,1]])
+    center = np.zeros(3)
+    dm_alpha = mol.exp_alpha.to_dm()
+    dm_beta = mol.exp_beta.to_dm()
+    quadrupole = []
+    for xyz in xyz_array:
+        quadrupole_ints = mol.obasis.compute_multipole_moment(xyz, center, mol.lf)
+        ham = UEffHam([UTwoIndexTerm(quadrupole_ints, 'quadrupole'),])
+        ham.reset(dm_alpha, dm_beta)
+        quad_v = -ham.compute_energy()
+        for i,n in enumerate(mol.pseudo_numbers):
+            quad_v += n*pow(mol.coordinates[i,0],xyz[0])*pow(mol.coordinates[i,1],xyz[1])* \
+                        pow(mol.coordinates[i,2],xyz[2])
+        quadrupole.append(quad_v)
+    # removing trace:
+    trace = (quadrupole[0] + quadrupole[1] + quadrupole[2])/3.0
+    quadrupole[:3] -= trace
+    np.testing.assert_almost_equal(quadrupole, quadrupole_values, decimal=6)
+
+
+def test_quadrupole_ch3_hf_sto3g():
+    check_g09_quadrupole(context.get_fn('test/ch3_hf_sto3g.fchk'),
+                     np.array([-3.00591674e-03,  1.50295837e-03,  1.50295837e-03,
+                               -1.32772907e-01, -1.32772907e-01, -1.33146521e-01]))
+
+
+def test_quadrupole_li_h_321g_hf_g09():
+    check_g09_quadrupole(context.get_fn('test/li_h_3-21G_hf_g09.fchk'),
+                     np.array([-6.75277790e-01, -6.75277790e-01,  1.35055558e+00,
+                                0.00000000e+00,  0.00000000e+00,  0.00000000e+00]))
+
 def check_g09_electron_repulsion(fn_fchk, check_g09_zeros=False):
     fn_log = fn_fchk[:-5] + '.log'
     mol = IOData.from_file(fn_fchk, fn_log)

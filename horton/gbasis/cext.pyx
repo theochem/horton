@@ -63,7 +63,7 @@ __all__ = [
     'get_2index_slice', 'compute_diagonal', 'select_2index',
     # ints
     'GB2OverlapIntegral', 'GB2KineticIntegral',
-    'GB2NuclearAttractionIntegral',
+    'GB2NuclearAttractionIntegral', 'GB2MomentIntegral',
     'GB4ElectronRepulsionIntegralLibInt',
     # fns
     'GB1DMGridDensityFn', 'GB1DMGridGradientFn',
@@ -724,6 +724,50 @@ cdef class GOBasis(GBasis):
         # done
         return output
 
+    def compute_multipole_moment(self,
+                    np.ndarray[long, ndim=1] xyz not None,
+                    np.ndarray[double, ndim=1] center not None,
+                    output):
+        """Compute the (multipole) moment integrals in a Gaussian orbital basis
+           < gto_a | (x - C_x)^l (y - C_y)^m (z - C_z)^n | gto_b >
+
+           **Arguments:**
+
+           xyz
+                A integer (long) numpy-array with shape (3) with the powers of x,y,z in the integrals,
+                shape = (3,).
+
+           center
+                A numpy array with shape (3) with the center [C_x, C_y, C_z] around which
+                the moment integral is computed,
+                shape = (3,).
+
+           output
+                When a ``TwoIndex`` instance is given, it is used as output
+                argument and its contents are overwritten. When ``LinalgFactory``
+                is given, it is used to construct the output ``TwoIndex``
+                object. In both cases, the output two-index object is returned.
+
+           **Returns:** ``TwoIndex`` object
+        """
+        # type checking
+        assert xyz.flags['C_CONTIGUOUS']
+        assert xyz.min() >= 0
+        assert xyz.sum() >= 0
+        assert center.flags['C_CONTIGUOUS']
+        # prepare the output array
+        cdef np.ndarray[double, ndim=2] output_array
+        if isinstance(output, LinalgFactory):
+            lf = output
+            output = lf.create_two_index(self.nbasis)
+        output_array = output._array
+        self.check_matrix_two_index(output_array)
+        # call the low-level routine
+        (<gbasis.GOBasis*>self._this).compute_multipole_moment(
+            &xyz[0], &center[0], &output_array[0, 0])
+        # done
+        return output
+
     def compute_electron_repulsion(self, output):
         '''Compute electron-electron repulsion integrals
 
@@ -1320,7 +1364,7 @@ cdef class GB2OverlapIntegral(GB2Integral):
 
 
 cdef class GB2KineticIntegral(GB2Integral):
-    '''Wrapper for ints.GB2OverlapIntegral, for testing only'''
+    '''Wrapper for ints.GB2KineticIntegral, for testing only'''
 
     def __cinit__(self, long max_nbasis):
         self._this = <ints.GB2Integral*>(new ints.GB2KineticIntegral(max_nbasis))
@@ -1344,6 +1388,25 @@ cdef class GB2NuclearAttractionIntegral(GB2Integral):
         self._this = <ints.GB2Integral*>(new ints.GB2NuclearAttractionIntegral(
             max_nbasis, &charges[0], &centers[0, 0], ncharge
         ))
+
+
+cdef class GB2MomentIntegral(GB2Integral):
+    '''Wrapper for ints.GB2MomentIntegral, for testing only'''
+    # make an additional reference to these arguments to avoid deallocation
+    cdef np.ndarray _xyz
+    cdef np.ndarray _center
+
+    def __cinit__(self, long max_nbasis,
+                  np.ndarray[long, ndim=1] xyz not None,
+                  np.ndarray[double, ndim=1] center not None):
+        assert xyz.flags['C_CONTIGUOUS']
+        assert xyz.shape[0] == 3
+        self._xyz = xyz
+        assert center.flags['C_CONTIGUOUS']
+        assert center.shape[0] == 3
+        self._center = center
+        self._this = <ints.GB2Integral*>(new ints.GB2MomentIntegral(
+            max_nbasis, &xyz[0], &center[0]))
 
 
 ints.libint2_static_init()

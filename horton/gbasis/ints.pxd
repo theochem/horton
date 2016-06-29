@@ -42,6 +42,9 @@ cdef extern from "horton/gbasis/ints.h":
     cdef cppclass GB2NuclearAttractionIntegral:
         GB2NuclearAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge) except +
 
+    cdef cppclass GB2MomentIntegral:
+        GB2MomentIntegral(long max_shell_type, long* xyz, double* center) except +
+
     cdef cppclass GB4Integral:
         long get_nwork()
         long get_max_shell_type()
