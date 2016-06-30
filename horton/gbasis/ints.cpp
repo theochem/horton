@@ -284,15 +284,13 @@ double moment_helper(long n0, long n1, long n2, double pa, double pb, double pc,
     // if n2 == 0, we just need the overlap.
     if (n2 == 0) {
         result = gb_overlap_int1d(n0, n1, pa, pb, (2.0e0 * gamma_inv));
-    }
-
-    else{
+    } else {
         long m, l, n;
         double work_mm[n0+2][n1+2][n2+2];
 
-        for (l=0; l<(n0+2); l++) {
-            for (m=0; m<(n1+2); m++) {
-                for (n=0; n<(n2+2); n++) {
+        for (l=0; l < (n0+2); l++) {
+            for (m=0; m < (n1+2); m++) {
+                for (n=0; n < (n2+2); n++) {
                     work_mm[l][m][n] = 0.0e0;
                 }
             }
@@ -302,26 +300,27 @@ double moment_helper(long n0, long n1, long n2, double pa, double pb, double pc,
         work_mm[1][1][1] = gb_overlap_int1d(0, 0, pa, pb, (2.0e0 * gamma_inv));
 
         // Equation A8 in the Obara-Saika paper for (0_A|R(mu + 1)|0_B):
-        for (n=1; n<(n2+1); n++) {
-                work_mm[1][1][n+1] = pc * work_mm[1][1][n] + (gamma_inv * (n-1) * work_mm[1][1][n-1]);
+        for (n=1; n < (n2+1); n++) {
+            work_mm[1][1][n+1] = pc * work_mm[1][1][n] + (gamma_inv * (n-1) * work_mm[1][1][n-1]);
         }
 
         // Equation A7 in the Obara-Saika paper for (0_A|R(mu)|b + 1):
-        for (m=1; m<(n1+1); m++) {
-            for (n=1; n<=(n2+1); n++) {
-                work_mm[1][m+1][n] = pb * work_mm[1][m][n] + (gamma_inv * (m-1) * work_mm[1][m-1][n])
-                                                           + (gamma_inv * (n-1) * work_mm[1][m][n-1]);
+        for (m=1; m < (n1+1); m++) {
+            for (n=1; n <= (n2+1); n++) {
+                work_mm[1][m+1][n] = pb * work_mm[1][m][n]
+                                                + (gamma_inv * (m-1) * work_mm[1][m-1][n])
+                                                + (gamma_inv * (n-1) * work_mm[1][m][n-1]);
             }
         }
 
         // Equation A7 in the Obara-Saika paper for (a + 1|R(mu)|b):
-        for (l=1; l<(n0+1); l++) {
-            for (m=1; m<=(n1+1); m++) {
-                for (n=1; n<=(n2+1); n++) {
+        for (l=1; l < (n0+1); l++) {
+            for (m=1; m <= (n1+1); m++) {
+                for (n=1; n <= (n2+1); n++) {
                     work_mm[l+1][m][n] = pa * work_mm[l][m][n]
-                                                           + (gamma_inv * (l-1) * work_mm[l-1][m][n])
-                                                           + (gamma_inv * (m-1) * work_mm[l][m-1][n])
-                                                           + (gamma_inv * (n-1) * work_mm[l][m][n-1]);
+                                                + (gamma_inv * (l-1) * work_mm[l-1][m][n])
+                                                + (gamma_inv * (m-1) * work_mm[l][m-1][n])
+                                                + (gamma_inv * (n-1) * work_mm[l][m][n-1]);
                 }
             }
         }
@@ -334,13 +333,16 @@ double moment_helper(long n0, long n1, long n2, double pa, double pb, double pc,
 
 
 GB2MomentIntegral::GB2MomentIntegral(long max_shell_type, long* xyz, double* center)
-: GB2Integral(max_shell_type), xyz(xyz) {
+: GB2Integral(max_shell_type), xyz(xyz), center(center) {
     if (xyz[0] + xyz[1] + xyz[2] < 0)
     throw std::domain_error(" sum < 0");
+    if ((xyz[0] < 0) || (xyz[1] < 0) || (xyz[2] < 0))
+    throw std::domain_error(" all elements of xyz must be >= 0");
 }
 
 
-void GB2MomentIntegral::add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1) {
+void GB2MomentIntegral::add(double coeff, double alpha0, double alpha1,
+                            const double* scales0, const double* scales1) {
     double pre, gamma_inv, twogamma_inv;
     double gpt_center[3], pa[3], pb[3], pc[3];
 
@@ -364,8 +366,7 @@ void GB2MomentIntegral::add(double coeff, double alpha0, double alpha1, const do
             moment_helper(i2p.n0[0], i2p.n1[0], xyz[0], pa[0], pb[0], pc[0], twogamma_inv)*
             moment_helper(i2p.n0[1], i2p.n1[1], xyz[1], pa[1], pb[1], pc[1], twogamma_inv)*
             moment_helper(i2p.n0[2], i2p.n1[2], xyz[2], pa[2], pb[2], pc[2], twogamma_inv)*
-            scales0[i2p.ibasis0]*scales1[i2p.ibasis1]
-                                      );
+            scales0[i2p.ibasis0]*scales1[i2p.ibasis1]);
     } while (i2p.inc());
 }
 

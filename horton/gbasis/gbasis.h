@@ -81,11 +81,60 @@ class GOBasis : public GBasis {
                 const long ncenter, const long nshell, const long nprim_total);
         const double normalization(const double alpha, const long* n) const;
 
+        /** @brief
+                Computes the overlap integrals.
+
+            @param output
+                The output array with the integrals.
+         */
         void compute_overlap(double* output);
+
+        /** @brief
+                Computes the kinetic integrals.
+
+            @param output
+                The output array with the integrals.
+         */
         void compute_kinetic(double* output);
+
+        /** @brief
+                Computes the nuclear attraction integrals.
+
+            @param charges
+                The array with values on the nuclear charges.
+
+            @param centers
+                The array with location of the nuclear charges.
+
+            @param ncharge
+                The number of nuclear charges.
+
+            @param output
+                The output array with the integrals.
+         */
         void compute_nuclear_attraction(double* charges, double* centers, long ncharge, double* output);
+
+        /** @brief
+                Computes the electron repulsion integrals.
+
+            @param output
+                The output array with the integrals.
+         */
         void compute_electron_repulsion(double* output);
-    void compute_multipole_moment(long* xyz, double* center, double* output);
+
+        /** @brief
+                Computes the (multipole) moment integrals.
+
+            @param xyz
+                The powers of xyz in the integrals.
+
+            @param center
+                The location around which the moment integrals are computed.
+
+            @param output
+                The output array with the integrals.
+         */
+        void compute_multipole_moment(long* xyz, double* center, double* output);
         void compute_grid1_exp(long nfn, double* coeffs, long npoint, double* points, long norb, long* iorbs, double* output);
         void compute_grid1_dm(double* dm, long npoint, double* points, GB1DMGridFn* grid_fn, double* output, double epsilon, double* dmmaxrow);
         void compute_grid2_dm(double* dm, long npoint, double* points, double* output);

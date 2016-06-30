@@ -38,25 +38,31 @@ class GB2Integral : public GBCalculator {
         void reset(long shell_type0, long shell_type1, const double* r0, const double* r1);
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1) = 0;
         void cart_to_pure();
-        const long get_shell_type0() const {return shell_type0;};
-        const long get_shell_type1() const {return shell_type1;};
-    };
+        const long get_shell_type0() const {return shell_type0;}
+        const long get_shell_type1() const {return shell_type1;}
+};
 
-
+/** @brief
+ Compute the overlap integrals in a Gaussian orbital basis.
+ */
 class GB2OverlapIntegral: public GB2Integral {
     public:
         GB2OverlapIntegral(long max_shell_type) : GB2Integral(max_shell_type) {};
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
-    };
+};
 
-
+/** @brief
+ Compute the kinetic integrals in a Gaussian orbital basis.
+ */
 class GB2KineticIntegral: public GB2Integral {
     public:
         GB2KineticIntegral(long max_shell_type) : GB2Integral(max_shell_type) {};
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
-    };
+};
 
-
+/** @brief
+ Compute the nuclear attraction integrals in a Gaussian orbital basis.
+ */
 class GB2NuclearAttractionIntegral: public GB2Integral {
     private:
         double* charges;
@@ -71,18 +77,34 @@ class GB2NuclearAttractionIntegral: public GB2Integral {
         GB2NuclearAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge);
         ~GB2NuclearAttractionIntegral();
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
-    };
+};
 
+/** @brief
+ Compute the (multipole) moment integrals in a Gaussian orbital basis.
 
+ < gto_a | (x - C_x)^l (y - C_y)^m (z - C_z)^n | gto_b >.
+ */
 class GB2MomentIntegral: public GB2Integral {
     private:
         long* xyz;
         double* center;
 
     public:
+    /** @brief
+        Computes the moment integrals  < gto_a | (x - C_x)^l (y - C_y)^m (z - C_z)^n | gto_b >.
+
+     @param max_shell_type
+        The highest angular momentum index suported
+
+     @param xyz
+        The powers of x,y,z in the integrals (l, m, n).
+
+     @param center
+        The center [C_x, C_y, C_z] around which the moment integrals arecomputed
+     */
         GB2MomentIntegral(long max_shell_type, long* xyz, double* center);
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
-    };
+};
 
 
 class GB4Integral : public GBCalculator {
@@ -95,11 +117,11 @@ class GB4Integral : public GBCalculator {
         virtual void add(double coeff, double alpha0, double alpha1, double alpha2, double alpha3, const double* scales0, const double* scales1, const double* scales2, const double* scales3) = 0;
         void cart_to_pure();
 
-        const long get_shell_type0() const {return shell_type0;};
-        const long get_shell_type1() const {return shell_type1;};
-        const long get_shell_type2() const {return shell_type2;};
-        const long get_shell_type3() const {return shell_type3;};
-    };
+        const long get_shell_type0() const {return shell_type0;}
+        const long get_shell_type1() const {return shell_type1;}
+        const long get_shell_type2() const {return shell_type2;}
+        const long get_shell_type3() const {return shell_type3;}
+};
 
 
 typedef struct {
@@ -120,7 +142,7 @@ class GB4ElectronRepulsionIntegralLibInt : public GB4Integral {
         ~GB4ElectronRepulsionIntegralLibInt();
         virtual void reset(long shell_type0, long shell_type1, long shell_type2, long shell_type3, const double* r0, const double* r1, const double* r2, const double* r3);
         virtual void add(double coeff, double alpha0, double alpha1, double alpha2, double alpha3, const double* scales0, const double* scales1, const double* scales2, const double* scales3);
-    };
+};
 
 
 #endif
