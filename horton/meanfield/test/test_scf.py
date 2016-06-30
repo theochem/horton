@@ -42,6 +42,19 @@ def test_vanadium_sc_hf():
         check_vanadium_sc_hf(PlainSCFSolver(threshold=1e-10, maxiter=10))
 
 
+def test_hf_cs_hf_level_shift():
+    check_hf_cs_hf(PlainSCFSolver(threshold=1e-10, level_shift=0.01))
+
+
+def test_lih_os_hf_level_shift():
+    check_lih_os_hf(PlainSCFSolver(threshold=1e-10, level_shift=0.02))
+
+
+def test_vanadium_sc_hf_level_shift():
+    with assert_raises(ValueError):
+        check_vanadium_sc_hf(PlainSCFSolver(threshold=1e-10, level_shift=-0.1))
+
+
 def test_hf_water_321g_mistake():
     # When one forgets to construct the initial guess, some error must be
     # raised...
