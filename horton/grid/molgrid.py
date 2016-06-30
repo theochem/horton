@@ -117,7 +117,9 @@ class BeckeMolGrid(IntGrid):
 
         if mode != 'only':
             # More recent covalent radii are used than in the original work of Becke.
-            cov_radii = np.array([periodic[n].cov_radius for n in self.numbers])
+            # No covalent radius is defined for elements heavier than Curium and a
+            # default value of 3.0 Bohr is used for heavier elements.
+            cov_radii = np.array([(periodic[n].cov_radius or 3.0) for n in self.numbers])
 
         # The actual work:
         if log.do_medium:
