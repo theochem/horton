@@ -396,12 +396,10 @@ def truncated_file(name, fn_orig, nline, nadd):
     with tmpdir(name) as dn:
         fn_truncated = '%s/truncated_%i_%s' % (dn, nline, os.path.basename(fn_orig))
         with open(fn_orig) as f_orig, open(fn_truncated, 'w') as f_truncated:
-            counter = 0
-            for line in f_orig:
-                f_truncated.write(line)
-                counter += 1
+            for counter, line in enumerate(f_orig):
                 if counter >= nline:
                     break
+                f_truncated.write(line)
             for _ in xrange(nadd):
                 f_truncated.write('\n')
         yield fn_truncated
