@@ -413,7 +413,7 @@ class ProAtomDB(object):
         return cls(records)
 
     @classmethod
-    def from_refatoms(cls, numbers=None, max_kation=3, max_anion=2, agspec='fine'):
+    def from_refatoms(cls, numbers=None, max_cation=3, max_anion=2, agspec='fine'):
         '''
            Construct a ProAtomDB from reference atoms included in HORTON
 
@@ -428,8 +428,8 @@ class ProAtomDB(object):
                 A list of atom numbers to limit the selection of atoms in the
                 database. When not given, all reference atoms are loaded.
 
-           max_kation
-                The charge of the most positive kation to include
+           max_cation
+                The charge of the most positive cation to include
 
            max_anion
                 Minus the charge of the most negativ anion to include. (This
@@ -449,7 +449,7 @@ class ProAtomDB(object):
                 continue
             pop = int(name[8:10])
             charge = number - pop
-            if charge > max_kation or charge < -max_anion:
+            if charge > max_cation or charge < -max_anion:
                 continue
             fns_chk.append(fn)
 

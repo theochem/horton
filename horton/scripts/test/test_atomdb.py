@@ -199,7 +199,7 @@ def test_script_convert_g03():
 
 
 def test_plot_atoms():
-    padb = ProAtomDB.from_refatoms(numbers=[8, 1], max_kation=1, max_anion=1)
+    padb = ProAtomDB.from_refatoms(numbers=[8, 1], max_cation=1, max_anion=1)
     with tmpdir('horton.scripts.test.test_atomdb.test_plot_atoms') as dn:
         plot_atoms(padb, dn)
         fns = [

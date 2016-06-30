@@ -155,7 +155,7 @@ def iter_mults(nel, hund):
             yield mult
 
 
-def iter_states(elements, max_kation, max_anion, hund):
+def iter_states(elements, max_cation, max_anion, hund):
     """Iterate over all requested atomic states
 
        **Arguments:**
@@ -166,8 +166,8 @@ def iter_states(elements, max_kation, max_anion, hund):
        template
             An instance of the ``atomdb.Template`` class
 
-       max_kation
-            The limit for the most positive kation
+       max_cation
+            The limit for the most positive cation
 
        max_anion
             The limit for the most negative anion
@@ -177,7 +177,7 @@ def iter_states(elements, max_kation, max_anion, hund):
     """
     for number in iter_elements(elements):
         # Loop over all charge states for this element
-        for charge in xrange(-max_anion, max_kation+1):
+        for charge in xrange(-max_anion, max_cation+1):
             nel = number - charge
             if nel <= 0:
                 continue

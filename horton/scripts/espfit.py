@@ -133,7 +133,7 @@ def load_rho(coordinates, numbers, fn_cube, ref_ugrid, stride, chop):
         # Load the built-in database of proatoms
         natom = len(numbers)
         numbers = np.unique(numbers)
-        proatomdb = ProAtomDB.from_refatoms(numbers, max_kation=0, max_anion=0, agspec='fine')
+        proatomdb = ProAtomDB.from_refatoms(numbers, max_cation=0, max_anion=0, agspec='fine')
         # Construct the pro-density
         rho = np.zeros(ref_ugrid.shape)
         for i in xrange(natom):

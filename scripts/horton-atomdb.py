@@ -70,8 +70,8 @@ def parse_args_input(args):
     parser.add_argument('template',
         help='A template input file for a single atom in the origin. The '
             'template must contain the fields described below.')
-    parser.add_argument('--max-kation', type=int, default=3,
-        help='The most positive kation to consider. [default=%(default)s]')
+    parser.add_argument('--max-cation', type=int, default=3,
+        help='The most positive cation to consider. [default=%(default)s]')
     parser.add_argument('--max-anion', type=int, default=2,
         help='The most negative anion to consider. [default=%(default)s]')
     parser.add_argument('--no-hund', dest='hund', default=True, action='store_false',
@@ -92,7 +92,7 @@ def main_input(args):
         template = Template(f.read())
 
     # Loop over all atomic states and make input files
-    for number, charge, mult in iter_states(args.elements, args.max_kation, args.max_anion, args.hund):
+    for number, charge, mult in iter_states(args.elements, args.max_cation, args.max_anion, args.hund):
         args.program.write_input(number, charge, mult, template, args.overwrite)
 
     # Write a script that will run all computations (also those created previously)
