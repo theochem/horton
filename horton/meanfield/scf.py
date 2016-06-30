@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Basic Self-Consistent Field (SCF) algorithm'''
+"""Basic Self-Consistent Field (SCF) algorithm."""
 
 
 from horton.log import log, timer
@@ -30,28 +30,28 @@ __all__ = ['PlainSCFSolver']
 
 
 class PlainSCFSolver(object):
-    '''A bare-bones SCF solver without mixing.'''
+    """A bare-bones SCF solver without mixing."""
+
     kind = 'exp'  # input/output variable is the wfn expansion
 
     def __init__(self, threshold=1e-8, maxiter=128, skip_energy=False, level_shift=0.0):
-        '''
-           **Optional arguments:**
+        """Initialize a PlainSCFSolver.
 
-           maxiter
-                The maximum number of iterations. When set to None, the SCF loop
-                will go one until convergence is reached.
+        Parameters
+        ----------
 
-           threshold
-                The convergence threshold for the wavefunction
-
-           skip_energy
-                When set to True, the final energy is not computed.
-
-           level_shift
-                When set to non-zero, level-shifting is applied and the value of
-                the argument controls the magnitude of the level shift. This
-                argument cannot be negative.
-        '''
+        threshold : float
+                    The convergence threshold for the wavefunction.
+        maxiter : int
+                  The maximum number of iterations. When set to None, the SCF loop will go
+                  one until convergence is reached.
+        skip_energy : bool
+                      When set to True, the final energy is not computed.
+        level_shift : float
+                      When set to non-zero, level-shifting is applied and the value of the
+                      argument controls the magnitude of the level shift. This argument
+                      cannot be negative.
+        """
         self.maxiter = maxiter
         self.threshold = threshold
         self.skip_energy = skip_energy
@@ -61,25 +61,22 @@ class PlainSCFSolver(object):
 
     @timer.with_section('SCF')
     def __call__(self, ham, lf, overlap, occ_model, *exps):
-        '''Find a self-consistent set of orbitals.
+        """Find a self-consistent set of orbitals.
 
-           **Arguments:**
+        Parameters
+        ----------
 
-           ham
-                An effective Hamiltonian.
-
-           lf
-                The linalg factory to be used.
-
-           overlap
-                The overlap operator.
-
-           occ_model
-                Model for the orbital occupations.
-
-           exp1, exp2, ...
-                The initial orbitals. The number of dms must match ham.ndm.
-        '''
+        ham : EffHam
+              An effective Hamiltonian.
+        lf : LinalgFactor
+             The linalg factory to be used.
+        overlap : TwoIndex
+                  The overlap operator.
+        occ_model : OccModel
+                    Model for the orbital occupations.
+        exp1, exp2, ... : Expansion
+                          The initial orbitals. The number of dms must match ham.ndm.
+        """
         # Some type checking
         if ham.ndm != len(exps):
             raise TypeError('The number of initial orbital expansions does not match the Hamiltonian.')
