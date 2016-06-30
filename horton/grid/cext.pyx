@@ -61,7 +61,7 @@ __all__ = [
     'build_ode2',
     # rtransform
     'RTransform', 'IdentityRTransform', 'LinearRTransform', 'ExpRTransform',
-    'ShiftedExpRTransform', 'PowerRTransform',
+    'PowerRTransform', 'HyperbolicRTransform',
     # UniformGrid
     'UniformGrid', 'index_wrap',
     # utils
@@ -203,8 +203,6 @@ def tridiagsym_solve(np.ndarray[double, ndim=1] diag_mid not None,
 
 
 cdef class Extrapolation(object):
-    cdef cubic_spline.Extrapolation* _this
-
     def __dealloc__(self):
         del self._this
 
@@ -328,13 +326,6 @@ cdef class CubicSpline(object):
             the interval determined by the 1D grid. By default,
             CuspExtrapolation() is used.
     '''
-    cdef cubic_spline.CubicSpline* _this
-    cdef Extrapolation _extrapolation
-    cdef RTransform _rtransform
-    cdef np.ndarray _y
-    cdef np.ndarray _dx
-    cdef np.ndarray _dt
-
     def __cinit__(self,
                   np.ndarray[double, ndim=1] y not None,
                   np.ndarray[double, ndim=1] dx=None,
@@ -705,8 +696,6 @@ cdef class RTransform(object):
        the actual grid points on the r-axis: f(0), f(1), f(2), ... f(npoint-1).
        Different implementation for the function f are available.
     '''
-    cdef rtransform.RTransform* _this
-
     property npoint:
         def __get__(self):
             return self._this.get_npoint()
@@ -904,14 +893,6 @@ cdef class RTransform(object):
             rmax = float(args[1])
             npoint = int(args[2])
             return ExpRTransform(rmin, rmax, npoint)
-        elif clsname == 'ShiftedExpRTransform':
-            if len(args) != 4:
-                raise ValueError('The ShiftedExpRTransform needs four arguments, got %i.' % len(words))
-            rmin = float(args[0])
-            rshift = float(args[1])
-            rmax = float(args[2])
-            npoint = int(args[3])
-            return ShiftedExpRTransform(rmin, rshift, rmax, npoint)
         elif clsname == 'PowerRTransform':
             if len(args) != 3:
                 raise ValueError('The PowerRTransform needs three arguments, got %i.' % len(words))
@@ -919,6 +900,13 @@ cdef class RTransform(object):
             rmax = float(args[1])
             npoint = int(args[2])
             return PowerRTransform(rmin, rmax, npoint)
+        elif clsname == 'HyperbolicRTransform':
+            if len(args) != 3:
+                raise ValueError('The HyperbolicRTransform needs three arguments, got %i.' % len(words))
+            a = float(args[0])
+            b = float(args[1])
+            npoint = int(args[2])
+            return HyperbolicRTransform(a, b, npoint)
         else:
             raise TypeError('Unkown RTransform subclass: %s' % clsname)
 
@@ -1040,52 +1028,6 @@ cdef class ExpRTransform(RTransform):
         return ExpRTransform(rmin, self.rmax, self.npoint/2)
 
 
-cdef class ShiftedExpRTransform(RTransform):
-    r'''A shifted exponential grid.
-
-       The grid points are distributed as follows:
-
-       .. math:: r_i = r_0 \alpha^i - r_s
-
-       with
-
-       .. math::
-            r_0 = r_{N-1} + r_s
-
-       .. math::
-            \alpha = \log\left(\frac{r_{N-1}+r_s}{r_0}\right)/(N-1).
-    '''
-    def __cinit__(self, double rmin, double rshift, double rmax, int npoint):
-        self._this = <rtransform.RTransform*>(new rtransform.ShiftedExpRTransform(rmin, rshift, rmax, npoint))
-
-    property rmin:
-        def __get__(self):
-            return (<rtransform.ShiftedExpRTransform*>self._this).get_rmin()
-
-    property rshift:
-        def __get__(self):
-            return (<rtransform.ShiftedExpRTransform*>self._this).get_rshift()
-
-    property rmax:
-        def __get__(self):
-            return (<rtransform.ShiftedExpRTransform*>self._this).get_rmax()
-
-    property r0:
-        def __get__(self):
-            return (<rtransform.ShiftedExpRTransform*>self._this).get_r0()
-
-    property alpha:
-        def __get__(self):
-            return (<rtransform.ShiftedExpRTransform*>self._this).get_alpha()
-
-    def to_string(self):
-        return ' '.join(['ShiftedExpRTransform', repr(self.rmin), repr(self.rshift), repr(self.rmax), repr(self.npoint)])
-
-    def chop(self, npoint):
-        rmax = self.radius(npoint-1)
-        return ShiftedExpRTransform(self.rmin, self.rshift, rmax, npoint)
-
-
 cdef class PowerRTransform(RTransform):
     r'''A power grid.
 
@@ -1125,6 +1067,32 @@ cdef class PowerRTransform(RTransform):
             raise ValueError('Half method can only be called on a rtransform with an even number of points.')
         rmin = self.radius(1)
         return PowerRTransform(rmin, self.rmax, self.npoint/2)
+
+    def get_default_int1d(self):
+        from horton.grid.int1d import StubIntegrator1D
+        return StubIntegrator1D()
+
+
+cdef class HyperbolicRTransform(RTransform):
+    r'''A Hyperbolic grid (as in the GPAW program).
+
+       The grid points are distributed as follows:
+
+       .. math:: r_i = \frac{ai}{1 - bi}
+    '''
+    def __cinit__(self, double a, double b, int npoint):
+        self._this = <rtransform.RTransform*>(new rtransform.HyperbolicRTransform(a, b, npoint))
+
+    property a:
+        def __get__(self):
+            return (<rtransform.HyperbolicRTransform*>self._this).get_a()
+
+    property b:
+        def __get__(self):
+            return (<rtransform.HyperbolicRTransform*>self._this).get_b()
+
+    def to_string(self):
+        return ' '.join(['HyperbolicRTransform', repr(self.a), repr(self.b), repr(self.npoint)])
 
     def get_default_int1d(self):
         from horton.grid.int1d import StubIntegrator1D

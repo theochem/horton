@@ -25,7 +25,7 @@ import numpy as np
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 from horton.grid.test.common import get_cosine_spline
-from horton.test.common import get_random_cell
+from horton.test.common import get_random_cell, numpy_seed
 
 
 def test_grid_integrate():
@@ -304,17 +304,18 @@ def test_eval_spline_grid_add_random():
     npoint = 10
     cs = get_cosine_spline()
 
-    for i in xrange(10):
-        cell = get_random_cell(1.0, np.random.randint(4))
-        points = np.random.normal(-2, 3, (npoint,3))
-        g = IntGrid(points, np.random.normal(0, 1.0, npoint))
+    for irep in xrange(10):
+        with numpy_seed(irep):
+            cell = get_random_cell(1.0, irep % 4)
+            points = np.random.normal(-2, 3, (npoint,3))
+            g = IntGrid(points, np.random.normal(0, 1.0, npoint))
+            center1 = np.random.uniform(-2, 2, 3)
+            center2 = np.random.uniform(-2, 2, 3)
 
         output1 = np.zeros(npoint)
-        center1 = np.random.uniform(-2, 2, 3)
         g.eval_spline(cs, center1, output1, cell)
 
         output2 = np.zeros(npoint)
-        center2 = np.random.uniform(-2, 2, 3)
         g.eval_spline(cs, center2, output2, cell)
 
         output3 = np.zeros(npoint)

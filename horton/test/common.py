@@ -20,7 +20,6 @@
 # --
 
 
-
 from contextlib import contextmanager
 import numpy as np
 import os
@@ -28,7 +27,10 @@ import shutil
 import subprocess
 import tempfile
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from horton.cext import Cell
+from horton.moments import get_cartesian_powers
+from horton.matrix.dense import DenseTwoIndex, DenseFourIndex
+from horton.meanfield.occ import AufbauOccModel
 
 
 __all__ = [
