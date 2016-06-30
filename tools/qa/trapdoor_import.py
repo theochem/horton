@@ -81,10 +81,11 @@ class ImportTrapdoorProgram(TrapdoorProgram):
             with codecs.open(filename, encoding='utf-8') as f:
                 for lineno, line in enumerate(f):
                     for package in packages:
-                        if u'from %s import' % package in line:
+                        if u'from %s import' % package in line and \
+                           line != u'from %s import __version__\n' % package:
                             counter['Wrong imports in %s' % filename] += 1
                             text = 'Wrong import from %s' % package
-                            messages.add(Message(filename, lineno, None, text))
+                            messages.add(Message(filename, lineno + 1, None, text))
 
         return counter, messages
 

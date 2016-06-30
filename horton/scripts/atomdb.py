@@ -18,21 +18,27 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Code used by ``horton-atomdb.py``'''
+"""Code used by ``horton-atomdb.py``"""
 
 
-from string import Template as BaseTemplate
 from glob import glob
-import re, os, stat
+import os
+import re
+import stat
+from string import Template as BaseTemplate
 
+import numpy as np
+import matplotlib.pyplot as pt
+
+from horton.io.iodata import IOData
 from horton.log import log
 from horton.periodic import periodic
-from horton.io.iodata import IOData
 from horton.scripts.common import iter_elements
+from horton.units import angstrom
 
 
 __all__ = [
-    'iter_mults', 'iter_states',
+    'iter_mults', 'iter_states', 'plot_atoms',
     'Template', 'EnergyTable', 'atom_programs',
 ]
 
@@ -130,7 +136,7 @@ mult_presets = {
 
 
 def iter_mults(nel, hund):
-    '''Iterate over atomic spin multiplicites for the given number of electrons
+    """Iterate over atomic spin multiplicites for the given number of electrons
 
        **Arguments:**
 
@@ -140,7 +146,7 @@ def iter_mults(nel, hund):
        hund
             When set to True, only one spin multiplicity is returned. Otherwise
             several reasonable spin multiplicities are given.
-    '''
+    """
 
     if hund:
         yield mult_presets[nel][0]
@@ -150,7 +156,7 @@ def iter_mults(nel, hund):
 
 
 def iter_states(elements, max_kation, max_anion, hund):
-    '''Iterate over all requested atomic states
+    """Iterate over all requested atomic states
 
        **Arguments:**
 
@@ -168,7 +174,7 @@ def iter_states(elements, max_kation, max_anion, hund):
 
        hund
             Flag to adhere to hund's rule for the spin multiplicities.
-    '''
+    """
     for number in iter_elements(elements):
         # Loop over all charge states for this element
         for charge in xrange(-max_anion, max_kation+1):
@@ -180,8 +186,120 @@ def iter_states(elements, max_kation, max_anion, hund):
                 yield number, charge, mult
 
 
+def plot_atoms(proatomdb, dn='.'):
+    """Make PNG figures for all atoms in a pro-atom database.
+
+    Warning: this script writes a bunch of PNG files!
+
+    Parameters
+    ----------
+    proatomdb : horton.part.proatomdb.ProAtomDB
+                A database of pro-atoms.
+    dn : str
+         Directory where the PNG files will be written. Local directory if not given.
+    """
+    def get_color(index):
+        """Return a nice color for a given index."""
+        colors = ["#FF0000", "#FFAA00", "#00AA00", "#00AAFF", "#0000FF", "#FF00FF", "#777777"]
+        return colors[index % len(colors)]
+
+    lss = {True: '-', False: ':'}
+    for number in proatomdb.get_numbers():
+        r = proatomdb.get_rgrid(number).radii
+        symbol = periodic[number].symbol
+        charges = proatomdb.get_charges(number)
+        suffix = '%03i_%s' % (number, symbol.lower().rjust(2, '_'))
+
+        # The density (rho)
+        pt.clf()
+        for i, charge in enumerate(charges):
+            record = proatomdb.get_record(number, charge)
+            y = record.rho
+            ls = lss[record.safe]
+            color = get_color(i)
+            label = 'q=%+i' % charge
+            pt.semilogy(r/angstrom, y, lw=2, ls=ls, label=label, color=color)
+        pt.xlim(0, 3)
+        pt.ylim(ymin=1e-5)
+        pt.xlabel('Distance from the nucleus [A]')
+        pt.ylabel('Spherically averaged density [Bohr**-3]')
+        pt.title('Proatoms for element %s (%i)' % (symbol, number))
+        pt.legend(loc=0)
+        fn_png = '%s/dens_%s.png' % (dn, suffix)
+        pt.savefig(fn_png)
+        if log.do_medium:
+            log('Written', fn_png)
+
+        # 4*pi*r**2*rho
+        pt.clf()
+        for i, charge in enumerate(charges):
+            record = proatomdb.get_record(number, charge)
+            y = record.rho
+            ls = lss[record.safe]
+            color = get_color(i)
+            label = 'q=%+i' % charge
+            pt.plot(r/angstrom, 4*np.pi*r**2*y, lw=2, ls=ls, label=label, color=color)
+        pt.xlim(0, 3)
+        pt.ylim(ymin=0.0)
+        pt.xlabel('Distance from the nucleus [A]')
+        pt.ylabel('4*pi*r**2*density [Bohr**-1]')
+        pt.title('Proatoms for element %s (%i)' % (symbol, number))
+        pt.legend(loc=0)
+        fn_png = '%s/rdens_%s.png' % (dn, suffix)
+        pt.savefig(fn_png)
+        if log.do_medium:
+            log('Written', fn_png)
+
+        fukui_data = []
+        if number - charges[0] == 1:
+            record0 = proatomdb.get_record(number, charges[0])
+            fukui_data.append((record0.rho, record0.safe, '%+i' % charges[0]))
+        for i, charge in enumerate(charges[1:]):
+            record0 = proatomdb.get_record(number, charge)
+            record1 = proatomdb.get_record(number, charges[i])
+            fukui_data.append((
+                record0.rho - record1.rho,
+                record0.safe and record1.safe,
+                '%+i-%+i' % (charge, charges[i])
+            ))
+
+        # The Fukui functions
+        pt.clf()
+        for i, (f, safe, label) in enumerate(fukui_data):
+            ls = lss[safe]
+            color = get_color(i)
+            pt.semilogy(r/angstrom, f, lw=2, ls=ls, label=label, color=color, alpha=1.0)
+            pt.semilogy(r/angstrom, -f, lw=2, ls=ls, color=color, alpha=0.2)
+        pt.xlim(0, 3)
+        pt.ylim(ymin=1e-5)
+        pt.xlabel('Distance from the nucleus [A]')
+        pt.ylabel('Fukui function [Bohr**-3]')
+        pt.title('Proatoms for element %s (%i)' % (symbol, number))
+        pt.legend(loc=0)
+        fn_png = '%s/fukui_%s.png' % (dn, suffix)
+        pt.savefig(fn_png)
+        if log.do_medium:
+            log('Written', fn_png)
+
+        # 4*pi*r**2*Fukui
+        pt.clf()
+        for i, (f, safe, label) in enumerate(fukui_data):
+            ls = lss[safe]
+            color = get_color(i)
+            pt.plot(r/angstrom, 4*np.pi*r**2*f, lw=2, ls=ls, label=label, color=color)
+        pt.xlim(0, 3)
+        pt.xlabel('Distance from the nucleus [A]')
+        pt.ylabel('4*pi*r**2*Fukui [Bohr**-1]')
+        pt.title('Proatoms for element %s (%i)' % (symbol, number))
+        pt.legend(loc=0)
+        fn_png = '%s/rfukui_%s.png' % (dn, suffix)
+        pt.savefig(fn_png)
+        if log.do_medium:
+            log('Written', fn_png)
+
+
 class Template(BaseTemplate):
-    '''A template with modifications to support inclusion of other files.'''
+    """A template with modifications to support inclusion of other files."""
     idpattern = r'[_a-z0-9.:-]+'
 
     def __init__(self, *args, **kwargs):
@@ -190,12 +308,12 @@ class Template(BaseTemplate):
         self._load_includes()
 
     def _init_include_names(self):
-        '''Return a list of include variables
+        """Return a list of include variables
 
            The include variables in the template are variables of the form
            ${file:name} or ${line:name}. This routine lists all the names
            encountered. Duplicates are eliminated.
-        '''
+        """
         pattern = '%s{(?P<braced>%s)}' % (re.escape(self.delimiter), self.idpattern)
         file_names = set([])
         line_names = set([])
@@ -209,7 +327,7 @@ class Template(BaseTemplate):
         self.line_names = list(line_names)
 
     def _load_includes(self):
-        '''Load included files for a given element number'''
+        """Load included files for a given element number"""
         self.includes = []
         # Load files
         for name in self.file_names:
@@ -370,7 +488,7 @@ class AtomProgram(object):
         return mol, mol.energy
 
 
-run_gaussian_script = '''\
+run_gaussian_script = """\
 #!/bin/bash
 
 # make sure %(name)s and formchk are available before running this script.
@@ -404,7 +522,7 @@ function do_atom {
 for ATOMDIR in [01][0-9][0-9]_*_[01][0-9][0-9]_q[-+][0-9][0-9]/mult[0-9][0-9]; do
     do_atom ${ATOMDIR}
 done
-'''
+"""
 
 
 class G09AtomProgram(AtomProgram):
@@ -425,7 +543,7 @@ class G03AtomProgram(G09AtomProgram):
     run_script = run_gaussian_script % {'name': 'g03'}
 
 
-run_orca_script = '''\
+run_orca_script = """\
 #!/bin/bash
 
 # make sure orca and orca2mkl are available before running this script.
@@ -458,7 +576,7 @@ function do_atom {
 for ATOMDIR in [01][0-9][0-9]_*_[01][0-9][0-9]_q[-+][0-9][0-9]/mult[0-9][0-9]; do
     do_atom ${ATOMDIR}
 done
-'''
+"""
 
 
 class OrcaAtomProgram(AtomProgram):
@@ -475,7 +593,7 @@ class OrcaAtomProgram(AtomProgram):
         return AtomProgram.load_atom(self, dn_mult, 'molden.input')
 
 
-run_cp2k_script = '''\
+run_cp2k_script = """\
 #!/bin/bash
 
 # Note: if you want to use an mpi-parallel CP2K binary, uncomment the following
@@ -527,7 +645,7 @@ function do_atom {
 for ATOMDIR in [01][0-9][0-9]_*_[01][0-9][0-9]_q[-+][0-9][0-9]/mult[0-9][0-9]; do
     do_atom ${ATOMDIR}
 done
-'''
+"""
 
 class CP2KAtomProgram(AtomProgram):
     name = 'cp2k'
@@ -542,7 +660,7 @@ class CP2KAtomProgram(AtomProgram):
         return AtomProgram.load_atom(self, dn_mult, 'cp2k.out')
 
 
-run_psi4_script = '''\
+run_psi4_script = """\
 #!/bin/bash
 
 # make sure psi4 is available before running this script.
@@ -573,7 +691,7 @@ function do_atom {
 for ATOMDIR in [01][0-9][0-9]_*_[01][0-9][0-9]_q[-+][0-9][0-9]/mult[0-9][0-9]; do
     do_atom ${ATOMDIR}
 done
-'''
+"""
 
 
 class Psi4AtomProgram(AtomProgram):
