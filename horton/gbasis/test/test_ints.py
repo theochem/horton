@@ -2188,7 +2188,7 @@ def test_nuclear_attraction_co_ccpv5z_cart_hf():
 
 
 def check_g09_dipole(fn_fchk, dipole_values):
-    """Compares dipole moment computed from WFN and nuclei to reference value.
+    """Compare dipole moment computed from WFN and nuclei to reference value.
 
     Parameters
     ----------
@@ -2239,7 +2239,7 @@ def test_dipole_co_ccpv5z_cart_hf():
 
 
 def check_g09_quadrupole(fn_fchk, quadrupole_values):
-    """Compares quadrupole moment computed from WFN and nuclei to reference value.
+    """Compare quadrupole moment computed from WFN and nuclei to reference value.
 
     Parameters
     ----------
