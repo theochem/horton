@@ -181,8 +181,8 @@ def make_temporary_merge(repo, merge_head_name):
     log('Checkout new branch: %s.' % merge_head_name)
     merge_head.checkout()
     log('Merge with master.')
-    repo.index.merge_tree(repo.heads.master)
-    repo.index.merge_tree(merge_head)
+    merge_base = repo.merge_base(merge_head, repo.heads.master)
+    repo.index.merge_tree(repo.heads.master, base=merge_base)
     log('Check if merge went well.')
     unmerged_blobs = repo.index.unmerged_blobs()
     for _path, list_of_blobs in unmerged_blobs.iteritems():
