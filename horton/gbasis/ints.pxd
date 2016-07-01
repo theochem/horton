@@ -59,6 +59,19 @@ cdef extern from "horton/gbasis/ints.h":
     cdef cppclass GB4ElectronRepulsionIntegralLibInt:
         GB4ElectronRepulsionIntegralLibInt(long max_shell_type) except +
 
+    cdef cppclass GB4ErfIntegralLibInt:
+        GB4ErfIntegralLibInt(long max_shell_type, double mu) except +
+        double get_mu()
+
+    cdef cppclass GB4GaussIntegralLibInt:
+        GB4GaussIntegralLibInt(long max_shell_type, double c, double galpha) except +
+        double get_c()
+        double get_galpha()
+
+    cdef cppclass GB4RAlphaIntegralLibInt:
+        GB4RAlphaIntegralLibInt(long max_shell_type, double ralpha) except +
+        double get_ralpha()
+
 
 cdef extern from "libint2.h":
     void libint2_static_init()
