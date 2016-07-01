@@ -219,7 +219,9 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild):
     if rebuild:
         subprocess.check_call(['./setup.py', 'build_ext', '-i'])
     subprocess.check_call([script, 'feature'])
-    if not skip_ancestor:
+    if skip_ancestor:
+        subprocess.call([script, 'report'])
+    else:
         copied_script = os.path.join(qaworkdir, os.path.basename(script))
         shutil.copy(script, copied_script)
         shutil.copy('tools/qa/trapdoor.py', os.path.join(qaworkdir, 'trapdoor.py'))
@@ -229,8 +231,7 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild):
         if rebuild:
             subprocess.check_call(['./setup.py', 'build_ext', '-i'])
         subprocess.check_call([copied_script, 'ancestor'])
-        subprocess.check_call([copied_script, 'report'])
-    subprocess.check_call([script, 'report'])
+        subprocess.call([copied_script, 'report'])
 
 
 @log.section('roll back')
