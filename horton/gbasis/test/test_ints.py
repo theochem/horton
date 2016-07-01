@@ -2188,6 +2188,15 @@ def test_nuclear_attraction_co_ccpv5z_cart_hf():
 
 
 def check_g09_dipole(fn_fchk, dipole_values):
+    """Compares dipole moment computed from WFN and nuclei to reference value.
+
+    Parameters
+    ----------
+    fn_fchk : str
+        The FCHK filename.
+    dipole_values : array, shape=(3,)
+        Three components of the expected dipole moment.
+    """
     mol = IOData.from_file(fn_fchk)
     xyz_array = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
     center = np.zeros(3)
@@ -2230,6 +2239,15 @@ def test_dipole_co_ccpv5z_cart_hf():
 
 
 def check_g09_quadrupole(fn_fchk, quadrupole_values):
+    """Compares quadrupole moment computed from WFN and nuclei to reference value.
+
+    Parameters
+    ----------
+    fn_fchk : str
+        The FCHK filename.
+    dipole_values : array, shape=(6,)
+        Six components of the expected dipole moment: x^2, y^2, z^2, xy, xz, yz
+    """
     mol = IOData.from_file(fn_fchk)
     xyz_array = np.array([[2, 0, 0], [0, 2, 0], [0, 0, 2], [1, 1, 0], [1, 0, 1], [0, 1, 1]])
     center = np.zeros(3)
