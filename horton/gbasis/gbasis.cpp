@@ -250,6 +250,16 @@ void GOBasis::compute_erf_repulsion(double* output, double mu) {
     compute_four_index(output, &integral);
 }
 
+void GOBasis::compute_gauss_repulsion(double* output, double c, double galpha) {
+    GB4GaussIntegralLibInt integral = GB4GaussIntegralLibInt(get_max_shell_type(), c, galpha);
+    compute_four_index(output, &integral);
+}
+
+void GOBasis::compute_ralpha_repulsion(double* output, double ralpha) {
+    GB4RAlphaIntegralLibInt integral = GB4RAlphaIntegralLibInt(get_max_shell_type(), ralpha);
+    compute_four_index(output, &integral);
+}
+
 void GOBasis::compute_grid1_exp(long nfn, double* coeffs, long npoint, double* points, long norb, long* iorbs, double* output) {
     // The work array contains the basis functions evaluated at the grid point,
     // and optionally some of its derivatives.

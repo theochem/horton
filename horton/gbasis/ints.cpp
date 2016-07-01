@@ -744,9 +744,7 @@ void GB4IntegralLibInt::add(
 #endif
 
   /*
-
       Arguments for the kernel (using Boy's function or something else)
-
   */
 
   const double k1 = exp(-libint_args[order[0]].alpha * libint_args[order[2]].alpha *
@@ -929,4 +927,26 @@ void GB4ErfIntegralLibInt::laplace_of_potential(
     output[m] *= prefac;
     prefac *= efac;
   }
+}
+
+
+void GB4GaussIntegralLibInt::laplace_of_potential(double prefac, double rho, double t, long mmax, double* output) {
+    double afac = galpha/(rho+galpha);
+    prefac *= (sqrt(M_PI*M_PI*M_PI)/(rho+galpha))*sqrt(1.0/(rho+galpha))*c*exp(-t*afac);
+    for (long m=0; m<=mmax; m++) {
+        output[m] = prefac;
+    prefac *= afac;
+    }
+}
+
+
+void GB4RAlphaIntegralLibInt::laplace_of_potential(double prefac, double rho, double t, long mmax, double* output) {
+    if (mmax > 10) {
+      throw std::domain_error("mmax > 10, highest cartesian angular value implemented is 10");
+    }
+    prefac *= exp(-t)/(rho*sqrt(rho));
+    double tfactor = ((4.0*M_PI)/(2.0*sqrt(pow(rho,ralpha))));
+    for (long m=0; m<=mmax; m++) {
+        output[m] = tfactor*dtaylor(m, ralpha, t, prefac);
+    }
 }

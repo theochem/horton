@@ -364,4 +364,25 @@ class GB4ErfIntegralLibInt : public GB4IntegralLibInt {
 };
 
 
+class GB4GaussIntegralLibInt : public GB4IntegralLibInt {
+    private:
+        double c;
+        double galpha;
+    public:
+        GB4GaussIntegralLibInt(long max_shell_type, double c, double galpha) : GB4IntegralLibInt(max_shell_type), c(c), galpha(galpha) {};
+        virtual void laplace_of_potential(double prefac, double rho, double t, long mmax, double* output);
+        const double get_c() const {return c;};
+        const double get_galpha() const {return galpha;};
+    };
+
+class GB4RAlphaIntegralLibInt : public GB4IntegralLibInt {
+    private:
+        double ralpha;
+    public:
+        GB4RAlphaIntegralLibInt(long max_shell_type, double ralpha) : GB4IntegralLibInt(max_shell_type), ralpha(ralpha) {};
+        virtual void laplace_of_potential(double prefac, double rho, double t, long mmax, double* output);
+        const double get_ralpha() const {return ralpha;};
+    };
+
+
 #endif
