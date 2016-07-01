@@ -95,7 +95,7 @@ def main():
 
     try:
         make_temporary_merge(repo, merge_head_name)
-        trapdoor_workflow(repo, args.script, qaworkdir, args.skip_ancestor)
+        trapdoor_workflow(repo, args.script, qaworkdir, args.skip_ancestor, args.rebuild)
     finally:
         roll_back(repo, orig_head_name, merge_head_name)
 
@@ -107,6 +107,8 @@ def parse_args():
     parser.add_argument('-s', '--skip-ancestor', default=False, action='store_true',
                         help='Do not run the trapdoor on master and re-use result for '
                              'ancestor from previous run.')
+    parser.add_argument('-r', '--rebuild', default=False, action='store_true',
+                        help='Rebuild extension before running trapdoor script.')
     return parser.parse_args()
 
 
@@ -198,7 +200,7 @@ def make_temporary_merge(repo, merge_head_name):
 
 
 @log.section('trapdoor workflow')
-def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor):
+def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild):
     """Run the trapdoor scripts in the right order.
 
     Parameters
@@ -211,8 +213,11 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor):
                 The location of the QA work directory.
     skip_ancestor : bool
                     If True, the trapdoor script is not executed in the ancestor.
+    rebuild : bool
+        When True, extensions will be rebuilt.
     """
-    subprocess.check_call(['./setup.py', 'build_ext', '-i'])
+    if rebuild:
+        subprocess.check_call(['./setup.py', 'build_ext', '-i'])
     subprocess.check_call([script, 'feature'])
     if not skip_ancestor:
         copied_script = os.path.join(qaworkdir, os.path.basename(script))
@@ -221,7 +226,8 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor):
         # Check out the master branch. (We should be constructing the ancestor etc. but
         # that should come down to the same thing for a PR.)
         repo.heads.master.checkout()
-        subprocess.check_call(['./setup.py', 'build_ext', '-i'])
+        if rebuild:
+            subprocess.check_call(['./setup.py', 'build_ext', '-i'])
         subprocess.check_call([copied_script, 'ancestor'])
         subprocess.check_call([copied_script, 'report'])
     subprocess.check_call([script, 'report'])
