@@ -212,18 +212,19 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor):
     skip_ancestor : bool
                     If True, the trapdoor script is not executed in the ancestor.
     """
-    subprocess.call([script, 'feature'])
-    if skip_ancestor:
-        subprocess.call([script, 'report'])
-    else:
+    subprocess.check_call(['./setup.py', 'build_ext', '-i'])
+    subprocess.check_call([script, 'feature'])
+    if not skip_ancestor:
         copied_script = os.path.join(qaworkdir, os.path.basename(script))
         shutil.copy(script, copied_script)
         shutil.copy('tools/qa/trapdoor.py', os.path.join(qaworkdir, 'trapdoor.py'))
         # Check out the master branch. (We should be constructing the ancestor etc. but
         # that should come down to the same thing for a PR.)
         repo.heads.master.checkout()
-        subprocess.call([copied_script, 'ancestor'])
-        subprocess.call([copied_script, 'report'])
+        subprocess.check_call(['./setup.py', 'build_ext', '-i'])
+        subprocess.check_call([copied_script, 'ancestor'])
+        subprocess.check_call([copied_script, 'report'])
+    subprocess.check_call([script, 'report'])
 
 
 @log.section('roll back')
