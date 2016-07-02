@@ -118,6 +118,7 @@ class MBISWPart(IterativeProatomMixin, StockholderWPart):
                 ('Convergence threshold', '%.1e' % self._threshold),
                 ('Maximum iterations', self._maxiter),
             ])
+            log.cite('verstraelen2016', 'the use of MBIS partitioning')
 
     def get_rgrid(self, iatom):
         return self.get_grid(iatom).rgrid
