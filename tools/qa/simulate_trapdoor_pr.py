@@ -95,7 +95,7 @@ def main():
 
     try:
         make_temporary_merge(repo, merge_head_name)
-        trapdoor_workflow(repo, args.script, qaworkdir, args.skip_ancestor)
+        trapdoor_workflow(repo, args.script, qaworkdir, args.skip_ancestor, args.rebuild)
     finally:
         roll_back(repo, orig_head_name, merge_head_name)
 
@@ -107,6 +107,8 @@ def parse_args():
     parser.add_argument('-s', '--skip-ancestor', default=False, action='store_true',
                         help='Do not run the trapdoor on master and re-use result for '
                              'ancestor from previous run.')
+    parser.add_argument('-r', '--rebuild', default=False, action='store_true',
+                        help='Rebuild extension before running trapdoor script.')
     return parser.parse_args()
 
 
@@ -181,8 +183,8 @@ def make_temporary_merge(repo, merge_head_name):
     log('Checkout new branch: %s.' % merge_head_name)
     merge_head.checkout()
     log('Merge with master.')
-    repo.index.merge_tree(repo.heads.master)
-    repo.index.merge_tree(merge_head)
+    merge_base = repo.merge_base(merge_head, repo.heads.master)
+    repo.index.merge_tree(repo.heads.master, base=merge_base)
     log('Check if merge went well.')
     unmerged_blobs = repo.index.unmerged_blobs()
     for _path, list_of_blobs in unmerged_blobs.iteritems():
@@ -198,7 +200,7 @@ def make_temporary_merge(repo, merge_head_name):
 
 
 @log.section('trapdoor workflow')
-def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor):
+def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild):
     """Run the trapdoor scripts in the right order.
 
     Parameters
@@ -211,8 +213,12 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor):
                 The location of the QA work directory.
     skip_ancestor : bool
                     If True, the trapdoor script is not executed in the ancestor.
+    rebuild : bool
+        When True, extensions will be rebuilt.
     """
-    subprocess.call([script, 'feature'])
+    if rebuild:
+        subprocess.check_call(['./setup.py', 'build_ext', '-i'])
+    subprocess.check_call([script, 'feature'])
     if skip_ancestor:
         subprocess.call([script, 'report'])
     else:
@@ -222,7 +228,9 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor):
         # Check out the master branch. (We should be constructing the ancestor etc. but
         # that should come down to the same thing for a PR.)
         repo.heads.master.checkout()
-        subprocess.call([copied_script, 'ancestor'])
+        if rebuild:
+            subprocess.check_call(['./setup.py', 'build_ext', '-i'])
+        subprocess.check_call([copied_script, 'ancestor'])
         subprocess.call([copied_script, 'report'])
 
 

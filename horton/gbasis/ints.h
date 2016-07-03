@@ -80,30 +80,49 @@ class GB2NuclearAttractionIntegral: public GB2Integral {
 };
 
 /** @brief
- Compute the (multipole) moment integrals in a Gaussian orbital basis.
-
- < gto_a | (x - C_x)^l (y - C_y)^m (z - C_z)^n | gto_b >.
+        Compute the (multipole) moment integrals in a Gaussian orbital basis.
+        < gto_a | (x - C_x)^l (y - C_y)^m (z - C_z)^n | gto_b >.
  */
 class GB2MomentIntegral: public GB2Integral {
     private:
-        long* xyz;
-        double* center;
+        long* xyz;          //!< Powers for x, y and z of the multipole moment.
+        double* center;     //!< The origin w.r.t. to which the multipole moment is computed.
 
     public:
-    /** @brief
-        Computes the moment integrals  < gto_a | (x - C_x)^l (y - C_y)^m (z - C_z)^n | gto_b >.
+        /** @brief
+                Initialize Moment integral calculator
 
-     @param max_shell_type
-        The highest angular momentum index suported
+            @param max_shell_type
+                The highest angular momentum index suported
 
-     @param xyz
-        The powers of x,y,z in the integrals (l, m, n).
+            @param xyz
+                The powers of x,y,z in the integrals (l, m, n).
 
-     @param center
-        The center [C_x, C_y, C_z] around which the moment integrals arecomputed
-     */
+            @param center
+                The center [C_x, C_y, C_z] around which the moment integrals arecomputed
+        */
         GB2MomentIntegral(long max_shell_type, long* xyz, double* center);
-        virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
+
+        /** @brief
+                Add integrals for a pair of primite shells to the current contraction.
+
+            @param coeff
+                The contraction coefficient for the current primitive.
+
+            @param alpha0
+                The exponent of the primitive shell 0.
+
+            @param alpha1
+                The exponent of the primitive shell 1.
+
+            @param scales0
+                The normalization constants for the basis functions in primitive shell 0.
+
+            @param scales1
+                The normalization constants for the basis functions in primitive shell 1.
+          */
+        virtual void add(double coeff, double alpha0, double alpha1,
+                         const double* scales0, const double* scales1);
 };
 
 

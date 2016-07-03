@@ -734,27 +734,22 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-        xyz : numpy-array of int
-              A integer (long) numpy-array with shape (3,) with the powers of x,y,z
-              in the integrals,
-              shape = (3,).
-
-        center : np.ndarray
-                 A numpy array of shape (3,) with the center [C_x, C_y, C_z] around which
-                 the moment integral is computed,
-                 shape = (3,).
-
+        xyz : numpy-array of int, shape=(3,).
+            A integer (long) numpy-array with shape (3,) with the powers of x,y,z in the
+            integrals.
+        center : np.ndarray, shape = (3,)
+            A numpy array of shape (3,) with the center [C_x, C_y, C_z] around which the
+            moment integral is computed.
         output : ``TwoIndex`` or ``LinalgFactory`` object
-                 When a ``TwoIndex`` instance is given, it is used as output
-                 argument and its contents are overwritten. When ``LinalgFactory``
-                 is given, it is used to construct the output ``TwoIndex``
-                 object. In both cases, the output two-index object is returned.
+            When a ``TwoIndex`` instance is given, it is used as output argument and its
+            contents are overwritten. When ``LinalgFactory`` is given, it is used to
+            construct the output ``TwoIndex`` object. In both cases, the output two-index
+            object is returned.
 
         Returns
         -------
         output : ``TwoIndex`` object
-                 The values of the integrals.
-
+            The values of the integrals.
         """
         # type checking
         assert xyz.flags['C_CONTIGUOUS']

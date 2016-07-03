@@ -107,8 +107,12 @@ class DoxygenTrapdoorProgram(TrapdoorProgram):
                 if filename.startswith(prefix):
                     filename = filename[len(prefix):]
                 message = Message(filename, int(lineno), None, description)
-                counter[filename] += 1
-                messages.add(message)
+                # Sadly, doxygen sometimes generates duplicate messages for no good
+                # reason, which leads to incorrect counters and incorrectly failing tests.
+                # We need to check this explicitly...
+                if message not in messages:
+                    counter[filename] += 1
+                    messages.add(message)
         return counter, messages
 
 
