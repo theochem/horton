@@ -28,7 +28,7 @@ from horton.periodic import periodic
 __all__ = [
     'str_to_shell_types', 'shell_type_to_str', 'fortran_float',
     'load_basis_atom_map_nwchem', 'load_basis_atom_map_gbs',
-    'write_gbs'
+    'dump_basis_atom_map'
 ]
 
 
@@ -130,30 +130,27 @@ def load_basis_atom_map_gbs(filename):
                     bc.con_coeffs.append(coeffs[i::len(cur_shell_types)])
     return basis_atom_map
 
-def write_gbs(filename, gaussian_basis):
+def dump_basis_atom_map(filename, basis_atom_map):
     """ Writes gaussian basis file from the basis object in HORTON
 
     Parameters
     ----------
     filename: str
         File name of the new gbs file
-    gaussian_basis: GOBasisFamily
+    basis_atom_map: GOBasisFamily
         Basis set object that contains the name and the contraction information of
         the basis set
 
     Raises
     ------
     AssertionError
-        If gaussian_basis is not loaded
+        If basis_atom_map is not loaded
 
     """
     with open(filename, 'w') as f:
-        f.write('!Basis set, {0}, generated using HORTON\n\n'.format(gaussian_basis.name))
+        f.write('!Basis set, {0}, generated using HORTON\n\n'.format(basis_atom_map.name))
         f.write('****\n')
-        basis_atom_map = gaussian_basis.basis_atom_map
-        assert not basis_atom_map is None, ('GOBasisFamily object was not loaded.'
-                                            ' Fix with `gaussian_basis.load()` before'
-                                            ' passing the gaussian basis object')
+        basis_atom_map = basis_atom_map.basis_atom_map
         for atom in sorted(basis_atom_map.keys()):
             f.write('{0:<6}0\n'.format(periodic[atom].symbol))
             contractions = basis_atom_map[atom].bcs

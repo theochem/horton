@@ -25,7 +25,7 @@ import numpy as np
 
 from horton.context import context
 from horton.gbasis.cext import GOBasis
-from horton.gbasis.iobas import load_basis_atom_map_nwchem, load_basis_atom_map_gbs
+from horton.gbasis.iobas import load_basis_atom_map_nwchem, load_basis_atom_map_gbs, load_basis_atom_map_gbs
 from horton.log import log
 from horton.periodic import periodic
 from horton.utils import typecheck_geo
@@ -227,7 +227,16 @@ class GOBasisFamily(object):
         return self.basis_atom_map.get(number)
 
     def load(self):
-        """Load the basis set from file."""
+        """Load the basis set from file if it hasn't been done already.
+
+        Note
+        ----
+        If the basis_atom_map is already defined (not None), then the load method is ignored
+        """
+        # if basis_atom_map is already defined
+        if self.basis_atom_map is not None:
+            # ignore load method
+            return
         if self.filename.endswith('.nwchem'):
             self.basis_atom_map = load_basis_atom_map_nwchem(self.filename)
         elif self.filename.endswith('.gbs'):
@@ -237,6 +246,21 @@ class GOBasisFamily(object):
         self._to_arrays()
         self._to_segmented()
         self._normalize_contractions()
+
+    def dump(self, filename=None):
+        """ Dumps the basis set in the gbs format
+
+        Parameter
+        ---------
+        filename : str
+            Name of the gbs file that will be created
+            By default, the original filename is used with '_mod' appended to the end of
+            the filename (before extension)
+        """
+        self.load()
+        if filename is None:
+            filename = ''.join(self.filename.split('.')[:-1] + ['_mod.gbs'])
+        load_basis_atom_map_gbs(filename)
 
     def _to_arrays(self):
         """Convert all contraction attributes to numpy arrays."""
