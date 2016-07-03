@@ -234,6 +234,11 @@ void GOBasis::compute_nuclear_attraction(double* charges, double* centers, long 
     compute_two_index(output, &integral);
 }
 
+void GOBasis::compute_multipole_moment(long* xyz, double* center, double* output) {
+    GB2MomentIntegral integral = GB2MomentIntegral(get_max_shell_type(), xyz, center);
+    compute_two_index(output, &integral);
+}
+
 void GOBasis::compute_electron_repulsion(double* output) {
     GB4ElectronRepulsionIntegralLibInt integral = GB4ElectronRepulsionIntegralLibInt(get_max_shell_type());
     compute_four_index(output, &integral);

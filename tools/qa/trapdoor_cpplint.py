@@ -75,7 +75,8 @@ class CPPLintTrapdoorProgram(TrapdoorProgram):
         print 'USING              : cpplint.py update #456'
 
         # Call cpplint
-        command = [self.cpplint_file, '--linelength=100'] + get_source_filenames(config, 'cpp')
+        command = [self.cpplint_file, '--linelength=100', '--filter=-runtime/int']
+        command += get_source_filenames(config, 'cpp')
         output = run_command(command, has_failed=has_failed)[1]
 
         # Parse the output of cpplint into standard return values

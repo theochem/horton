@@ -724,6 +724,51 @@ cdef class GOBasis(GBasis):
         # done
         return output
 
+    def compute_multipole_moment(self,
+                    np.ndarray[long, ndim=1] xyz not None,
+                    np.ndarray[double, ndim=1] center not None,
+                    output):
+        """Compute the (multipole) moment integrals in a Gaussian orbital basis.
+
+        Calculates the integral < gto_a | (x - C_x)^l (y - C_y)^m (z - C_z)^n | gto_b >
+
+        Parameters
+        ----------
+        xyz : numpy-array of int, shape=(3,).
+            A integer (long) numpy-array with shape (3,) with the powers of x,y,z in the
+            integrals.
+        center : np.ndarray, shape = (3,)
+            A numpy array of shape (3,) with the center [C_x, C_y, C_z] around which the
+            moment integral is computed.
+        output : ``TwoIndex`` or ``LinalgFactory`` object
+            When a ``TwoIndex`` instance is given, it is used as output argument and its
+            contents are overwritten. When ``LinalgFactory`` is given, it is used to
+            construct the output ``TwoIndex`` object. In both cases, the output two-index
+            object is returned.
+
+        Returns
+        -------
+        output : ``TwoIndex`` object
+            The values of the integrals.
+        """
+        # type checking
+        assert xyz.flags['C_CONTIGUOUS']
+        assert xyz.min() >= 0
+        assert xyz.sum() >= 0
+        assert center.flags['C_CONTIGUOUS']
+        # prepare the output array
+        cdef np.ndarray[double, ndim=2] output_array
+        if isinstance(output, LinalgFactory):
+            lf = output
+            output = lf.create_two_index(self.nbasis)
+        output_array = output._array
+        self.check_matrix_two_index(output_array)
+        # call the low-level routine
+        (<gbasis.GOBasis*>self._this).compute_multipole_moment(
+            &xyz[0], &center[0], &output_array[0, 0])
+        # done
+        return output
+
     def compute_electron_repulsion(self, output):
         '''Compute electron-electron repulsion integrals
 
@@ -1320,7 +1365,7 @@ cdef class GB2OverlapIntegral(GB2Integral):
 
 
 cdef class GB2KineticIntegral(GB2Integral):
-    '''Wrapper for ints.GB2OverlapIntegral, for testing only'''
+    '''Wrapper for ints.GB2KineticIntegral, for testing only'''
 
     def __cinit__(self, long max_nbasis):
         self._this = <ints.GB2Integral*>(new ints.GB2KineticIntegral(max_nbasis))
