@@ -32,34 +32,35 @@ formats. An overview of all supported file formats can be found here:
 schemes can be used to derive AIM observables, e.g. atomic charge, atomic multipole
 expansion, etc. An overview of features is given in the following table.
 
-======================== ============
-Feature                  References
-======================== ============
+================================== ============
+Feature                            References
+================================== ============
 **Boundary conditions**
 0D
 1D
 2D
 3D
 **AIM schemes**
-Becke                    [becke1988_multicenter]_
-Hirshfeld                [hirshfeld1977]_
-Iterative Hirshfeld      [bultinck2007]_
-Iterative Stockholder    [lillestolen2008]_
+Becke                              [becke1988_multicenter]_
+Hirshfeld                          [hirshfeld1977]_
+Iterative Hirshfeld                [bultinck2007]_
+Iterative Stockholder              [lillestolen2008]_
+Minimal Basis Iterative Stockolder [verstraelen2016]_
 **AIM properties**
 Charges
 Spin charges
 Cartesian multipoles
 Pure/harmonic multipoles
 Radial moments
-Dispersion coefficients  [tkatchenko2009]_
+Dispersion coefficients            [tkatchenko2009]_
 Spherical decomposition
-ESP due to each AIM      [becke1988_poisson]_
-ESP due to pro-atom      [becke1988_poisson]_
+ESP due to each AIM                [becke1988_poisson]_
+ESP due to pro-atom                [becke1988_poisson]_
 Wiberg bond order
 Kohn-Sham response
 **Extra options**
 Symmetry analysis
-======================== ============
+================================== ============
 
 For almost all the Hirshfeld variants, you must first set up a pro-atom database
 densities, preferably at the same level of theory used for the molecular
@@ -413,14 +414,14 @@ This script has four important arguments:
     * ``h``: Hirshfeld partitioning. [hirshfeld1977]_
     * ``hi``: Iterative Hirshfeld partitioning. [bultinck2007]_
     * ``is``: Iterative Stockholder partitioning. [lillestolen2008]_
+    * ``mbis``: Minimal Basis Iterative Stockholder partitioning. [verstraelen2016]_
 
-4. The ``atoms.h5`` argument is only needed for the Hirshfeld variants, not for
-   ``b`` and ``is``. The file ``atoms.h5`` contains a database of pro-atoms and
-   can be generated as explained in :ref:`atomdb`.
+4. The ``atoms.h5`` argument is only needed for the Hirshfeld variants ``h`` and ``hi``,
+   not for ``b``, ``is`` or ``mbis``. The file ``atoms.h5`` contains a database of
+   pro-atoms and can be generated as explained in :ref:`atomdb`.
 
-This script computes atomic weight functions, and derives all AIM
-observables that are implemented for that scheme. These results are stored in
-the specified HDF5 output file.
+This script computes atomic weight functions, and derives all AIM observables that are
+implemented for that scheme. These results are stored in the specified HDF5 output file.
 
 An elaborate description of all command-line arguments can be obtained from:
 
@@ -502,6 +503,8 @@ Frequently asked questions
 
     * [verstraelen2011a]_ "Assessment of Atomic Charge Models for Gas-Phase Computations on Polypeptides"
     * [verstraelen2012a]_ "The conformational sensitivity of iterative stockholder partitioning schemes"
+    * [verstraelen2013]_ "Hirshfeld-E Partitioning: AIM Charges with an Improved Trade-off between Robustness and Accurate Electrostatics"
+    * [verstraelen2016]_ "Minimal Basis Iterative Stockholder: Atoms in Molecules for Force-Field Development"
 
     The following are also related to this question, but the list is far from
     complete:
