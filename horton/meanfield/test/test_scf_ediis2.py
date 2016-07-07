@@ -28,7 +28,7 @@ from nose.tools import assert_raises
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf, \
     check_water_cs_hfs, check_n2_cs_hfs, check_h3_os_hfs, check_h3_os_pbe, \
-    check_co_cs_pbe, check_scandium_sc_hf, check_water_cs_m05, \
+    check_co_cs_pbe, check_vanadium_sc_hf, check_water_cs_m05, \
     check_methyl_os_tpss
 
 

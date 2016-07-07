@@ -45,7 +45,7 @@ __all__ = [
     'check_cubic_wrapper', 'check_interpolation', 'check_solve', 'helper_compute',
     'check_hf_cs_hf', 'check_lih_os_hf', 'check_water_cs_hfs',
     'check_n2_cs_hfs', 'check_h3_os_hfs', 'check_h3_os_pbe', 'check_co_cs_pbe',
-    'check_scandium_sc_hf', 'check_water_cs_m05', 'check_methyl_os_tpss',
+    'check_vanadium_sc_hf', 'check_water_cs_m05', 'check_methyl_os_tpss',
 ]
 
 
