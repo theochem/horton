@@ -37,7 +37,7 @@ if [ "${CURRENT_BRANCH}" == 'master' ] || [ "${CURRENT_COMMIT}" == ${ANCESTOR_CO
     nosetests -v -a '!slow' || report_error "Some fast tests failed (master branch)"
 else
     # Check for whitespace errors in every commit.
-    ./tools/qa/check_whitespace.py
+    ./tools/qa/check_whitespace.py || report_error "Whitespace errors in some commits"
 
     # Run the first part of the comparative tests.
     ./tools/qa/trapdoor_coverage.py feature || report_error "Trapdoor coverage failed (feature branch)"
