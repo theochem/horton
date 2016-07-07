@@ -66,7 +66,7 @@ class Log(object):
         verbose : bool
                Whether the logger should print verbosely or not.
         """
-        self.verbose=verbose
+        self.verbose = verbose
 
     def section(self, name):
         """Dectorator to add section output to function.
