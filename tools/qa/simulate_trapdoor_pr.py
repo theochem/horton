@@ -91,7 +91,7 @@ def main():
         os.makedirs(qaworkdir)
 
     # Pre-flight checks.
-    orig_head_name, merge_head_name = run_pre_flight_checks(repo)
+    orig_head_name, merge_head_name = run_pre_flight_checks(repo, remote=args.remote)
 
     try:
         make_temporary_merge(repo, merge_head_name)
@@ -109,11 +109,13 @@ def parse_args():
                              'ancestor from previous run.')
     parser.add_argument('-r', '--rebuild', default=False, action='store_true',
                         help='Rebuild extension before running trapdoor script.')
+    parser.add_argument('-R', '--remote', default='origin',
+                        help='Compare with master on a remote. Defaults to origin')
     return parser.parse_args()
 
 
 @log.section('pre-flight checks')
-def run_pre_flight_checks(repo):
+def run_pre_flight_checks(repo, remote):
     """Run some initial checks before doing anything.
 
     Parameters
@@ -127,7 +129,7 @@ def run_pre_flight_checks(repo):
         raise RepoError('Not all changes are committed.')
 
     log('Check whether master is up to date with origin/master.')
-    remote_refs = git_ls_remote('origin')
+    remote_refs = git_ls_remote(remote)
     if remote_refs['refs/heads/master'] != repo.heads.master.object.hexsha:
         raise RepoError('Master is not up to date.')
 
