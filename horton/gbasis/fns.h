@@ -54,7 +54,8 @@ class GB1ExpGridFn : public GB1GridFn  {
     protected:
         long nfn;
     public:
-        GB1ExpGridFn(long max_shell_type, long nfn, long dim_work, long dim_output) : GB1GridFn(max_shell_type, dim_work, dim_output), nfn(nfn) {};
+        GB1ExpGridFn(long max_shell_type, long nfn, long dim_work, long dim_output)
+            : GB1GridFn(max_shell_type, dim_work, dim_output), nfn(nfn) {};
         virtual void compute_point_from_exp(double* work_basis, double* coeffs, long nbasis, double* output) = 0;
     };
 
@@ -66,18 +67,18 @@ class GB1ExpGridOrbitalFn : public GB1ExpGridFn  {
         long* iorbs;
         long norb;
     public:
-        GB1ExpGridOrbitalFn(long max_shell_type, long nfn, long* iorbs, long norb) : GB1ExpGridFn(max_shell_type, nfn, 1, norb), iorbs(iorbs), norb(norb) {};
+        GB1ExpGridOrbitalFn(long max_shell_type, long nfn, long* iorbs, long norb)
+            : GB1ExpGridFn(max_shell_type, nfn, 1, norb), poly_work{0.0}, offset(0), iorbs(iorbs), norb(norb) {};
         virtual void reset(long _shell_type0, const double* _r0, const double* _point);
         virtual void add(double coeff, double alpha0, const double* scales0);
         virtual void compute_point_from_exp(double* work_basis, double* coeffs, long nbasis, double* output);
     };
 
 
-
-
 class GB1DMGridFn : public GB1GridFn  {
     public:
-        GB1DMGridFn(long max_shell_type, long dim_work, long dim_output) : GB1GridFn(max_shell_type, dim_work, dim_output) {};
+        GB1DMGridFn(long max_shell_type, long dim_work, long dim_output)
+            : GB1GridFn(max_shell_type, dim_work, dim_output) {};
         virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double epsilon, double* dmmaxrow) = 0;
         virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output) = 0;
     };
@@ -88,7 +89,8 @@ class GB1DMGridDensityFn : public GB1DMGridFn  {
         double poly_work[MAX_NCART_CUMUL];
         long offset;
     public:
-        GB1DMGridDensityFn(long max_shell_type): GB1DMGridFn(max_shell_type, 1, 1) {};
+        explicit GB1DMGridDensityFn(long max_shell_type)
+            : GB1DMGridFn(max_shell_type, 1, 1), poly_work{0.0}, offset(0) {};
 
         virtual void reset(long _shell_type0, const double* _r0, const double* _point);
         virtual void add(double coeff, double alpha0, const double* scales0);
@@ -104,7 +106,9 @@ class GB1DMGridGradientFn : public GB1DMGridFn  {
         long offset_l1; // lower offset for the polynomials for the gradient
         long offset_h1; // higher offset for the polynomials for the gradient
     public:
-        GB1DMGridGradientFn(long max_shell_type, long dim_output=3): GB1DMGridFn(max_shell_type, 4, dim_output) {};
+        GB1DMGridGradientFn(long max_shell_type, long dim_output=3)
+            : GB1DMGridFn(max_shell_type, 4, dim_output), poly_work{0.0}, offset(0),
+              offset_l1(0), offset_h1(0) {};
 
         virtual void reset(long _shell_type0, const double* _r0, const double* _point);
         virtual void add(double coeff, double alpha0, const double* scales0);
@@ -115,7 +119,7 @@ class GB1DMGridGradientFn : public GB1DMGridFn  {
 
 class GB1DMGridGGAFn : public GB1DMGridGradientFn  {
     public:
-        GB1DMGridGGAFn(long max_shell_type): GB1DMGridGradientFn(max_shell_type, 4) {};
+        explicit GB1DMGridGGAFn(long max_shell_type): GB1DMGridGradientFn(max_shell_type, 4) {};
 
         virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double epsilon, double* dmmaxrow);
         virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output);
@@ -129,7 +133,9 @@ class GB1DMGridKineticFn : public GB1DMGridFn  {
         long offset_l1; // lower offset for the polynomials for the gradient
         long offset_h1; // higher offset for the polynomials for the gradient
     public:
-        GB1DMGridKineticFn(long max_shell_type): GB1DMGridFn(max_shell_type, 3, 1) {};
+        explicit GB1DMGridKineticFn(long max_shell_type)
+            : GB1DMGridFn(max_shell_type, 3, 1), poly_work{0.0}, offset(0), offset_l1(0),
+              offset_h1(0) {};
 
         virtual void reset(long _shell_type0, const double* _r0, const double* _point);
         virtual void add(double coeff, double alpha0, const double* scales0);
@@ -147,7 +153,9 @@ class GB1DMGridHessianFn : public GB1DMGridFn  {
         long offset_l2; // lower offset for the polynomials for the hessian
         long offset_h2; // higher offset for the polynomials for the hessian
     public:
-        GB1DMGridHessianFn(long max_shell_type): GB1DMGridFn(max_shell_type, 10, 6) {};
+        explicit GB1DMGridHessianFn(long max_shell_type)
+            : GB1DMGridFn(max_shell_type, 10, 6), poly_work{0.0}, offset(0),
+              offset_l1(0), offset_h1(0), offset_l2(0), offset_h2(0) {};
 
         virtual void reset(long _shell_type0, const double* _r0, const double* _point);
         virtual void add(double coeff, double alpha0, const double* scales0);
@@ -165,16 +173,15 @@ class GB1DMGridMGGAFn : public GB1DMGridFn  {
         long offset_l2; // lower offset for the polynomials for the hessian
         long offset_h2; // higher offset for the polynomials for the hessian
     public:
-        GB1DMGridMGGAFn(long max_shell_type): GB1DMGridFn(max_shell_type, 5, 6) {};
+        explicit GB1DMGridMGGAFn(long max_shell_type)
+            : GB1DMGridFn(max_shell_type, 5, 6), poly_work{0.0}, offset(0), offset_l1(0),
+              offset_h1(0), offset_l2(0), offset_h2(0) {};
 
         virtual void reset(long _shell_type0, const double* _r0, const double* _point);
         virtual void add(double coeff, double alpha0, const double* scales0);
         virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis, double* output, double epsilon, double* dmmaxrow);
         virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis, double* output);
     };
-
-
-
 
 
 class GB2DMGridFn : public GBCalculator  {
@@ -207,8 +214,6 @@ class GB2DMGridHartreeFn : public GB2DMGridFn  {
 
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
     };
-
-
 
 
 #endif
