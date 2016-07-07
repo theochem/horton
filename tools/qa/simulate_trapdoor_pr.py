@@ -51,10 +51,22 @@ class Log(object):
                The program name.
         """
         self._name = name
+        self.verbose = False
 
     def __call__(self, message, indent=4):
         """Print a message on screen."""
-        print '/%s/ %s%s' % (self._name, ' '*indent, message)
+        if self.verbose:
+            print '/%s/ %s%s' % (self._name, ' '*indent, message)
+
+    def set_level(self, verbose):
+        """Sets the verbosity of the logger object.
+
+        Parameters
+        ----------
+        verbose : bool
+               Whether the logger should print verbosely or not.
+        """
+        self.verbose=verbose
 
     def section(self, name):
         """Dectorator to add section output to function.
@@ -84,6 +96,7 @@ def main():
     # A few general things.
     args = parse_args()
     repo = git.Repo('.')
+    log.set_level(args.verbose)
 
     # Get the QAWORKDIR. Create if it does not exist yet.
     qaworkdir = os.getenv('QAWORKDIR', 'qaworkdir')
@@ -104,6 +117,8 @@ def parse_args():
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description='Simulate trapdoor test locally.')
     parser.add_argument('script', type=str, metavar='trapdoor', help='Path to trapdoor script.')
+    parser.add_argument('-v', '--verbose', default=False, action='store_true',
+                        help='Prints debugging information.')
     parser.add_argument('-s', '--skip-ancestor', default=False, action='store_true',
                         help='Do not run the trapdoor on master and re-use result for '
                              'ancestor from previous run.')
