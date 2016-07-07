@@ -59,7 +59,7 @@ class Log(object):
             print '/%s/ %s%s' % (self._name, ' '*indent, message)
 
     def set_level(self, verbose):
-        """Sets the verbosity of the logger object.
+        """Set the verbosity of the logger object.
 
         Parameters
         ----------
@@ -239,7 +239,7 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild):
         subprocess.check_call(['./setup.py', 'build_ext', '-i'])
     subprocess.check_call([script, 'feature'])
     if skip_ancestor:
-        subprocess.call([script, 'report'])
+        subprocess.check_call([script, 'report'])
     else:
         copied_script = os.path.join(qaworkdir, os.path.basename(script))
         shutil.copy(script, copied_script)
@@ -250,7 +250,7 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild):
         if rebuild:
             subprocess.check_call(['./setup.py', 'build_ext', '-i'])
         subprocess.check_call([copied_script, 'ancestor'])
-        subprocess.call([copied_script, 'report'])
+        subprocess.check_call([copied_script, 'report'])
 
 
 @log.section('roll back')
