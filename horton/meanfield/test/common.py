@@ -551,9 +551,17 @@ def check_vanadium_sc_hf(scf_solver):
 
 @log.with_level(log.high)
 def check_water_cs_m05(scf_solver):
+    """Try to solve the SCF for water (closed-shell) with the M05 functional.
+
+    Parameters
+    ----------
+    scf_solver : one of the SCFSolver types in HORTON
+                 A configured SCF solver that must be tested.
+    """
     fn_fchk = context.get_fn('test/water_m05_321g.fchk')
     mol = IOData.from_file(fn_fchk)
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'fine', random_rotate=False)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'fine',
+                        random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
@@ -601,9 +609,17 @@ def check_water_cs_m05(scf_solver):
 
 @log.with_level(log.high)
 def check_methyl_os_tpss(scf_solver):
+    """Try to solve the SCF for methyl (open-shell) with the TPSS functional.
+
+    Parameters
+    ----------
+    scf_solver : one of the SCFSolver types in HORTON
+                 A configured SCF solver that must be tested.
+    """
     fn_fchk = context.get_fn('test/methyl_tpss_321g.fchk')
     mol = IOData.from_file(fn_fchk)
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'fine', random_rotate=False)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'fine',
+                        random_rotate=False)
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)

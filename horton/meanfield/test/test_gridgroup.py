@@ -18,9 +18,10 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
+"""Unit tests for horton.meanfield.gridgroup."""
 
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 def test_gridgroup_density_cutoff():
@@ -37,12 +38,12 @@ def test_gridgroup_density_cutoff():
     # normal use case
     rgg = RGridGroup(mol.obasis, grid, [RLibXCMGGA('c_tpss')])
     alpha_basics = rgg._update_grid_basics(cache, 'alpha')
-    mask1 = alpha_basics[:,0] >= 1e-9
-    mask2 = alpha_basics[:,0] == 0.0
+    mask1 = alpha_basics[:, 0] >= 1e-9
+    mask2 = alpha_basics[:, 0] == 0.0
     assert (mask1 | mask2).all()
-    assert (alpha_basics[mask2,:] == 0.0).all()
+    assert (alpha_basics[mask2, :] == 0.0).all()
 
     # use all grid points
     rgg = RGridGroup(mol.obasis, grid, [RLibXCMGGA('c_tpss')], density_cutoff=0.0)
     alpha_basics = rgg._update_grid_basics(cache, 'alpha')
-    assert (alpha_basics[:,0] >= 0.0).all()
+    assert (alpha_basics[:, 0] >= 0.0).all()

@@ -60,7 +60,8 @@ class LibXCEnergy(GridObservable):
         name = '%s_%s' % (self.prefix, name)
         self._name = name
         self._libxc_wrapper = self.LibXCWrapper(name)
-        log.cite('marques2012', 'using LibXC, the library of exchange and correlation functionals')
+        log.cite('marques2012', 'using LibXC, the library of exchange and correlation '
+                 'functionals')
         GridObservable.__init__(self, 'libxc_%s' % name)
 
 
@@ -133,8 +134,8 @@ class ULibXCLDA(LibXCEnergy):
         pot_both, new = cache.load('pot_libxc_%s_both' % self._name, alloc=(grid.size, 2))
         if new:
             self._libxc_wrapper.compute_lda_vxc(cache['rho_both'], pot_both)
-        lda_pot_alpha += pot_both[:,0]
-        lda_pot_beta += pot_both[:,1]
+        lda_pot_alpha += pot_both[:, 0]
+        lda_pot_beta += pot_both[:, 1]
 
 
 class RLibXCGGA(LibXCEnergy):
@@ -177,12 +178,13 @@ class RLibXCGGA(LibXCEnergy):
 
         # Chain rule: convert derivative toward sigma into a derivative toward
         # the gradients.
-        my_gga_pot_alpha, new = cache.load('gga_pot_libxc_%s_alpha' % self._name, alloc=(grid.size,4))
+        my_gga_pot_alpha, new = cache.load('gga_pot_libxc_%s_alpha' % self._name,
+                                           alloc=(grid.size, 4))
         if new:
-            my_gga_pot_alpha[:,0] = dpot
+            my_gga_pot_alpha[:, 0] = dpot
             grad_rho = cache['grad_rho_full']
-            np.multiply(grad_rho, spot.reshape(-1,1), out=my_gga_pot_alpha[:,1:4])
-            my_gga_pot_alpha[:,1:4] *= 2
+            np.multiply(grad_rho, spot.reshape(-1, 1), out=my_gga_pot_alpha[:, 1:4])
+            my_gga_pot_alpha[:, 1:4] *= 2
 
         # Add to the output argument
         gga_pot_alpha += my_gga_pot_alpha
@@ -227,7 +229,8 @@ class ULibXCGGA(LibXCEnergy):
         #   - the derivative of the energy towards the alpha density.
         #   - the derivative of the energy towards the beta density.
         #   - the derivative of the energy towards the norm squared of the alpha density.
-        #   - the derivative of the energy towards the dot product of the alpha and beta densities.
+        #   - the derivative of the energy towards the dot product of the alpha and beta
+        #     densities.
         #   - the derivative of the energy towards the norm squared of the beta density.
         dpot_both, newd = cache.load('dpot_libxc_%s_both' % self._name, alloc=(grid.size, 2))
         spot_all, newt = cache.load('spot_libxc_%s_all' % self._name, alloc=(grid.size, 3))
@@ -238,20 +241,22 @@ class ULibXCGGA(LibXCEnergy):
 
         # Chain rules: convert derivatives toward sigma into a derivative toward
         # the gradients.
-        grad_alpha = cache['all_alpha'][:,1:4]
-        grad_beta = cache['all_beta'][:,1:4]
+        grad_alpha = cache['all_alpha'][:, 1:4]
+        grad_beta = cache['all_beta'][:, 1:4]
 
-        my_gga_pot_alpha, new = cache.load('gga_pot_libxc_%s_alpha' % self._name, alloc=(grid.size,4))
+        my_gga_pot_alpha, new = cache.load('gga_pot_libxc_%s_alpha' % self._name,
+                                           alloc=(grid.size, 4))
         if new:
-            my_gga_pot_alpha[:,0] = dpot_both[:,0]
-            my_gga_pot_alpha[:,1:4] = (2*spot_all[:,0].reshape(-1,1))*grad_alpha
-            my_gga_pot_alpha[:,1:4] += (spot_all[:,1].reshape(-1,1))*grad_beta
+            my_gga_pot_alpha[:, 0] = dpot_both[:, 0]
+            my_gga_pot_alpha[:, 1:4] = (2*spot_all[:, 0].reshape(-1, 1))*grad_alpha
+            my_gga_pot_alpha[:, 1:4] += (spot_all[:, 1].reshape(-1, 1))*grad_beta
 
-        my_gga_pot_beta, new = cache.load('gga_pot_libxc_%s_beta' % self._name, alloc=(grid.size,4))
+        my_gga_pot_beta, new = cache.load('gga_pot_libxc_%s_beta' % self._name,
+                                          alloc=(grid.size, 4))
         if new:
-            my_gga_pot_beta[:,0] = dpot_both[:,1]
-            my_gga_pot_beta[:,1:4] = (2*spot_all[:,2].reshape(-1,1))*grad_beta
-            my_gga_pot_beta[:,1:4] += (spot_all[:,1].reshape(-1,1))*grad_alpha
+            my_gga_pot_beta[:, 0] = dpot_both[:, 1]
+            my_gga_pot_beta[:, 1:4] = (2*spot_all[:, 2].reshape(-1, 1))*grad_beta
+            my_gga_pot_beta[:, 1:4] += (spot_all[:, 1].reshape(-1, 1))*grad_alpha
 
         gga_pot_alpha += my_gga_pot_alpha
         gga_pot_beta += my_gga_pot_beta
@@ -300,7 +305,8 @@ class RLibXCMGGA(LibXCEnergy):
             sigma_full = cache['sigma_full']
             lapl_full = cache['lapl_full']
             tau_full = cache['tau_full']
-            self._libxc_wrapper.compute_mgga_exc(rho_full, sigma_full, lapl_full, tau_full, edens)
+            self._libxc_wrapper.compute_mgga_exc(rho_full, sigma_full, lapl_full,
+                                                 tau_full, edens)
         return grid.integrate(edens, rho_full)
 
     @timer.with_section('MGGA pot')
@@ -325,18 +331,20 @@ class RLibXCMGGA(LibXCEnergy):
             sigma_full = cache['sigma_full']
             lapl_full = cache['lapl_full']
             tau_full = cache['tau_full']
-            self._libxc_wrapper.compute_mgga_vxc(rho_full, sigma_full, lapl_full, tau_full, dpot, spot, lpot, tpot)
+            self._libxc_wrapper.compute_mgga_vxc(rho_full, sigma_full, lapl_full,
+                                                 tau_full, dpot, spot, lpot, tpot)
 
         # Chain rule: convert derivative toward sigma into a derivative toward
         # the gradients.
-        my_mgga_pot_alpha, new = cache.load('mgga_pot_libxc_%s_alpha' % self._name, alloc=(grid.size,6))
+        my_mgga_pot_alpha, new = cache.load('mgga_pot_libxc_%s_alpha' % self._name,
+                                            alloc=(grid.size, 6))
         if new:
-            my_mgga_pot_alpha[:,0] = dpot
+            my_mgga_pot_alpha[:, 0] = dpot
             grad_rho = cache['grad_rho_full']
-            np.multiply(grad_rho, spot.reshape(-1,1), out=my_mgga_pot_alpha[:,1:4])
-            my_mgga_pot_alpha[:,1:4] *= 2
-            my_mgga_pot_alpha[:,4] = lpot
-            my_mgga_pot_alpha[:,5] = tpot
+            np.multiply(grad_rho, spot.reshape(-1, 1), out=my_mgga_pot_alpha[:, 1:4])
+            my_mgga_pot_alpha[:, 1:4] *= 2
+            my_mgga_pot_alpha[:, 4] = lpot
+            my_mgga_pot_alpha[:, 5] = tpot
 
         # Add to the output argument
         mgga_pot_alpha += my_mgga_pot_alpha
@@ -370,7 +378,8 @@ class ULibXCMGGA(LibXCEnergy):
             sigma_all = cache['sigma_all']
             lapl_both = cache['lapl_both']
             tau_both = cache['tau_both']
-            self._libxc_wrapper.compute_mgga_exc(rho_both, sigma_all, lapl_both, tau_both, edens)
+            self._libxc_wrapper.compute_mgga_exc(rho_both, sigma_all, lapl_both,
+                                                 tau_both, edens)
         rho_full = cache['rho_full']
         return grid.integrate(edens, rho_full)
 
@@ -406,28 +415,31 @@ class ULibXCMGGA(LibXCEnergy):
             sigma_all = cache['sigma_all']
             lapl_both = cache['lapl_both']
             tau_both = cache['tau_both']
-            self._libxc_wrapper.compute_mgga_vxc(rho_both, sigma_all, lapl_both, tau_both, dpot_both, spot_all, lpot_both, tpot_both)
+            self._libxc_wrapper.compute_mgga_vxc(rho_both, sigma_all, lapl_both, tau_both,
+                                                 dpot_both, spot_all, lpot_both, tpot_both)
 
         # Chain rules: convert derivatives toward sigma into a derivative toward
         # the gradients.
-        grad_alpha = cache['all_alpha'][:,1:4]
-        grad_beta = cache['all_beta'][:,1:4]
+        grad_alpha = cache['all_alpha'][:, 1:4]
+        grad_beta = cache['all_beta'][:, 1:4]
 
-        my_mgga_pot_alpha, new = cache.load('gga_pot_libxc_%s_alpha' % self._name, alloc=(grid.size,6))
+        my_mgga_pot_alpha, new = cache.load('gga_pot_libxc_%s_alpha' % self._name,
+                                            alloc=(grid.size, 6))
         if new:
-            my_mgga_pot_alpha[:,0] = dpot_both[:,0]
-            my_mgga_pot_alpha[:,1:4] = (2*spot_all[:,0].reshape(-1,1))*grad_alpha
-            my_mgga_pot_alpha[:,1:4] += (spot_all[:,1].reshape(-1,1))*grad_beta
-            my_mgga_pot_alpha[:,4] = lpot_both[:,0]
-            my_mgga_pot_alpha[:,5] = tpot_both[:,0]
+            my_mgga_pot_alpha[:, 0] = dpot_both[:, 0]
+            my_mgga_pot_alpha[:, 1:4] = (2*spot_all[:, 0].reshape(-1, 1))*grad_alpha
+            my_mgga_pot_alpha[:, 1:4] += (spot_all[:, 1].reshape(-1, 1))*grad_beta
+            my_mgga_pot_alpha[:, 4] = lpot_both[:, 0]
+            my_mgga_pot_alpha[:, 5] = tpot_both[:, 0]
 
-        my_mgga_pot_beta, new = cache.load('gga_pot_libxc_%s_beta' % self._name, alloc=(grid.size,6))
+        my_mgga_pot_beta, new = cache.load('gga_pot_libxc_%s_beta' % self._name,
+                                           alloc=(grid.size, 6))
         if new:
-            my_mgga_pot_beta[:,0] = dpot_both[:,1]
-            my_mgga_pot_beta[:,1:4] = (2*spot_all[:,2].reshape(-1,1))*grad_beta
-            my_mgga_pot_beta[:,1:4] += (spot_all[:,1].reshape(-1,1))*grad_alpha
-            my_mgga_pot_beta[:,4] = lpot_both[:,1]
-            my_mgga_pot_beta[:,5] = tpot_both[:,1]
+            my_mgga_pot_beta[:, 0] = dpot_both[:, 1]
+            my_mgga_pot_beta[:, 1:4] = (2*spot_all[:, 2].reshape(-1, 1))*grad_beta
+            my_mgga_pot_beta[:, 1:4] += (spot_all[:, 1].reshape(-1, 1))*grad_alpha
+            my_mgga_pot_beta[:, 4] = lpot_both[:, 1]
+            my_mgga_pot_beta[:, 5] = tpot_both[:, 1]
 
         mgga_pot_alpha += my_mgga_pot_alpha
         mgga_pot_beta += my_mgga_pot_beta

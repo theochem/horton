@@ -57,7 +57,8 @@ class BeckeHartree(GridObservable):
         """
         # This only works under a few circumstances
         if not isinstance(grid, BeckeMolGrid):
-            raise TypeError('The BeckeHatree term only works for Becke-Lebedev molecular integration grids')
+            raise TypeError('The BeckeHatree term only works for Becke-Lebedev molecular '
+                            'integration grids')
         if grid.mode != 'keep':
             raise TypeError('The mode option of the molecular grid must be \'keep\'.')
 
@@ -71,7 +72,8 @@ class BeckeHartree(GridObservable):
             for atgrid in grid.subgrids:
                 end = begin + atgrid.size
                 becke_weights = grid.becke_weights[begin:end]
-                density_decomposition = atgrid.get_spherical_decomposition(rho[begin:end], becke_weights, lmax=self.lmax)
+                density_decomposition = atgrid.get_spherical_decomposition(
+                    rho[begin:end], becke_weights, lmax=self.lmax)
                 hartree_decomposition = solve_poisson_becke(density_decomposition)
                 grid.eval_decomposition(hartree_decomposition, atgrid.center, pot)
                 begin = end
@@ -142,7 +144,7 @@ class DiracExchange(GridObservable):
         pot : np.ndarray
             The Dirac potential.
         """
-        rho = cache['all_%s' % select][:,0]
+        rho = cache['all_%s' % select][:, 0]
         pot, new = cache.load('pot_x_dirac_%s' % select, alloc=grid.size)
         if new:
             pot[:] = self.derived_coeff * rho ** (1.0 / 3.0)
@@ -155,7 +157,7 @@ class RDiracExchange(DiracExchange):
     @doc_inherit(GridObservable)
     def compute_energy(self, cache, grid):
         pot = self._update_pot(cache, grid, 'alpha')
-        rho = cache['all_alpha'][:,0]
+        rho = cache['all_alpha'][:, 0]
         return (3.0 / 2.0) * grid.integrate(pot, rho)
 
     @doc_inherit(GridObservable)
@@ -170,8 +172,8 @@ class UDiracExchange(DiracExchange):
     def compute_energy(self, cache, grid):
         pot_alpha = self._update_pot(cache, grid, 'alpha')
         pot_beta = self._update_pot(cache, grid, 'beta')
-        rho_alpha = cache['all_alpha'][:,0]
-        rho_beta = cache['all_beta'][:,0]
+        rho_alpha = cache['all_alpha'][:, 0]
+        rho_beta = cache['all_beta'][:, 0]
         return (3.0 / 4.0) * (grid.integrate(pot_alpha, rho_alpha) +
                               grid.integrate(pot_beta, rho_beta))
 

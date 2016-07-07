@@ -111,17 +111,17 @@ class GridGroup(Observable):
         # Compute the density (and optionally derivatives, etc.) on all the grid
         # points.
         if self.df_level == DF_LEVEL_LDA:
-            all_basics, new = cache.load('all_%s' % select, alloc=(self.grid.size,1))
+            all_basics, new = cache.load('all_%s' % select, alloc=(self.grid.size, 1))
             if new:
                 dm = cache['dm_%s' % select]
-                self.obasis.compute_grid_density_dm(dm, self.grid.points, all_basics[:,0])
+                self.obasis.compute_grid_density_dm(dm, self.grid.points, all_basics[:, 0])
         elif self.df_level == DF_LEVEL_GGA:
-            all_basics, new = cache.load('all_%s' % select, alloc=(self.grid.size,4))
+            all_basics, new = cache.load('all_%s' % select, alloc=(self.grid.size, 4))
             if new:
                 dm = cache['dm_%s' % select]
                 self.obasis.compute_grid_gga_dm(dm, self.grid.points, all_basics)
         elif self.df_level == DF_LEVEL_MGGA:
-            all_basics, new = cache.load('all_%s' % select, alloc=(self.grid.size,6))
+            all_basics, new = cache.load('all_%s' % select, alloc=(self.grid.size, 6))
             if new:
                 dm = cache['dm_%s' % select]
                 self.obasis.compute_grid_mgga_dm(dm, self.grid.points, all_basics)
@@ -130,8 +130,8 @@ class GridGroup(Observable):
 
         # Prune grid data where the density is lower than the threshold
         if self.density_cutoff > 0:
-            mask = all_basics[:,0] < self.density_cutoff
-            all_basics[mask,:] = 0.0
+            mask = all_basics[:, 0] < self.density_cutoff
+            all_basics[mask, :] = 0.0
         return all_basics
 
     def _update_grid_data(self, cache):
@@ -261,17 +261,17 @@ class RGridGroup(GridGroup):
             lda_pot_alpha, new = cache.load('lda_pot_total_alpha', alloc=self.grid.size)
             if new:
                 lda_pot_alpha[:] = 0.0
-            return (lda_pot_alpha,), (None,), (None,), new
+            return (lda_pot_alpha, ), (None, ), (None, ), new
         elif self.df_level == DF_LEVEL_GGA:
             gga_pot_alpha, new = cache.load('gga_pot_total_alpha', alloc=(self.grid.size, 4))
             if new:
                 gga_pot_alpha[:] = 0.0
-            return (gga_pot_alpha[:,0],), (gga_pot_alpha,), (None,), new
+            return (gga_pot_alpha[:, 0], ), (gga_pot_alpha, ), (None, ), new
         elif self.df_level == DF_LEVEL_MGGA:
             mgga_pot_alpha, new = cache.load('mgga_pot_total_alpha', alloc=(self.grid.size, 6))
             if new:
                 mgga_pot_alpha[:] = 0.0
-            return (mgga_pot_alpha[:,0],), (mgga_pot_alpha[:,:4],), (mgga_pot_alpha,), new
+            return (mgga_pot_alpha[:, 0], ), (mgga_pot_alpha[:, :4], ), (mgga_pot_alpha, ), new
         else:
             raise ValueError('Internal error: non-existent DF level.')
 
@@ -282,22 +282,22 @@ class RGridGroup(GridGroup):
         if self.df_level >= DF_LEVEL_LDA:
             rho_full, new = cache.load('rho_full', alloc=self.grid.size)
             if new:
-                rho_full[:] = 2*all_alpha[:,0]
+                rho_full[:] = 2*all_alpha[:, 0]
         if self.df_level >= DF_LEVEL_GGA:
-            grad_rho_full, new = cache.load('grad_rho_full', alloc=(self.grid.size,3))
+            grad_rho_full, new = cache.load('grad_rho_full', alloc=(self.grid.size, 3))
             if new:
-                grad_rho_full[:] = all_alpha[:,1:4]
+                grad_rho_full[:] = all_alpha[:, 1:4]
                 grad_rho_full *= 2
             sigma_full, new = cache.load('sigma_full', alloc=self.grid.size)
             if new:
-                sigma_full[:] = 4*(all_alpha[:,1:4]**2).sum(axis=1)
+                sigma_full[:] = 4*(all_alpha[:, 1:4]**2).sum(axis=1)
         if self.df_level >= DF_LEVEL_MGGA:
             lapl_full, new = cache.load('lapl_full', alloc=self.grid.size)
             if new:
-                lapl_full[:] = 2*all_alpha[:,4]
+                lapl_full[:] = 2*all_alpha[:, 4]
             tau_full, new = cache.load('tau_full', alloc=self.grid.size)
             if new:
-                tau_full[:] = 2*all_alpha[:,5]
+                tau_full[:] = 2*all_alpha[:, 5]
 
 
 class UGridGroup(GridGroup):
@@ -363,7 +363,8 @@ class UGridGroup(GridGroup):
             gga_pot_beta, newb = cache.load('gga_pot_total_beta', alloc=(self.grid.size, 4))
             if newb:
                 gga_pot_beta[:] = 0.0
-            return (gga_pot_alpha[:,0], gga_pot_beta[:,0]), (gga_pot_alpha, gga_pot_beta), (None, None), (newa or newb)
+            return (gga_pot_alpha[:, 0], gga_pot_beta[:, 0]), (gga_pot_alpha, gga_pot_beta), \
+                   (None, None), (newa or newb)
         elif self.df_level == DF_LEVEL_MGGA:
             mgga_pot_alpha, newa = cache.load('mgga_pot_total_alpha', alloc=(self.grid.size, 6))
             if newa:
@@ -371,7 +372,9 @@ class UGridGroup(GridGroup):
             mgga_pot_beta, newb = cache.load('mgga_pot_total_beta', alloc=(self.grid.size, 6))
             if newb:
                 mgga_pot_beta[:] = 0.0
-            return (mgga_pot_alpha[:,0], mgga_pot_beta[:,0]), (mgga_pot_alpha[:,:4], mgga_pot_beta[:,:4]), (mgga_pot_alpha, mgga_pot_beta), (newa or newb)
+            return (mgga_pot_alpha[:, 0], mgga_pot_beta[:, 0]), \
+                   (mgga_pot_alpha[:, :4], mgga_pot_beta[:, :4]), \
+                   (mgga_pot_alpha, mgga_pot_beta), (newa or newb)
         else:
             raise ValueError('Internal error: non-existent DF level.')
 
@@ -383,30 +386,30 @@ class UGridGroup(GridGroup):
         if self.df_level >= DF_LEVEL_LDA:
             rho_full, new = cache.load('rho_full', alloc=self.grid.size)
             if new:
-                rho_full[:] = all_alpha[:,0] + all_beta[:,0]
+                rho_full[:] = all_alpha[:, 0] + all_beta[:, 0]
             rho_both, new = cache.load('rho_both', alloc=(self.grid.size, 2))
             if new:
-                rho_both[:,0] = all_alpha[:,0]
-                rho_both[:,1] = all_beta[:,0]
+                rho_both[:, 0] = all_alpha[:, 0]
+                rho_both[:, 1] = all_beta[:, 0]
         if self.df_level >= DF_LEVEL_GGA:
-            grad_rho_full, new = cache.load('grad_rho_full', alloc=(self.grid.size,3))
+            grad_rho_full, new = cache.load('grad_rho_full', alloc=(self.grid.size, 3))
             if new:
-                grad_rho_full[:] = all_alpha[:,1:4]
-                grad_rho_full += all_beta[:,1:4]
-            sigma_all, new = cache.load('sigma_all', alloc=(self.grid.size,3))
+                grad_rho_full[:] = all_alpha[:, 1:4]
+                grad_rho_full += all_beta[:, 1:4]
+            sigma_all, new = cache.load('sigma_all', alloc=(self.grid.size, 3))
             if new:
-                sigma_all[:,0] = (all_alpha[:,1:4]**2).sum(axis=1)
-                sigma_all[:,1] = (all_alpha[:,1:4]*all_beta[:,1:4]).sum(axis=1)
-                sigma_all[:,2] = (all_beta[:,1:4]**2).sum(axis=1)
+                sigma_all[:, 0] = (all_alpha[:, 1:4]**2).sum(axis=1)
+                sigma_all[:, 1] = (all_alpha[:, 1:4]*all_beta[:, 1:4]).sum(axis=1)
+                sigma_all[:, 2] = (all_beta[:, 1:4]**2).sum(axis=1)
         if self.df_level >= DF_LEVEL_MGGA:
             lapl_both, new = cache.load('lapl_both', alloc=(self.grid.size, 2))
             if new:
-                lapl_both[:,0] = all_alpha[:,4]
-                lapl_both[:,1] = all_beta[:,4]
+                lapl_both[:, 0] = all_alpha[:, 4]
+                lapl_both[:, 1] = all_beta[:, 4]
             tau_both, new = cache.load('tau_both', alloc=(self.grid.size, 2))
             if new:
-                tau_both[:,0] = all_alpha[:,5]
-                tau_both[:,1] = all_beta[:,5]
+                tau_both[:, 0] = all_alpha[:, 5]
+                tau_both[:, 1] = all_beta[:, 5]
 
 
 class GridObservable(object):
