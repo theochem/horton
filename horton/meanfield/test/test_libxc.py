@@ -252,8 +252,6 @@ def test_cubic_interpolation_x_tpss_os():
 
 
 def test_hyb_gga_exx_fraction():
-    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    mol = IOData.from_file(fn_fchk)
     # xc_pbeh = The PBE0 functional
     t = RLibXCHybridGGA('xc_pbeh')
     assert t.get_exx_fraction() == 0.25
@@ -276,3 +274,11 @@ def test_info():
     t.kind
     t.family
     t.refs
+
+
+def test_hyb_mgga_exx_fraction():
+    # xc_tpssh = The TPSS functional with exact exchange
+    t = RLibXCHybridMGGA('xc_tpssh')
+    assert t.get_exx_fraction() == 0.1
+    t = ULibXCHybridMGGA('xc_tpssh')
+    assert t.get_exx_fraction() == 0.1
