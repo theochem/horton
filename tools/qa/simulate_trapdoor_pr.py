@@ -143,7 +143,7 @@ def run_pre_flight_checks(repo, remote):
     if repo.is_dirty():
         raise RepoError('Not all changes are committed.')
 
-    log('Check whether master is up to date with origin/master.')
+    log('Check whether master is up to date with %s/master.' % remote)
     remote_refs = git_ls_remote(remote)
     if remote_refs['refs/heads/master'] != repo.heads.master.object.hexsha:
         raise RepoError('Master is not up to date.')
