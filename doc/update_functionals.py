@@ -26,7 +26,7 @@ from cStringIO import StringIO
 import json
 import os
 
-from horton import ULibXCWrapper
+from horton.meanfield.cext import ULibXCWrapper
 
 from common import write_if_changed
 
@@ -86,8 +86,9 @@ def main():
     print >> s, '#################'
     print >> s
     print >> s, 'The following functionals are available in HORTON through `LibXC'
-    print >> s, '<http://www.tddft.org/programs/octopus/wiki/index.php/Libxc>`_ %s.'
-    print >> s, ' [marques2012]_' % libxc_version
+    print >> s, '<http://www.tddft.org/programs/octopus/wiki/index.php/Libxc>`_ %s.' % \
+        libxc_version
+    print >> s, ' [marques2012]_'
     print >> s
     for key in keys:
         try:
