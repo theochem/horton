@@ -108,7 +108,8 @@ def main():
 
     try:
         make_temporary_merge(repo, merge_head_name)
-        trapdoor_workflow(repo, args.script, qaworkdir, args.skip_ancestor, args.rebuild)
+        for s in args.script:
+            trapdoor_workflow(repo, s, qaworkdir, args.skip_ancestor, args.rebuild)
     finally:
         roll_back(repo, orig_head_name, merge_head_name)
 
@@ -116,7 +117,8 @@ def main():
 def parse_args():
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description='Simulate trapdoor test locally.')
-    parser.add_argument('script', type=str, metavar='trapdoor', help='Path to trapdoor script.')
+    parser.add_argument('script', type=str, metavar='trapdoor', nargs="*",
+                        help='Path to trapdoor script.')
     parser.add_argument('-v', '--verbose', default=False, action='store_true',
                         help='Prints debugging information.')
     parser.add_argument('-s', '--skip-ancestor', default=False, action='store_true',
