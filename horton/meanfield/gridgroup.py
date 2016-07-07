@@ -196,8 +196,6 @@ class GridGroup(Observable):
                     grid_term.add_pot(cache, self.grid, *gga_pots)
                 elif grid_term.df_level == DF_LEVEL_MGGA:
                     grid_term.add_pot(cache, self.grid, *mgga_pots)
-                else:
-                    raise ValueError('Internal error: non-existent DF level.')
 
         for ichannel in xrange(len(focks)):
             if self.df_level == DF_LEVEL_LDA:
@@ -212,8 +210,6 @@ class GridGroup(Observable):
                 self.obasis.compute_grid_mgga_fock(
                     self.grid.points, self.grid.weights,
                     mgga_pots[ichannel], focks[ichannel])
-            else:
-                raise ValueError('Internal error: non-existent DF level.')
 
 
 class RGridGroup(GridGroup):

@@ -21,6 +21,8 @@
 """Unit tests for horton.meanfield.gridgroup."""
 
 
+from nose.tools import assert_raises
+
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
@@ -47,3 +49,31 @@ def test_gridgroup_density_cutoff():
     rgg = RGridGroup(mol.obasis, grid, [RLibXCMGGA('c_tpss')], density_cutoff=0.0)
     alpha_basics = rgg._update_grid_basics(cache, 'alpha')
     assert (alpha_basics[:, 0] >= 0.0).all()
+
+
+def test_gridgroup_exceptions():
+    # prepare some molecule
+    fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
+    mol = IOData.from_file(fn_fchk)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
+
+    # make and populate a fake cache object (normally done by the effective
+    # hamiltonian)
+    cache = Cache()
+
+    go = RLibXCMGGA('c_tpss')
+    go.df_level = -1  # trigger errors
+
+    # restricted case
+    rgg = RGridGroup(mol.obasis, grid, [go])
+    with assert_raises(ValueError):
+        rgg._update_grid_basics(cache, 'alpha')
+    with assert_raises(ValueError):
+        rgg._get_potentials(cache)
+
+    # unrestricted case
+    ugg = UGridGroup(mol.obasis, grid, [go])
+    with assert_raises(ValueError):
+        ugg._update_grid_basics(cache, 'alpha')
+    with assert_raises(ValueError):
+        ugg._get_potentials(cache)
