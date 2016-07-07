@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Interface to LDA, GGA and hybrid functionals from LibXC'''
+"""Interface to LDA, GGA and hybrid functionals from LibXC"""
 
 
 import numpy as np
@@ -41,20 +41,22 @@ __all__ = [
 
 
 class LibXCEnergy(GridObservable):
-    '''Base class for LibXC functionals'''
+    """Base class for LibXC functionals."""
 
     prefix = None
     LibXCWrapper = None
 
     def __init__(self, name):
-        '''
-           **Arguments:**
+        """Initialize A LibXC functional.
 
-           name
-                The name of the functional in LibXC, without the ``lda_``,
-                ``gga_`` or ``hyb_gga_`` prefix. (The type of functional is
-                determined by the subclass.)
-        '''
+        Parameters
+        ----------
+
+        name : str
+            The name of the functional in LibXC, without the ``lda_``,
+            ``gga_`` or ``hyb_gga_`` prefix. (The type of functional is
+            determined by the subclass.)
+        """
         name = '%s_%s' % (self.prefix, name)
         self._name = name
         self._libxc_wrapper = self.LibXCWrapper(name)
@@ -64,7 +66,7 @@ class LibXCEnergy(GridObservable):
 
 
 class RLibXCLDA(LibXCEnergy):
-    '''Any LDA functional from LibXC for restricted wavefunctions'''
+    """LDA functional from LibXC for restricted wavefunctions."""
 
     df_level = DF_LEVEL_LDA
     prefix = 'lda'
@@ -97,7 +99,7 @@ class RLibXCLDA(LibXCEnergy):
 
 
 class ULibXCLDA(LibXCEnergy):
-    '''Any LDA functional from LibXC for unrestricted wavefunctions'''
+    """LDA functional from LibXC for unrestricted wavefunctions."""
 
     df_level = DF_LEVEL_LDA
     prefix = 'lda'
@@ -136,6 +138,8 @@ class ULibXCLDA(LibXCEnergy):
 
 
 class RLibXCGGA(LibXCEnergy):
+    """GGA functional from LibXC for restricted wavefunctions."""
+
     df_level = DF_LEVEL_GGA
     prefix = 'gga'
     LibXCWrapper = RLibXCWrapper
@@ -185,6 +189,8 @@ class RLibXCGGA(LibXCEnergy):
 
 
 class ULibXCGGA(LibXCEnergy):
+    """GGA functional from LibXC for unrestricted wavefunctions."""
+
     df_level = DF_LEVEL_GGA
     prefix = 'gga'
     LibXCWrapper = ULibXCWrapper
@@ -252,24 +258,28 @@ class ULibXCGGA(LibXCEnergy):
 
 
 class RLibXCHybridGGA(RLibXCGGA):
-    '''Any Hybrid GGA functional from LibXC for restricted wavefunctions'''
+    """Hybrid GGA functional from LibXC for restricted wavefunctions."""
+
     prefix = 'hyb_gga'
 
     def get_exx_fraction(self):
-        '''Return the fraction of Hartree-Fock exchange for this functional'''
+        """Return the fraction of Hartree-Fock exchange for this functional."""
         return self._libxc_wrapper.get_hyb_exx_fraction()
 
 
 class ULibXCHybridGGA(ULibXCGGA):
-    '''Any Hybrid GGA functional from LibXC for unrestricted wavefunctions'''
+    """Hybrid GGA functional from LibXC for unrestricted wavefunctions."""
+
     prefix = 'hyb_gga'
 
     def get_exx_fraction(self):
-        '''Return the fraction of Hartree-Fock exchange for this functional'''
+        """Return the fraction of Hartree-Fock exchange for this functional."""
         return self._libxc_wrapper.get_hyb_exx_fraction()
 
 
 class RLibXCMGGA(LibXCEnergy):
+    """MGGA functional from LibXC for restricted wavefunctions."""
+
     df_level = DF_LEVEL_MGGA
     prefix = 'mgga'
     LibXCWrapper = RLibXCWrapper
@@ -333,6 +343,8 @@ class RLibXCMGGA(LibXCEnergy):
 
 
 class ULibXCMGGA(LibXCEnergy):
+    """GGA functional from LibXC for unrestricted wavefunctions."""
+
     df_level = DF_LEVEL_MGGA
     prefix = 'mgga'
     LibXCWrapper = ULibXCWrapper
@@ -422,18 +434,20 @@ class ULibXCMGGA(LibXCEnergy):
 
 
 class RLibXCHybridMGGA(RLibXCMGGA):
-    '''Any Hybrid MGGA functional from LibXC for restricted wavefunctions'''
+    """Hybrid MGGA functional from LibXC for restricted wavefunctions."""
+
     prefix = 'hyb_mgga'
 
     def get_exx_fraction(self):
-        '''Return the fraction of Hartree-Fock exchange for this functional'''
+        """Return the fraction of Hartree-Fock exchange for this functional."""
         return self._libxc_wrapper.get_hyb_exx_fraction()
 
 
 class ULibXCHybridMGGA(ULibXCMGGA):
-    '''Any Hybrid GGA functional from LibXC for unrestricted wavefunctions'''
+    """Hybrid GGA functional from LibXC for unrestricted wavefunctions."""
+
     prefix = 'hyb_mgga'
 
     def get_exx_fraction(self):
-        '''Return the fraction of Hartree-Fock exchange for this functional'''
+        """Return the fraction of Hartree-Fock exchange for this functional."""
         return self._libxc_wrapper.get_hyb_exx_fraction()

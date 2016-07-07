@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Container for observables involving numerical integration'''
+"""Container for observables involving numerical integration"""
 
 
 from horton.meanfield.observable import Observable
@@ -42,34 +42,31 @@ DF_LEVEL_MGGA = 2
 
 
 class GridGroup(Observable):
-    '''A group of terms for the effective Hamiltonian that use numerical integration'''
+    """A group of terms for the effective Hamiltonian that use numerical integration."""
+
     def __init__(self, obasis, grid, grid_terms, label='grid_group', density_cutoff=1e-9):
-        '''
-           **Arguments:**
+        """Initialize a GridGroup.
 
-           obasis
-                The orbital basis.
+        Parameters
+        ----------
 
-           grid
-                A numerical integration grid. (must have ``points`` attribute
-                and ``integrate`` method.)
-
-           grid_terms
-                The contributions to the effective Hamiltonian. This must be
-                a list of instances of subclasses of
-                :py:class:`GridObservable`.
-
-           **Optional arguments:**
-
-           label
-                A label for the group.
-
-           density_cutoff
-                Whenever the density on a grid point falls below this threshold,
-                all data for that grid point is set to zero. This is mainly
-                relevant for functionals that use derivatives of the density
-                or the orbitals, i.e. GGA and MGGA functionals.
-        '''
+        obasis : GOBasis
+            The orbital basis.
+        grid : IntGrid
+            A numerical integration grid. (must have ``points`` attribute
+            and ``integrate`` method.)
+        grid_terms : list of GridObservable instance.
+            The contributions to the effective Hamiltonian. This must be
+            a list of instances of subclasses of
+            :py:class:`GridObservable`.
+        label : str
+            A label for the group.
+        density_cutoff : float
+            Whenever the density on a grid point falls below this threshold,
+            all data for that grid point is set to zero. This is mainly
+            relevant for functionals that use derivatives of the density
+            or the orbitals, i.e. GGA and MGGA functionals.
+        """
         self.grid_terms = grid_terms
         self.obasis = obasis
         self.grid = grid
@@ -77,39 +74,40 @@ class GridGroup(Observable):
         Observable.__init__(self, label)
 
     def _get_df_level(self):
-        '''The density-functional level of this grid group
+        """Density-functional level of this grid group.
 
-           The value can be:
+        The value can be:
 
-           * ``DF_LEVEL_LDA``: only LDA functionals are used.
-           * ``DF_LEVEL_GGA``: GGA (and LDA) functionals are used.
-           * ``DF_LEVEL_MGGA``: MGGA (and LDA and/or GGA) functionals are used.
-        '''
+          * ``DF_LEVEL_LDA``: only LDA functionals are used.
+          * ``DF_LEVEL_GGA``: GGA (and LDA) functionals are used.
+          * ``DF_LEVEL_MGGA``: MGGA (and LDA and/or GGA) functionals are used
+        """
         return max([grid_term.df_level for grid_term in self.grid_terms])
 
     df_level = property(_get_df_level)
 
     def _get_potentials(self, cache):
-        '''Get list of output arrays passed to ```GridObservable.add_pot```.
+        """Get list of output arrays passed to ``GridObservable.add_pot``.
 
-           **Arguments:**
+        Parameters
+        ----------
 
-           cache
-                An instance of Cache, used to store intermediate results.
-        '''
+        cache : Cache
+            An instance of Cache, used to store intermediate results.
+        """
         raise NotImplementedError
 
     def _update_grid_basics(self, cache, select):
-        '''Recompute a density, gradient, ... when not present in the cache.
+        """Recompute a density, gradient, ... when not present in the cache.
 
-           **Arguments:**
+        Parameters
+        ----------
 
-           cache
-                An instance of Cache, used to store intermediate results.
-
-           select
-                'alpha' or 'beta'.
-        '''
+        cache : Cache
+            An instance of Cache, used to store intermediate results.
+        select : str
+            'alpha' or 'beta'.
+        """
         # Compute the density (and optionally derivatives, etc.) on all the grid
         # points.
         if self.df_level == DF_LEVEL_LDA:
@@ -137,26 +135,28 @@ class GridGroup(Observable):
         return all_basics
 
     def _update_grid_data(self, cache):
-        '''Compute all grid data used as input for GridObservable instances
+        """Compute all grid data used as input for GridObservable instances.
 
-           **Arguments:**
+        Parameters
+        ----------
 
            cache
                 An instance of Cache, used to store intermediate results.
-        '''
+        """
         raise NotImplementedError
 
     def compute_energy(self, cache):
-        '''Compute the sum of the expectation values.
+        """Compute the sum of the expectation values.
 
-           **Arguments:**
+        Parameters
+        ----------
 
-           cache
-                An instance of Cache, used to store intermediate results.
+        cache : Cache
+            An instance of Cache, used to store intermediate results.
 
-           This method basically dispatches the work to all ``GridObservable``
-           instances in ``self.grid_terms``.
-        '''
+        This method basically dispatches the work to all ``GridObservable`` instances in
+        ``self.grid_terms``.
+        """
         # compute stuff on the grid that the grid_observables may use
         self._update_grid_data(cache)
 
@@ -169,16 +169,17 @@ class GridGroup(Observable):
         return result
 
     def add_fock(self, cache, *focks):
-        '''Add contributions to the Fock matrix
+        """Add contributions to the Fock matrix.
 
-           **Arguments:**
+        Parameters
+        ----------
 
-           cache
-                An instance of Cache, used to store intermediate results.
+        cache : Cache
+            An instance of Cache, used to store intermediate results.
 
-           This method basically dispatches the work to all ``GridObservable``
-           instances in ``self.grid_terms``.
-        '''
+        This method basically dispatches the work to all ``GridObservable`` instances in
+        ``self.grid_terms``.
+        """
         # Get the potentials. If they are not yet evaluated, some computations
         # are needed.
         lda_pots, gga_pots, mgga_pots, new = self._get_potentials(cache)
@@ -216,45 +217,43 @@ class GridGroup(Observable):
 
 
 class RGridGroup(GridGroup):
-    '''GridGroup for restricted wavefunctions.
+    """GridGroup for restricted wavefunctions.
 
-       When the ``compute`` and ``add_pot`` methods of
-       :py:class:`GridObservable` instances are called, the following functions
-       are pre-computed on the integration grid and stored in the cache in
-       contiguous arrays (as required by LibXC):
+    When the ``compute`` and ``add_pot`` methods of :py:class:`GridObservable` instances
+    are called, the following functions are pre-computed on the integration grid and
+    stored in the cache in contiguous arrays (as required by LibXC):
 
-       **When LDA, GGA or MGGA functionals are used:**
+    **When LDA, GGA or MGGA functionals are used:**
 
-       rho_full
-            The spin-summed electron density.
+    rho_full
+        The spin-summed electron density.
 
-       **When MGGA or GGA (combined with LDA) functionals are used:**
+    **When MGGA or GGA (combined with LDA) functionals are used:**
 
-       grad_rho_full
-            The spin-summed density gradient.
+    grad_rho_full
+        The spin-summed density gradient.
 
-       sigma_full
-            The norm-squared of the gradient of the spin-summed electron density.
+    sigma_full
+        The norm-squared of the gradient of the spin-summed electron density.
 
-       **When MGGA (combined with LDA/GGA) functionals are used:**
+    **When MGGA (combined with LDA/GGA) functionals are used:**
 
-       lapl_full
-            The spin-summed density Laplacian.
+    lapl_full
+        The spin-summed density Laplacian.
 
-       tau_full
-            The spin-summed kinetic energy density
+    tau_full
+        The spin-summed kinetic energy density
 
-       **Combined arrays, content depends on the types of functionals being
-       used:**
+    **Combined arrays, content depends on the types of functionals being used:**
 
-       all_alpha
-            An array with all relevant density data:
+    all_alpha
+        An array with all relevant density data:
 
-            * column  0:   alpha density
-            * columns 1-3: alpha density gradient (x, y, z)
-            * column  4:   alpha density Laplacian
-            * column  5:   alpha kinetic energy density
-    '''
+        * column  0:   alpha density
+        * columns 1-3: alpha density gradient (x, y, z)
+        * column  4:   alpha density Laplacian
+        * column  5:   alpha kinetic energy density
+    """
 
     @doc_inherit(GridGroup)
     def _get_potentials(self, cache):
@@ -302,52 +301,51 @@ class RGridGroup(GridGroup):
 
 
 class UGridGroup(GridGroup):
-    '''GridGroup for unrestricted wavefunctions.
+    """GridGroup for unrestricted wavefunctions.
 
-       When the ``compute`` and ``add_pot`` methods of
-       :py:class:`GridObservable` instances is called, the following functions
-       are pre-computed on the integration grid and stored in the cache in
-       contiguous arrays (as required by LibXC):
+    When the ``compute`` and ``add_pot`` methods of :py:class:`GridObservable` instances
+    is called, the following functions are pre-computed on the integration grid and stored
+    in the cache in contiguous arrays (as required by LibXC):
 
-       **When LDA, GGA or MGGA functionals are used:**
+    **When LDA, GGA or MGGA functionals are used:**
 
-       rho_full
-            The spin-summed electron density.
+    rho_full
+        The spin-summed electron density.
 
-       rho_both
-            An array with alpha and beta electron densities. Shape=(grid.size,
-            2). This is mostly useful for LibXC.
+    rho_both
+        An array with alpha and beta electron densities. Shape=(grid.size, 2). This is
+        mostly useful for LibXC.
 
-       **When MGGA or GGA (combined with LDA) functionals are used:**
+    **When MGGA or GGA (combined with LDA) functionals are used:**
 
-       grad_rho_full
-            The spin-summed density gradient.
+    grad_rho_full
+        The spin-summed density gradient.
 
-       sigma_all
-            An array with all three sigma quantities combined. Shape=(grid.size,
-            3). This is mostly useful for LibXC
+    sigma_all
+        An array with all three sigma quantities combined. Shape=(grid.size, 3). This is
+        mostly useful for LibXC
 
-       **When MGGA (combined with LDA/GGA) functionals are used:**
+    **When MGGA (combined with LDA/GGA) functionals are used:**
 
-       lapl_both
-            The Laplacian of the alpha and the beta density. Shape=(grid.size,
-            2). This is mostly useful for LibXC.
+    lapl_both
+        The Laplacian of the alpha and the beta density. Shape=(grid.size, 2). This is
+        mostly useful for LibXC.
 
-       tau_both
-            The alpha and beta kinetic energy density. Shape=(grid.size, 2).
-            This is mostly useful for LibXC.
+    tau_both
+        The alpha and beta kinetic energy density. Shape=(grid.size, 2).
+        This is mostly useful for LibXC.
 
-       **Combined arrays, content depends on the types of functionals being
-       used:**
+    **Combined arrays, content depends on the types of functionals being used:**
 
-       all_alpha, all_beta
-            An array with all relevant density data:
+    all_alpha, all_beta
+        An array with all relevant density data:
 
-            * column  0:   alpha/beta density
-            * columns 1-3: alpha/beta density gradient (x, y, z)
-            * column  4:   alpha/beta density Laplacian
-            * column  5:   alpha/beta kinetic energy density
-    '''
+        * column  0:   alpha/beta density
+        * columns 1-3: alpha/beta density gradient (x, y, z)
+        * column  4:   alpha/beta density Laplacian
+        * column  5:   alpha/beta kinetic energy density
+    """
+
     @doc_inherit(GridGroup)
     def _get_potentials(self, cache):
         if self.df_level == DF_LEVEL_LDA:
@@ -412,55 +410,62 @@ class UGridGroup(GridGroup):
 
 
 class GridObservable(object):
-    '''Base class for contributions to the GridGroup object'''
+    """Base class for contributions to the GridGroup object."""
+
     df_level = None
 
     def __init__(self, label):
-        '''
-           **Arguments:**
+        """Initialize a GridObservable.
 
-           label
-                A unique label for this contribution
-        '''
+        Parameters
+        ----------
+
+        label : str
+            A unique label for this contribution
+        """
         self.label = label
 
     def compute_energy(self, cache, grid):
-        '''Compute the expectation value using numerical integration
+        """Compute the expectation value using numerical integration.
 
-           **Arguments:**
+        Parameters
+        ----------
 
-           cache
-                A Cache instance used to share intermediate results between
-                the ``compute`` and ``add_pot`` methods. This cache will also
-                contain pre-computed functions evaluate on the grid. See
-                :py:class:`RGridGroup` and :py:class:`UGridGroup` for more
-                details.
+        cache : Cache
+            A Cache instance used to share intermediate results between
+            the ``compute`` and ``add_pot`` methods. This cache will also
+            contain pre-computed functions evaluate on the grid. See
+            :py:class:`RGridGroup` and :py:class:`UGridGroup` for more
+            details.
+        grid : IntGrid
+            A numerical integration grid
 
-           grid
-                A numerical integration grid
-        '''
+        Returns
+        -------
+        energy : float
+            The contribution to the energy from this term.
+        """
         raise NotImplementedError
 
     def add_pot(self, cache, grid, *args):
-        '''Add the potential to the output arguments
+        """Add the potential to the output arguments.
 
-           **Arguments:**
+        Parameters
+        ----------
 
-           cache
-                A Cache instance used to share intermediate results between
-                the ``compute`` and ``add_pot`` methods. This cache will also
-                contain pre-computed functions evaluate on the grid. See
-                :py:class:`RGridGroup` and :py:class:`UGridGroup` for more
-                details.
-
-           grid
-                A numerical integration grid
-
-           args
-                A list of potential arrays. (Only one array for the alpha
-                density in case of restricted. Two arrays, one for alpha and one
-                for beta electrons, in case of unrestricted.) Each array
-                contains `potential` data, e.g. derivatives of a density
-                functional toward the density, the gradient of the density, etc.
-        '''
+        cache : Cache
+            A Cache instance used to share intermediate results between
+            the ``compute`` and ``add_pot`` methods. This cache will also
+            contain pre-computed functions evaluate on the grid. See
+            :py:class:`RGridGroup` and :py:class:`UGridGroup` for more
+            details.
+        grid : IntGrid
+            A numerical integration grid
+        args : np.ndarray
+            A list of potential arrays. (Only one array for the alpha
+            density in case of restricted. Two arrays, one for alpha and one
+            for beta electrons, in case of unrestricted.) Each array
+            contains `potential` data, e.g. derivatives of a density
+            functional toward the density, the gradient of the density, etc.
+        """
         raise NotImplementedError

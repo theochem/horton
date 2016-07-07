@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Built-in energy terms'''
+"""Built-in energy terms"""
 
 
 import numpy as np
@@ -40,14 +40,21 @@ class BeckeHartree(GridObservable):
         GridObservable.__init__(self, label)
 
     def _update_pot(self, cache, grid):
-        '''Recompute an Hartree potential if invalid
+        """Recompute an Hartree potential if invalid.
 
-           cache
-                A cache instance in which the potential is stored.
+        Parameters
+        ----------
 
-           grid
-                The integration grid.
-        '''
+        cache : Cache
+            A cache instance in which the potential is stored.
+        grid : IntGrid
+            The integration grid.
+
+        Returns
+        -------
+        pot : np.ndarray
+            The Hartree potential on the grid.
+        """
         # This only works under a few circumstances
         if not isinstance(grid, BeckeMolGrid):
             raise TypeError('The BeckeHatree term only works for Becke-Lebedev molecular integration grids')
@@ -93,22 +100,23 @@ class UBeckeHartree(BeckeHartree):
 
 
 class DiracExchange(GridObservable):
-    '''Common code for the Dirac Exchange Functional implementations'''
+    """Common code for Dirac exchange functional implementations."""
 
     df_level = DF_LEVEL_LDA
 
     def __init__(self, label='x_dirac', coeff=None):
-        r'''
-           **Optional arguments:**
+        r"""Initialize a DiracExchange object.
 
-           label
-                A label for this observable.
+        Parameters
+        ----------
 
-           coeff
-                The coefficient Cx in front of the Dirac exchange energy.
-                It defaults to the uniform electron gas value, i.e.
-                :math:`C_x = \frac{3}{4} \left(\frac{3}{\pi}\right)^{1/3}`.
-        '''
+        label : str
+            A label for this observable.
+        coeff : float
+            The coefficient Cx in front of the Dirac exchange energy. It defaults to the
+            uniform electron gas value, i.e.
+            :math:`C_x = \frac{3}{4} \left(\frac{3}{\pi}\right)^{1/3}`.
+        """
         if coeff is None:
             self.coeff = 3.0 / 4.0 * (3.0 / np.pi) ** (1.0 / 3.0)
         else:
@@ -117,17 +125,23 @@ class DiracExchange(GridObservable):
         GridObservable.__init__(self, label)
 
     def _update_pot(self, cache, grid, select):
-        '''Recompute an Exchange potential if invalid
+        """Recompute an Exchange potential if invalid.
 
-           cache
-                A cache instance in which the potential is stored.
+        Parameters
+        ----------
 
-           grid
-                The integration grid.
+        cache : Cache
+            A cache instance in which the potential is stored.
+        grid : IntGrid
+            The integration grid.
+        select : str
+            'alpha' or 'beta'
 
-           select
-                'alpha' or 'beta'
-        '''
+        Returns
+        -------
+        pot : np.ndarray
+            The Dirac potential.
+        """
         rho = cache['all_%s' % select][:,0]
         pot, new = cache.load('pot_x_dirac_%s' % select, alloc=grid.size)
         if new:
@@ -136,7 +150,7 @@ class DiracExchange(GridObservable):
 
 
 class RDiracExchange(DiracExchange):
-    '''The Dirac Exchange Functional for restricted wavefunctions'''
+    """Dirac exchange functional for restricted wavefunctions."""
 
     @doc_inherit(GridObservable)
     def compute_energy(self, cache, grid):
@@ -150,7 +164,7 @@ class RDiracExchange(DiracExchange):
 
 
 class UDiracExchange(DiracExchange):
-    '''The Dirac Exchange Functional for unrestricted wavefunctions'''
+    """Dirac exchange functional for unrestricted wavefunctions."""
 
     @doc_inherit(GridObservable)
     def compute_energy(self, cache, grid):
