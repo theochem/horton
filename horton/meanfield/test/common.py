@@ -34,7 +34,8 @@ from horton.meanfield.convergence import convergence_error_eigen
 from horton.meanfield.gridgroup import RGridGroup, UGridGroup
 from horton.meanfield.guess import guess_core_hamiltonian
 from horton.meanfield.hamiltonian import REffHam, UEffHam
-from horton.meanfield.libxc import RLibXCLDA, ULibXCLDA, RLibXCGGA, ULibXCGGA
+from horton.meanfield.libxc import RLibXCLDA, ULibXCLDA, RLibXCGGA, ULibXCGGA, \
+    ULibXCMGGA, RLibXCHybridMGGA
 from horton.meanfield.observable import RTwoIndexTerm, RDirectTerm, RExchangeTerm
 from horton.meanfield.observable import UTwoIndexTerm, UDirectTerm, UExchangeTerm
 from horton.meanfield.occ import AufbauOccModel, FixedOccModel
