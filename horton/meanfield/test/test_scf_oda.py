@@ -114,7 +114,7 @@ def test_aufbau_spin():
     terms = [
         UTwoIndexTerm(kin, 'kin'),
         UDirectTerm(er, 'hartree'),
-        UExchangeTerm(er,'x_hf'),
+        UExchangeTerm(er, 'x_hf'),
         UTwoIndexTerm(na, 'ne'),
     ]
     ham = UEffHam(terms)
@@ -126,12 +126,11 @@ def test_aufbau_spin():
     dms = [mol.exp_alpha.to_dm(), mol.exp_beta.to_dm()]
 
     # converge scf and check the spins
-    scf_solver = ODASCFSolver(1e-6) # On some machines, 1e-8 does not work.
+    scf_solver = ODASCFSolver(1e-6)  # On some machines, 1e-8 does not work.
     scf_solver(ham, mol.lf, olp, occ_model, *dms)
     assert scf_solver.error(ham, mol.lf, olp, *dms) < scf_solver.threshold
     assert abs(olp.contract_two('ab,ba', dms[0]) - 2) < 1e-10
     assert abs(olp.contract_two('ab,ba', dms[1]) - 1) < 1e-10
-
 
 
 def test_check_dm():

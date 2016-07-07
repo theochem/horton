@@ -218,4 +218,5 @@ def test_example_wpart():
 def test_example_hf_compare():
     required = [context.get_fn('examples/hf_compare/compare.py')]
     expected = []
-    check_script_in_tmp('./compare.py %s' % context.get_fn('test/helium_hf_sto3g.fchk'), required, expected)
+    check_script_in_tmp('./compare.py %s' % context.get_fn('test/helium_hf_sto3g.fchk'),
+                        required, expected)

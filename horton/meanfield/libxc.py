@@ -65,7 +65,6 @@ class LibXCEnergy(GridObservable):
         GridObservable.__init__(self, 'libxc_%s' % name)
 
 
-
 class RLibXCLDA(LibXCEnergy):
     """LDA functional from LibXC for restricted wavefunctions."""
 

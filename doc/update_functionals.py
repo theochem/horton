@@ -132,6 +132,5 @@ def cmp_splitkey(sk1, sk2):
     return result
 
 
-
 if __name__ == '__main__':
     main()

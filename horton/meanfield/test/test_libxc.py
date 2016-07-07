@@ -245,7 +245,7 @@ def test_cubic_interpolation_x_tpss_os():
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
     terms = [
-        UGridGroup(mol.obasis, grid, [ULibXCMGGA('x_tpss'),]),
+        UGridGroup(mol.obasis, grid, [ULibXCMGGA('x_tpss'), ]),
     ]
     ham = UEffHam(terms)
     check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha, mol.exp_beta])

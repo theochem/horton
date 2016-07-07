@@ -123,7 +123,7 @@ def test_grid_fn_s():
     assert work.shape == (1, )
 
     dsq = np.linalg.norm(center - point)**2
-    assert abs(work[0] -  scale0*coeff*np.exp(-alpha*dsq)) < 1e-10
+    assert abs(work[0] - scale0*coeff*np.exp(-alpha*dsq)) < 1e-10
 
 
 def test_grid_fn_p():
@@ -149,7 +149,7 @@ def test_grid_fn_p():
     d = point - center
     dsq = np.linalg.norm(d)**2
     for i in xrange(3):
-        assert abs(work[i] -  scales0[i]*coeff*np.exp(-alpha*dsq)*d[i]) < 1e-10
+        assert abs(work[i] - scales0[i]*coeff*np.exp(-alpha*dsq)*d[i]) < 1e-10
 
 
 def test_grid_fn_p_contraction():
@@ -213,15 +213,15 @@ def test_grid_fn_d_contraction():
 
     expected = scales0[0]*coeff0*np.exp(-alpha0*dsq)*d[0]*d[0] + \
                scales0[0]*coeff1*np.exp(-alpha1*dsq)*d[0]*d[0]
-    assert abs(work_cart[0] - expected) < 1e-10 # xx
+    assert abs(work_cart[0] - expected) < 1e-10  # xx
 
     expected = scales0[3]*coeff0*np.exp(-alpha0*dsq)*d[1]*d[1] + \
                scales0[3]*coeff1*np.exp(-alpha1*dsq)*d[1]*d[1]
-    assert abs(work_cart[3] - expected) < 1e-10 # yy
+    assert abs(work_cart[3] - expected) < 1e-10  # yy
 
     expected = scales0[4]*coeff0*np.exp(-alpha0*dsq)*d[1]*d[2] + \
                scales0[4]*coeff1*np.exp(-alpha1*dsq)*d[1]*d[2]
-    assert abs(work_cart[4] - expected) < 1e-10 # yz
+    assert abs(work_cart[4] - expected) < 1e-10  # yz
 
     grid_fn.cart_to_pure()
     work_pure = grid_fn.get_work(5)
@@ -482,7 +482,8 @@ def check_dm_kinetic(fn, eps=1e-100):
     lf = mol.lf
     obasis = mol.obasis
     dm = mol.get_dm_full()
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'fine', random_rotate=False)
+    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'fine',
+                        random_rotate=False)
 
     kin = obasis.compute_kinetic(lf)
     ekin1 = kin.contract_two('ab,ab', dm)
@@ -491,7 +492,8 @@ def check_dm_kinetic(fn, eps=1e-100):
     assert abs(ekin1 - ekin2) < eps
 
     tmp = kin.new()
-    obasis.compute_grid_kinetic_fock(grid.points, grid.weights, np.random.uniform(-1, 1, grid.size), tmp)
+    obasis.compute_grid_kinetic_fock(grid.points, grid.weights,
+                                     np.random.uniform(-1, 1, grid.size), tmp)
     assert tmp.is_symmetric()
 
     kinn = kin.new()
@@ -508,9 +510,11 @@ def test_dm_kinetic_n2_sto3g():
 def test_dm_kinetic_h3_321g():
     check_dm_kinetic('test/h3_pbe_321g.fchk', 5e-5)
 
+
 @attr('slow')
 def test_dm_kinetic_co_ccpv5z_cart():
     check_dm_kinetic('test/co_ccpv5z_cart_hf_g03.fchk', 4e-4)
+
 
 @attr('slow')
 def test_dm_kinetic_co_ccpv5z_pure():
