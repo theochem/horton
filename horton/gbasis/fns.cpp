@@ -38,8 +38,8 @@
 */
 
 GB1GridFn::GB1GridFn(long max_shell_type, long dim_work, long dim_output)
-    : GBCalculator(max_shell_type), shell_type0(0), dim_work(dim_work),
-      dim_output(dim_output), r0(NULL), point(NULL), i1p() {
+    : GBCalculator(max_shell_type), dim_work(dim_work), dim_output(dim_output),
+      shell_type0(0), r0(NULL), point(NULL), i1p() {
   nwork = max_nbasis*dim_work;
   work_cart = new double[nwork];
   work_pure = new double[nwork];
