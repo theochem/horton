@@ -117,6 +117,8 @@ def main():
         if retcode > 0:
             print >> sys.stderr, '\033[91m' + "ERROR in tests. Please inspect log carefully" \
                 + '\033[0m'
+        else:
+            print '\033[92m' + "OK. All tests passed" + '\033[0m'
     finally:
         roll_back(repo, orig_head_name, merge_head_name)
 
