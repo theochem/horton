@@ -411,22 +411,53 @@ The following are excluded due false positives:
 
 * **E0611**: *no-name-in-module*. No name %r in module %r used when a name cannot be found
   in a module.
+
+  PyLint seems unable to get the names from our Python extensions.
+
 * **E1136**: *unsubscriptable-object*. Value ‘%s’ is unsubscriptable emitted when a
   subscripted value doesn’t support subscription(i.e. doesn’t define __getitem__ method)
+
+  This does not work with Python extensions. (More specifically, array properties defined
+  in Cython are not recognized properly.)
+
 * **E1101**: *no-member*. %s %r has no %r member used when a variable is accessed for an
   unexistent member.
+
+  PyLint has fairly simply heuristics to "know" the attribute names of a class. These
+  heuristics fail in our case.
+
 * **R0201**: *no-self-use*. Method could be a function used when a method doesn't use its
   bound instance, and so could be written as a function.
+
+  There are many legitimate reasons for not using ``self`` in a method, e.g. an virtual
+  method in an abstract base class will not use ``self``.
+
 * **C0411**: *wrong-import-order*. %s comes before %s used when PEP8 import order is not
   respected (standard imports first, then third-party libraries, then local imports)
+
+  This check fails when you have newer versions installed of Packages from the standard
+  library. (E.g. argparse easily gets installed as a dependency of another Python package
+  through pip.)
+
 * **W0621**: *redefined-outer-name*. Redefining name %r from outer scope (line %s) used
   when a variable’s name hide a name defined in the outer scope.
+
+  When doing `from horton import *`, one imports also the names of subpackages and
+  submodules. These have common names that are often also used as variable names, causing
+  tons of name clashes.
+
 * **W0221**: *arguments-differ*. Arguments number differs from %s %r method used when a
   method has a different number of arguments than in the implemented interface or in an
   overridden method.
+
+  PyLint does not understand `*args, **kwargs`.
+
 * **W0223**: *abstract-method*. Method %r is abstract in class %r but is not overridden.
   used when an abstract method (i.e. raise NotImplementedError) is not overridden in
   concrete class.
+
+  PyLint does not understand `*args, **kwargs`.
+
 
 The PyLint settings used by the QA scripts can be found in ``tools/qa/pylintrc``. Some
 of the non-default settings in that file include:
