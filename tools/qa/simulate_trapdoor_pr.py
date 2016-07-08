@@ -26,6 +26,7 @@ on fedora 23.)
 """
 
 import argparse
+from functools import wraps
 import os
 import shutil
 import subprocess
@@ -79,6 +80,7 @@ class Log(object):
         """
         def decorator(fn):
             """A function that returns the wrapped version of the original function."""
+            @wraps(fn)
             def wrapper(*args, **kwargs):
                 """The wrapper with additional printing."""
                 self('BEGIN %s.' % name, indent=2)
