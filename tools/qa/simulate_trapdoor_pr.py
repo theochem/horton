@@ -29,6 +29,7 @@ import argparse
 import os
 import shutil
 import subprocess
+import sys
 
 import git
 
@@ -51,10 +52,22 @@ class Log(object):
                The program name.
         """
         self._name = name
+        self.verbose = False
 
     def __call__(self, message, indent=4):
         """Print a message on screen."""
-        print '/%s/ %s%s' % (self._name, ' '*indent, message)
+        if self.verbose:
+            print '/%s/ %s%s' % (self._name, ' ' * indent, message)
+
+    def set_level(self, verbose):
+        """Set the verbosity of the logger object.
+
+        Parameters
+        ----------
+        verbose : bool
+               Whether the logger should print verbosely or not.
+        """
+        self.verbose = verbose
 
     def section(self, name):
         """Dectorator to add section output to function.
@@ -72,7 +85,9 @@ class Log(object):
                 result = fn(*args, **kwargs)
                 self('END %s.' % name, indent=2)
                 return result
+
             return wrapper
+
         return decorator
 
 
@@ -84,6 +99,7 @@ def main():
     # A few general things.
     args = parse_args()
     repo = git.Repo('.')
+    log.set_level(args.verbose)
 
     # Get the QAWORKDIR. Create if it does not exist yet.
     qaworkdir = os.getenv('QAWORKDIR', 'qaworkdir')
@@ -91,29 +107,43 @@ def main():
         os.makedirs(qaworkdir)
 
     # Pre-flight checks.
-    orig_head_name, merge_head_name = run_pre_flight_checks(repo)
+    orig_head_name, merge_head_name = run_pre_flight_checks(repo, remote=args.remote)
 
     try:
         make_temporary_merge(repo, merge_head_name)
-        trapdoor_workflow(repo, args.script, qaworkdir, args.skip_ancestor, args.rebuild)
+        retcode = 0
+        for s in args.script:
+            retcode += trapdoor_workflow(repo, s, qaworkdir, args.skip_ancestor, args.rebuild)
+        if retcode > 0:
+            print >> sys.stderr, '\033[91m' + "ERROR in tests. Please inspect log carefully" \
+                + '\033[0m'
+        else:
+            print '\033[92m' + "OK. All tests passed" + '\033[0m'
     finally:
         roll_back(repo, orig_head_name, merge_head_name)
+
+    sys.exit(retcode)
 
 
 def parse_args():
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description='Simulate trapdoor test locally.')
-    parser.add_argument('script', type=str, metavar='trapdoor', help='Path to trapdoor script.')
+    parser.add_argument('script', type=str, metavar='trapdoor', nargs="*",
+                        help='Paths to trapdoor scripts, separated by spaces.')
+    parser.add_argument('-v', '--verbose', default=False, action='store_true',
+                        help='Prints debugging information.')
     parser.add_argument('-s', '--skip-ancestor', default=False, action='store_true',
                         help='Do not run the trapdoor on master and re-use result for '
                              'ancestor from previous run.')
     parser.add_argument('-r', '--rebuild', default=False, action='store_true',
                         help='Rebuild extension before running trapdoor script.')
+    parser.add_argument('-R', '--remote', default='origin',
+                        help='Compare with master on a remote. Defaults to origin')
     return parser.parse_args()
 
 
 @log.section('pre-flight checks')
-def run_pre_flight_checks(repo):
+def run_pre_flight_checks(repo, remote):
     """Run some initial checks before doing anything.
 
     Parameters
@@ -126,8 +156,8 @@ def run_pre_flight_checks(repo):
     if repo.is_dirty():
         raise RepoError('Not all changes are committed.')
 
-    log('Check whether master is up to date with origin/master.')
-    remote_refs = git_ls_remote('origin')
+    log('Check whether master is up to date with %s/master.' % remote)
+    remote_refs = git_ls_remote(remote)
     if remote_refs['refs/heads/master'] != repo.heads.master.object.hexsha:
         raise RepoError('Master is not up to date.')
 
@@ -220,7 +250,7 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild):
         subprocess.check_call(['./setup.py', 'build_ext', '-i'])
     subprocess.check_call([script, 'feature'])
     if skip_ancestor:
-        subprocess.call([script, 'report'])
+        retcode = subprocess.call([script, 'report'])
     else:
         copied_script = os.path.join(qaworkdir, os.path.basename(script))
         shutil.copy(script, copied_script)
@@ -231,7 +261,9 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild):
         if rebuild:
             subprocess.check_call(['./setup.py', 'build_ext', '-i'])
         subprocess.check_call([copied_script, 'ancestor'])
-        subprocess.call([copied_script, 'report'])
+        retcode = subprocess.call([copied_script, 'report'])
+
+    return retcode
 
 
 @log.section('roll back')
