@@ -31,6 +31,7 @@ import shutil
 import subprocess
 
 import git
+import sys
 
 
 class RepoError(Exception):
@@ -56,7 +57,7 @@ class Log(object):
     def __call__(self, message, indent=4):
         """Print a message on screen."""
         if self.verbose:
-            print '/%s/ %s%s' % (self._name, ' '*indent, message)
+            print '/%s/ %s%s' % (self._name, ' ' * indent, message)
 
     def set_level(self, verbose):
         """Set the verbosity of the logger object.
@@ -84,7 +85,9 @@ class Log(object):
                 result = fn(*args, **kwargs)
                 self('END %s.' % name, indent=2)
                 return result
+
             return wrapper
+
         return decorator
 
 
@@ -108,8 +111,12 @@ def main():
 
     try:
         make_temporary_merge(repo, merge_head_name)
+        retcode = 0
         for s in args.script:
-            trapdoor_workflow(repo, s, qaworkdir, args.skip_ancestor, args.rebuild)
+            retcode += trapdoor_workflow(repo, s, qaworkdir, args.skip_ancestor, args.rebuild)
+        if retcode > 0:
+            print >> sys.stderr, '\033[91m' + "ERROR in tests. Please inspect log carefully" \
+                + '\033[0m'
     finally:
         roll_back(repo, orig_head_name, merge_head_name)
 
@@ -118,7 +125,7 @@ def parse_args():
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description='Simulate trapdoor test locally.')
     parser.add_argument('script', type=str, metavar='trapdoor', nargs="*",
-                        help='Path to trapdoor script.')
+                        help='Paths to trapdoor scripts, separated by spaces.')
     parser.add_argument('-v', '--verbose', default=False, action='store_true',
                         help='Prints debugging information.')
     parser.add_argument('-s', '--skip-ancestor', default=False, action='store_true',
@@ -239,7 +246,7 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild):
         subprocess.check_call(['./setup.py', 'build_ext', '-i'])
     subprocess.check_call([script, 'feature'])
     if skip_ancestor:
-        subprocess.check_call([script, 'report'])
+        retcode = subprocess.call([script, 'report'])
     else:
         copied_script = os.path.join(qaworkdir, os.path.basename(script))
         shutil.copy(script, copied_script)
@@ -250,7 +257,9 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild):
         if rebuild:
             subprocess.check_call(['./setup.py', 'build_ext', '-i'])
         subprocess.check_call([copied_script, 'ancestor'])
-        subprocess.check_call([copied_script, 'report'])
+        retcode = subprocess.call([copied_script, 'report'])
+
+    return retcode
 
 
 @log.section('roll back')
