@@ -253,32 +253,32 @@ def test_cubic_interpolation_x_tpss_os():
 
 def test_hyb_gga_exx_fraction():
     # xc_pbeh = The PBE0 functional
-    t = RLibXCHybridGGA('xc_pbeh')
-    assert t.get_exx_fraction() == 0.25
-    t = ULibXCHybridGGA('xc_pbeh')
-    assert t.get_exx_fraction() == 0.25
+    t1 = RLibXCHybridGGA('xc_pbeh')
+    assert t1.get_exx_fraction() == 0.25
+    t2 = ULibXCHybridGGA('xc_pbeh')
+    assert t2.get_exx_fraction() == 0.25
 
 
 def test_lda_c_vwn_present():
-    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    t = RLibXCLDA('c_vwn')     # The VWN 5 functional
-    t = RLibXCLDA('c_vwn_4')   # The VWN 4 functional
+    t1 = RLibXCLDA('c_vwn')     # The VWN 5 functional
+    assert t1._libxc_wrapper.key == 'c_vwn'
+    t2 = RLibXCLDA('c_vwn_4')   # The VWN 4 functional
+    assert t2._libxc_wrapper.key == 'c_vwn_4'
 
 
 def test_info():
     t = RLibXCWrapper('lda_x')
     assert t.key == 'lda_x'
-    t.name
-    t.number
-    t.kind
-    t.family
-    t.refs
+    assert t.name is not None
+    assert t.number is not None
+    assert t.kind is not None
+    assert t.family is not None
+    assert t.refs is not None
 
 
 def test_hyb_mgga_exx_fraction():
     # xc_tpssh = The TPSS functional with exact exchange
-    t = RLibXCHybridMGGA('xc_tpssh')
-    assert t.get_exx_fraction() == 0.1
-    t = ULibXCHybridMGGA('xc_tpssh')
-    assert t.get_exx_fraction() == 0.1
+    t1 = RLibXCHybridMGGA('xc_tpssh')
+    assert t1.get_exx_fraction() == 0.1
+    t2 = ULibXCHybridMGGA('xc_tpssh')
+    assert t2.get_exx_fraction() == 0.1

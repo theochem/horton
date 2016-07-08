@@ -55,7 +55,6 @@ def check_functional_deriv(fn, comp, dm_method, fock_method):
 
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'coarse',
                         random_rotate=False, mode='keep')
-    pot = grid.points[:, 2]
 
     def fun(x):
         """Compute the grid properties from a density matrix."""
@@ -80,7 +79,7 @@ def check_functional_deriv(fn, comp, dm_method, fock_method):
     eps = 1e-4
     x = dm_full._array.copy().ravel()
     dxs = []
-    for irep_ in xrange(100):
+    for _irep in xrange(100):
         tmp = np.random.uniform(-eps, +eps, x.shape)*x
         dxs.append(tmp)
 
@@ -588,7 +587,7 @@ def check_gradient_systematic(pure):
     for ibasis0 in xrange(obasis.nbasis):
         for ibasis1 in xrange(ibasis0+1):
             dm.set_element(ibasis0, ibasis1, 1.2)
-            for irep_ in xrange(5):
+            for _irep in xrange(5):
                 point = np.random.normal(0.0, 1.0, 3)
                 check_density_gradient(obasis, dm, point, eps)
             dm.set_element(ibasis0, ibasis1, 0.0)
@@ -668,7 +667,7 @@ def check_hessian_systematic(pure):
         for ibasis1 in xrange(ibasis0+1):
             dm.set_element(ibasis0, ibasis1, 1.2)
             dm.set_element(ibasis1, ibasis0, 1.2)
-            for irep_ in xrange(5):
+            for _irep in xrange(5):
                 point = np.random.normal(0.0, 1.0, 3)
                 check_density_hessian(obasis, dm, point, eps)
             dm.set_element(ibasis0, ibasis1, 0.0)
@@ -725,7 +724,7 @@ def check_gga_evaluation(fn):
     mol = IOData.from_file(fn)
     dm_full = mol.get_dm_full()
 
-    for irep_ in xrange(5):
+    for _irep in xrange(5):
         # combined computation of density and gradient
         gga = mol.obasis.compute_grid_gga_dm(dm_full, points)
 
@@ -761,7 +760,7 @@ def check_gga_fock(fn):
     """
     mol = IOData.from_file(fn)
 
-    for irep_ in xrange(5):
+    for _irep in xrange(5):
         # random integration grid
         points = np.random.uniform(-5, 5, (100, 3))
         weights = np.random.uniform(1, 2, 100)
@@ -826,7 +825,7 @@ def check_mgga_evaluation(fn):
     mol = IOData.from_file(fn)
     dm_full = mol.get_dm_full()
 
-    for irep_ in xrange(5):
+    for _irep in xrange(5):
         # combined computation of density and gradient
         mgga = mol.obasis.compute_grid_mgga_dm(dm_full, points)
 
@@ -867,7 +866,7 @@ def check_mgga_fock(fn):
     """
     mol = IOData.from_file(fn)
 
-    for i in xrange(5):
+    for _irep in xrange(5):
         # random integration grid
         points = np.random.uniform(-5, 5, (100, 3))
         weights = np.random.uniform(1, 2, 100)

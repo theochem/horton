@@ -35,12 +35,12 @@ from trapdoor import TrapdoorProgram, Message, run_command
 
 
 exclusion_rules = [
-    re.compile('^[\s]*raise NotImplementedError')
+    re.compile(r'^[\s]*raise NotImplementedError')
 ]
 
 
 def excluded_from_coverage(source_line):
-    """Determine of the given line should be excluded from the coverage analysis"""
+    """Determine of the given line should be excluded from the coverage analysis."""
     for re in exclusion_rules:
         if re.match(source_line) is not None:
             return True
