@@ -39,7 +39,8 @@ using namespace std;
 */
 
 GB1GridFn::GB1GridFn(long max_shell_type, long dim_work, long dim_output)
-    : GBCalculator(max_shell_type), dim_work(dim_work), dim_output(dim_output) {
+    : GBCalculator(max_shell_type), shell_type0(0), dim_work(dim_work),
+      dim_output(dim_output), r0(NULL), point(NULL), i1p() {
   nwork = max_nbasis*dim_work;
   work_cart = new double[nwork];
   work_pure = new double[nwork];
@@ -138,8 +139,8 @@ void GB1DMGridDensityFn::add(double coeff, double alpha0, const double* scales0)
 void GB1DMGridDensityFn::compute_point_from_dm(double* work_basis, double* dm,
                                                long nbasis, double* output,
                                                double epsilon, double* dmmaxrow) {
-  double absmax_basis = 0.0;
   if (epsilon > 0) {
+    double absmax_basis = 0.0;
     // compute the maximum basis function
     for (long ibasis=0; ibasis < nbasis; ibasis++) {
       double tmp = fabs(work_basis[ibasis]);
@@ -700,7 +701,8 @@ void GB1DMGridMGGAFn::compute_fock_from_pot(double* pot, double* work_basis, lon
 */
 
 GB2DMGridFn::GB2DMGridFn(long max_shell_type)
-    : GBCalculator(max_shell_type) {
+    : GBCalculator(max_shell_type), shell_type0(0), shell_type1(0), r0(NULL), r1(NULL),
+      point(NULL), i2p() {
   nwork = max_nbasis*max_nbasis;
   work_cart = new double[nwork];
   work_pure = new double[nwork];
