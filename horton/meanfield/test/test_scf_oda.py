@@ -28,7 +28,8 @@ from nose.plugins.attrib import attr
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf, \
     check_water_cs_hfs, check_n2_cs_hfs, check_h3_os_hfs, check_h3_os_pbe, \
-    check_co_cs_pbe, check_vanadium_sc_hf
+    check_co_cs_pbe, check_vanadium_sc_hf, check_water_cs_m05, \
+    check_methyl_os_tpss
 
 
 def test_hf_cs_hf():
@@ -68,6 +69,14 @@ def test_vanadium_sc_hf():
         check_vanadium_sc_hf(ODASCFSolver(threshold=1e-10, maxiter=10))
 
 
+def test_water_cs_m05():
+    check_water_cs_m05(ODASCFSolver(threshold=1e-6))
+
+
+def test_methyl_os_tpss():
+    check_methyl_os_tpss(ODASCFSolver(threshold=1e-4))
+
+
 def test_find_min_cubic():
     from horton.meanfield.scf_oda import find_min_cubic
     assert find_min_cubic(0.2, 0.5, 3.0, -0.7) == 0.0
@@ -105,7 +114,7 @@ def test_aufbau_spin():
     terms = [
         UTwoIndexTerm(kin, 'kin'),
         UDirectTerm(er, 'hartree'),
-        UExchangeTerm(er,'x_hf'),
+        UExchangeTerm(er, 'x_hf'),
         UTwoIndexTerm(na, 'ne'),
     ]
     ham = UEffHam(terms)
@@ -117,12 +126,11 @@ def test_aufbau_spin():
     dms = [mol.exp_alpha.to_dm(), mol.exp_beta.to_dm()]
 
     # converge scf and check the spins
-    scf_solver = ODASCFSolver(1e-6) # On some machines, 1e-8 does not work.
+    scf_solver = ODASCFSolver(1e-6)  # On some machines, 1e-8 does not work.
     scf_solver(ham, mol.lf, olp, occ_model, *dms)
     assert scf_solver.error(ham, mol.lf, olp, *dms) < scf_solver.threshold
     assert abs(olp.contract_two('ab,ba', dms[0]) - 2) < 1e-10
     assert abs(olp.contract_two('ab,ba', dms[1]) - 1) < 1e-10
-
 
 
 def test_check_dm():

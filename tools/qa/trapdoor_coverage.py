@@ -28,9 +28,23 @@ This test calls the nosetests and coverage, see:
 
 
 from collections import Counter
+import re
 from xml.etree import ElementTree
 
 from trapdoor import TrapdoorProgram, Message, run_command
+
+
+exclusion_rules = [
+    re.compile(r'^[\s]*raise NotImplementedError')
+]
+
+
+def excluded_from_coverage(source_line):
+    """Determine of the given line should be excluded from the coverage analysis."""
+    for re in exclusion_rules:
+        if re.match(source_line) is not None:
+            return True
+    return False
 
 
 class CoverageTrapdoorProgram(TrapdoorProgram):
@@ -97,9 +111,13 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
         et = ElementTree.parse(fn_coverage)
         for class_tag in et.getroot().iter('class'):
             filename = class_tag.attrib['filename']
+            with open(filename) as fsource:
+                source_lines = fsource.readlines()
             for line_tag in class_tag.iter('line'):
                 if line_tag.attrib['hits'] == '0':
                     line = int(line_tag.attrib['number'])
+                    if excluded_from_coverage(source_lines[line-1]):
+                        continue
                     branch_ends = line_tag.get('missing-branches')
                     if branch_ends is not None:
                         for branch_end in branch_ends.split(','):

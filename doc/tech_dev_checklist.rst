@@ -380,7 +380,7 @@ PyLint
 See https://www.pylint.org/.
 
 The complete list of error messages can be found here:
-https://docs.pylint.org/features.html
+https://pylint.readthedocs.io/en/latest/features.html
 
 The following messages are excluded by default: I0020, I0021, W0704. (It is not clear what
 these stand for. They are not documented in Pylint.)
@@ -409,18 +409,24 @@ The following is disabled to allow access to the protected members of the
 
 The following are excluded due false positives:
 
-* **E0611**: no-name-in-module. No name %r in module %r Used when a name cannot be found
+* **E0611**: *no-name-in-module*. No name %r in module %r Used when a name cannot be found
   in a module.
-* **E1136**: Value ‘%s’ is unsubscriptable emitted when a subscripted value
-  doesn’t support subscription(i.e. doesn’t define __getitem__ method)
-* **E1101**: no-member. %s %r has no %r member Used when a variable is accessed for an
+* **E1136**: *unsubscriptable-object*. Value ‘%s’ is unsubscriptable emitted when a
+  subscripted value doesn’t support subscription(i.e. doesn’t define __getitem__ method)
+* **E1101**: *no-member*. %s %r has no %r member Used when a variable is accessed for an
   unexistent member.
-* **R0201**: no-self-use. Method could be a function Used when a method doesn't use its
+* **R0201**: *no-self-use*. Method could be a function Used when a method doesn't use its
   bound instance, and so could be written as a function.
-* **C0411**: wrong-import-order. %s comes before %s Used when PEP8 import order is not
+* **C0411**: *wrong-import-order*. %s comes before %s Used when PEP8 import order is not
   respected (standard imports first, then third-party libraries, then local imports)
-* **W0621**: Redefining name %r from outer scope (line %s) Used when a variable’s
-  name hide a name defined in the outer scope.
+* **W0621**: *redefined-outer-name*. Redefining name %r from outer scope (line %s) Used
+  when a variable’s name hide a name defined in the outer scope.
+* **W0221**: *arguments-differ*. Arguments number differs from %s %r method Used when a
+  method has a different number of arguments than in the implemented interface or in an
+  overridden method.
+* **W0223**: *abstract-method*. Method %r is abstract in class %r but is not overridden.
+  Used when an abstract method (i.e. raise NotImplementedError) is not overridden in
+  concrete class.
 
 The PyLint settings used by the QA scripts can be found in ``tools/qa/pylintrc``. Some
 of the non-default settings in that file include:

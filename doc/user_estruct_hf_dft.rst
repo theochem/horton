@@ -297,6 +297,14 @@ the constructor arguments.
       :py:class:`~horton.meanfield.libxc.RLibXCHybridGGA` or
       :py:class:`~horton.meanfield.libxc.ULibXCHybridGGA`.
 
+    * An MGGA functional from LibXC can be specified with
+      :py:class:`~horton.meanfield.libxc.RLibXCMGGA` or
+      :py:class:`~horton.meanfield.libxc.ULibXCMGGA`.
+
+    * A Hybrid MGGA functional from LibXC can be specified with
+      :py:class:`~horton.meanfield.libxc.RLibXCHybridMGGA` or
+      :py:class:`~horton.meanfield.libxc.ULibXCHybridMGGA`.
+
     * A numerical implementation of the Hartree term (using an improved version
       of Becke's Poisson solver) can be used instead of the ``RDirectTerm`` or
       ``UDirectTerm`` classes, which require four-center integrals. The relevant
@@ -305,9 +313,8 @@ the constructor arguments.
       :py:class:`~horton.meanfield.builtin.UBeckeHartree`.
 
   Integration grids are discussed in more detail in the section
-  :ref:`user_other_numerical_integration_specify`. A list of the supported LibXC functionals can
-  be found in :ref:`ref_functionals`. Note that HORTON does not support
-  meta-GGAs (MGGAs) yet.
+  :ref:`user_other_numerical_integration_specify`. A list of the supported LibXC
+  functionals can be found in :ref:`ref_functionals`.
 
 Using these classes, you can construct the Hartree-Fock or a DFT effective
 Hamiltonian.
@@ -364,6 +371,19 @@ repulsion energy to the total energy reported by the effective Hamiltonian.
   .. literalinclude:: ../data/examples/hf_dft/rks_water_hybgga.py
       :lines: 37-46
       :caption: data/examples/hf_dft/rks_water_hybgga.py, lines 37--46
+
+* Unrestricted Kohn-Sham DFT with the TPSS MGGA exchange and correlation
+  functionals:
+
+  .. literalinclude:: ../data/examples/hf_dft/uks_methyl_mgga.py
+      :lines: 39-47
+      :caption: data/examples/hf_dft/uks_methyl_mgga.py, lines 39--47
+
+* Restricted Kohn-Sham DFT with the Hybrid MGGA functional M05:
+
+  .. literalinclude:: ../data/examples/hf_dft/rks_water_hybmgga.py
+      :lines: 38-45
+      :caption: data/examples/hf_dft/rks_water_hybgga.py, lines 38--45
 
 * Unrestricted Kohn-Sham DFT with LDA exchange and correlation
   functionals and with a numerical integration of the Hartree term:

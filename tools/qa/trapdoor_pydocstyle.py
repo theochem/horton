@@ -65,9 +65,10 @@ class PyDocStyleTrapdoorProgram(TrapdoorProgram):
         print 'USING              : pydocstyle', version
 
         # Call pydocstyle in the directories containing Python code. All files will be
-        # checked, including test files. Missing tests are ignored (D103) because they are
-        # already detected by PyLint in a better way.
-        command = ['pydocstyle', '--match=.*\\.py', '--add-ignore=D103'] + \
+        # checked, including test files. Missing docstrings are ignored because they are
+        # detected by PyLint in a better way.
+        command = ['pydocstyle', '--match=.*\\.py',
+                   '--add-ignore=D100,D101,D102,D103,D104,D105'] + \
                   config['py_packages'] + \
                   get_source_filenames(config, 'py', unpackaged_only=True)
         output = run_command(command, has_failed=has_failed)[1]
