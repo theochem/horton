@@ -29,9 +29,9 @@ import argparse
 import os
 import shutil
 import subprocess
+import sys
 
 import git
-import sys
 
 
 class RepoError(Exception):
@@ -121,6 +121,8 @@ def main():
             print '\033[92m' + "OK. All tests passed" + '\033[0m'
     finally:
         roll_back(repo, orig_head_name, merge_head_name)
+
+    sys.exit(retcode)
 
 
 def parse_args():
