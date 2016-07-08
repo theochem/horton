@@ -29,6 +29,8 @@ from horton.quadprog import FeasibilityError, BoundedError, ConvergenceError, \
     _counter_to_free, find_1d_root, solve_safe, diagonal_form, \
     solve_constrained, solve_radius
 
+from horton.test.common import numpy_seed
+
 
 def test_counter_to_free():
     free = np.zeros(5, bool)
@@ -311,12 +313,14 @@ def test_expand_x():
 
 def test_solve_qps():
     for i0 in xrange(100):
-        qps = QPSolver(*get_random_problem())
+        with numpy_seed(i0):
+            qps = QPSolver(*get_random_problem())
         for i1 in xrange(10):
             if i1 == 0:
                 free = np.ones(qps.nx, dtype=bool)
             else:
-                free = get_random_free(qps)
+                with numpy_seed(i0*100 + i1):
+                    free = get_random_free(qps)
             x = qps.solve(free)
             qps.check_feasible(x, free)
 
