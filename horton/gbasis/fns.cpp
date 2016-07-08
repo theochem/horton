@@ -18,7 +18,7 @@
 //
 //--
 
-//#define DEBUG
+// #define DEBUG
 
 #ifdef DEBUG
 #include <cstdio>
@@ -31,7 +31,6 @@
 #include "horton/gbasis/boys.h"
 #include "horton/gbasis/cartpure.h"
 #include "horton/gbasis/fns.h"
-using namespace std;
 
 
 /*
@@ -48,7 +47,7 @@ GB1GridFn::GB1GridFn(long max_shell_type, long dim_work, long dim_output)
 
 void GB1GridFn::reset(long _shell_type0, const double* _r0, const double* _point) {
   if ((_shell_type0 < -max_shell_type) || (_shell_type0 > max_shell_type)) {
-    throw domain_error("shell_type0 out of range.");
+    throw std::domain_error("shell_type0 out of range.");
   }
   shell_type0 = _shell_type0;
   r0 = _r0;
@@ -711,10 +710,10 @@ GB2DMGridFn::GB2DMGridFn(long max_shell_type)
 void GB2DMGridFn::reset(long _shell_type0, long _shell_type1, const double* _r0,
                         const double* _r1, const double* _point) {
   if ((_shell_type0 < -max_shell_type) || (_shell_type0 > max_shell_type)) {
-    throw domain_error("shell_type0 out of range.");
+    throw std::domain_error("shell_type0 out of range.");
   }
   if ((_shell_type1 < -max_shell_type) || (_shell_type1 > max_shell_type)) {
-    throw domain_error("shell_type0 out of range.");
+    throw std::domain_error("shell_type0 out of range.");
   }
   shell_type0 = _shell_type0;
   shell_type1 = _shell_type1;
