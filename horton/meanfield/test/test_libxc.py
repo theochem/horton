@@ -261,9 +261,9 @@ def test_hyb_gga_exx_fraction():
 
 def test_lda_c_vwn_present():
     t1 = RLibXCLDA('c_vwn')     # The VWN 5 functional
-    assert t1._libxc_wrapper.key == 'c_vwn'
+    assert t1._libxc_wrapper.key == 'lda_c_vwn'
     t2 = RLibXCLDA('c_vwn_4')   # The VWN 4 functional
-    assert t2._libxc_wrapper.key == 'c_vwn_4'
+    assert t2._libxc_wrapper.key == 'lda_c_vwn_4'
 
 
 def test_info():
