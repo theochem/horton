@@ -110,7 +110,10 @@ class GB1DMGridDensityFn : public GB1DMGridFn  {
 
 class GB1DMGridGradientFn : public GB1DMGridFn  {
  public:
-  explicit GB1DMGridGradientFn(long max_shell_type, long dim_output=3)
+  explicit GB1DMGridGradientFn(long max_shell_type)
+      : GB1DMGridFn(max_shell_type, 4, 3), poly_work{0.0}, offset(0),
+        offset_l1(0), offset_h1(0) {}
+  explicit GB1DMGridGradientFn(long max_shell_type, long dim_output)
       : GB1DMGridFn(max_shell_type, 4, dim_output), poly_work{0.0}, offset(0),
         offset_l1(0), offset_h1(0) {}
 
