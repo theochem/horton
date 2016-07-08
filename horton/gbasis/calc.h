@@ -38,6 +38,13 @@ class GBCalculator {
         double *work_pure, *work_cart; // contiguous work arrays sufficiently large for max_shell_type
         void swap_work();
     public:
+        /** @brief
+              Construct a GBCalculator object.
+
+            @param max_shell_type
+              The maximum shell type in the basis set. This is used to allocate
+              sufficiently large working arrays.
+          */
         GBCalculator(long max_shell_type);
         virtual ~GBCalculator();
         const long get_nwork() const {return nwork;};
