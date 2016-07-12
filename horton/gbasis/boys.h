@@ -20,8 +20,8 @@
 
 // UPDATELIBDOCTITLE: The Boys function
 
-#ifndef HORTON_GBASIS_BOYS_H
-#define HORTON_GBASIS_BOYS_H
+#ifndef HORTON_GBASIS_BOYS_H_
+#define HORTON_GBASIS_BOYS_H_
 
 #include "horton/gbasis/common.h"
 #define BOYS_MAX_M 4*MAX_SHELL_TYPE
@@ -29,4 +29,4 @@
 double boys_function(long m, double u);
 void boys_function_array(long mmax, double t, double *output);
 
-#endif
+#endif  // HORTON_GBASIS_BOYS_H_

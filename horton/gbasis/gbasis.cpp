@@ -240,8 +240,9 @@ void GOBasis::compute_multipole_moment(long* xyz, double* center, double* output
 }
 
 void GOBasis::compute_electron_repulsion(double* output) {
-    GB4ElectronRepulsionIntegralLibInt integral = GB4ElectronRepulsionIntegralLibInt(get_max_shell_type());
-    compute_four_index(output, &integral);
+  GB4ElectronRepulsionIntegralLibInt integral =
+    GB4ElectronRepulsionIntegralLibInt(get_max_shell_type());
+  compute_four_index(output, &integral);
 }
 
 void GOBasis::compute_erf_repulsion(double* output, double mu) {
