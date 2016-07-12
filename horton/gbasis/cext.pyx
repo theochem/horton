@@ -823,7 +823,7 @@ cdef class GOBasis(GBasis):
         return output
 
     def compute_erf_repulsion(self, output, double mu=0.0):
-        """Compute short-range electron repulsion integrals
+        """Compute short-range electron repulsion integrals.
 
         Parameters
         ----------
@@ -833,7 +833,6 @@ cdef class GOBasis(GBasis):
             its contents are overwritten. When a ``DenseLinalgFactory`` or
             ``CholeskyLinalgFactory`` is given, it is used to construct the four-index
             object in which the integrals are stored.
-
         mu : float
             Parameter for the erf(mu r)/r potential. Default is zero.
 
@@ -859,30 +858,32 @@ cdef class GOBasis(GBasis):
         # done
         return output
 
-    def compute_gauss_repulsion(self, output, c=1.0, galpha=1.0):
-        '''Compute gaussian integrals
+    def compute_gauss_repulsion(self, output, double c=1.0, double alpha=1.0):
+        """Compute gaussian repulsion four-center integrals.
 
-           **Argument:**
+        Parameters
+        ----------
 
-           output
-                When a ``DenseFourIndex`` object is given, it is used as output
-                argument and its contents are overwritten. When a
-                ``DenseLinalgFactory`` or ``CholeskyLinalgFactory`` is given, it
-                is used to construct the four-index object in which the
-                integrals are stored.
+        output : FourIndex
+            When a ``DenseFourIndex`` object is given, it is used as output argument and
+            its contents are overwritten. When a ``DenseLinalgFactory`` or
+            ``CholeskyLinalgFactory`` is given, it is used to construct the four-index
+            object in which the integrals are stored.
+        c : float
+            Coefficient of the gaussian.
+        alpha : float
+            Exponential parameter of the gaussian.
 
-            c
-                Coefficient of the gaussian.
+        Returns
+        -------
+        output
 
-            alpha
-
-                Exponential parameter of the gaussian.
-
-           **Returns:** The four-index object with the electron repulsion
-           integrals.
-
-           Keywords: :index:`ERI`, :index:`four-center integrals`
-        '''
+        Keywords: :index:`ERI`, :index:`four-center integrals`
+        """
+        log.cite('valeev2014',
+                 'the efficient implementation of four-center electron repulsion integrals')
+        log.cite('ahlrichs2006',
+                 'the methodology to implement various types of four-center integrals.')
         cdef np.ndarray[double, ndim=4] output_array
         if isinstance(output, LinalgFactory):
             lf = output
@@ -890,35 +891,34 @@ cdef class GOBasis(GBasis):
         output_array = output._array
         self.check_matrix_four_index(output_array)
         # call the low-level routine
-        (<gbasis.GOBasis*>self._this).compute_gauss_repulsion(&output_array[0, 0, 0, 0], c, galpha)
+        (<gbasis.GOBasis*>self._this).compute_gauss_repulsion(&output_array[0, 0, 0, 0], c, alpha)
         # done
         return output
 
-    def compute_ralpha_repulsion(self, output, ralpha=-1.0):
-        '''Compute r^alpha integrals
+    def compute_ralpha_repulsion(self, output, double ralpha=-1.0):
+        """Compute r^alpha repulsion four-center integrals.
 
-           **Argument:**
+        Parameters
+        ----------
 
-           output
-                When a ``DenseFourIndex`` object is given, it is used as output
-                argument and its contents are overwritten. When a
-                ``DenseLinalgFactory`` or ``CholeskyLinalgFactory`` is given, it
-                is used to construct the four-index object in which the
-                integrals are stored.
+        output : FourIndex
+            When a ``DenseFourIndex`` object is given, it is used as output argument and
+            its contents are overwritten. When a ``DenseLinalgFactory`` or
+            ``CholeskyLinalgFactory`` is given, it is used to construct the four-index
+            object in which the integrals are stored.
+        ralpha : float
+            The power of r in the interation potential.
 
-            c
-                Coefficient of the gaussian.
+        Returns
+        -------
+        output
 
-            alpha
-
-                Exponential parameter of the gaussian.
-
-           **Returns:** The four-index object with the electron repulsion
-           integrals.
-
-           Keywords: :index:`ERI`, :index:`four-center integrals`
-        '''
-        log.cite('valeev2014', 'the efficient implementation of four-center electron repulsion integrals')
+        Keywords: :index:`ERI`, :index:`four-center integrals`
+        """
+        log.cite('valeev2014',
+                 'the efficient implementation of four-center electron repulsion integrals')
+        log.cite('ahlrichs2006',
+                 'the methodology to implement various types of four-center integrals.')
         cdef np.ndarray[double, ndim=4] output_array
         if isinstance(output, LinalgFactory):
             lf = output
