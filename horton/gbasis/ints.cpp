@@ -773,7 +773,7 @@ void GB4LibInt::add(
     */
 
     int mmax = libint_args[0].am + libint_args[1].am + libint_args[2].am + libint_args[3].am;
-    double kernel[28];
+    double kernel[4*MAX_SHELL_TYPE+1];
     laplace_of_potential(pfac, rho, t, mmax, kernel);
 
 #define TEST_END_BOYS mmax--; if (mmax<0) goto end_boys;
