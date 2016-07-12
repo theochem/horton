@@ -810,26 +810,27 @@ cdef class GOBasis(GBasis):
         # done
         return output
 
-    def compute_erf_repulsion(self, output, mu=0.0):
-        '''Compute erf repulsion integrals
+    def compute_erf_repulsion(self, output, double mu=0.0):
+        """Compute short-range electron repulsion integrals
 
-           **Argument:**
+        Parameters
+        ----------
 
-           output
-                When a ``DenseFourIndex`` object is given, it is used as output
-                argument and its contents are overwritten. When a
-                ``DenseLinalgFactory`` or ``CholeskyLinalgFactory`` is given, it
-                is used to construct the four-index object in which the
-                integrals are stored.
+        output : FourIndex
+            When a ``DenseFourIndex`` object is given, it is used as output argument and
+            its contents are overwritten. When a ``DenseLinalgFactory`` or
+            ``CholeskyLinalgFactory`` is given, it is used to construct the four-index
+            object in which the integrals are stored.
 
-            mu
-                Parameter for the erf(mu r)/r potential. Default det to zero.
+        mu : float
+            Parameter for the erf(mu r)/r potential. Default is zero.
 
-           **Returns:** The four-index object with the electron repulsion
-           integrals.
+        Returns
+        -------
+        output
 
-           Keywords: :index:`ERI`, :index:`four-center integrals`
-        '''
+        Keywords: :index:`ERI`, :index:`four-center integrals`
+        """
         log.cite('valeev2014',
                  'the efficient implementation of four-center electron repulsion integrals')
         log.cite('ahlrichs2006',
