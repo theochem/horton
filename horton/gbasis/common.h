@@ -41,8 +41,29 @@ double gb_overlap_int1d(long n0, long n1, double pa, double pb, double gamma_inv
 void nuclear_attraction_helper(double* work_g, long n0, long n1, double pa, double pb, double pc, double gamma_inv);
 
 // Auxiliary functions for r^alpha integrals
+
+//! cit =t^m (2^(2i)/(2i +1)!)
 double cit(int i, double t, int m);
+
+//! j(j-1)(j-2)(j-3)...(j-n)
 long jfac(int j, int n);
+
+/** @brief Evaluas the taylor series for r^alpha integrals
+
+    Sum_i t^i * Gamma(i+(alpha+3)/2)*(2^(2i)/(2i +1)!
+
+    @param n
+      Angular moment (the order of the derivative of the basic integral Gn in Alhrichs
+      Phys. Chem. Chem. Phys., 8, 3072 (2006)). The maximum value implemented is n=10.
+
+    @param t
+       rho|p-q|^2
+
+    @param prefac
+      e^(-t)/rho^3/2 - This term helps the Taylor series to converge when t is a large
+      number, the factor 1/2*sqrt(rho^alpha) was "replaced" and multiplied outside, at the
+      end, in the laplace_of_potential function.
+*/
 double dtaylor(int n, double ralpha, double t, double prefac);
 
 #endif
