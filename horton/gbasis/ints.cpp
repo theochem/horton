@@ -458,7 +458,7 @@ void GB4Integral::cart_to_pure() {
 
 /*
 
-   GB4LibInt
+   GB4IntegralLibInt
 
 */
 
@@ -474,7 +474,7 @@ void GB4Integral::cart_to_pure() {
 #error LibInt must be compiled with an angular momentum limit of at least MAX_SHELL_TYPE.
 #endif
 
-GB4LibInt::GB4LibInt(long max_shell_type)
+GB4IntegralLibInt::GB4IntegralLibInt(long max_shell_type)
     : GB4Integral(max_shell_type),
       libint_args{{0, NULL, 0.0}, {0, NULL, 0.0}, {0, NULL, 0.0}, {0, NULL, 0.0}},
       order{0, 0, 0, 0}, ab{0.0, 0.0, 0.0}, cd{0.0, 0.0, 0.0}, ab2(0.0), cd2(0.0) {
@@ -482,12 +482,13 @@ GB4LibInt::GB4LibInt(long max_shell_type)
   erieval.contrdepth = 1;
 }
 
-GB4LibInt::~GB4LibInt() {
+GB4IntegralLibInt::~GB4IntegralLibInt() {
   libint2_cleanup_eri(&erieval);
 }
 
-void GB4LibInt::reset(long _shell_type0, long _shell_type1, long _shell_type2, long _shell_type3,
-                      const double* _r0, const double* _r1, const double* _r2, const double* _r3) {
+void GB4IntegralLibInt::reset(
+    long _shell_type0, long _shell_type1, long _shell_type2, long _shell_type3,
+    const double* _r0, const double* _r1, const double* _r2, const double* _r3) {
   GB4Integral::reset(_shell_type0, _shell_type1, _shell_type2, _shell_type3, _r0, _r1, _r2, _r3);
 
   // Store the arguments for libint such that they can be reordered conveniently.
@@ -579,9 +580,9 @@ void GB4LibInt::reset(long _shell_type0, long _shell_type1, long _shell_type2, l
 }
 
 
-void GB4LibInt::add(double coeff, double alpha0, double alpha1, double alpha2, double alpha3,
-                    const double* scales0, const double* scales1, const double* scales2,
-                    const double* scales3) {
+void GB4IntegralLibInt::add(
+    double coeff, double alpha0, double alpha1, double alpha2, double alpha3,
+    const double* scales0, const double* scales1, const double* scales2, const double* scales3) {
   /*
       Store the arguments for libint such that they can be reordered
       conveniently.

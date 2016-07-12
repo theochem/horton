@@ -121,6 +121,16 @@ class GOBasis : public GBasis {
                 The output array with the integrals.
          */
         void compute_electron_repulsion(double* output);
+
+        /** @brief
+                Computes the ERF electron repulsion integrals.
+
+            @param output
+                The output array with the integrals.
+
+            @param mu
+                The range-separation parameter.
+         */
         void compute_erf_repulsion(double* output, double mu);
 
         /** @brief

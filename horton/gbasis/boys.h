@@ -26,7 +26,31 @@
 #include "horton/gbasis/common.h"
 #define BOYS_MAX_M 4*MAX_SHELL_TYPE
 
-double boys_function(long m, double u);
+/** @brief
+        Compute the boys function.
+
+    @param m
+        The order parameters.
+
+    @param t
+        The rescaled distance between the two centers.
+ */
+double boys_function(long m, double t);
+
+/** @brief
+        Compute the boys function for a range of orders in one go.
+
+    @param mmax
+        The highest value of the order, for which the Boys function is to be computed.
+        All orders for zero up ot this value (inclusive) are considered.
+        The size of the output array has to be at least mmax+1.
+
+    @param t
+        The rescaled distance between the two centers.
+
+    @param output
+        The output array.
+ */
 void boys_function_array(long mmax, double t, double *output);
 
 #endif  // HORTON_GBASIS_BOYS_H_
