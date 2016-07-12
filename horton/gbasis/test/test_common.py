@@ -62,9 +62,9 @@ def test_cit():
     assert abs(cit(2, 1.5134, 4) - 0.69944513718) < 1e-7
 
 def test_jfac():
-    assert jfac(2,3) == 0
-    assert jfac(3,1) == 3
-    assert jfac(3,3) == 6
-    assert jfac(5,4) == 120
+    assert jfac(2, 3) == 0
+    assert jfac(3, 1) == 3
+    assert jfac(3, 3) == 6
+    assert jfac(5, 4) == 120
     assert jfac(10, 3) == 720
     assert jfac(10, 4) == 5040
