@@ -2093,7 +2093,10 @@ def test_electron_repulsion_4_3_2_1():
 def check_erf_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, scales0,
                         scales1, scales2, scales3, shell_type0, shell_type1, shell_type2,
                         shell_type3, result0, mu):
-    """Compare output from HORTON Erf integrals with reference data from PyQuante.
+    """Compare output from HORTON Erf integrals with reference data.
+
+    The reference data was generated with a Mathematica script by Julien Toulouse and
+    Andreas Savin.
 
     Parameters
     ----------
