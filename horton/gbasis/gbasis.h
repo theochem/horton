@@ -133,7 +133,29 @@ class GOBasis : public GBasis {
          */
         void compute_erf_repulsion(double* output, double mu);
 
-        void compute_gauss_repulsion(double* output, double c, double galpha);
+        /** @brief
+                Computes the Gaussian electron repulsion integrals.
+
+            @param output
+                The output array with the integrals.
+
+            @param c
+                Coefficient of the gaussian.
+
+            @param alpha
+                Exponential parameter of the gaussian.
+         */
+        void compute_gauss_repulsion(double* output, double c, double alpha);
+
+        /** @brief
+                Computes the r^alpha electron repulsion integrals.
+
+            @param output
+                The output array with the integrals.
+
+            @param ralpha
+                The power of r in the potential.
+         */
         void compute_ralpha_repulsion(double* output, double ralpha);
 
         /** @brief

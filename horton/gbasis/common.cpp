@@ -181,7 +181,6 @@ double dtaylor(int n, double ralpha, double t, double prefac) {
   double taylor0, taylor1;
   int j = 0;
   double gj = (ralpha+3.0)/2.0;
-  cout.precision(8);
   if (n == 0) {
     // s type orbitals
     taylor0 = prefac*tgamma(j+gj)*cit(j, t, j);

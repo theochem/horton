@@ -932,8 +932,8 @@ void GB4ErfIntegralLibInt::laplace_of_potential(
 
 void GB4GaussIntegralLibInt::laplace_of_potential(double prefac, double rho, double t,
                                                   long mmax, double* output) {
-  double afac = galpha/(rho+galpha);
-  prefac *= (sqrt(M_PI*M_PI*M_PI)/(rho+galpha))*sqrt(1.0/(rho+galpha))*c*exp(-t*afac);
+  double afac = alpha/(rho+alpha);
+  prefac *= (sqrt(M_PI*M_PI*M_PI)/(rho+alpha))*sqrt(1.0/(rho+alpha))*c*exp(-t*afac);
   for (long m=0; m <= mmax; m++) {
     output[m] = prefac;
   prefac *= afac;

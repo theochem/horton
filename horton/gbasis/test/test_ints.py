@@ -1957,7 +1957,7 @@ def check_gauss_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, sc
     max_nbasis = get_shell_nbasis(max_shell_type)
     gb4i = GB4GaussIntegralLibInt(max_shell_type, c, alpha)
     assert gb4i.max_nbasis == max_nbasis
-    assert gb4i.galpha == alpha
+    assert gb4i.alpha == alpha
     assert gb4i.c == c
     assert gb4i.nwork == max_nbasis**4
 

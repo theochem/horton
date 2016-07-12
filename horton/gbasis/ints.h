@@ -350,7 +350,8 @@ class GB4ErfIntegralLibInt : public GB4IntegralLibInt {
 
   /** @brief
           Evaluate the Laplace transform of the long-range Coulomb potential.
-          (The short-range part is damped away using an error function.)
+          (The short-range part is damped away using an error function.) See (52) in
+          Ahlrichs' paper.
 
       See base class for more details.
     */
@@ -364,30 +365,76 @@ class GB4ErfIntegralLibInt : public GB4IntegralLibInt {
 };
 
 
+/** @brief
+        Gaussian electron repulsion four-center integrals.
+
+    The potential is ??? TODO
+  */
 class GB4GaussIntegralLibInt : public GB4IntegralLibInt {
  public:
-  GB4GaussIntegralLibInt(long max_shell_type, double c, double galpha)
-      : GB4IntegralLibInt(max_shell_type), c(c), galpha(galpha) {}
+  /** @brief
+          Initialize a GB4GaussIntegralLibInt object.
+
+      @param max_shell_type
+          Highest angular momentum index to be expected in the reset method.
+
+      @param c
+          Coefficient of the gaussian.
+
+      @param alpha
+          Exponential parameter of the gaussian.
+    */
+  GB4GaussIntegralLibInt(long max_shell_type, double c, double alpha)
+      : GB4IntegralLibInt(max_shell_type), c(c), alpha(alpha) {}
+
+  /** @brief
+          Evaluate the Laplace transform of the Gaussian potential. Reference? TODO
+
+      See base class for more details.
+    */
   virtual void laplace_of_potential(double prefac, double rho, double t, long mmax,
                                     double* output);
-  const double get_c() const {return c;}
-  const double get_galpha() const {return galpha;}
+
+  const double get_c() const {return c;}  //!< Coefficient of the gaussian.
+  const double get_alpha() const {return alpha;}  //!< Exponential parameter of the gaussian.
 
  private:
-  double c;
-  double galpha;
+  double c;  //!< Coefficient of the gaussian.
+  double alpha;  //!< Exponential parameter of the gaussian.
 };
 
+/** @brief
+        Gaussian electron repulsion four-center integrals.
+
+    The potential is r^alpha.
+  */
 class GB4RAlphaIntegralLibInt : public GB4IntegralLibInt {
  public:
+  /** @brief
+          Initialize a GB4RAlphaIntegralLibInt object.
+
+      @param max_shell_type
+          Highest angular momentum index to be expected in the reset method.
+
+      @param ralpha
+          The power of r in the potential.
+    */
   GB4RAlphaIntegralLibInt(long max_shell_type, double ralpha)
       : GB4IntegralLibInt(max_shell_type), ralpha(ralpha) {}
+
+  /** @brief
+          Evaluate the Laplace transform of the r^alpha potential. See Eq. (49) in
+          Ahlrichs' paper.
+
+      See base class for more details.
+    */
   virtual void laplace_of_potential(double prefac, double rho, double t, long mmax,
                                     double* output);
-  const double get_ralpha() const {return ralpha;}
+
+  const double get_ralpha() const {return ralpha;}  //!< The power of r.
 
  private:
-  double ralpha;
+  double ralpha;  //!< The power of r.
 };
 
 

@@ -1616,19 +1616,21 @@ cdef class GB4ErfIntegralLibInt(GB4Integral):
         def __get__(self):
             return (<ints.GB4ErfIntegralLibInt*>self._this).get_mu()
 
+
 cdef class GB4GaussIntegralLibInt(GB4Integral):
     '''Wrapper for ints.GB4GaussIntegralLibInt, for testing only'''
 
-    def __cinit__(self, long max_nbasis, double c, double galpha):
-        self._this = <ints.GB4Integral*>(new ints.GB4GaussIntegralLibInt(max_nbasis, c, galpha))
+    def __cinit__(self, long max_nbasis, double c, double alpha):
+        self._this = <ints.GB4Integral*>(new ints.GB4GaussIntegralLibInt(max_nbasis, c, alpha))
 
     property c:
         def __get__(self):
             return (<ints.GB4GaussIntegralLibInt*>self._this).get_c()
 
-    property galpha:
+    property alpha:
         def __get__(self):
-            return (<ints.GB4GaussIntegralLibInt*>self._this).get_galpha()
+            return (<ints.GB4GaussIntegralLibInt*>self._this).get_alpha()
+
 
 cdef class GB4RAlphaIntegralLibInt(GB4Integral):
     '''Wrapper for ints.GB4RAlphaIntegralLibInt, for testing only'''

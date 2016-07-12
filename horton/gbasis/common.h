@@ -53,16 +53,19 @@ long jfac(int j, int n);
     Sum_i t^i * Gamma(i+(alpha+3)/2)*(2^(2i)/(2i +1)!
 
     @param n
-      Angular moment (the order of the derivative of the basic integral Gn in Alhrichs
-      Phys. Chem. Chem. Phys., 8, 3072 (2006)). The maximum value implemented is n=10.
+        Angular moment (the order of the derivative of the basic integral Gn in Alhrichs
+        Phys. Chem. Chem. Phys., 8, 3072 (2006)). The maximum value implemented is n=10.
+
+    @param ralpha
+        The power of r in the potential.
 
     @param t
-       rho|p-q|^2
+        rho|p-q|^2
 
     @param prefac
-      e^(-t)/rho^3/2 - This term helps the Taylor series to converge when t is a large
-      number, the factor 1/2*sqrt(rho^alpha) was "replaced" and multiplied outside, at the
-      end, in the laplace_of_potential function.
+        e^(-t)/rho^3/2 - This term helps the Taylor series to converge when t is a large
+        number, the factor 1/2*sqrt(rho^alpha) was "replaced" and multiplied outside, at
+        the end, in the laplace_of_potential function.
 */
 double dtaylor(int n, double ralpha, double t, double prefac);
 
