@@ -55,11 +55,13 @@ def test_binom():
     assert binom(0, 0) == 1
     assert binom(5, 5) == 1
 
+
 def test_cit():
     assert abs(cit(1, 2.49128, 1) - 1.6608533333) < 1e-7
     assert abs(cit(2, 2.49128, 2) - 0.8275301384) < 1e-7
     assert abs(cit(4, 0.0213, 2) - 3.20063e-7) < 1e-9
     assert abs(cit(2, 1.5134, 4) - 0.69944513718) < 1e-7
+
 
 def test_jfac():
     assert jfac(2, 3) == 0
