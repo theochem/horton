@@ -65,9 +65,8 @@ __all__ = [
     # ints
     'GB2OverlapIntegral', 'GB2KineticIntegral',
     'GB2NuclearAttractionIntegral','GB4Integral',
-    'GB4ErfIntegralLibInt',
     'GB4ElectronRepulsionIntegralLibInt',
-    'GB4ErfIntegralLibInt','GB4GaussIntegralLibInt',
+    'GB4ErfIntegralLibInt', 'GB4GaussIntegralLibInt',
     'GB4RAlphaIntegralLibInt',
     # fns
     'GB1DMGridDensityFn', 'GB1DMGridGradientFn',
