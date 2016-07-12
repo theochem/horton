@@ -792,7 +792,8 @@ cdef class GOBasis(GBasis):
 
            Keywords: :index:`ERI`, :index:`four-center integrals`
         '''
-        log.cite('valeev2014', 'the efficient implementation of four-center electron repulsion integrals')
+        log.cite('valeev2014',
+                 'the efficient implementation of four-center electron repulsion integrals')
         # prepare the output array
         if isinstance(output, CholeskyLinalgFactory):
             lf = output
@@ -829,7 +830,10 @@ cdef class GOBasis(GBasis):
 
            Keywords: :index:`ERI`, :index:`four-center integrals`
         '''
-        log.cite('valeev2014', 'the efficient implementation of four-center electron repulsion integrals')
+        log.cite('valeev2014',
+                 'the efficient implementation of four-center electron repulsion integrals')
+        log.cite('ahlrichs2006',
+                 'the methodology to implement various types of four-center integrals.')
         # prepare the output array
 #        if isinstance(output, CholeskyLinalgFactory):
 #            gb4int = new ints.GB4ErfIntegralLibInt(gobasis.max_shell_type, mu)
