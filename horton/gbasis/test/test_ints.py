@@ -2090,9 +2090,26 @@ def test_electron_repulsion_4_3_2_1():
         -0.00412306, -0.41232763], [0.06147983, -0.06748816, 2.6480163]]]]))
 
 
-def check_erf_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, scales0, scales1, scales2, scales3, shell_type0, shell_type1, shell_type2, shell_type3, result0, mu):
-    # This test compares output from HORTON with reference data computed with
-    # PyQuante.
+def check_erf_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, scales0,
+                        scales1, scales2, scales3, shell_type0, shell_type1, shell_type2,
+                        shell_type3, result0, mu):
+    """Compare output from HORTON Erf integrals with reference data from PyQuante.
+
+    Parameters
+    ----------
+    alpha0, alpha1, alpha2, alpha3 : float
+        Exponents of the four primitive shells.
+    r0, r1, r2, r3 : np.ndarray, shape=(3,), dtype=float
+        Cartesian coordinates of the centers of the four primitive shells.
+    scales0, scales1, scales2, scales3 : float
+        Normalization prefactors for the Gaussian shells.
+    shell_type0, shell_type1, shell_type2, shell_type3 : int
+        Shell types of the four primitive shells.
+    result0 : np.ndarray, shape=(nbasis, nbasis, nbasis, nbasis), dtype=float
+        The expected result.
+    mu : float
+        The range-separation parameters.
+    """
     max_shell_type = 4
     max_nbasis = get_shell_nbasis(max_shell_type)
     gb4i = GB4ErfIntegralLibInt(max_shell_type, mu)
@@ -2115,70 +2132,70 @@ def check_erf_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, scal
 
 def test_erf_repulsion_0_0_0_0_simple0():
     check_erf_repulsion(
-        np.array([ 1.]), np.array([ 1.]),
-        np.array([ 1.]), np.array([ 1.]),
-        np.array([ 0.,  0.,  0.]), np.array([ 0.,  0.,  0.]),
-        np.array([ 0.,  0.,  0.]), np.array([ 0.,  0.,  0.]),
-        np.array([ 1.]),
-        np.array([ 1.]),
-        np.array([ 1.]),
-        np.array([ 1.]),
+        np.array([1.]), np.array([1.]),
+        np.array([1.]), np.array([1.]),
+        np.array([0., 0., 0.]), np.array([0., 0., 0.]),
+        np.array([0., 0., 0.]), np.array([0., 0., 0.]),
+        np.array([1.]),
+        np.array([1.]),
+        np.array([1.]),
+        np.array([1.]),
         0, 0, 0, 0,
         np.array([[[[1.25667419]]]]), 0.3)
 
 
 def test_erf_repulsion_0_0_0_0_simple1():
     check_erf_repulsion(
-        np.array([ 1.]), np.array([ 1.]),
-        np.array([ 1.]), np.array([ 1.]),
-        np.array([ 0.,  0.,  0.]), np.array([ 1.,  1.,  1.]),
-        np.array([ 0.,  0.,  0.]), np.array([ 1.,  1.,  1.]),
-        np.array([ 1.]),
-        np.array([ 1.]),
-        np.array([ 1.]),
-        np.array([ 1.]),
+        np.array([1.]), np.array([1.]),
+        np.array([1.]), np.array([1.]),
+        np.array([0., 0., 0.]), np.array([1., 1., 1.]),
+        np.array([0., 0., 0.]), np.array([1., 1., 1.]),
+        np.array([1.]),
+        np.array([1.]),
+        np.array([1.]),
+        np.array([1.]),
         0, 0, 0, 0,
         np.array([[[[1.16018914]]]]), 0.3)
 
 
 def test_erf_repulsion_0_0_0_0_simple2():
     check_erf_repulsion(
-        np.array([ 1.]), np.array([ 1.]),
-        np.array([ 1.]), np.array([ 1.]),
-        np.array([ 0.57092,  0.29608, -0.758  ]), np.array([-0.70841,  0.22864,  0.79589]),
-        np.array([ 0.83984,  0.65053,  0.36087]), np.array([-0.62267, -0.83676, -0.75233]),
-        np.array([ 1.]),
-        np.array([ 1.]),
-        np.array([ 1.]),
-        np.array([ 1.]),
+        np.array([1.]), np.array([1.]),
+        np.array([1.]), np.array([1.]),
+        np.array([0.57092, 0.29608, -0.758]), np.array([-0.70841, 0.22864, 0.79589]),
+        np.array([0.83984, 0.65053, 0.36087]), np.array([-0.62267, -0.83676, -0.75233]),
+        np.array([1.]),
+        np.array([1.]),
+        np.array([1.]),
+        np.array([1.]),
         0, 0, 0, 0,
         np.array([[[[0.09691428]]]]), 0.3)
 
 
 def test_erf_repulsion_0_0_0_0_simple3():
     check_erf_repulsion(
-        np.array([ 0.57283]), np.array([ 1.74713]),
-        np.array([ 0.21032]), np.array([ 1.60538]),
-        np.array([ 0.82197,  0.73226, -0.98154]), np.array([ 0.57466,  0.17815, -0.25519]),
-        np.array([ 0.00425, -0.33757,  0.08556]), np.array([-0.38717,  0.66721,  0.40838]),
-        np.array([ 1.]),
-        np.array([ 1.]),
-        np.array([ 1.]),
-        np.array([ 1.]),
+        np.array([0.57283]), np.array([1.74713]),
+        np.array([0.21032]), np.array([1.60538]),
+        np.array([0.82197, 0.73226, -0.98154]), np.array([0.57466, 0.17815, -0.25519]),
+        np.array([0.00425, -0.33757, 0.08556]), np.array([-0.38717, 0.66721, 0.40838]),
+        np.array([1.]),
+        np.array([1.]),
+        np.array([1.]),
+        np.array([1.]),
         0, 0, 0, 0,
         np.array([[[[0.807980035]]]]), 1.2)
 
 
 def test_erf_repulsion_0_0_0_0_simple4():
     check_erf_repulsion(
-        np.array([ 1.35491]), np.array([ 0.9714]),
-        np.array([ 1.95585]), np.array([ 1.77853]),
-        np.array([ 0.37263, -0.87382,  0.28078]), np.array([-0.08946, -0.52616,  0.69184]),
-        np.array([-0.35128,  0.07017,  0.08193]), np.array([ 0.14543, -0.29499, -0.09769]),
-        np.array([ 1.61086]),
-        np.array([ 1.19397]),
-        np.array([ 1.8119]),
-        np.array([ 1.55646]),
+        np.array([1.35491]), np.array([0.9714]),
+        np.array([1.95585]), np.array([1.77853]),
+        np.array([0.37263, -0.87382, 0.28078]), np.array([-0.08946, -0.52616, 0.69184]),
+        np.array([-0.35128, 0.07017, 0.08193]), np.array([0.14543, -0.29499, -0.09769]),
+        np.array([1.61086]),
+        np.array([1.19397]),
+        np.array([1.8119]),
+        np.array([1.55646]),
         0, 0, 0, 0,
         np.array([[[[1.16218348]]]]), 1.2)
 

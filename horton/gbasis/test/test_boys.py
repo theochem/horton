@@ -517,6 +517,7 @@ def test_boys_domain_error():
         with assert_raises(ValueError):
             boys_function(m, t)
 
+
 def test_boys_array():
     for mmax in xrange(get_max_shell_type()*4+1):
         for t in np.random.uniform(0, 200, 500):
