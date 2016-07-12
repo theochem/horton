@@ -33,4 +33,4 @@ cdef extern from "horton/gbasis/common.h":
 
     double cit(int i, double t, int m)
     long jfac(int j, int n)
-    double dtaylor(int n, double ralpha, double t, double prefac)
+    double dtaylor(int n, double alpha, double t, double prefac)

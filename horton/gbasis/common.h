@@ -56,7 +56,7 @@ long jfac(int j, int n);
         Angular moment (the order of the derivative of the basic integral Gn in Alhrichs
         Phys. Chem. Chem. Phys., 8, 3072 (2006)). The maximum value implemented is n=10.
 
-    @param ralpha
+    @param alpha
         The power of r in the potential.
 
     @param t
@@ -67,6 +67,6 @@ long jfac(int j, int n);
         number, the factor 1/2*sqrt(rho^alpha) was "replaced" and multiplied outside, at
         the end, in the laplace_of_potential function.
 */
-double dtaylor(int n, double ralpha, double t, double prefac);
+double dtaylor(int n, double alpha, double t, double prefac);
 
 #endif

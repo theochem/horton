@@ -2455,7 +2455,7 @@ def test_gauss_repulsion_4_3_2_1():
 
 def check_ralpha_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, scales0,
                            scales1, scales2, scales3, shell_type0, shell_type1,
-                           shell_type2, shell_type3, result0, ralpha):
+                           shell_type2, shell_type3, result0, alpha):
     """Compare output from HORTON Erf integrals with reference data.
 
     The reference data was generated with a Mathematica script of Julien Toulouse and
@@ -2473,15 +2473,15 @@ def check_ralpha_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, s
         Shell types of the four primitive shells.
     result0 : np.ndarray, shape=(nbasis, nbasis, nbasis, nbasis), dtype=float
         The expected result.
-    ralpha : float
-        The interaction is r to the power ralpha.
+    alpha : float
+        The interaction is r to the power alpha.
     """
     max_shell_type = 4
     max_nbasis = get_shell_nbasis(max_shell_type)
-    gb4i = GB4RAlphaIntegralLibInt(max_shell_type, ralpha)
+    gb4i = GB4RAlphaIntegralLibInt(max_shell_type, alpha)
     assert gb4i.max_nbasis == max_nbasis
     assert gb4i.nwork == max_nbasis**4
-    assert gb4i.ralpha == ralpha
+    assert gb4i.alpha == alpha
 
     nbasis0 = get_shell_nbasis(shell_type0)
     nbasis1 = get_shell_nbasis(shell_type1)

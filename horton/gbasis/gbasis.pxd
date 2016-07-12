@@ -60,7 +60,7 @@ cdef extern from "horton/gbasis/gbasis.h":
         void compute_electron_repulsion(double* output)
         void compute_erf_repulsion(double* output, double mu)
         void compute_gauss_repulsion(double* output, double c, double alpha)
-        void compute_ralpha_repulsion(double* output, double ralpha)
+        void compute_ralpha_repulsion(double* output, double alpha)
 
         void compute_grid1_exp(long nfn, double* coeffs, long npoint, double* points, long norb, long* iorbs, double* output)
         void compute_grid1_dm(double* dm, long npoint, double* points, fns.GB1DMGridFn* grid_fn, double* output, double epsilon, double* dmmaxrow)

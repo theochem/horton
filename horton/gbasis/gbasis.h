@@ -153,10 +153,10 @@ class GOBasis : public GBasis {
             @param output
                 The output array with the integrals.
 
-            @param ralpha
+            @param alpha
                 The power of r in the potential.
          */
-        void compute_ralpha_repulsion(double* output, double ralpha);
+        void compute_ralpha_repulsion(double* output, double alpha);
 
         /** @brief
                 Computes the (multipole) moment integrals.

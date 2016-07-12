@@ -255,8 +255,8 @@ void GOBasis::compute_gauss_repulsion(double* output, double c, double alpha) {
     compute_four_index(output, &integral);
 }
 
-void GOBasis::compute_ralpha_repulsion(double* output, double ralpha) {
-    GB4RAlphaIntegralLibInt integral = GB4RAlphaIntegralLibInt(get_max_shell_type(), ralpha);
+void GOBasis::compute_ralpha_repulsion(double* output, double alpha) {
+    GB4RAlphaIntegralLibInt integral = GB4RAlphaIntegralLibInt(get_max_shell_type(), alpha);
     compute_four_index(output, &integral);
 }
 

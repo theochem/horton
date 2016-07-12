@@ -72,8 +72,8 @@ cdef extern from "horton/gbasis/ints.h":
         double get_alpha()
 
     cdef cppclass GB4RAlphaIntegralLibInt:
-        GB4RAlphaIntegralLibInt(long max_shell_type, double ralpha) except +
-        double get_ralpha()
+        GB4RAlphaIntegralLibInt(long max_shell_type, double alpha) except +
+        double get_alpha()
 
 
 cdef extern from "libint2.h":

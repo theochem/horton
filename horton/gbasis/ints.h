@@ -416,11 +416,11 @@ class GB4RAlphaIntegralLibInt : public GB4IntegralLibInt {
       @param max_shell_type
           Highest angular momentum index to be expected in the reset method.
 
-      @param ralpha
+      @param alpha
           The power of r in the potential.
     */
-  GB4RAlphaIntegralLibInt(long max_shell_type, double ralpha)
-      : GB4IntegralLibInt(max_shell_type), ralpha(ralpha) {}
+  GB4RAlphaIntegralLibInt(long max_shell_type, double alpha)
+      : GB4IntegralLibInt(max_shell_type), alpha(alpha) {}
 
   /** @brief
           Evaluate the Laplace transform of the r^alpha potential. See Eq. (49) in
@@ -431,10 +431,10 @@ class GB4RAlphaIntegralLibInt : public GB4IntegralLibInt {
   virtual void laplace_of_potential(double prefac, double rho, double t, long mmax,
                                     double* output);
 
-  const double get_ralpha() const {return ralpha;}  //!< The power of r.
+  const double get_alpha() const {return alpha;}  //!< The power of r.
 
  private:
-  double ralpha;  //!< The power of r.
+  double alpha;  //!< The power of r.
 };
 
 

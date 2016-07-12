@@ -946,8 +946,8 @@ void GB4RAlphaIntegralLibInt::laplace_of_potential(double prefac, double rho, do
   if (mmax > 10)
     throw std::domain_error("mmax > 10, highest cartesian angular value implemented is 10");
   prefac *= exp(-t)/(rho*sqrt(rho));
-  double tfactor = ((4.0*M_PI)/(2.0*sqrt(pow(rho, ralpha))));
+  double tfactor = ((4.0*M_PI)/(2.0*sqrt(pow(rho, alpha))));
   for (long m=0; m <= mmax; m++) {
-    output[m] = tfactor*dtaylor(m, ralpha, t, prefac);
+    output[m] = tfactor*dtaylor(m, alpha, t, prefac);
   }
 }

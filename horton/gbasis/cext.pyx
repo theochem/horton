@@ -189,8 +189,8 @@ def cit(int i, double t, int m):
 def jfac(int j, int n):
     return common.jfac(j, n)
 
-def dtaylor(int n, double ralpha, double t, double tfactor):
-    return common.dtaylor(n, ralpha, t, tfactor)
+def dtaylor(int n, double alpha, double t, double tfactor):
+    return common.dtaylor(n, alpha, t, tfactor)
 
 
 #
@@ -895,7 +895,7 @@ cdef class GOBasis(GBasis):
         # done
         return output
 
-    def compute_ralpha_repulsion(self, output, double ralpha=-1.0):
+    def compute_ralpha_repulsion(self, output, double alpha=-1.0):
         """Compute r^alpha repulsion four-center integrals.
 
         Parameters
@@ -906,7 +906,7 @@ cdef class GOBasis(GBasis):
             its contents are overwritten. When a ``DenseLinalgFactory`` or
             ``CholeskyLinalgFactory`` is given, it is used to construct the four-index
             object in which the integrals are stored.
-        ralpha : float
+        alpha : float
             The power of r in the interation potential.
 
         Returns
@@ -926,7 +926,7 @@ cdef class GOBasis(GBasis):
         output_array = output._array
         self.check_matrix_four_index(output_array)
         # call the low-level routine
-        (<gbasis.GOBasis*>self._this).compute_ralpha_repulsion(&output_array[0, 0, 0, 0], ralpha)
+        (<gbasis.GOBasis*>self._this).compute_ralpha_repulsion(&output_array[0, 0, 0, 0], alpha)
         # done
         return output
 
@@ -1635,12 +1635,12 @@ cdef class GB4GaussIntegralLibInt(GB4Integral):
 cdef class GB4RAlphaIntegralLibInt(GB4Integral):
     '''Wrapper for ints.GB4RAlphaIntegralLibInt, for testing only'''
 
-    def __cinit__(self, long max_nbasis, double ralpha):
-        self._this = <ints.GB4Integral*>(new ints.GB4RAlphaIntegralLibInt(max_nbasis, ralpha))
+    def __cinit__(self, long max_nbasis, double alpha):
+        self._this = <ints.GB4Integral*>(new ints.GB4RAlphaIntegralLibInt(max_nbasis, alpha))
 
-    property ralpha:
+    property alpha:
         def __get__(self):
-            return (<ints.GB4RAlphaIntegralLibInt*>self._this).get_ralpha()
+            return (<ints.GB4RAlphaIntegralLibInt*>self._this).get_alpha()
 
 
 #
