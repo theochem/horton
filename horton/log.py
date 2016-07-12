@@ -21,7 +21,7 @@
 """Screen logging, timing and citation management
 
 The goal of the screen logger is to track the progress of a computation in a convenient
-human-readable way, possibly higlighting problematic situations. It is not intended as a
+human-readable way, possibly highlighting problematic situations. It is not intended as a
 computer-readable output file that contains all the results of a computation. For that
 purpose, all useful information is written to a binary checkpoint file or kept in memory
 as attributes of the HORTON objects.
@@ -240,7 +240,7 @@ class ScreenLog(object):
         ----------
         l : list
             A list of keyword and value pairs. A table will be printed where the first
-            column contains the keywords and the second colum contains (wrapped) values.
+            column contains the keywords and the second column contains (wrapped) values.
         """
         widest = max(len(item[0]) for item in l)
         for name, value in l:
@@ -273,7 +273,7 @@ class ScreenLog(object):
 
         .. code-block:: python
 
-            pb = log,progress(100)
+            pb = log.progress(100)
             for i in xrange(100):
                 pb()
 
@@ -325,7 +325,7 @@ class ScreenLog(object):
 
 
 class ProgressBar(object):
-    """Sinple progress bar for the screen logger."""
+    """Simple progress bar for the screen logger."""
 
     def __init__(self, niter, f, width, silent):
         """Initialize a ProgressBar object.
@@ -575,7 +575,7 @@ class TimerGroup(object):
         ru = resource.getrusage(resource.RUSAGE_SELF)
         log.deflist([
             ('CPU user time', '% 10.2f' % ru.ru_utime),
-            ('CPU sysem time', '% 10.2f' % ru.ru_stime),
+            ('CPU system time', '% 10.2f' % ru.ru_stime),
             ('Page swaps', '% 10i' % ru.ru_nswap),
         ])
         log.hline()
@@ -692,8 +692,8 @@ class Biblio(object):
             The bibtex key in `data/references.bib`.
         reason: str
             The reason why this reference is cited, e.g. something in the form of
-            `"for using method bluh"`. You may want to cite the same reference for
-            different reasons from different parts of the code.
+            `"using method bluh"`. You may want to cite the same reference for different
+            reasons from different parts of the code.
 
         At the end of the program, a list of "relevant" references will be printed that
         one should cite when using results obtained with a HORTON calculation.
@@ -705,7 +705,7 @@ class Biblio(object):
         """Report the cited references, typically at the end of a calculation."""
         if log.do_low:
             log('When you use this computation for the preparation of a scientific',
-                'pulication, cite the following references:')
+                'publication, cite the following references:')
             log.hline()
             for key, reasons in sorted(self._cited.iteritems()):
                 log(self._records[key].format_text())
