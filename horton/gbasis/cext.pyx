@@ -111,25 +111,21 @@ def cart_to_pure_low(np.ndarray[double] work_cart not None,
 # cholesky wrappers
 #
 
-def compute_cholesky(GOBasis gobasis, double threshold=1e-8, lf = None):
-    cdef ints.GB4ElectronRepulsionIntegralLibInt* gb4int = NULL
+def compute_cholesky(GOBasis gobasis, GB4Integral gb4int, double threshold=1e-8, lf = None):
     cdef gbw.GB4IntegralWrapper* gb4w = NULL
     cdef double* data = NULL
     cdef np.npy_intp dims[3]
     cdef np.ndarray result
 
     try:
-        gb4int = new ints.GB4ElectronRepulsionIntegralLibInt(gobasis.max_shell_type)
-        gb4w = new gbw.GB4IntegralWrapper((<gbasis.GOBasis* > gobasis._this),
-                            <ints.GB4Integral*> gb4int)
+        gb4w = new gbw.GB4IntegralWrapper(<gbasis.GOBasis*> gobasis._this,
+                                          <ints.GB4Integral*> gb4int._this)
         nvec = cholesky.cholesky(gb4w, &data, threshold)
         dims[0] = <np.npy_intp> nvec
         dims[1] = <np.npy_intp> gobasis.nbasis
         dims[2] = <np.npy_intp> gobasis.nbasis
         result = np.PyArray_SimpleNewFromData(3, dims, np.NPY_DOUBLE, data)
     finally:
-        if gb4int is not NULL:
-            del gb4int
         if gb4w is not NULL:
             del gb4w
 
@@ -805,11 +801,11 @@ cdef class GOBasis(GBasis):
         '''
         log.cite('valeev2014',
                  'the efficient implementation of four-center electron repulsion integrals')
-        # prepare the output array
         if isinstance(output, CholeskyLinalgFactory):
             lf = output
-            output = compute_cholesky(self, lf=lf)
+            output = compute_cholesky(self, GB4ElectronRepulsionIntegralLibInt(self.max_shell_type), lf=lf)
             return output
+        # prepare the output array
         cdef np.ndarray[double, ndim=4] output_array
         if isinstance(output, LinalgFactory):
             lf = output
@@ -845,6 +841,10 @@ cdef class GOBasis(GBasis):
                  'the efficient implementation of four-center electron repulsion integrals')
         log.cite('ahlrichs2006',
                  'the methodology to implement various types of four-center integrals.')
+        if isinstance(output, CholeskyLinalgFactory):
+            lf = output
+            output = compute_cholesky(self, GB4ErfIntegralLibInt(self.max_shell_type, mu), lf=lf)
+            return output
         # prepare the output array
         cdef np.ndarray[double, ndim=4] output_array
         if isinstance(output, LinalgFactory):
@@ -883,6 +883,11 @@ cdef class GOBasis(GBasis):
                  'the efficient implementation of four-center electron repulsion integrals')
         log.cite('ahlrichs2006',
                  'the methodology to implement various types of four-center integrals.')
+        if isinstance(output, CholeskyLinalgFactory):
+            lf = output
+            output = compute_cholesky(self, GB4GaussIntegralLibInt(self.max_shell_type, c, alpha), lf=lf)
+            return output
+        # prepare the output array
         cdef np.ndarray[double, ndim=4] output_array
         if isinstance(output, LinalgFactory):
             lf = output
@@ -918,6 +923,10 @@ cdef class GOBasis(GBasis):
                  'the efficient implementation of four-center electron repulsion integrals')
         log.cite('ahlrichs2006',
                  'the methodology to implement various types of four-center integrals.')
+        if isinstance(output, CholeskyLinalgFactory):
+            lf = output
+            output = compute_cholesky(self, GB4RAlphaIntegralLibInt(self.max_shell_type, alpha), lf=lf)
+            return output
         cdef np.ndarray[double, ndim=4] output_array
         if isinstance(output, LinalgFactory):
             lf = output
@@ -1524,7 +1533,7 @@ atexit.register(libint2_static_cleanup)
 
 
 cdef class GB4Integral:
-    '''Wrapper for ints.GB4Integral, for testing only'''
+    '''Wrapper for ints.GB4Integral'''
     cdef ints.GB4Integral* _this
 
     def __dealloc__(self):
@@ -1604,6 +1613,7 @@ cdef class GB4ElectronRepulsionIntegralLibInt(GB4Integral):
 
     def __cinit__(self, long max_nbasis):
         self._this = <ints.GB4Integral*>(new ints.GB4ElectronRepulsionIntegralLibInt(max_nbasis))
+
 
 cdef class GB4ErfIntegralLibInt(GB4Integral):
     '''Wrapper for ints.GB4ElectronRepulsionIntegralLibInt, for testing only'''
