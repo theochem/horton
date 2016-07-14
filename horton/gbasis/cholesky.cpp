@@ -174,5 +174,9 @@ long cholesky(GB4IntegralWrapper* gbw4, double** uninit_result,
   // Concatenate results array. Not efficient! Who cares?
   *uninit_result = &((*vectors)[0]);
 
+  // Free vectors
+  delete[] diagonal;
+  delete[] diagerr;
+
   return nvec;
 }
