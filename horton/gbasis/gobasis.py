@@ -260,7 +260,7 @@ class GOBasisFamily(object):
         self.load()
         if filename is None:
             filename = ''.join(self.filename.split('.')[:-1] + ['_mod.gbs'])
-        load_basis_atom_map_gbs(filename)
+        dump_basis_atom_map_gbs(filename)
 
     def _to_arrays(self):
         """Convert all contraction attributes to numpy arrays."""
