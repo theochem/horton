@@ -20,13 +20,15 @@
 # --
 '''Input/Output routines for gaussian basis sets'''
 
+import numpy as np
 
 from horton.periodic import periodic
 
 
 __all__ = [
     'str_to_shell_types', 'shell_type_to_str', 'fortran_float',
-    'load_basis_atom_map_nwchem',
+    'load_basis_atom_map_nwchem', 'load_basis_atom_map_gbs',
+    'dump_basis_atom_map'
 ]
 
 
@@ -86,3 +88,81 @@ def load_basis_atom_map_nwchem(filename):
                 bc.con_coeffs.append(coeffs[i::len(bcs)])
     f.close()
     return basis_atom_map
+
+def load_basis_atom_map_gbs(filename):
+    """ Loads the basis set family from a GBS file
+
+    """
+    from horton.gbasis.gobasis import GOBasisAtom, GOBasisContraction
+
+    basis_atom_map = {}
+    bc = None # The current contraction being loaded
+    cur_atom = None
+    cur_shell_types = None
+    with open(filename, 'r') as f:
+        for line in f:
+            # strip of comments and white space
+            line = line[:line.find('!')].strip()
+            if len(line) == 0:
+                continue
+            if line == '****':
+                continue
+            words = line.split()
+            # if first word is the atomic symbol
+            if words[0].isalpha() and len(words) == 2:
+                cur_atom = words[0]
+            # if first word is the angular momentum
+            elif words[0].isalpha() and len(words) == 3:
+                # A new contraction begins, maybe even a new atom.
+                n = periodic[cur_atom].number
+                cur_shell_types = str_to_shell_types(words[0])
+                empty_contr = [GOBasisContraction(shell_type, [], []) for shell_type in cur_shell_types]
+                try:
+                    basis_atom_map[n].bcs.extend(empty_contr)
+                except KeyError:
+                    basis_atom_map[n] = GOBasisAtom(empty_contr)
+            else:
+                # An extra primitive for the current contraction(s).
+                exponent = fortran_float(words[0])
+                coeffs = [fortran_float(w) for w in words[1:]]
+                for i, bc in enumerate(empty_contr):
+                    bc.alphas.append(exponent)
+                    bc.con_coeffs.append(coeffs[i::len(cur_shell_types)])
+    return basis_atom_map
+
+def dump_basis_atom_map(filename, basis_atom_map):
+    """ Writes gaussian basis file from the basis object in HORTON
+
+    Parameters
+    ----------
+    filename: str
+        File name of the new gbs file
+    basis_atom_map: GOBasisFamily
+        Basis set object that contains the name and the contraction information of
+        the basis set
+
+    Raises
+    ------
+    AssertionError
+        If basis_atom_map is not loaded
+
+    """
+    with open(filename, 'w') as f:
+        f.write('!Basis set, {0}, generated using HORTON\n\n'.format(basis_atom_map.name))
+        f.write('****\n')
+        basis_atom_map = basis_atom_map.basis_atom_map
+        for atom in sorted(basis_atom_map.keys()):
+            f.write('{0:<6}0\n'.format(periodic[atom].symbol))
+            contractions = basis_atom_map[atom].bcs
+            for contraction in contractions:
+                exponents = contraction.alphas.reshape(contraction.alphas.size, 1)
+                con_coeffs = contraction.con_coeffs
+                if len(contraction.con_coeffs.shape) == 1:
+                    con_coeffs = contraction.con_coeffs.reshape(contraction.con_coeffs.size, 1)
+                con_numbers = np.hstack((exponents, con_coeffs))
+                f.write('{0:<4}{1:<4}1.00\n'.format(shell_type_to_str(contraction.shell_type).upper(),
+                                                    exponents.size))
+                for con_number in con_numbers:
+                    f.write(('{:>17}'*con_number.size).format(*con_number))
+                    f.write('\n')
+            f.write('****\n')
