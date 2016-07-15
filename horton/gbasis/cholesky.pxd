@@ -18,7 +18,9 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
+from libcpp.vector cimport vector
+
 cimport gbw
 
 cdef extern from "horton/gbasis/cholesky.h":
-    long cholesky(gbw.GB4IntegralWrapper* gbw4, double** uninit_result, double threshold)
+    long cholesky(gbw.GB4IntegralWrapper* gbw4, vector[double]* vectors, double threshold)

@@ -59,7 +59,7 @@ extern "C"
         generated such that the error on the diagonal falls below this
         threshold.
 */
-long cholesky(GB4IntegralWrapper* gbw4, double** uninit_result,
+long cholesky(GB4IntegralWrapper* gbw4, std::vector<double>* vectors,
     double threshold);
 
 #endif
