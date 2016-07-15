@@ -58,6 +58,7 @@ long cholesky(GB4IntegralWrapper* gbw4, double** uninit_result,
   double* diagonal = new double[nbasis*nbasis];  // allocate 2 index object
   double* diagerr = new double[nbasis*nbasis];   //  "
   double* slice = NULL;                          //  "
+  double* pastvector_sum = new double[nbasis*nbasis];
   // storage for 2-index cholesky vectors, start with allocation of 15% of the
   // full 4-center matrix
   std::vector<double>* vectors = new std::vector<double>;
@@ -116,7 +117,6 @@ long cholesky(GB4IntegralWrapper* gbw4, double** uninit_result,
       slice = gbw4->get_2index_slice(index1, index2);
 
       // construct new cholesky vector
-      double* pastvector_sum = new double[nbasis*nbasis];
       memset(pastvector_sum, 0, sizeof(double)*nbasis*nbasis);
       maxdiag = 1.0 / sqrt(maxdiag);
 
@@ -177,6 +177,7 @@ long cholesky(GB4IntegralWrapper* gbw4, double** uninit_result,
   // Free vectors
   delete[] diagonal;
   delete[] diagerr;
+  delete[] pastvector_sum;
 
   return nvec;
 }
