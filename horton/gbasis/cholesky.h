@@ -48,10 +48,8 @@ extern "C"
     @param gbw4
         A wrapper around a definition of the 4-center integral. See gbw.h
 
-    @param uninit_result
-        An output pointer. The Cholesky vectors will be allocated as part of
-        this routine and the pointer to the Cholesky vectors is assigned to this
-        output argument.
+    @param vectors
+        An output pointer. The Cholesky vectors will be added to this std::vector.
 
     @param threshold
         A threshold for the error on the (double) diagonal of the four-center
