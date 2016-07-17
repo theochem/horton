@@ -26,6 +26,8 @@ cimport numpy as np
 np.import_array()
 
 cimport libc.string
+from libcpp.vector cimport vector
+from cython.operator cimport dereference as deref
 
 cimport boys
 cimport cartpure
@@ -113,18 +115,23 @@ def cart_to_pure_low(np.ndarray[double] work_cart not None,
 
 def compute_cholesky(GOBasis gobasis, GB4Integral gb4int, double threshold=1e-8, lf = None):
     cdef gbw.GB4IntegralWrapper* gb4w = NULL
-    cdef double* data = NULL
+    cdef vector[np.float64_t]* vectors = NULL
     cdef np.npy_intp dims[3]
     cdef np.ndarray result
+
+    cdef extern from "numpy/arrayobject.h":
+        void PyArray_ENABLEFLAGS(np.ndarray arr, int flags)
 
     try:
         gb4w = new gbw.GB4IntegralWrapper(<gbasis.GOBasis*> gobasis._this,
                                           <ints.GB4Integral*> gb4int._this)
-        nvec = cholesky.cholesky(gb4w, &data, threshold)
+        vectors = new vector[np.float64_t]()
+        nvec = cholesky.cholesky(gb4w, vectors, threshold)
         dims[0] = <np.npy_intp> nvec
         dims[1] = <np.npy_intp> gobasis.nbasis
         dims[2] = <np.npy_intp> gobasis.nbasis
-        result = np.PyArray_SimpleNewFromData(3, dims, np.NPY_DOUBLE, data)
+        result = np.PyArray_SimpleNewFromData(3, dims, np.NPY_DOUBLE, &(deref(vectors)[0]))
+        PyArray_ENABLEFLAGS(result, np.NPY_OWNDATA)
     finally:
         if gb4w is not NULL:
             del gb4w
