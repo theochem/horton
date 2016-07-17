@@ -368,7 +368,7 @@ class GB4ErfIntegralLibInt : public GB4IntegralLibInt {
 /** @brief
         Gaussian electron repulsion four-center integrals.
 
-    The potential is ??? TODO
+    The potential is c exp(-alpha r^2).
   */
 class GB4GaussIntegralLibInt : public GB4IntegralLibInt {
  public:
@@ -402,6 +402,7 @@ class GB4GaussIntegralLibInt : public GB4IntegralLibInt {
   double c;  //!< Coefficient of the gaussian.
   double alpha;  //!< Exponential parameter of the gaussian.
 };
+
 
 /** @brief
         Gaussian electron repulsion four-center integrals.
