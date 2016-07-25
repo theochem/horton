@@ -388,7 +388,18 @@ class GB4GaussIntegralLibInt : public GB4IntegralLibInt {
       : GB4IntegralLibInt(max_shell_type), c(c), alpha(alpha) {}
 
   /** @brief
-          Evaluate the Laplace transform of the Gaussian potential. Reference? TODO
+          Evaluate the Laplace transform of the Gaussian potential.
+
+          See Ahlrichs' paper for details. This type of potential is used in the papers
+          of P.M.W Gill et al. and J. Toulouse et al.:
+
+          Gill, P. M. W., & Adamson, R. D. (1996). A family of attenuated Coulomb
+          operators. Chem. Phys. Lett., 261(1-2), 105–110.
+          http://doi.org/10.1016/0009-2614(96)00931-1
+
+          Toulouse, J., Colonna, F., & Savin, A. (2004). Long-range-short-range separation
+          of the electron-electron interaction in density-functional theory. Phys. Rev. A,
+          70, 62505. http://doi.org/10.1103/PhysRevA.70.062505
 
       See base class for more details.
     */

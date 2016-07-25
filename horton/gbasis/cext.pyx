@@ -790,21 +790,26 @@ cdef class GOBasis(GBasis):
         return output
 
     def compute_electron_repulsion(self, output):
-        '''Compute electron-electron repulsion integrals
+        r'''Compute electron-electron repulsion integrals
 
-           **Argument:**
+        The potential has the following form:
 
-           output
-                When a ``DenseFourIndex`` object is given, it is used as output
-                argument and its contents are overwritten. When a
-                ``DenseLinalgFactory`` or ``CholeskyLinalgFactory`` is given, it
-                is used to construct the four-index object in which the
-                integrals are stored.
+        .. math::
+            v = \frac{1}{r}
 
-           **Returns:** The four-index object with the electron repulsion
-           integrals.
+        Parameters
+        ----------
+        output : FourIndex
+            When a ``DenseFourIndex`` object is given, it is used as output argument and
+            its contents are overwritten. When a ``DenseLinalgFactory`` or
+            ``CholeskyLinalgFactory`` is given, it is used to construct the four-index
+            object in which the integrals are stored.
 
-           Keywords: :index:`ERI`, :index:`four-center integrals`
+        Returns
+        -------
+        output
+
+        Keywords: :index:`ERI`, :index:`four-center integrals`
         '''
         log.cite('valeev2014',
                  'the efficient implementation of four-center electron repulsion integrals')
@@ -825,11 +830,15 @@ cdef class GOBasis(GBasis):
         return output
 
     def compute_erf_repulsion(self, output, double mu=0.0):
-        """Compute short-range electron repulsion integrals.
+        r"""Compute short-range electron repulsion integrals.
+
+        The potential has the following form:
+
+        .. math::
+            v = \frac{\mathrm{erf}(\mu r)}{r}
 
         Parameters
         ----------
-
         output : FourIndex
             When a ``DenseFourIndex`` object is given, it is used as output argument and
             its contents are overwritten. When a ``DenseLinalgFactory`` or
@@ -865,11 +874,15 @@ cdef class GOBasis(GBasis):
         return output
 
     def compute_gauss_repulsion(self, output, double c=1.0, double alpha=1.0):
-        """Compute gaussian repulsion four-center integrals.
+        r"""Compute gaussian repulsion four-center integrals.
+
+        The potential has the following form:
+
+        .. math::
+            v = c \exp(-\alpha r^2)
 
         Parameters
         ----------
-
         output : FourIndex
             When a ``DenseFourIndex`` object is given, it is used as output argument and
             its contents are overwritten. When a ``DenseLinalgFactory`` or
@@ -890,6 +903,10 @@ cdef class GOBasis(GBasis):
                  'the efficient implementation of four-center electron repulsion integrals')
         log.cite('ahlrichs2006',
                  'the methodology to implement various types of four-center integrals.')
+        log.cite('gill1996',
+                 'four-center integrals with a Gaussian interaction potential.')
+        log.cite('toulouse2004',
+                 'four-center integrals with a Gaussian interaction potential.')
         if isinstance(output, CholeskyLinalgFactory):
             lf = output
             output = compute_cholesky(self, GB4GaussIntegralLibInt(self.max_shell_type, c, alpha), lf=lf)
@@ -907,7 +924,14 @@ cdef class GOBasis(GBasis):
         return output
 
     def compute_ralpha_repulsion(self, output, double alpha=-1.0):
-        """Compute r^alpha repulsion four-center integrals.
+        r"""Compute r^alpha repulsion four-center integrals.
+
+        The potential has the following form:
+
+        .. math::
+            v = r^{\alpha}
+
+        with :math:`\alpha > -3`.
 
         Parameters
         ----------
