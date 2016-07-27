@@ -193,7 +193,7 @@ double dtaylor(int n, double alpha, double t, double prefac) {
     }
   } else {
     // higher angular moment
-    // matrix with the coefficients that come up form the derivatives (up to 10)
+    // matrix with the coefficients that come up from the derivatives (up to 10)
     double matrix[10][11] =
       {{1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
        {1.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
