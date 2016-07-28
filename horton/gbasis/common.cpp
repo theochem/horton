@@ -19,8 +19,10 @@
 //--
 
 
-#include <cmath>
 #include "horton/gbasis/common.h"
+
+#include <cmath>
+#include <iostream>
 
 
 long fac(long n) {
@@ -149,4 +151,83 @@ void nuclear_attraction_helper(double* work_g, long n0, long n1, double pa, doub
         }
         work_g[index] = tmp;
     }
+}
+
+
+/*
+
+    Auxiliary functions for r^alpha integrals
+
+*/
+
+
+double cit(int i, double t, int m) {
+  double result = pow(t, m);
+  for (int j=1; j <= i; j++)
+    result *= 4.0/((2.0*j + 1.0)*(2.0*j));
+  return result;
+}
+
+
+long jfac(int j, int n) {
+  double result = j;
+  for (int i=1; i < n; i++)
+    result *= j-i;
+  return result;
+}
+
+
+double dtaylor(int n, double alpha, double t, double prefac) {
+  double taylor0, taylor1;
+  int j = 0;
+  double gj = (alpha+3.0)/2.0;
+  if (n == 0) {
+    // s type orbitals
+    taylor0 = prefac*tgamma(j+gj)*cit(j, t, j);
+    j += 1;
+    taylor1 = taylor0 + prefac*tgamma(j+gj)*cit(j, t, j);
+    while (fabs(taylor1-taylor0) > 1e-9) {
+      taylor0 = taylor1;
+      j += 1;
+      taylor1 = taylor0 + prefac*tgamma(j+gj)*cit(j, t, j);
+    }
+  } else {
+    // higher angular moment
+    // matrix with the coefficients that come up from the derivatives (up to 10)
+    double matrix[10][11] =
+      {{1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+       {1.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+       {1.0, 3.0, 3.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+       {1.0, 4.0, 6.0, 4.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+       {1.0, 5.0, 10.0, 10.0, 5.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+       {1.0, 6.0, 15.0, 20.0, 15.0, 6.0, 1.0, 0.0, 0.0, 0.0, 0.0},
+       {1.0, 7.0, 21.0, 35.0, 35.0, 21.0, 7.0, 1.0, 0.0, 0.0, 0.0},
+       {1.0, 8.0, 28.0, 56.0, 70.0, 56.0, 28.0, 8.0, 1.0, 0.0, 0.0},
+       {1.0, 9.0, 36.0, 84.0, 126.0, 126.0, 84.0, 36.0, 9.0, 1.0, 0.0},
+       {1.0, 10.0, 45.0, 120.0, 210.0, 252.0, 210.0, 120.0, 45.0, 10.0, 1.0}};
+    // first cycle
+    taylor0 = prefac*tgamma(j+gj)*cit(j, t, j);
+    j += 1;
+    taylor1 = taylor0;
+    if (j-n >= 0)
+      taylor1 += pow(-1, n)*(jfac(j, n))*prefac*tgamma(j+gj)*cit(j, t, j-n);
+    taylor1 += prefac*tgamma(j+gj)*cit(j, t, j);
+    for (int k = n-1; k >= 1; k--) {
+      if (j-k >= 0)
+        taylor1 += pow(-1, k)*matrix[n-1][k]*(jfac(j, k))*prefac*tgamma(j+gj)*cit(j, t, j-k);
+    }
+    // other cycles
+    while (fabs(taylor1-taylor0) > 1e-10) {
+      taylor0 = taylor1;
+      j += 1;
+      if (j-n >= 0)
+        taylor1 += pow(-1, n)*(jfac(j, n))*prefac*tgamma(j+gj)*cit(j, t, j-n);
+      taylor1 += prefac*tgamma(j+gj)*cit(j, t, j);
+      for (int k = n-1; k >= 1; k--) {
+        if (j-k >= 0)
+          taylor1 += pow(-1, k)*matrix[n-1][k]*(jfac(j, k))*prefac*tgamma(j+gj)*cit(j, t, j-k);
+      }
+    }
+  }
+  return taylor1;
 }

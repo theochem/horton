@@ -123,6 +123,42 @@ class GOBasis : public GBasis {
         void compute_electron_repulsion(double* output);
 
         /** @brief
+                Computes the ERF electron repulsion integrals.
+
+            @param output
+                The output array with the integrals.
+
+            @param mu
+                The range-separation parameter.
+         */
+        void compute_erf_repulsion(double* output, double mu);
+
+        /** @brief
+                Computes the Gaussian electron repulsion integrals.
+
+            @param output
+                The output array with the integrals.
+
+            @param c
+                Coefficient of the gaussian.
+
+            @param alpha
+                Exponential parameter of the gaussian.
+         */
+        void compute_gauss_repulsion(double* output, double c, double alpha);
+
+        /** @brief
+                Computes the r^alpha electron repulsion integrals.
+
+            @param output
+                The output array with the integrals.
+
+            @param alpha
+                The power of r in the potential.
+         */
+        void compute_ralpha_repulsion(double* output, double alpha);
+
+        /** @brief
                 Computes the (multipole) moment integrals.
 
             @param xyz
@@ -135,6 +171,7 @@ class GOBasis : public GBasis {
                 The output array with the integrals.
          */
         void compute_multipole_moment(long* xyz, double* center, double* output);
+
         void compute_grid1_exp(long nfn, double* coeffs, long npoint, double* points, long norb, long* iorbs, double* output);
         void compute_grid1_dm(double* dm, long npoint, double* points, GB1DMGridFn* grid_fn, double* output, double epsilon, double* dmmaxrow);
         void compute_grid2_dm(double* dm, long npoint, double* points, double* output);

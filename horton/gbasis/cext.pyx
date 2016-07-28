@@ -50,7 +50,7 @@ from horton.utils import typecheck_geo
 
 __all__ = [
     # boys
-    'boys_function',
+    'boys_function', 'boys_function_array',
     # cartpure
     'cart_to_pure_low',
     #cholesky
@@ -58,6 +58,7 @@ __all__ = [
     # common
     'fac', 'fac2', 'binom', 'get_shell_nbasis', 'get_max_shell_type',
     'gpt_coeff', 'gb_overlap_int1d', 'nuclear_attraction_helper',
+    'cit', 'jfac', 'dtaylor',
     # gbasis
     'gob_cart_normalization', 'gob_pure_normalization',
     'GOBasis',
@@ -65,8 +66,10 @@ __all__ = [
     'get_2index_slice', 'compute_diagonal', 'select_2index',
     # ints
     'GB2OverlapIntegral', 'GB2KineticIntegral',
-    'GB2NuclearAttractionIntegral',
+    'GB2NuclearAttractionIntegral','GB4Integral',
     'GB4ElectronRepulsionIntegralLibInt',
+    'GB4ErfIntegralLibInt', 'GB4GaussIntegralLibInt',
+    'GB4RAlphaIntegralLibInt',
     # fns
     'GB1DMGridDensityFn', 'GB1DMGridGradientFn',
     # iter_gb
@@ -83,6 +86,12 @@ __all__ = [
 
 def boys_function(long m, double t):
     return boys.boys_function(m, t)
+
+
+def boys_function_array(long mmax, double t):
+    cdef np.ndarray[double] output = np.zeros(mmax+1)
+    boys.boys_function_array(mmax, t, &output[0])
+    return output
 
 
 #
@@ -104,8 +113,7 @@ def cart_to_pure_low(np.ndarray[double] work_cart not None,
 # cholesky wrappers
 #
 
-def compute_cholesky(GOBasis gobasis, double threshold=1e-8, lf = None):
-    cdef ints.GB4ElectronRepulsionIntegralLibInt* gb4int = NULL
+def compute_cholesky(GOBasis gobasis, GB4Integral gb4int, double threshold=1e-8, lf = None):
     cdef gbw.GB4IntegralWrapper* gb4w = NULL
     cdef vector[np.float64_t]* vectors = NULL
     cdef np.npy_intp dims[3]
@@ -115,12 +123,9 @@ def compute_cholesky(GOBasis gobasis, double threshold=1e-8, lf = None):
         void PyArray_ENABLEFLAGS(np.ndarray arr, int flags)
 
     try:
-        gb4int = new ints.GB4ElectronRepulsionIntegralLibInt(
-                            gobasis.max_shell_type)
-        gb4w = new gbw.GB4IntegralWrapper((<gbasis.GOBasis* > gobasis._this),
-                            <ints.GB4Integral*> gb4int)
+        gb4w = new gbw.GB4IntegralWrapper(<gbasis.GOBasis*> gobasis._this,
+                                          <ints.GB4Integral*> gb4int._this)
         vectors = new vector[np.float64_t]()
-
         nvec = cholesky.cholesky(gb4w, vectors, threshold)
         dims[0] = <np.npy_intp> nvec
         dims[1] = <np.npy_intp> gobasis.nbasis
@@ -128,8 +133,6 @@ def compute_cholesky(GOBasis gobasis, double threshold=1e-8, lf = None):
         result = np.PyArray_SimpleNewFromData(3, dims, np.NPY_DOUBLE, &(deref(vectors)[0]))
         PyArray_ENABLEFLAGS(result, np.NPY_OWNDATA)
     finally:
-        if gb4int is not NULL:
-            del gb4int
         if gb4w is not NULL:
             del gb4w
 
@@ -181,6 +184,15 @@ def nuclear_attraction_helper(np.ndarray[double, ndim=1] work_g not None,
     assert work_g.flags['C_CONTIGUOUS']
     assert work_g.shape[0] == n0+n1+1
     common.nuclear_attraction_helper(&work_g[0], n0, n1, pa, pb, cp, gamma_inv)
+
+def cit(int i, double t, int m):
+        return common.cit(i, t, m)
+
+def jfac(int j, int n):
+    return common.jfac(j, n)
+
+def dtaylor(int n, double alpha, double t, double tfactor):
+    return common.dtaylor(n, alpha, t, tfactor)
 
 
 #
@@ -778,28 +790,34 @@ cdef class GOBasis(GBasis):
         return output
 
     def compute_electron_repulsion(self, output):
-        '''Compute electron-electron repulsion integrals
+        r'''Compute electron-electron repulsion integrals
 
-           **Argument:**
+        The potential has the following form:
 
-           output
-                When a ``DenseFourIndex`` object is given, it is used as output
-                argument and its contents are overwritten. When a
-                ``DenseLinalgFactory`` or ``CholeskyLinalgFactory`` is given, it
-                is used to construct the four-index object in which the
-                integrals are stored.
+        .. math::
+            v = \frac{1}{r}
 
-           **Returns:** The four-index object with the electron repulsion
-           integrals.
+        Parameters
+        ----------
+        output : FourIndex
+            When a ``DenseFourIndex`` object is given, it is used as output argument and
+            its contents are overwritten. When a ``DenseLinalgFactory`` or
+            ``CholeskyLinalgFactory`` is given, it is used to construct the four-index
+            object in which the integrals are stored.
 
-           Keywords: :index:`ERI`, :index:`four-center integrals`
+        Returns
+        -------
+        output
+
+        Keywords: :index:`ERI`, :index:`four-center integrals`
         '''
-        log.cite('valeev2014', 'the efficient implementation of four-center electron repulsion integrals')
-        # prepare the output array
+        log.cite('valeev2014',
+                 'the efficient implementation of four-center electron repulsion integrals')
         if isinstance(output, CholeskyLinalgFactory):
             lf = output
-            output = compute_cholesky(self, lf=lf)
+            output = compute_cholesky(self, GB4ElectronRepulsionIntegralLibInt(self.max_shell_type), lf=lf)
             return output
+        # prepare the output array
         cdef np.ndarray[double, ndim=4] output_array
         if isinstance(output, LinalgFactory):
             lf = output
@@ -808,6 +826,146 @@ cdef class GOBasis(GBasis):
         self.check_matrix_four_index(output_array)
         # call the low-level routine
         (<gbasis.GOBasis*>self._this).compute_electron_repulsion(&output_array[0, 0, 0, 0])
+        # done
+        return output
+
+    def compute_erf_repulsion(self, output, double mu=0.0):
+        r"""Compute short-range electron repulsion integrals.
+
+        The potential has the following form:
+
+        .. math::
+            v = \frac{\mathrm{erf}(\mu r)}{r}
+
+        Parameters
+        ----------
+        output : FourIndex
+            When a ``DenseFourIndex`` object is given, it is used as output argument and
+            its contents are overwritten. When a ``DenseLinalgFactory`` or
+            ``CholeskyLinalgFactory`` is given, it is used to construct the four-index
+            object in which the integrals are stored.
+        mu : float
+            Parameter for the erf(mu r)/r potential. Default is zero.
+
+        Returns
+        -------
+        output
+
+        Keywords: :index:`ERI`, :index:`four-center integrals`
+        """
+        log.cite('valeev2014',
+                 'the efficient implementation of four-center electron repulsion integrals')
+        log.cite('ahlrichs2006',
+                 'the methodology to implement various types of four-center integrals.')
+        if isinstance(output, CholeskyLinalgFactory):
+            lf = output
+            output = compute_cholesky(self, GB4ErfIntegralLibInt(self.max_shell_type, mu), lf=lf)
+            return output
+        # prepare the output array
+        cdef np.ndarray[double, ndim=4] output_array
+        if isinstance(output, LinalgFactory):
+            lf = output
+            output = lf.create_four_index(self.nbasis)
+        output_array = output._array
+        self.check_matrix_four_index(output_array)
+        # call the low-level routine
+        (<gbasis.GOBasis*>self._this).compute_erf_repulsion(&output_array[0, 0, 0, 0], mu)
+        # done
+        return output
+
+    def compute_gauss_repulsion(self, output, double c=1.0, double alpha=1.0):
+        r"""Compute gaussian repulsion four-center integrals.
+
+        The potential has the following form:
+
+        .. math::
+            v = c \exp(-\alpha r^2)
+
+        Parameters
+        ----------
+        output : FourIndex
+            When a ``DenseFourIndex`` object is given, it is used as output argument and
+            its contents are overwritten. When a ``DenseLinalgFactory`` or
+            ``CholeskyLinalgFactory`` is given, it is used to construct the four-index
+            object in which the integrals are stored.
+        c : float
+            Coefficient of the gaussian.
+        alpha : float
+            Exponential parameter of the gaussian.
+
+        Returns
+        -------
+        output
+
+        Keywords: :index:`ERI`, :index:`four-center integrals`
+        """
+        log.cite('valeev2014',
+                 'the efficient implementation of four-center electron repulsion integrals')
+        log.cite('ahlrichs2006',
+                 'the methodology to implement various types of four-center integrals.')
+        log.cite('gill1996',
+                 'four-center integrals with a Gaussian interaction potential.')
+        log.cite('toulouse2004',
+                 'four-center integrals with a Gaussian interaction potential.')
+        if isinstance(output, CholeskyLinalgFactory):
+            lf = output
+            output = compute_cholesky(self, GB4GaussIntegralLibInt(self.max_shell_type, c, alpha), lf=lf)
+            return output
+        # prepare the output array
+        cdef np.ndarray[double, ndim=4] output_array
+        if isinstance(output, LinalgFactory):
+            lf = output
+            output = lf.create_four_index(self.nbasis)
+        output_array = output._array
+        self.check_matrix_four_index(output_array)
+        # call the low-level routine
+        (<gbasis.GOBasis*>self._this).compute_gauss_repulsion(&output_array[0, 0, 0, 0], c, alpha)
+        # done
+        return output
+
+    def compute_ralpha_repulsion(self, output, double alpha=-1.0):
+        r"""Compute r^alpha repulsion four-center integrals.
+
+        The potential has the following form:
+
+        .. math::
+            v = r^{\alpha}
+
+        with :math:`\alpha > -3`.
+
+        Parameters
+        ----------
+
+        output : FourIndex
+            When a ``DenseFourIndex`` object is given, it is used as output argument and
+            its contents are overwritten. When a ``DenseLinalgFactory`` or
+            ``CholeskyLinalgFactory`` is given, it is used to construct the four-index
+            object in which the integrals are stored.
+        alpha : float
+            The power of r in the interation potential.
+
+        Returns
+        -------
+        output
+
+        Keywords: :index:`ERI`, :index:`four-center integrals`
+        """
+        log.cite('valeev2014',
+                 'the efficient implementation of four-center electron repulsion integrals')
+        log.cite('ahlrichs2006',
+                 'the methodology to implement various types of four-center integrals.')
+        if isinstance(output, CholeskyLinalgFactory):
+            lf = output
+            output = compute_cholesky(self, GB4RAlphaIntegralLibInt(self.max_shell_type, alpha), lf=lf)
+            return output
+        cdef np.ndarray[double, ndim=4] output_array
+        if isinstance(output, LinalgFactory):
+            lf = output
+            output = lf.create_four_index(self.nbasis)
+        output_array = output._array
+        self.check_matrix_four_index(output_array)
+        # call the low-level routine
+        (<gbasis.GOBasis*>self._this).compute_ralpha_repulsion(&output_array[0, 0, 0, 0], alpha)
         # done
         return output
 
@@ -1406,7 +1564,7 @@ atexit.register(libint2_static_cleanup)
 
 
 cdef class GB4Integral:
-    '''Wrapper for ints.GB4Integral, for testing only'''
+    '''Wrapper for ints.GB4Integral'''
     cdef ints.GB4Integral* _this
 
     def __dealloc__(self):
@@ -1487,6 +1645,42 @@ cdef class GB4ElectronRepulsionIntegralLibInt(GB4Integral):
     def __cinit__(self, long max_nbasis):
         self._this = <ints.GB4Integral*>(new ints.GB4ElectronRepulsionIntegralLibInt(max_nbasis))
 
+
+cdef class GB4ErfIntegralLibInt(GB4Integral):
+    '''Wrapper for ints.GB4ElectronRepulsionIntegralLibInt, for testing only'''
+
+    def __cinit__(self, long max_nbasis, double mu):
+        self._this = <ints.GB4Integral*>(new ints.GB4ErfIntegralLibInt(max_nbasis, mu))
+
+    property mu:
+        def __get__(self):
+            return (<ints.GB4ErfIntegralLibInt*>self._this).get_mu()
+
+
+cdef class GB4GaussIntegralLibInt(GB4Integral):
+    '''Wrapper for ints.GB4GaussIntegralLibInt, for testing only'''
+
+    def __cinit__(self, long max_nbasis, double c, double alpha):
+        self._this = <ints.GB4Integral*>(new ints.GB4GaussIntegralLibInt(max_nbasis, c, alpha))
+
+    property c:
+        def __get__(self):
+            return (<ints.GB4GaussIntegralLibInt*>self._this).get_c()
+
+    property alpha:
+        def __get__(self):
+            return (<ints.GB4GaussIntegralLibInt*>self._this).get_alpha()
+
+
+cdef class GB4RAlphaIntegralLibInt(GB4Integral):
+    '''Wrapper for ints.GB4RAlphaIntegralLibInt, for testing only'''
+
+    def __cinit__(self, long max_nbasis, double alpha):
+        self._this = <ints.GB4Integral*>(new ints.GB4RAlphaIntegralLibInt(max_nbasis, alpha))
+
+    property alpha:
+        def __get__(self):
+            return (<ints.GB4RAlphaIntegralLibInt*>self._this).get_alpha()
 
 
 #

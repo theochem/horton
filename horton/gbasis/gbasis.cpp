@@ -240,7 +240,23 @@ void GOBasis::compute_multipole_moment(long* xyz, double* center, double* output
 }
 
 void GOBasis::compute_electron_repulsion(double* output) {
-    GB4ElectronRepulsionIntegralLibInt integral = GB4ElectronRepulsionIntegralLibInt(get_max_shell_type());
+  GB4ElectronRepulsionIntegralLibInt integral =
+    GB4ElectronRepulsionIntegralLibInt(get_max_shell_type());
+  compute_four_index(output, &integral);
+}
+
+void GOBasis::compute_erf_repulsion(double* output, double mu) {
+    GB4ErfIntegralLibInt integral = GB4ErfIntegralLibInt(get_max_shell_type(), mu);
+    compute_four_index(output, &integral);
+}
+
+void GOBasis::compute_gauss_repulsion(double* output, double c, double alpha) {
+    GB4GaussIntegralLibInt integral = GB4GaussIntegralLibInt(get_max_shell_type(), c, alpha);
+    compute_four_index(output, &integral);
+}
+
+void GOBasis::compute_ralpha_repulsion(double* output, double alpha) {
+    GB4RAlphaIntegralLibInt integral = GB4RAlphaIntegralLibInt(get_max_shell_type(), alpha);
     compute_four_index(output, &integral);
 }
 
