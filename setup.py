@@ -340,6 +340,76 @@ else:
 print 'BLAS precompiler directive: -D%s' % blas_precompiler[0]
 
 
+# Define extension modules
+# ------------------------
+
+ext_modules = [
+    Extension("horton.cext",
+        sources=get_sources('horton'),
+        depends=get_depends('horton'),
+        include_dirs=[np.get_include(), '.'],
+        extra_compile_args=['-std=c++11'],
+        language="c++"),
+    Extension("horton.matrix.cext",
+        sources=get_sources('horton/matrix'),
+        depends=get_depends('horton/matrix'),
+        include_dirs=[np.get_include(), '.'],
+        extra_compile_args=['-std=c++11'],
+        language="c++"),
+    Extension("horton.gbasis.cext",
+        sources=get_sources('horton/gbasis') + ['horton/moments.cpp'],
+        depends=get_depends('horton/gbasis') + ['horton/moments.pxd', 'horton/moments.h'],
+        include_dirs=[np.get_include(), '.'] +
+                      libint2_config['include_dirs'] +
+                      blas_config['include_dirs'],
+        library_dirs=libint2_config['library_dirs'] +
+                     blas_config['library_dirs'],
+        libraries=libint2_config['libraries'] + blas_config['libraries'],
+        extra_objects=libint2_config['extra_objects'] +
+                      blas_config['extra_objects'],
+        extra_compile_args=libint2_config['extra_compile_args'] +
+                            blas_config['extra_compile_args'] +
+                            ['-std=c++11'],
+        extra_link_args=libint2_config['extra_link_args'] +
+                         blas_config['extra_link_args'],
+        define_macros=[blas_precompiler],
+        language="c++"),
+    Extension("horton.grid.cext",
+        sources=get_sources('horton/grid') + [
+            'horton/cell.cpp',
+            'horton/moments.cpp'],
+        depends=get_depends('horton/grid') + [
+            'horton/cell.pxd', 'horton/cell.h',
+            'horton/moments.pxd', 'horton/moments.h'],
+        include_dirs=[np.get_include(), '.'],
+        extra_compile_args=['-std=c++11'],
+        language="c++",),
+    Extension("horton.meanfield.cext",
+        sources=get_sources('horton/meanfield'),
+        depends=get_depends('horton/meanfield'),
+        include_dirs=[np.get_include(), '.'] + libxc_config['include_dirs'],
+        library_dirs=libxc_config['library_dirs'],
+        libraries=libxc_config['libraries'],
+        extra_objects=libxc_config['extra_objects'],
+        extra_compile_args=libxc_config['extra_compile_args'] + ['-std=c++11'],
+        extra_link_args=libxc_config['extra_link_args'],
+        language="c++"),
+    Extension("horton.espfit.cext",
+        sources=get_sources('horton/espfit') + [
+            'horton/cell.cpp',
+            'horton/grid/uniform.cpp'],
+        depends=get_depends('horton/espfit') + [
+            'horton/cell.pxd', 'horton/cell.h',
+            'horton/grid/uniform.pxd', 'horton/grid/uniform.h'],
+        include_dirs=[np.get_include(), '.'],
+        extra_compile_args=['-std=c++11'],
+        language="c++"),
+]
+
+for e in ext_modules:
+    e.cython_directives = {"embedsignature": True}
+
+
 # Call distutils setup
 # --------------------
 
@@ -353,19 +423,15 @@ setup(
     scripts=glob("scripts/*.py"),
     package_dir = {'horton': 'horton'},
     packages=['horton', 'horton.test',
-              'horton.correlatedwfn', 'horton.correlatedwfn.test',
               'horton.espfit', 'horton.espfit.test',
               'horton.gbasis', 'horton.gbasis.test',
               'horton.grid', 'horton.grid.test',
               'horton.io', 'horton.io.test',
-              'horton.localization', #'horton.localization.test',
               'horton.matrix', 'horton.matrix.test',
               'horton.meanfield', 'horton.meanfield.test',
-              'horton.orbital_entanglement', #'horton.orbital_entanglement.test',
               'horton.part', 'horton.part.test',
               'horton.scripts', 'horton.scripts.test',
-              'horton.modelhamiltonians',
-              'horton.modelhamiltonians.test'],
+              'horton.modelhamiltonians', 'horton.modelhamiltonians.test'],
     cmdclass = {
         'build_ext': build_ext,
         'install_data': my_install_data,
@@ -393,73 +459,7 @@ setup(
         'horton.gbasis': ['*.pxd'],
         'horton.grid': ['*.pxd'],
     },
-    ext_modules=[
-        Extension("horton.cext",
-            sources=get_sources('horton'),
-            depends=get_depends('horton'),
-            include_dirs=[np.get_include(), '.'],
-            extra_compile_args=['-std=c++11'],
-            cython_directives={"embedsignature": True},
-            language="c++"),
-        Extension("horton.matrix.cext",
-            sources=get_sources('horton/matrix'),
-            depends=get_depends('horton/matrix'),
-            include_dirs=[np.get_include(), '.'],
-            extra_compile_args=['-std=c++11'],
-            cython_directives={"embedsignature": True},
-            language="c++"),
-        Extension("horton.gbasis.cext",
-            sources=get_sources('horton/gbasis') + ['horton/moments.cpp'],
-            depends=get_depends('horton/gbasis') + ['horton/moments.pxd', 'horton/moments.h'],
-            include_dirs=[np.get_include(), '.'] +
-                          libint2_config['include_dirs'] +
-                          blas_config['include_dirs'],
-            library_dirs=libint2_config['library_dirs'] +
-                         blas_config['library_dirs'],
-            libraries=libint2_config['libraries'] + blas_config['libraries'],
-            extra_objects=libint2_config['extra_objects'] +
-                          blas_config['extra_objects'],
-            extra_compile_args=libint2_config['extra_compile_args'] +
-                                blas_config['extra_compile_args'] +
-                                ['-std=c++11'],
-            extra_link_args=libint2_config['extra_link_args'] +
-                             blas_config['extra_link_args'],
-            define_macros=[blas_precompiler],
-            cython_directives={"embedsignature": True},
-            language="c++"),
-        Extension("horton.grid.cext",
-            sources=get_sources('horton/grid') + [
-                'horton/cell.cpp',
-                'horton/moments.cpp'],
-            depends=get_depends('horton/grid') + [
-                'horton/cell.pxd', 'horton/cell.h',
-                'horton/moments.pxd', 'horton/moments.h'],
-            include_dirs=[np.get_include(), '.'],
-            extra_compile_args=['-std=c++11'],
-            language="c++",),
-        Extension("horton.meanfield.cext",
-            sources=get_sources('horton/meanfield'),
-            depends=get_depends('horton/meanfield'),
-            include_dirs=[np.get_include(), '.'] + libxc_config['include_dirs'],
-            library_dirs=libxc_config['library_dirs'],
-            libraries=libxc_config['libraries'],
-            extra_objects=libxc_config['extra_objects'],
-            extra_compile_args=libxc_config['extra_compile_args'] + ['-std=c++11'],
-            extra_link_args=libxc_config['extra_link_args'],
-            cython_directives={"embedsignature": True},
-            language="c++"),
-        Extension("horton.espfit.cext",
-            sources=get_sources('horton/espfit') + [
-                'horton/cell.cpp',
-                'horton/grid/uniform.cpp'],
-            depends=get_depends('horton/espfit') + [
-                'horton/cell.pxd', 'horton/cell.h',
-                'horton/grid/uniform.pxd', 'horton/grid/uniform.h'],
-            include_dirs=[np.get_include(), '.'],
-            extra_compile_args=['-std=c++11'],
-            cython_directives={"embedsignature": True},
-            language="c++"),
-    ],
+    ext_modules=ext_modules,
     headers=get_headers(),
     classifiers=[
         'Development Status :: 3 - Alpha',
