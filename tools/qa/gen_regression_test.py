@@ -38,6 +38,7 @@ two-electron integrals.
 import sys
 import numpy as np
 
+
 def gen_regression_test():
     # Set global configurations
     np.set_printoptions(threshold=np.inf)
@@ -53,7 +54,7 @@ def gen_regression_test():
         exec fh
 
     # If the example has no result_ variables, then skip the file and just return
-    if not any(["result_" in k for k in locals().keys()]):
+    if not any(["result_" in k for k in locals()]):
         return None
 
     # Scan for variables starting with result_ and threshold_
@@ -101,14 +102,14 @@ def test_{0}():\n""".format(test_name)
             results.append("ref_{0}".format(k))
             thresholds["ref_{0}".format(k)] = default_threshold
 
-    #afterwards overwrite tolerances with user-specified ones
+    # afterwards overwrite tolerances with user-specified ones
     for k, v in locals().items():
         if k.startswith("threshold_"):
             assert isinstance(v, (int, float))
             var_name = k.split("threshold_")[-1]
             thresholds["ref_result_{0}".format(var_name)] = v
 
-    for k in thresholds.keys():
+    for k in thresholds:
         assert k in results
 
     unit_test += """
