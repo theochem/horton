@@ -83,6 +83,7 @@ from numpy import array, allclose\n"""
 test_name = test_path.split("/")[-1].split(".py")[0]
 unit_test += """
 
+@attr('regression_check')
 def test_{0}():\n""".format(test_name)
 
 # first set all tolerances to default
