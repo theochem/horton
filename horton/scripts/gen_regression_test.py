@@ -35,28 +35,28 @@ checked.
 5) The variables get printed into the unit test. Try to avoid dumping large things like
 two-electron integrals.
 """
+def gen_regression_test():
+    import sys
+    import numpy as np
 
-import sys
-import numpy as np
+    # Set global configurations
+    np.set_printoptions(threshold=np.inf)
 
-# Set global configurations
-np.set_printoptions(threshold=np.inf)
+    # Set defaults for path
+    test_path = sys.argv[1]
+    default_threshold = 1e-8
 
-# Set defaults for path
-test_path = sys.argv[1]
-default_threshold = 1e-8
+    # Generate reference values
+    with open(test_path) as fh:
+        exec fh
 
-# Generate reference values
-with open(test_path) as fh:
-    exec fh
+    # Scan for variables starting with result_ and threshold_
+    results = []
+    thresholds = {}
 
-# Scan for variables starting with result_ and threshold_
-results = []
-thresholds = {}
-
-# unit_test is the contents of the unit_testing script. Whitespace matters!
-# first generate the header
-unit_test = """# -*- coding: utf-8 -*-
+    # unit_test is the contents of the unit_testing script. Whitespace matters!
+    # first generate the header
+    unit_test = """# -*- coding: utf-8 -*-
 # HORTON: Helpful Open-source Research TOol for N-fermion systems.
 # Copyright (C) 2011-2016 The HORTON Development Team
 #
@@ -77,54 +77,58 @@ unit_test = """# -*- coding: utf-8 -*-
 #
 # --
 
-from numpy import array, allclose\n"""
+from numpy import array, allclose
+from nose.plugins.attrib import attr\n"""
 
-# Generate the function name.
-test_name = test_path.split("/")[-1].split(".py")[0]
-unit_test += """
+    # Generate the function name.
+    test_name = test_path.split("/")[-1].split(".py")[0]
+    unit_test += """
 
 @attr('regression_check')
 def test_{0}():\n""".format(test_name)
 
-# first set all tolerances to default
-for k, v in locals().items():
-    if k.startswith("result_"):
-        assert isinstance(v, (int, float, np.ndarray))
-        unit_test += "    ref_{name} = {value}\n".format(name=k, value=v.__repr__())
-        results.append("ref_{0}".format(k))
-        thresholds["ref_{0}".format(k)] = default_threshold
+    # first set all tolerances to default
+    for k, v in locals().items():
+        if k.startswith("result_"):
+            assert isinstance(v, (int, float, np.ndarray))
+            unit_test += "    ref_{name} = {value}\n".format(name=k, value=v.__repr__())
+            results.append("ref_{0}".format(k))
+            thresholds["ref_{0}".format(k)] = default_threshold
 
-#afterwards overwrite tolerances with user-specified ones
-for k, v in locals().items():
-    if k.startswith("threshold_"):
-        assert isinstance(v, (int, float))
-        var_name = k.split("threshold_")[-1]
-        thresholds["ref_result_{0}".format(var_name)] = v
+    #afterwards overwrite tolerances with user-specified ones
+    for k, v in locals().items():
+        if k.startswith("threshold_"):
+            assert isinstance(v, (int, float))
+            var_name = k.split("threshold_")[-1]
+            thresholds["ref_result_{0}".format(var_name)] = v
 
-for k in thresholds.keys():
-    assert k in results
+    for k in thresholds.keys():
+        assert k in results
 
-unit_test += """
+    unit_test += """
     results = {r}
     thresholds = {t}
 """.format(r=results, t=thresholds)
 
-# Execute script in unit test
-unit_test += """
+    # Execute script in unit test
+    unit_test += """
     with open("{0}") as fh:
         exec fh
 """.format(test_path)
 
-# Compare results with references. Must be a numpy compatible type.
-unit_test += """
+    # Compare results with references. Must be a numpy compatible type.
+    unit_test += """
     l = locals()
     for r in results:
         var_name = r.split("ref_")[-1]
         assert allclose(l[var_name], l[r], thresholds[r])"""
 
-with open("test_{0}".format(test_path.split("/")[-1]), "w") as fh:
-    fh.write(unit_test)
+    with open("test_{0}".format(test_path.split("/")[-1]), "w") as fh:
+        fh.write(unit_test)
 
-print "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-print "== SUCCESSFULLY GENERATED TEST SCRIPT =="
-print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+    print "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    print "== SUCCESSFULLY GENERATED TEST SCRIPT =="
+    print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+
+if __name__ == "__main__":
+    gen_regression_test()
