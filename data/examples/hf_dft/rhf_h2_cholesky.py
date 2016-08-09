@@ -84,5 +84,5 @@ mol_all_active.to_file('h2-hamiltonian.h5')
 # Assign results to variables for regression testing
 # --------------------------------------------------
 result_energy = ham.cache['energy']
-result_exp_alpha = exp_alpha
+result_exp_alpha = exp_alpha.coeffs
 # --------------------------------------------------

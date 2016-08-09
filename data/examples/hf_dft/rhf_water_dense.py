@@ -102,5 +102,5 @@ mol_cas88.to_file('n2-hamiltonian-cas8-8.h5')
 # Assign results to variables for regression testing
 # --------------------------------------------------
 result_energy = ham.cache['energy']
-result_exp_alpha = exp_alpha
+result_exp_alpha = exp_alpha.coeffs
 # --------------------------------------------------

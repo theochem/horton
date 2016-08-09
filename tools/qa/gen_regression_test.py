@@ -35,20 +35,26 @@ checked.
 5) The variables get printed into the unit test. Try to avoid dumping large things like
 two-electron integrals.
 """
-def gen_regression_test():
-    import sys
-    import numpy as np
+import sys
+import numpy as np
 
+def gen_regression_test():
     # Set global configurations
     np.set_printoptions(threshold=np.inf)
 
     # Set defaults for path
-    test_path = sys.argv[1]
     default_threshold = 1e-8
+
+    # Set path to operate on
+    test_path = sys.argv[1]
 
     # Generate reference values
     with open(test_path) as fh:
         exec fh
+
+    # If the example has no result_ variables, then skip the file and just return
+    if not any(["result_" in k for k in locals().keys()]):
+        return None
 
     # Scan for variables starting with result_ and threshold_
     results = []

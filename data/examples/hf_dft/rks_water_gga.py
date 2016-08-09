@@ -80,6 +80,6 @@ mol.to_file('water.h5')
 # Assign results to variables for regression testing
 # --------------------------------------------------
 result_energy = ham.cache['energy']
-result_exp_alpha = exp_alpha
-result_dm_alpha = dm_alpha
+result_exp_alpha = exp_alpha.coeffs
+result_dm_alpha = dm_alpha._array
 # --------------------------------------------------
