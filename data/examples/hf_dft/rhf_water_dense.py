@@ -98,3 +98,9 @@ mol_cas88 = IOData(core_energy=core_energy, one_mo=one_mo, two_mo=two_mo, nelec=
 mol_cas88.to_file('n2-cas8-8.FCIDUMP')
 # useful for exchange with other HORTON scripts
 mol_cas88.to_file('n2-hamiltonian-cas8-8.h5')
+
+# Assign results to variables for regression testing
+# --------------------------------------------------
+result_energy = ham.cache['energy']
+result_exp_alpha = exp_alpha
+# --------------------------------------------------

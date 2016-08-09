@@ -80,3 +80,9 @@ two = er
 mol_all_active = IOData(core_energy=external['nn'], one_mo=one_mo, two_mo=two_mo, lf=lf)
 # The Cholesky decomposition can only be stored in the internal format.
 mol_all_active.to_file('h2-hamiltonian.h5')
+
+# Assign results to variables for regression testing
+# --------------------------------------------------
+result_energy = ham.cache['energy']
+result_exp_alpha = exp_alpha
+# --------------------------------------------------

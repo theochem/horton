@@ -84,3 +84,12 @@ mol.dm_beta = dm_beta
 mol.to_file('methyl.molden')
 # useful for post-processing (results stored in double precision):
 mol.to_file('methyl.h5')
+
+# Assign results to variables for regression testing
+# --------------------------------------------------
+result_energy = ham.cache['energy']
+result_exp_alpha = exp_alpha
+result_exp_beta = exp_beta
+result_dm_alpha = dm_alpha
+result_dm_beta = dm_beta
+# --------------------------------------------------

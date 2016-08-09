@@ -16,3 +16,8 @@ wpart.do_charges()
 
 # Write the result to a file
 np.savetxt('charges.txt', wpart['charges'])
+
+# Assign results to variables for regression testing
+# --------------------------------------------------
+result_charges = wpart['charges']
+# --------------------------------------------------

@@ -36,3 +36,9 @@ ham = REffHam(terms)
 # -----------------------------
 scf_solver = PlainSCFSolver()
 scf_solver(ham, lf, olp, occ_model, orb)
+
+
+# Assign results to variables for regression testing
+# --------------------------------------------------
+result_energy = ham.compute_energy()
+# --------------------------------------------------
