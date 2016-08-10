@@ -40,6 +40,7 @@ import numpy as np
 
 
 def gen_regression_test():
+    """Writes regression test file. See module docstring."""
     # Set global configurations
     np.set_printoptions(threshold=np.inf)
 
@@ -51,7 +52,7 @@ def gen_regression_test():
 
     # Generate reference values
     with open(test_path) as fh:
-        exec fh
+        exec fh  # pylint: disable=exec-used
 
     # If the example has no result_ variables, then skip the file and just return
     if not any(["result_" in k for k in locals()]):
