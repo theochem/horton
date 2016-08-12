@@ -26,17 +26,17 @@ from horton import context
 
 
 @attr('regression_check')
-def test_hubbard():
+def test_hamiltonian_hubbard():
     ref_result_energy = -5.0
 
-    results = ['ref_result_energy']
     thresholds = {'ref_result_energy': 1e-08}
 
     test_path = context.get_fn("examples/hamiltonian/hubbard.py")
-    with open(test_path) as fh:
-        exec fh
 
-    l = locals()
-    for r in results:
-        var_name = r.split("ref_")[-1]
-        assert allclose(l[var_name], l[r], thresholds[r]), l[r] - l[var_name]
+    l = {}
+    with open(test_path) as fh:
+        exec fh in l
+
+    for k,v in thresholds.items():
+        var_name = k.split("ref_")[1]
+        assert allclose(l[var_name], l[k], v), l[k] - l[var_name]

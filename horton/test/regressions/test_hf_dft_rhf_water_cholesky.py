@@ -26,7 +26,7 @@ from horton import context
 
 
 @attr('regression_check')
-def test_rhf_water_cholesky():
+def test_hf_dft_rhf_water_cholesky():
     ref_result_energy = -76.025896285286294
     ref_result_exp_alpha = array([[  2.39212011e-04,  -1.89883827e-01,  -3.30390705e-01,
           1.97955811e-01,   7.58166249e-16,   6.55324066e-02,
@@ -221,14 +221,14 @@ def test_rhf_water_cholesky():
          -2.26557779e-16,  -3.83881853e-01,   3.75620839e-01,
          -5.90360326e-17,   3.74387059e-17,   1.47679472e-18]])
 
-    results = ['ref_result_energy', 'ref_result_exp_alpha']
     thresholds = {'ref_result_exp_alpha': 1e-08, 'ref_result_energy': 1e-08}
 
     test_path = context.get_fn("examples/hf_dft/rhf_water_cholesky.py")
-    with open(test_path) as fh:
-        exec fh
 
-    l = locals()
-    for r in results:
-        var_name = r.split("ref_")[-1]
-        assert allclose(l[var_name], l[r], thresholds[r]), l[r] - l[var_name]
+    l = {}
+    with open(test_path) as fh:
+        exec fh in l
+
+    for k,v in thresholds.items():
+        var_name = k.split("ref_")[1]
+        assert allclose(l[var_name], l[k], v), l[k] - l[var_name]

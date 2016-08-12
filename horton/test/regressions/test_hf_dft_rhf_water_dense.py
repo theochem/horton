@@ -26,7 +26,7 @@ from horton import context
 
 
 @attr('regression_check')
-def test_rhf_water_dense():
+def test_hf_dft_rhf_water_dense():
     ref_result_energy = -75.585812494951796
     ref_result_exp_alpha = array([[ -2.38144405e-03,   1.16404016e-01,   2.33907104e-01,
          -1.25637426e-01,   3.55124631e-17,  -5.31255186e-02,
@@ -94,14 +94,14 @@ def test_rhf_water_dense():
           6.50375670e-16,   9.90390386e-02,  -4.93752831e-01,
          -3.66057651e-01]])
 
-    results = ['ref_result_energy', 'ref_result_exp_alpha']
     thresholds = {'ref_result_exp_alpha': 1e-08, 'ref_result_energy': 1e-08}
 
     test_path = context.get_fn("examples/hf_dft/rhf_water_dense.py")
-    with open(test_path) as fh:
-        exec fh
 
-    l = locals()
-    for r in results:
-        var_name = r.split("ref_")[-1]
-        assert allclose(l[var_name], l[r], thresholds[r]), l[r] - l[var_name]
+    l = {}
+    with open(test_path) as fh:
+        exec fh in l
+
+    for k,v in thresholds.items():
+        var_name = k.split("ref_")[1]
+        assert allclose(l[var_name], l[k], v), l[k] - l[var_name]

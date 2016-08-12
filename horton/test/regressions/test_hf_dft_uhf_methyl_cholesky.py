@@ -26,7 +26,7 @@ from horton import context
 
 
 @attr('regression_check')
-def test_uhf_methyl_cholesky():
+def test_hf_dft_uhf_methyl_cholesky():
     ref_result_energy = -39.554863031594934
     ref_result_exp_alpha = array([[  1.00211388e+00,  -1.86805040e-02,   1.46611215e-15,
           6.98466046e-10,   9.02749400e-16,  -7.17444336e-02,
@@ -609,14 +609,14 @@ def test_uhf_methyl_cholesky():
          -1.27134194e-15,   5.79350596e-17,   7.76181564e-18,
          -5.61846366e-17,   1.06231832e-16]])
 
-    results = ['ref_result_energy', 'ref_result_exp_alpha', 'ref_result_exp_beta']
     thresholds = {'ref_result_exp_alpha': 1e-08, 'ref_result_energy': 1e-08, 'ref_result_exp_beta': 1e-08}
 
     test_path = context.get_fn("examples/hf_dft/uhf_methyl_cholesky.py")
-    with open(test_path) as fh:
-        exec fh
 
-    l = locals()
-    for r in results:
-        var_name = r.split("ref_")[-1]
-        assert allclose(l[var_name], l[r], thresholds[r]), l[r] - l[var_name]
+    l = {}
+    with open(test_path) as fh:
+        exec fh in l
+
+    for k,v in thresholds.items():
+        var_name = k.split("ref_")[1]
+        assert allclose(l[var_name], l[k], v), l[k] - l[var_name]

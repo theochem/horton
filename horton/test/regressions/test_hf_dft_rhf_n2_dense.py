@@ -26,7 +26,7 @@ from horton import context
 
 
 @attr('regression_check')
-def test_rhf_n2_dense():
+def test_hf_dft_rhf_n2_dense():
     ref_result_energy = -108.95408660509986
     ref_result_exp_alpha = array([[ -7.07296715e-01,  -7.08389687e-01,   8.64165974e-03,
          -3.47517494e-03,  -1.14436900e-02,  -7.95110009e-18,
@@ -309,14 +309,14 @@ def test_rhf_n2_dense():
           1.55375350e-09,   6.92535367e-17,   8.25201113e-17,
          -5.50344097e-10]])
 
-    results = ['ref_result_energy', 'ref_result_exp_alpha']
     thresholds = {'ref_result_exp_alpha': 1e-08, 'ref_result_energy': 1e-08}
 
     test_path = context.get_fn("examples/hf_dft/rhf_n2_dense.py")
-    with open(test_path) as fh:
-        exec fh
 
-    l = locals()
-    for r in results:
-        var_name = r.split("ref_")[-1]
-        assert allclose(l[var_name], l[r], thresholds[r]), l[r] - l[var_name]
+    l = {}
+    with open(test_path) as fh:
+        exec fh in l
+
+    for k,v in thresholds.items():
+        var_name = k.split("ref_")[1]
+        assert allclose(l[var_name], l[k], v), l[k] - l[var_name]

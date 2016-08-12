@@ -26,17 +26,17 @@ from horton import context
 
 
 @attr('regression_check')
-def test_becke():
-    ref_result_charges = array([-0.13537344,  0.06766372,  0.06767448])
+def test_wpart_becke():
+    ref_result_charges = array([-0.13538031,  0.06764862,  0.06764307])
 
-    results = ['ref_result_charges']
     thresholds = {'ref_result_charges': 1e-08}
 
     test_path = context.get_fn("examples/wpart/becke.py")
-    with open(test_path) as fh:
-        exec fh
 
-    l = locals()
-    for r in results:
-        var_name = r.split("ref_")[-1]
-        assert allclose(l[var_name], l[r], thresholds[r]), l[r] - l[var_name]
+    l = {}
+    with open(test_path) as fh:
+        exec fh in l
+
+    for k,v in thresholds.items():
+        var_name = k.split("ref_")[1]
+        assert allclose(l[var_name], l[k], v), l[k] - l[var_name]

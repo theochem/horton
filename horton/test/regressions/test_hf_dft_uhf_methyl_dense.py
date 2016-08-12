@@ -26,7 +26,7 @@ from horton import context
 
 
 @attr('regression_check')
-def test_uhf_methyl_dense():
+def test_hf_dft_uhf_methyl_dense():
     ref_result_energy = -39.331221904962412
     ref_result_exp_alpha = array([[  9.86321688e-01,  -2.16601740e-01,  -1.63605483e-16,
           2.29852274e-08,   1.36511788e-18,  -1.65395919e-01,
@@ -179,14 +179,14 @@ def test_uhf_methyl_dense():
          -6.42161206e-02,  -2.22634757e-15,   4.62835940e-01,
          -6.27208941e-01,   1.08635773e+00,  -6.95465824e-01]])
 
-    results = ['ref_result_energy', 'ref_result_exp_alpha', 'ref_result_exp_beta']
     thresholds = {'ref_result_exp_alpha': 1e-08, 'ref_result_energy': 1e-08, 'ref_result_exp_beta': 1e-08}
 
     test_path = context.get_fn("examples/hf_dft/uhf_methyl_dense.py")
-    with open(test_path) as fh:
-        exec fh
 
-    l = locals()
-    for r in results:
-        var_name = r.split("ref_")[-1]
-        assert allclose(l[var_name], l[r], thresholds[r]), l[r] - l[var_name]
+    l = {}
+    with open(test_path) as fh:
+        exec fh in l
+
+    for k,v in thresholds.items():
+        var_name = k.split("ref_")[1]
+        assert allclose(l[var_name], l[k], v), l[k] - l[var_name]
