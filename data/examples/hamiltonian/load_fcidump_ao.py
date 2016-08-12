@@ -9,8 +9,3 @@ data = IOData.from_file('hamiltonian_ao.FCIDUMP')
 # useful calculation.
 print data.core_energy
 print data.one_mo.get_element(0, 0)
-
-# Assign results to variables for regression testing
-# --------------------------------------------------
-result_energy = data.core_energy
-# --------------------------------------------------

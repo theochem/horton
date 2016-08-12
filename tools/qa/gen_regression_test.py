@@ -21,10 +21,13 @@
 # --
 """Script to generate regression tests.
 
-To use, simply pass the name of the example python script.  It will write a testing script in your
-current directory with name test_<orig_script_name>.py, which can be used with nosetests.
+To use, simply pass the path and name of the example python script (relative to $HORTONDATA).
+It will write a testing script in your current directory with name test_<orig_script_name>.py,
+which can be used with nosetests. Alternatively, you can specify a second path to write the files
+into.
 
 There are several limitations.
+0) All the regression tests must be stored in $HORTONDATA.
 1) All of the variable types to be checked must by numpy compatible. You cannot specify a class.
 For things like integrals, access the _array attribute if necessary.
 2) The original script must have variables named starting with "result_". These will be
@@ -34,29 +37,43 @@ checked.
 4) The original example script cannot be moved, or the regression tests must be regenerated.
 5) The variables get printed into the unit test. Try to avoid dumping large things like
 two-electron integrals.
+
+If you wish to run this in a batch job, you can use something like this in bash:
+
+for i in `cd $HORTONDATA; find examples -name "*.py"`; do
+    <script_path>/gen_regression_test.py $i <horton_path>/horton/horton/test/regressions
+done
 """
 import sys
 import numpy as np
 
+from horton import context, log
+
 
 def gen_regression_test():
-    """Writes regression test file. See module docstring."""
+    """Write regression test file. See module docstring."""
     # Set global configurations
     np.set_printoptions(threshold=np.inf)
 
     # Set defaults for path
     default_threshold = 1e-8
 
+    # Optional, silence horton output (useful for batch jobs)
+    log.set_level(log.silent)
+
     # Set path to operate on
-    test_path = sys.argv[1]
+    data_relative_path = sys.argv[1]
+    test_path = context.get_fn(data_relative_path)
+
+    # If the example has no result_ variables, then skip the file and just return
+    with open(test_path) as fh:
+        if "result_" not in fh.read():
+            print "Skipping script {0}".format(test_path)
+            return None
 
     # Generate reference values
     with open(test_path) as fh:
         exec fh  # pylint: disable=exec-used
-
-    # If the example has no result_ variables, then skip the file and just return
-    if not any(["result_" in k for k in locals()]):
-        return None
 
     # Scan for variables starting with result_ and threshold_
     results = []
@@ -86,7 +103,9 @@ def gen_regression_test():
 # --
 
 from numpy import array, allclose
-from nose.plugins.attrib import attr\n"""
+from nose.plugins.attrib import attr
+
+from horton import context\n"""
 
     # Generate the function name.
     test_name = test_path.split("/")[-1].split(".py")[0]
@@ -120,22 +139,30 @@ def test_{0}():\n""".format(test_name)
 
     # Execute script in unit test
     unit_test += """
-    with open("{0}") as fh:
+    test_path = context.get_fn("{0}")
+    with open(test_path) as fh:
         exec fh
-""".format(test_path)
+""".format(data_relative_path)
 
     # Compare results with references. Must be a numpy compatible type.
     unit_test += """
     l = locals()
     for r in results:
         var_name = r.split("ref_")[-1]
-        assert allclose(l[var_name], l[r], thresholds[r])"""
+        assert allclose(l[var_name], l[r], thresholds[r]), l[r] - l[var_name]"""
 
-    with open("test_{0}".format(test_path.split("/")[-1]), "w") as fh:
+    if len(sys.argv) > 2:
+        out_path = sys.argv[2] + "/"
+    else:
+        out_path = ""
+    out_name = test_path.split("/")[-1]
+
+    with open("{out}test_{name}".format(out=out_path, name=out_name), "w") as fh:
         fh.write(unit_test)
 
     print "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     print "== SUCCESSFULLY GENERATED TEST SCRIPT =="
+    print "    test_{0}".format(out_name)
     print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 if __name__ == "__main__":
