@@ -20,10 +20,30 @@
 # --
 
 
-from horton import context
-from horton.test.common import check_script_in_tmp
+import sys
 
+from numpy import array, allclose
+from nose.plugins.attrib import attr
+
+from horton import context
+
+
+@attr('regression_check')
 def test_regression():
-    required = [context.get_fn('test/grid_expectation_r.py')]
-    expected = []
-    check_script_in_tmp('/usr/bin/env python grid_expectation_r.py', required, expected)
+    ref_result_charges = array([-0.13538449,  0.06765124,  0.06768548])
+
+    thresholds = {'ref_result_charges': 1e-08}
+
+    test_path = context.get_fn("examples/wpart/becke.py")
+
+    l = {}
+    m = locals()
+    with open(test_path) as fh:
+        exec fh in l
+
+    for k,v in thresholds.items():
+        var_name = k.split("ref_")[1]
+        assert allclose(l[var_name], m[k], v), m[k] - l[var_name]
+
+if __name__ == "__main__":
+    test_regression()

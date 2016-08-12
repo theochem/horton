@@ -19,24 +19,11 @@
 #
 # --
 
-from numpy import array, allclose
-from nose.plugins.attrib import attr
 
 from horton import context
+from horton.test.common import check_script_in_tmp
 
-
-@attr('regression_check')
-def test_hamiltonian_hubbard():
-    ref_result_energy = -5.0
-
-    thresholds = {'ref_result_energy': 1e-08}
-
-    test_path = context.get_fn("examples/hamiltonian/hubbard.py")
-
-    l = {}
-    with open(test_path) as fh:
-        exec fh in l
-
-    for k,v in thresholds.items():
-        var_name = k.split("ref_")[1]
-        assert allclose(l[var_name], l[k], v), l[k] - l[var_name]
+def test_regression():
+    required = [context.get_fn('test/hamiltonian_hubbard.py')]
+    expected = []
+    check_script_in_tmp('/usr/bin/env python hamiltonian_hubbard.py', required, expected)

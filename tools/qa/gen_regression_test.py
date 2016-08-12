@@ -81,31 +81,24 @@ def gen_regression_test():
 
     # unit_test is the contents of the unit_testing script. Whitespace matters!
     # first generate the header
-    unit_test = """# -*- coding: utf-8 -*-
-# HORTON: Helpful Open-source Research TOol for N-fermion systems.
-# Copyright (C) 2011-2016 The HORTON Development Team
-#
-# This file is part of HORTON.
-#
-# HORTON is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 3
-# of the License, or (at your option) any later version.
-#
-# HORTON is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, see <http://www.gnu.org/licenses/>
-#
-# --
+    with open(__file__) as fh:
+        header = []
+        for i in fh:
+            if "#!/usr/bin/env python" in i:
+                continue
+            header.append(i)
+            if "# --" in i:
+                break
+        header = "".join(header)
+
+    unit_test = """{0}
+
+import sys
 
 from numpy import array, allclose
 from nose.plugins.attrib import attr
 
-from horton import context\n"""
+from horton import context\n""".format(header)
 
     # Generate the function name.
 #    test_name = test_path.split("/")[-1].split(".py", 1)[0]
@@ -117,7 +110,7 @@ from horton import context\n"""
     unit_test += """
 
 @attr('regression_check')
-def test_{0}():\n""".format(test_name)
+def test_regression():\n"""
 
     # first set all tolerances to default
     for k, v in variables.items():
@@ -144,6 +137,7 @@ def test_{0}():\n""".format(test_name)
     test_path = context.get_fn("{0}")
 
     l = {{}}
+    m = locals()
     with open(test_path) as fh:
         exec fh in l
 """.format(data_relative_path)
@@ -152,7 +146,13 @@ def test_{0}():\n""".format(test_name)
     unit_test += """
     for k,v in thresholds.items():
         var_name = k.split("ref_")[1]
-        assert allclose(l[var_name], l[k], v), l[k] - l[var_name]\n"""
+        assert allclose(l[var_name], m[k], v), m[k] - l[var_name]
+
+if __name__ == "__main__":
+    test_regression()\n"""
+
+    with open("{out}/{name}.py".format(out=context.get_fn("test"), name=test_name), "w") as fh:
+        fh.write(unit_test)
 
     if len(sys.argv) > 2:
         out_path = sys.argv[2] + "/"
@@ -160,7 +160,16 @@ def test_{0}():\n""".format(test_name)
         out_path = ""
 
     with open("{out}test_{name}.py".format(out=out_path, name=test_name), "w") as fh:
-        fh.write(unit_test)
+        fh.write("""{1}
+
+from horton import context
+from horton.test.common import check_script_in_tmp
+
+def test_regression():
+    required = [context.get_fn('test/{0}.py')]
+    expected = []
+    check_script_in_tmp('/usr/bin/env python {0}.py', required, expected)
+""".format(test_name, header))
 
     print "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     print "== SUCCESSFULLY GENERATED TEST SCRIPT =="
