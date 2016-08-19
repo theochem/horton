@@ -1,0 +1,355 @@
+..
+    : HORTON: Helpful Open-source Research TOol for N-fermion systems.
+    : Copyright (C) 2011-2016 The HORTON Development Team
+    :
+    : This file is part of HORTON.
+    :
+    : HORTON is free software; you can redistribute it and/or
+    : modify it under the terms of the GNU General Public License
+    : as published by the Free Software Foundation; either version 3
+    : of the License, or (at your option) any later version.
+    :
+    : HORTON is distributed in the hope that it will be useful,
+    : but WITHOUT ANY WARRANTY; without even the implied warranty of
+    : MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    : GNU General Public License for more details.
+    :
+    : You should have received a copy of the GNU General Public License
+    : along with this program; if not, see <http://www.gnu.org/licenses/>
+    :
+    : --
+
+${big_fat_warning}
+
+Download and installation on Windows 10 64-bit (v. 1607)
+########################################################
+
+
+Disclaimer
+==========
+
+HORTON has been tested on Ubuntu 14.04 subsystem available on Windows 10 64-bit (after
+Windows 10 Anniversary Update i.e. v.1607). The Ubuntu 14.04 subsystem is not available to
+any Windows operating systems prior to the Windows 10 (v.1607) or 32-bit Windows system.s
+Cygwin based installation is not supported (although doable in theory).
+
+
+Enable Bash on Windows 10
+=========================
+Provided you are using the appropriate version of Windows 10 (64-bit, after Window 10
+Anniversary Update), go to "Settings > Update & Security > For Developers" (or
+alternatively search "Use Developer Features") and activate "Developer Mode". Then, go to
+"Programs and Features" and click "Turn Windows Features On or Off". Check the box
+"Windows Subsystem for Linux (Beta)". Restart Computer. Search "Bash" to open Ubuntu 14.04
+subsystem terminal.
+
+
+Download the code
+=================
+
+The latest stable source code release of HORTON can be downloaded here:
+
+    https://github.com/theochem/horton/releases/download/2.0.1/horton-2.0.1.tar.gz
+
+Choose a suitable directory, e.g. ``~/build``, download and unpack the archive
+
+.. code-block:: bash
+
+    mkdir -p ~/build
+    cd ~/build
+    curl -kLO https://github.com/theochem/horton/releases/download/2.0.1/horton-2.0.1.tar.gz
+    tar -xvzf horton-2.0.1.tar.gz
+    cd horton-2.0.1
+
+For Developers
+--------------
+If you have git installed,
+
+.. code-block:: bash
+
+    git clone https://github.com/theochem/horton.git
+
+You may also want to checkout the HORTON release `2.0.0`. It seems to be more stable on Windows.
+
+.. code-block:: bash
+
+    git checkout 2.0.0
+
+
+Check Ubuntu Version (Just In Case)
+===================================
+On bash,
+
+.. code-block:: bash
+
+  lsb_release -a
+
+It should be `14.04.4 LTS`, but other versions may be available.
+
+
+Dependencies for building, installing and testing HORTON
+========================================================
+
+In order to compile and test HORTON, you need to install relatively recent
+versions of the following programs/libraries:
+
+${dependencies_rst}
+
+
+Installing dependencies with a package manager
+----------------------------------------------
+
+With Ubuntu, most of these dependencies can be installed with a `apt-get`:
+
+* **Ubuntu Linux 16.04**:
+
+  .. code-block:: bash
+
+    sudo apt-get install ${dependencies_ubuntu_16_deb}
+
+  Note that Ubuntu 16.04 does not have up-to-date packages for all dependencies. LibInt2
+  must be compiled manually as explained in :ref:`linux_manual_dependency_install`. (The
+  beta version of LibInt2 that comes with Ubuntu 16.04 is compiled with a too low
+  LIBINT2_MAX_AM_ERI value.)
+
+* **Ubuntu Linux 15.04 and 14.04**:
+
+  .. code-block:: bash
+
+    sudo apt-get install ${dependencies_ubuntu_15_deb}
+    pip install --user --upgrade ${dependencies_ubuntu_15_pip}
+
+  Note that Ubuntu 15.04 and 14.04 do not have up-to-date packages for all dependencies.
+  Hence, some are installed with PIP. LibInt2 must be compiled manually as explained in
+  :ref:`linux_manual_dependency_install`.
+
+* **Precautionary Measures:
+  Those of you that are installing HORTON as a dependency for other possibly "top
+  secret" stuff (you know who you are) should also upgrade `scipy` and `matplotlib`.
+
+  Scipy is quite simple to upgrade:
+  .. code-block:: bash
+
+    pip install --user --upgrade scipy
+
+  Matplotlib requires a little more:
+  .. code-block:: bash
+
+    sudo apt-get install libfreetype6-dev libpng pkg-config
+    ln -s /usr/include/freetype2/ft2build.h /usr/include/
+    pip install --user --upgrade matplotlib
+
+
+.. _linux_manual_dependency_install:
+
+Installing dependencies manually
+--------------------------------
+
+If the package manager of your Linux distribution does not have the desired
+packages (or the right versions), you have to install them manually, e.g.
+download and execute an installer, or download and unpack a binary package. On
+HPC environments a compilation from scratch is recommended.
+
+**LibXC**
+
+The directory ``tooals/qa`` of the HORTON source tree contains scripts to download and
+build LibXC, which will work on most systems:
+
+.. code-block:: bash
+
+    ${custom_install_libxc}
+
+This results in a LibXC library suitable for compiling HORTON. If this fails,
+consult your local Linux guru to build LibXC. For more info about LibXC, check
+the website: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
+
+**LibInt2**
+
+The directory ``tooals/qa`` of the HORTON source tree contains scripts to download and
+build LibInt2, which will work on most systems:
+
+.. code-block:: bash
+
+    ${custom_install_libint}
+
+The compilation of LibInt2 takes a few minutes and results in a library suitable for
+compiling HORTON. If this fails, consult your local Linux guru to build LibInt2. For more
+info about LibInt2, check the website: http://sourceforge.net/p/libint/home
+
+**Python dependencies**
+
+In some cases, PIP, the Python package manager, may be a good choice to install
+the most recent versions of the Python packages in the list of dependencies. Examples
+are given above for Ubuntu and Fedora.
+
+
+.. _linux_compile_install:
+
+Compilation and installation
+============================
+
+Build and install
+-----------------
+
+The regular build and install is done as follows:
+
+.. code-block:: bash
+
+    ./setup.py install --user
+
+The ``setup.py`` script makes a reasonable attempt at configuring the compiler and
+linker settings for the LibXC, LibInt2 and BLAS libraries. However, this does
+not work in all environments. In case of a failure, or if a configuration other
+than the default is desired, read the following section.
+
+
+Overriding default compiler/linker settings for LibXC, LibInt2 and BLAS
+-----------------------------------------------------------------------
+
+The manual configuration of the compiler and linker settings is described here:
+:ref:`setup_cfg`. You should read this section if the default build and install
+has failed or if you would like to specify which libraries to use.
+
+
+Runtime configuration
+---------------------
+
+You need to set the following variable in ``~/.bashrc`` to use HORTON:
+
+.. code-block:: bash
+
+    export PATH=${HOME}/.local/bin:${PATH}
+
+    # If you used special link options for LibXC, LibInt2 or BLAS, something along
+    # the following lines may also be needed:
+    # export LD_LIBRARY_PATH=some_dir/with/shared_objects/${LD_LIBRARY_PATH}
+
+If you run HORTON on a headless node, i.e. without an X server, you need to
+configure Matplotlib to use a backend that does not require a graphical user
+interface. (See http://matplotlib.org/faq/usage_faq.html#what-is-a-backend for
+more details on the Matplotlib backends.) This can be done by adding the
+following line to your ``matplotlibrc`` file:
+
+.. code-block:: text
+
+    backend: agg
+
+This file is located in either ``${HOME}/.matplotlib`` or
+``${HOME}/.config/matplotlib``.
+
+
+Compilation and Installation For Developers
+===========================================
+It's important to note that everytime you change the HORTON source code, you need
+to *reinstall* all of HORTON (because during installation all of the source code
+is copied to a `~/.local/lib/python2.7/site-packages`). Instead, we can work directly
+off of the source code, but requires you to link some environment variables.
+
+Build
+-----
+.. code-block:: bash
+
+    ./setup.py build_ext -i
+
+Link Environment Variables
+--------------------------
+.. code-block:: bash
+
+    export PYTHONPATH=$PYTHONPATH:horton_source/
+    export PATH=$PATH:horton_source/scripts
+    export HORTONDATA=horton_source/data
+
+You might want to put this in your `~/.bashrc` so you don't have to do this everytime.
+
+
+
+
+Reference atoms
+===============
+
+Several parts of HORTON make use of reference atomic computations. When compiling
+a stable release from a .tar.gz file these reference atoms are already included in
+the release. When building a development version of HORTON, please refer to
+:ref:`ref_build_refatoms` on how to build these reference atoms.
+
+
+Running the tests
+=================
+
+To test if HORTON was installed properly and if it can be accessed from any directory,
+you should change to a directory outside of the source tree and call nosetests
+as follows:
+
+.. code-block:: bash
+
+    (cd ~; nosetests -v horton)
+
+
+Building the documentation
+==========================
+
+Dependencies
+------------
+
+If you are interested in generating the documentation from source, the following
+packages are also needed:
+
+${doc_dependencies_rst}
+
+
+Installing the dependencies with a package manager and PIP
+----------------------------------------------------------
+
+* **Ubuntu Linux 16.04**:
+
+  .. code-block:: bash
+
+      sudo apt-get install ${doc_dependencies_ubuntu_16_deb}
+
+* **Ubuntu Linux 15.04 and 14.04**:
+
+  .. code-block:: bash
+
+      sudo apt-get install ${doc_dependencies_ubuntu_15_deb}
+      pip install --user --upgrade ${doc_dependencies_ubuntu_15_pip}
+
+You must also manually build LibXC as explained in :ref:`linux_manual_dependency_install`,
+to generate the list of DFT functionals in the documentation.
+
+
+Actual build
+------------
+
+The documentation is compiled and viewed as follows:
+
+.. code-block:: bash
+
+    (cd doc; make html; firefox _build/html/index.html)
+
+
+.. _linux_install_dev:
+
+Development tools
+=================
+
+If you want to contribute to the development of HORTON, you'll need to install at least
+the following dependencies:
+
+${dev_dependencies_rst}
+
+For the python development tools, we generally recommend installing the latest versions
+with ``pip``.
+
+* **Ubuntu Linux 16.04**:
+
+  .. code-block:: bash
+
+      sudo apt-get install ${dev_dependencies_ubuntu_16_deb}
+      pip install --user --upgrade ${dev_dependencies_ubuntu_16_pip}
+
+* **Ubuntu Linux 15.04 and 14.04**:
+
+  .. code-block:: bash
+
+      sudo apt-get install ${dev_dependencies_ubuntu_15_deb}
+      pip install --user --upgrade ${dev_dependencies_ubuntu_15_pip}
