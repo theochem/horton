@@ -40,5 +40,9 @@ scf_solver(ham, lf, olp, occ_model, orb)
 
 # Assign results to variables for regression testing
 # --------------------------------------------------
-result_energy = ham.compute_energy()
+result_energy = ham.cache["energy"]
+result_orb_energies = orb.energies
+result_kin = ham.cache["energy_kin"]
+result_hartree = ham.cache["energy_hartree"]
+result_ex = ham.cache["energy_x_hf"]
 # --------------------------------------------------

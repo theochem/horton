@@ -18,10 +18,11 @@ rho = mol.obasis.compute_grid_density_dm(dm_full, grid.points)
 
 # Compute the expectation value of |r|.
 r = (grid.points[:,0]**2 + grid.points[:,1]**2 + grid.points[:,2]**2)**0.5
+expt_r = grid.integrate(rho, r)
 if log.do_medium:
-    log('EXPECTATION VALUE OF |R|: {0}'.format(grid.integrate(rho, r)))
+    log('EXPECTATION VALUE OF |R|: {0}'.format(expt_r))
 
 # Assign results to variables for regression testing
 # --------------------------------------------------
-result_r = r
+result_r = expt_r
 # --------------------------------------------------

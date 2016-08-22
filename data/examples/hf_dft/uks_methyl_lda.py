@@ -88,8 +88,11 @@ mol.to_file('methyl.h5')
 # Assign results to variables for regression testing
 # --------------------------------------------------
 result_energy = ham.cache['energy']
-result_exp_alpha = exp_alpha.coeffs
-result_exp_beta = exp_beta.coeffs
-result_dm_alpha = dm_alpha._array
-result_dm_beta = dm_beta._array
+result_exp_alpha = exp_alpha.energies
+result_exp_beta = exp_beta.energies
+result_nn = ham.cache["energy_nn"]
+result_kin = ham.cache["energy_kin"]
+result_ne = ham.cache["energy_ne"]
+result_grid = ham.cache["energy_grid_group"]
+result_hartree = ham.cache["energy_hartree"]
 # --------------------------------------------------

@@ -146,7 +146,7 @@ def test_regression():\n"""
     unit_test += """
     for k,v in thresholds.items():
         var_name = k.split("ref_")[1]
-        assert allclose(l[var_name], m[k], v), m[k] - l[var_name]
+        assert allclose(l[var_name], m[k], v), (var_name, m[k] - l[var_name])
 
 if __name__ == "__main__":
     test_regression()\n"""

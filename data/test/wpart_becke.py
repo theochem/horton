@@ -30,7 +30,7 @@ from horton import context
 
 @attr('regression_check')
 def test_regression():
-    ref_result_charges = array([-0.13538449,  0.06765124,  0.06768548])
+    ref_result_charges = array([-0.13538012,  0.06771209,  0.06764216])
 
     thresholds = {'ref_result_charges': 1e-08}
 
@@ -43,7 +43,7 @@ def test_regression():
 
     for k,v in thresholds.items():
         var_name = k.split("ref_")[1]
-        assert allclose(l[var_name], m[k], v), m[k] - l[var_name]
+        assert allclose(l[var_name], m[k], v), (var_name, m[k] - l[var_name])
 
 if __name__ == "__main__":
     test_regression()

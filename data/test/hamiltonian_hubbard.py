@@ -30,9 +30,14 @@ from horton import context
 
 @attr('regression_check')
 def test_regression():
+    ref_result_kin = -7.999999999999998
+    ref_result_hartree = 5.9999999999999964
     ref_result_energy = -5.0
+    ref_result_ex = -2.9999999999999982
+    ref_result_orb_energies = array([ -1.00000000e+00,  -2.39480192e-16,   1.28457889e-16,
+         2.00000000e+00,   2.00000000e+00,   3.00000000e+00])
 
-    thresholds = {'ref_result_energy': 1e-08}
+    thresholds = {'ref_result_kin': 1e-08, 'ref_result_ex': 1e-08, 'ref_result_orb_energies': 1e-08, 'ref_result_energy': 1e-08, 'ref_result_hartree': 1e-08}
 
     test_path = context.get_fn("examples/hamiltonian/hubbard.py")
 
@@ -43,7 +48,7 @@ def test_regression():
 
     for k,v in thresholds.items():
         var_name = k.split("ref_")[1]
-        assert allclose(l[var_name], m[k], v), m[k] - l[var_name]
+        assert allclose(l[var_name], m[k], v), (var_name, m[k] - l[var_name])
 
 if __name__ == "__main__":
     test_regression()

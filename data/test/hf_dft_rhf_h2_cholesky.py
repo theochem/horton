@@ -30,13 +30,15 @@ from horton import context
 
 @attr('regression_check')
 def test_regression():
+    ref_result_kin = 1.1232515338620017
+    ref_result_x_hf = -0.6494793412315112
+    ref_result_hartree = 1.2989586824630228
     ref_result_energy = -1.1267239967341496
-    ref_result_exp_alpha = array([[ 0.3266105 ,  0.12304145, -0.76720234, -1.12099056],
-       [ 0.27230606,  1.70984455,  0.68637746,  1.34788665],
-       [ 0.3266105 , -0.12304145, -0.76720234,  1.12099056],
-       [ 0.27230606, -1.70984455,  0.68637746, -1.34788665]])
+    ref_result_ne = -3.6126317024206545
+    ref_result_exp_alpha = array([-0.59521025,  0.23793809,  0.77568903,  1.4017782 ])
+    ref_result_nn = 0.71317683059299186
 
-    thresholds = {'ref_result_exp_alpha': 1e-08, 'ref_result_energy': 1e-08}
+    thresholds = {'ref_result_kin': 1e-08, 'ref_result_energy': 1e-08, 'ref_result_ne': 1e-08, 'ref_result_exp_alpha': 1e-08, 'ref_result_nn': 1e-08, 'ref_result_x_hf': 1e-08, 'ref_result_hartree': 1e-08}
 
     test_path = context.get_fn("examples/hf_dft/rhf_h2_cholesky.py")
 
@@ -47,7 +49,7 @@ def test_regression():
 
     for k,v in thresholds.items():
         var_name = k.split("ref_")[1]
-        assert allclose(l[var_name], m[k], v), m[k] - l[var_name]
+        assert allclose(l[var_name], m[k], v), (var_name, m[k] - l[var_name])
 
 if __name__ == "__main__":
     test_regression()
