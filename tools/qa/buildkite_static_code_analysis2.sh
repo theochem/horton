@@ -3,7 +3,7 @@
 if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     source tools/qa/buildkite_common.sh
     checkout_merge_commit
-    SHA=`get_ancestor`
+    get_ancestor #writes $SHA variable
 
     echo "--- Running trapdoors tests"
 
@@ -13,4 +13,3 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
         .tools/qa/simulate_trapdoor_pr.py -vrA $SHA tools/qa/$i
     done
 fi
-exit 0
