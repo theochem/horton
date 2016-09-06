@@ -81,7 +81,7 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
 
         # Run fast unit tests with nosetests, with coverage
         command = ['nosetests', '-v', '-a', '!slow',
-                   # '--processes=2',
+                   # '--processes=2',  # coverage is faster without parallel?!
                    # '--process-timeout=60',
                    '--with-coverage',
                    '--cover-erase',
