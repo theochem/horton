@@ -5,6 +5,8 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     checkout_merge_commit
     get_ancestor #writes $SHA variable
 
+    PATH=$PATH:~/.local/bin
+
     echo "--- Running trapdoors tests"
 
     TRAPDOORS="trapdoor_cppcheck.py
