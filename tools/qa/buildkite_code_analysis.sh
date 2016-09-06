@@ -11,6 +11,9 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     TRAPDOORS="trapdoor_coverage.py
     trapdoor_namespace.py"
 
+    export PYTHONPATH=`pwd`
+    export HORTONDATA=`pwd`/data
+
     for i in ${TRAPDOORS}; do
         tools/qa/simulate_trapdoor_pr.py -rA $SHA tools/qa/$i
     done
