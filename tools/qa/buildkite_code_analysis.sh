@@ -5,6 +5,10 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     checkout_merge_commit
     get_ancestor #writes $SHA variable
 
+    echo "--- Build refatoms"
+    rm -rf data/refatoms/*.h5 data/refatoms/*.tar.bz2
+    make -C data/refatoms/
+
     echo "--- Running trapdoors tests"
     ./tools/qa/check_whitespace.py || report_error "Whitespace errors in some commits"
 
