@@ -17,8 +17,7 @@ checkout_merge_commit () {
         while [ "$MERGESTATE" = "null" ]; do
             MERGESTATE=`curl $API_URL | jq .mergeable`
             if [ "$MERGESTATE" = "true" ]; then
-#                git fetch -f origin pull/$BUILDKITE_PULL_REQUEST/merge:temp_merge
-                git fetch -f theochem pull/$BUILDKITE_PULL_REQUEST/merge:temp_merge
+                git fetch -f origin pull/$BUILDKITE_PULL_REQUEST/merge:temp_merge
                 git checkout temp_merge
             elif [ "$MERGESTATE" = "null" ]; then
                 # git github a chance to compute mergeability
