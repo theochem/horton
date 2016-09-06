@@ -17,4 +17,4 @@ rm -rf installation
 
 echo "--- Uploading build artifact"
 tar -zcvf horton-install.tar.gz `pwd`/installation
-buildkite-agent artifact upload horton-install.tar.gz
+#buildkite-agent artifact upload horton-install.tar.gz

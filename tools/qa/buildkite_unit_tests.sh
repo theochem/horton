@@ -4,7 +4,7 @@ source tools/qa/buildkite_common.sh
 checkout_merge_commit
 
 echo "--- Downloading build artifact"
-buildkite-agent artifact download horton-install.tar.gz
+#buildkite-agent artifact download horton-install.tar.gz
 tar -xvf horton-install.tar.gz
 
 echo "--- Running Nosetests"
