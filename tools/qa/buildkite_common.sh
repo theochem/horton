@@ -11,7 +11,7 @@ abort_error () {
 checkout_merge_commit () {
     if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
         echo "--- Merging PR"
-        API_URL=`echo "$BUILDKITE_PULL_REQUEST_REPO" | sed "s/git:\/\/github.com/https:\/\/api.github.com\/repos/" | sed "s/\.git$/\/pulls\/$BUILDKITE_PULL_REQUEST/"`
+        API_URL=`echo "$BUILDKITE_REPO" | sed "s/git@/https:\/\/api./" | sed "s/\.com:/\.com\/repos\//" | sed "s/\.git$/\/pulls\/$BUILDKITE_PULL_REQUEST/"`
         MERGESTATE="null"
 
         while [ "$MERGESTATE" = "null" ]; do
@@ -35,7 +35,7 @@ checkout_merge_commit () {
 get_ancestor () {
     if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
         echo "--- Finding PR ancestor"
-        API_URL=`echo "$BUILDKITE_PULL_REQUEST_REPO" | sed "s/git:\/\/github.com/https:\/\/api.github.com\/repos/" | sed "s/\.git$/\/pulls\/$BUILDKITE_PULL_REQUEST/"`
+        API_URL=`echo "$BUILDKITE_REPO" | sed "s/git@/https:\/\/api./" | sed "s/\.com:/\.com\/repos\//" | sed "s/\.git$/\/pulls\/$BUILDKITE_PULL_REQUEST/"`
         SHA=`curl $API_URL | jq .base.sha`
     fi
 
