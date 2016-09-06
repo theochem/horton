@@ -6,7 +6,7 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     get_ancestor #writes $SHA variable
 
     echo "--- Running trapdoors tests"
-#    ./tools/qa/check_whitespace.py || report_error "Whitespace errors in some commits"
+    ./tools/qa/check_whitespace.py || report_error "Whitespace errors in some commits"
 
     TRAPDOORS="trapdoor_coverage.py
     trapdoor_namespace.py"
