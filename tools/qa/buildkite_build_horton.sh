@@ -16,5 +16,5 @@ rm -rf installation
 ./setup.py install --prefix=`pwd`/installation
 
 echo "--- Uploading build artifact"
-tar -zcvf horton-install.tar.gz `pwd`/installation
+tar -zcvf horton-install.tar.gz installation/
 #buildkite-agent artifact upload horton-install.tar.gz
