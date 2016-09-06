@@ -77,8 +77,10 @@ class PylintTrapdoorProgram(TrapdoorProgram):
         py_extra = get_source_filenames(config, 'py', unpackaged_only=True)
 
         # call Pylint
-        command = ['pylint'] + config['py_packages'] + py_extra + [
-            '--rcfile=%s' % self.rcfile, '--ignore=%s' % (','.join(config['py_exclude']))]
+        command = ['pylint'] + config['py_packages'] + py_extra \
+                  + ['--rcfile=%s' % self.rcfile,
+                     '--ignore=%s' % (','.join(config['py_exclude'])),
+                     '-j 2',]
         output = run_command(command, has_failed=has_failed)[0]
 
         # parse the output of Pylint into standard return values
