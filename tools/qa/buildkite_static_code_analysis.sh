@@ -15,6 +15,6 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     trapdoor_pydocstyle.py"
 
     for i in ${TRAPDOORS}; do
-        tools/qa/simulate_trapdoor_pr.py -vrA $SHA tools/qa/$i
+        tools/qa/simulate_trapdoor_pr.py -rA $SHA tools/qa/$i
     done
 fi

@@ -80,7 +80,11 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
         messages = set([])
 
         # Run fast unit tests with nosetests, with coverage
-        command = ['nosetests', '-v', '-a', '!slow', '--with-coverage', '--cover-erase',
+        command = ['nosetests', '-v', '-a', '!slow',
+                   # '--processes=2',
+                   # '--process-timeout=60',
+                   '--with-coverage',
+                   '--cover-erase',
                    '--cover-branches',
                    '--cover-package=%s' % ','.join(config['py_packages'])] + \
                    config['py_directories']
