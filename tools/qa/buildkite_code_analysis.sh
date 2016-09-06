@@ -25,22 +25,22 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     echo "--- Checking out ancestor branch"
     checkout_ancestor
 
-    echo "--- Downloading build artifacts"
-    buildkite-agent artifact download horton-ancestor-install.tar.gz
-    tar -xvf horton-ancestor-install.tar.gz
+    #rebuild ancestor
+    echo "--- Build ancestor refatoms"
+    rm -rf data/refatoms/*.h5 data/refatoms/*.tar.bz2
+    make -C data/refatoms
 
-    echo "--- Running trapdoors for ancestor branch"
-    export PATH=$ORIG_PATH:`pwd`/ancestor_installation/bin
-    export PYTHONPATH=`pwd`/ancestor_installation/lib/python2.7/site-packages
-    export PYTHONPATH=$PYTHONPATH:`pwd`/ancestor_installation/lib64/python2.7/site-packages
-    export HORTONDATA=`pwd`/ancestor_installation/share/horton
+    echo "--- Build ancestor Cython files & HORTON"
+    ./cleanfiles.sh
+    rm -rf installation
+    ./setup.py install --prefix=`pwd`/installation
 
     $QAWORKDIR/trapdoor_coverage.py ancestor || report_error "Trapdoor coverage failed (ancestor)"
-    ${QAWORKDIR}/trapdoor_namespace.py ancestor || report_error "Trapdoor namespace failed (ancestor)"
+    $QAWORKDIR/trapdoor_namespace.py ancestor || report_error "Trapdoor namespace failed (ancestor)"
 
     echo "--- Generating reports"
     $QAWORKDIR/trapdoor_coverage.py report || report_error "Trapdoor coverage regressions"
-    ${QAWORKDIR}/trapdoor_namespace.py report || report_error "Trapdoor namespace regressions"
+    $QAWORKDIR/trapdoor_namespace.py report || report_error "Trapdoor namespace regressions"
 
     if [ "$NUM_FAILED" -gt 0 ]; then
         echo -e "${RED}SOME TESTS FAILED (current branch)${RESET}"

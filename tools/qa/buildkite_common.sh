@@ -33,7 +33,7 @@ checkout_merge_commit () {
 
 checkout_ancestor () {
     if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
-        echo "--- Merging PR"
+        echo "--- Checking out PR ancestor"
         API_URL=`echo "$BUILDKITE_PULL_REQUEST_REPO" | sed "s/git:\/\/github.com/https:\/\/api.github.com\/repos/" | sed "s/testing\.git/testing\/pulls\/$BUILDKITE_PULL_REQUEST/"`
         SHA=`curl $API_URL | jq .base.sha`
         git checkout $SHA # ancestor commit
@@ -41,6 +41,18 @@ checkout_ancestor () {
 
     return 0
 }
+
+get_ancestor () {
+    if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
+        echo "--- Finding PR ancestor"
+        API_URL=`echo "$BUILDKITE_PULL_REQUEST_REPO" | sed "s/git:\/\/github.com/https:\/\/api.github.com\/repos/" | sed "s/testing\.git/testing\/pulls\/$BUILDKITE_PULL_REQUEST/"`
+        SHA=`curl $API_URL | jq .base.sha`
+        return $SHA
+    fi
+
+    return 0
+}
+
 
 # Some colors
 GREEN='\e[0;32m'

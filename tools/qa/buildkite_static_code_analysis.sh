@@ -24,21 +24,21 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     checkout_ancestor
 
     echo "--- Running trapdoors for ancestor branch"
-    ${QAWORKDIR}/trapdoor_cppcheck.py ancestor || report_error "Trapdoor cppcheck failed (ancestor)"
-    ${QAWORKDIR}/trapdoor_cpplint.py ancestor || report_error "Trapdoor cpplint failed (ancestor)"
-    ${QAWORKDIR}/trapdoor_doxygen.py ancestor || report_error "Trapdoor doxygen failed (ancestor)"
-    ${QAWORKDIR}/trapdoor_import.py ancestor || report_error "Trapdoor import failed (ancestor)"
-    ${QAWORKDIR}/trapdoor_pycodestyle.py ancestor || report_error "Trapdoor pycodestyle failed (ancestor)"
-    ${QAWORKDIR}/trapdoor_pydocstyle.py ancestor || report_error "Trapdoor pydocstyle failed (ancestor)"
+    $QAWORKDIR/trapdoor_cppcheck.py ancestor || report_error "Trapdoor cppcheck failed (ancestor)"
+    $QAWORKDIR/trapdoor_cpplint.py ancestor || report_error "Trapdoor cpplint failed (ancestor)"
+    $QAWORKDIR/trapdoor_doxygen.py ancestor || report_error "Trapdoor doxygen failed (ancestor)"
+    $QAWORKDIR/trapdoor_import.py ancestor || report_error "Trapdoor import failed (ancestor)"
+    $QAWORKDIR/trapdoor_pycodestyle.py ancestor || report_error "Trapdoor pycodestyle failed (ancestor)"
+    $QAWORKDIR/trapdoor_pydocstyle.py ancestor || report_error "Trapdoor pydocstyle failed (ancestor)"
 
 
     echo "--- Generating reports"
-    ${QAWORKDIR}/trapdoor_cppcheck.py report || report_error "Trapdoor cppcheck regressions"
-    ${QAWORKDIR}/trapdoor_cpplint.py report || report_error "Trapdoor cpplint regressions"
-    ${QAWORKDIR}/trapdoor_doxygen.py report || report_error "Trapdoor doxygen regressions"
-    ${QAWORKDIR}/trapdoor_import.py report || report_error "Trapdoor import regressions"
-    ${QAWORKDIR}/trapdoor_pycodestyle.py report || report_error "Trapdoor pycodestyle regressions"
-    ${QAWORKDIR}/trapdoor_pydocstyle.py report || report_error "Trapdoor pydocstyle regressions"
+    $QAWORKDIR/trapdoor_cppcheck.py report || report_error "Trapdoor cppcheck regressions"
+    $QAWORKDIR/trapdoor_cpplint.py report || report_error "Trapdoor cpplint regressions"
+    $QAWORKDIR/trapdoor_doxygen.py report || report_error "Trapdoor doxygen regressions"
+    $QAWORKDIR/trapdoor_import.py report || report_error "Trapdoor import regressions"
+    $QAWORKDIR/trapdoor_pycodestyle.py report || report_error "Trapdoor pycodestyle regressions"
+    $QAWORKDIR/trapdoor_pydocstyle.py report || report_error "Trapdoor pydocstyle regressions"
 
 
 

@@ -18,11 +18,11 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     checkout_ancestor
 
     echo "--- Running trapdoors for ancestor branch"
-    ${QAWORKDIR}/trapdoor_pylint.py ancestor || report_error "Trapdoor pylint failed (ancestor)"
+    $QAWORKDIR/trapdoor_pylint.py ancestor || report_error "Trapdoor pylint failed (ancestor)"
 
 
     echo "--- Generating reports"
-    ${QAWORKDIR}/trapdoor_pylint.py report || report_error "Trapdoor pylint regressions"
+    $QAWORKDIR/trapdoor_pylint.py report || report_error "Trapdoor pylint regressions"
 
 
     if [ "$NUM_FAILED" -gt 0 ]; then
