@@ -18,7 +18,7 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     ./tools/qa/trapdoor_cpplint.py feature || report_error "Trapdoor cpplint failed (feature branch)"
     ./tools/qa/trapdoor_doxygen.py feature || report_error "Trapdoor doxygen failed (feature branch)"
     ./tools/qa/trapdoor_import.py feature || report_error "Trapdoor import failed (feature branch)"
-    ./tools/qa/trapdoor_namespace.py feature || report_error "Trapdoor namespace failed (feature branch)"
+
 
 
     echo "--- Copying QA tools from feature branch"
@@ -42,14 +42,14 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     ${QAWORKDIR}/trapdoor_cpplint.py ancestor || report_error "Trapdoor cpplint failed (ancestor)"
     ${QAWORKDIR}/trapdoor_doxygen.py ancestor || report_error "Trapdoor doxygen failed (ancestor)"
     ${QAWORKDIR}/trapdoor_import.py ancestor || report_error "Trapdoor import failed (ancestor)"
-    ${QAWORKDIR}/trapdoor_namespace.py ancestor || report_error "Trapdoor namespace failed (ancestor)"
+
 
     echo "--- Generating reports"
     ${QAWORKDIR}/trapdoor_cppcheck.py report || report_error "Trapdoor cppcheck regressions"
     ${QAWORKDIR}/trapdoor_cpplint.py report || report_error "Trapdoor cpplint regressions"
     ${QAWORKDIR}/trapdoor_doxygen.py report || report_error "Trapdoor doxygen regressions"
     ${QAWORKDIR}/trapdoor_import.py report || report_error "Trapdoor import regressions"
-    ${QAWORKDIR}/trapdoor_namespace.py report || report_error "Trapdoor namespace regressions"
+
 
 
     if [ "$NUM_FAILED" -gt 0 ]; then

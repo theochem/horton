@@ -16,6 +16,7 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     echo "--- Running coverage for feature branch"
     ./tools/qa/check_whitespace.py || report_error "Whitespace errors in some commits"
     ./tools/qa/trapdoor_coverage.py feature || report_error "Trapdoor coverage failed (feature branch)"
+    ./tools/qa/trapdoor_namespace.py feature || report_error "Trapdoor namespace failed (feature branch)"
 
     echo "--- Copying QA tools from feature branch"
     QAWORKDIR=`pwd`/qaworkdir
@@ -35,9 +36,11 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     export HORTONDATA=`pwd`/ancestor_installation/share/horton
 
     $QAWORKDIR/trapdoor_coverage.py ancestor || report_error "Trapdoor coverage failed (ancestor)"
+    ${QAWORKDIR}/trapdoor_namespace.py ancestor || report_error "Trapdoor namespace failed (ancestor)"
 
     echo "--- Generating reports"
     $QAWORKDIR/trapdoor_coverage.py report || report_error "Trapdoor coverage regressions"
+    ${QAWORKDIR}/trapdoor_namespace.py report || report_error "Trapdoor namespace regressions"
 
     if [ "$NUM_FAILED" -gt 0 ]; then
         echo -e "${RED}SOME TESTS FAILED (current branch)${RESET}"
