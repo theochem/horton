@@ -24,15 +24,30 @@
 This script ignores and command-line arguments. Just don't provide any.
 """
 
+import argparse
 import subprocess
 import sys
+
+
+def parse_args():
+    """Take ancestor SHA from command line or infer it otherwise."""
+    parser = argparse.ArgumentParser(description='Check white space in every commit.')
+    parser.add_argument('ancestor', type=str, default=None, nargs='?',
+                        help='The ancestor up to which to check the commits '
+                             '[default=merge-base].')
+    args = parser.parse_args()
+    if args.ancestor is None:
+        # The default is to use the merge base.
+        command = ['git', 'merge-base', 'master', 'HEAD']
+        return subprocess.check_output(command).strip()
+    else:
+        return args.ancestor
 
 
 def main():
     """Run ``git diff --check`` on every relevant commit."""
     # Get the common ancestor with the master branch
-    command = ['git', 'merge-base', 'master', 'HEAD']
-    ancestor = subprocess.check_output(command).strip()
+    ancestor = parse_args()
 
     # Get the list of commit ids and descriptions between the current and master branch.
     # The latest one is printed first and the HEAD of the master branch is included

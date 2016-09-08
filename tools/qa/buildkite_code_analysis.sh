@@ -10,7 +10,7 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     make -C data/refatoms/
 
     echo "--- Running trapdoors tests"
-    ./tools/qa/check_whitespace.py || report_error "Whitespace errors in some commits"
+    ./tools/qa/check_whitespace.py $ANCESTOR_SHA || report_error "Whitespace errors in some commits"
 
     export PYTHONPATH=`pwd`
     export HORTONDATA=`pwd`/data
