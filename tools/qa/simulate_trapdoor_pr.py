@@ -109,13 +109,16 @@ def main():
         os.makedirs(qaworkdir)
 
     # Pre-flight checks.
-    orig_head_name, merge_head_name = run_pre_flight_checks(repo, remote=args.remote)
+    orig_head_name, merge_head_name = run_pre_flight_checks(repo, remote=args.remote,
+                                                            ancestor=args.ancestor)
 
     try:
-        make_temporary_merge(repo, merge_head_name)
+        if not (args.ancestor or args.skip_merge):
+            make_temporary_merge(repo, merge_head_name)
         retcode = 0
         for s in args.script:
-            retcode += trapdoor_workflow(repo, s, qaworkdir, args.skip_ancestor, args.rebuild)
+            retcode += trapdoor_workflow(repo, s, qaworkdir, args.skip_ancestor, args.rebuild,
+                                         ancestor=args.ancestor)
         if retcode > 0:
             print >> sys.stderr, '\033[91m' + "ERROR in tests. Please inspect log carefully" \
                 + '\033[0m'
@@ -140,12 +143,18 @@ def parse_args():
     parser.add_argument('-r', '--rebuild', default=False, action='store_true',
                         help='Rebuild extension before running trapdoor script.')
     parser.add_argument('-R', '--remote', default='origin',
-                        help='Compare with master on a remote. Defaults to origin')
+                        help='Compare with master on a remote. Defaults to origin.')
+    parser.add_argument('-A', '--ancestor', default=False,
+                        help='Specify SHA of the ancestor commit manually. Useful for testing '
+                             'PRs against non-master branches. Implies --skip-merge for now.')
+    parser.add_argument('-S', '--skip-merge', default=False, action='store_true',
+                        help='Skip the temporary merge and assume the current branch is already '
+                             'merged with the ancestor.')
     return parser.parse_args()
 
 
 @log.section('pre-flight checks')
-def run_pre_flight_checks(repo, remote):
+def run_pre_flight_checks(repo, remote, ancestor):
     """Run some initial checks before doing anything.
 
     Parameters
@@ -158,14 +167,15 @@ def run_pre_flight_checks(repo, remote):
     if repo.is_dirty():
         raise RepoError('Not all changes are committed.')
 
-    log('Check whether master is up to date with %s/master.' % remote)
-    remote_refs = git_ls_remote(remote)
-    if remote_refs['refs/heads/master'] != repo.heads.master.object.hexsha:
-        raise RepoError('Master is not up to date.')
+    if not ancestor:
+        log('Check whether master is up to date with %s/master.' % remote)
+        remote_refs = git_ls_remote(remote)
+        if remote_refs['refs/heads/master'] != repo.heads.master.object.hexsha:
+            raise RepoError('Master is not up to date.')
 
-    log('Check whether master is currently _not_ checked out.')
-    if repo.active_branch == repo.heads.master:
-        raise RepoError('The master branch is checked out.')
+        log('Check whether master is currently _not_ checked out.')
+        if repo.active_branch == repo.heads.master:
+            raise RepoError('The master branch is checked out.')
 
     log('Check whether temporary branch name does not exist yet.')
     orig_head_name = repo.active_branch.name
@@ -232,7 +242,7 @@ def make_temporary_merge(repo, merge_head_name):
 
 
 @log.section('trapdoor workflow')
-def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild):
+def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild, ancestor=False):
     """Run the trapdoor scripts in the right order.
 
     Parameters
@@ -259,7 +269,11 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild):
         shutil.copy('tools/qa/trapdoor.py', os.path.join(qaworkdir, 'trapdoor.py'))
         # Check out the master branch. (We should be constructing the ancestor etc. but
         # that should come down to the same thing for a PR.)
-        repo.heads.master.checkout()
+        if ancestor:
+            repo.head.reference = repo.commit(ancestor.strip('\"'))  # remove bash quotes
+            repo.head.reset(index=True, working_tree=True)
+        else:
+            repo.heads.master.checkout()
         if rebuild:
             subprocess.check_call(['./setup.py', 'build_ext', '-i'])
         subprocess.check_call([copied_script, 'ancestor'])
