@@ -20,7 +20,7 @@ checkout_merge_commit () {
                 git fetch -f origin pull/$BUILDKITE_PULL_REQUEST/merge:temp_merge
                 git checkout temp_merge
             elif [ "$MERGESTATE" = "null" ]; then
-                # git github a chance to compute mergeability
+                # give github a chance to compute mergeability
                 sleep 5
             else
                 abort_error
