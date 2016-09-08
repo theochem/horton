@@ -89,10 +89,9 @@ def load_basis_atom_map_nwchem(filename):
     f.close()
     return basis_atom_map
 
-def load_basis_atom_map_gbs(filename):
-    """ Loads the basis set family from a GBS file
 
-    """
+def load_basis_atom_map_gbs(filename):
+    """Load the basis set family from a GBS file."""
     from horton.gbasis.gobasis import GOBasisAtom, GOBasisContraction
 
     basis_atom_map = {}
@@ -130,8 +129,9 @@ def load_basis_atom_map_gbs(filename):
                     bc.con_coeffs.append(coeffs[i::len(cur_shell_types)])
     return basis_atom_map
 
+
 def dump_basis_atom_map(filename, basis_atom_map):
-    """ Writes gaussian basis file from the basis object in HORTON
+    """Write gaussian basis file from the basis object in HORTON.
 
     Parameters
     ----------
@@ -140,12 +140,6 @@ def dump_basis_atom_map(filename, basis_atom_map):
     basis_atom_map: GOBasisFamily
         Basis set object that contains the name and the contraction information of
         the basis set
-
-    Raises
-    ------
-    AssertionError
-        If basis_atom_map is not loaded
-
     """
     with open(filename, 'w') as f:
         f.write('!Basis set, {0}, generated using HORTON\n\n'.format(basis_atom_map.name))

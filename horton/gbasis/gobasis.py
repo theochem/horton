@@ -25,7 +25,8 @@ import numpy as np
 
 from horton.context import context
 from horton.gbasis.cext import GOBasis
-from horton.gbasis.iobas import load_basis_atom_map_nwchem, load_basis_atom_map_gbs, load_basis_atom_map_gbs
+from horton.gbasis.iobas import load_basis_atom_map_nwchem, load_basis_atom_map_gbs, \
+    dump_basis_atom_map_gbs
 from horton.log import log
 from horton.periodic import periodic
 from horton.utils import typecheck_geo
@@ -248,19 +249,22 @@ class GOBasisFamily(object):
         self._normalize_contractions()
 
     def dump(self, filename=None):
-        """ Dumps the basis set in the gbs format
+        """Dump the basis set in the gbs format.
 
         Parameter
         ---------
         filename : str
-            Name of the gbs file that will be created
+            Name of the gbs file that will be created.
             By default, the original filename is used with '_mod' appended to the end of
             the filename (before extension)
         """
         self.load()
         if filename is None:
             filename = ''.join(self.filename.split('.')[:-1] + ['_mod.gbs'])
-        dump_basis_atom_map_gbs(filename)
+        if filename.endswith('.gbs'):
+            dump_basis_atom_maps_gbs(filename)
+        else:
+            raise IOError('File format not supported: %s' % filename)
 
     def _to_arrays(self):
         """Convert all contraction attributes to numpy arrays."""
