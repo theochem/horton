@@ -152,7 +152,7 @@ def parse_args():
     parser.add_argument('-S', '--skip-merge', default=False, action='store_true',
                         help='Skip the temporary merge and assume the current branch is already '
                              'merged with the ancestor.')
-    parser.add_argument('-t', '--trapdoor-args', default=None,
+    parser.add_argument('-t', '--trapdoor-args', default='',
                         help='Options to be passed to the trapdoor scripts.')
     return parser.parse_args()
 
