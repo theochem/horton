@@ -15,6 +15,6 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     export PYTHONPATH=`pwd`
     export HORTONDATA=`pwd`/data
 
-    tools/qa/simulate_trapdoor_pr.py -vrA $ANCESTOR_SHA tools/qa/trapdoor_coverage.py -- --nproc=6
+    tools/qa/simulate_trapdoor_pr.py -vrA $ANCESTOR_SHA tools/qa/trapdoor_coverage.py -t='--nproc=6'
     tools/qa/simulate_trapdoor_pr.py -vrA $ANCESTOR_SHA tools/qa/trapdoor_namespace.py
 fi
