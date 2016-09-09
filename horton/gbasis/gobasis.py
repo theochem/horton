@@ -248,21 +248,17 @@ class GOBasisFamily(object):
         self._to_segmented()
         self._normalize_contractions()
 
-    def dump(self, filename=None):
+    def dump(self, filename):
         """Dump the basis set in the gbs format.
 
         Parameter
         ---------
         filename : str
             Name of the gbs file that will be created.
-            By default, the original filename is used with '_mod' appended to the end of
-            the filename (before extension)
         """
         self.load()
-        if filename is None:
-            filename = ''.join(self.filename.split('.')[:-1] + ['_mod.gbs'])
         if filename.endswith('.gbs'):
-            dump_basis_atom_map_gbs(filename)
+            dump_basis_atom_map_gbs(filename, self.name, self.basis_atom_map)
         else:
             raise IOError('File format not supported: %s' % filename)
 

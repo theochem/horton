@@ -131,33 +131,33 @@ def load_basis_atom_map_gbs(filename):
     return basis_atom_map
 
 
-def dump_basis_atom_map_gbs(filename, basis_atom_map):
+def dump_basis_atom_map_gbs(filename, name, basis_atom_map):
     """Write gaussian basis file from the basis object in HORTON.
 
     Parameters
     ----------
     filename: str
         File name of the new gbs file
-    basis_atom_map: GOBasisFamily
-        Basis set object that contains the name and the contraction information of
-        the basis set
+    name : str
+        Name of the basis set to mention in the comments of the written file.
+    basis_atom_map: dict
+        Keys a
     """
     with open(filename, 'w') as f:
-        f.write('!Basis set, {0}, generated using HORTON\n\n'.format(basis_atom_map.name))
+        f.write('!Basis set, {0}, generated using HORTON\n\n'.format(name))
         f.write('****\n')
-        basis_atom_map = basis_atom_map.basis_atom_map
-        for atom in sorted(basis_atom_map.keys()):
+        for atom, gobatom in sorted(basis_atom_map.iteritems()):
             f.write('{0:<6}0\n'.format(periodic[atom].symbol))
-            contractions = basis_atom_map[atom].bcs
+            contractions = gobatom.bcs
             for contraction in contractions:
-                exponents = contraction.alphas.reshape(contraction.alphas.size, 1)
+                exponents = contraction.alphas.reshape(-1, 1)
                 con_coeffs = contraction.con_coeffs
-                if len(contraction.con_coeffs.shape) == 1:
-                    con_coeffs = contraction.con_coeffs.reshape(contraction.con_coeffs.size, 1)
+                if con_coeffs.ndim == 1:
+                    con_coeffs = contraction.con_coeffs.reshape(-1, 1)
                 con_numbers = np.hstack((exponents, con_coeffs))
                 f.write('{0:<4}{1:<4}1.00\n'.format(
                     shell_type_to_str(contraction.shell_type).upper(), exponents.size))
-                for con_number in con_numbers:
-                    f.write(('{:>17}'*con_number.size).format(*con_number))
+                for con_row in con_numbers:
+                    f.write(('{:>17}'*con_row.size).format(*con_row))
                     f.write('\n')
             f.write('****\n')

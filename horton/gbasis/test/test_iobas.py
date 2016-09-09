@@ -164,7 +164,7 @@ def test_dump_basis_atom_map_gbs():
     sto3g.load()
     with tmpdir('horton.gbasis.test.test_iobas.test_dump_basis_atom_map_gbs') as tmp:
         tmp_gbs = '{0}/test.gbs'.format(tmp)
-        dump_basis_atom_map_gbs(tmp_gbs, sto3g)
+        dump_basis_atom_map_gbs(tmp_gbs, sto3g.name, sto3g.basis_atom_map)
         new_sto3g = GOBasisFamily('new STO-3G', filename=tmp_gbs)
         new_sto3g.load()
         for atom, bca in new_sto3g.basis_atom_map.iteritems():
@@ -174,3 +174,12 @@ def test_dump_basis_atom_map_gbs():
                 assert contraction.shell_type == old_contraction.shell_type
                 assert np.allclose(contraction.alphas, old_contraction.alphas)
                 assert np.allclose(contraction.con_coeffs, old_contraction.con_coeffs)
+
+
+def test_exceptions():
+    gobf = GOBasisFamily('Random name', filename='randomname.foobareggspam')
+    with assert_raises(IOError):
+        gobf.load()
+    gobf = GOBasisFamily('Random name', basis_atom_map={})
+    with assert_raises(IOError):
+        gobf.dump('randomname.foobareggspam')
