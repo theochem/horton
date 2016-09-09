@@ -56,13 +56,15 @@ class CPPLintTrapdoorProgram(TrapdoorProgram):
         shutil.copy('tools/qa/cpplint.py', self.cpplint_file)
         os.chmod(self.cpplint_file, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
 
-    def get_stats(self, config):
+    def get_stats(self, config, args):
         """Run tests using cpplint.py.
 
         Parameters
         ----------
         config : dict
                  The dictionary loaded from ``trapdoor.cfg``.
+        args : argparse.Namespace
+            The result of parsing the command line arguments.
 
         Returns
         -------

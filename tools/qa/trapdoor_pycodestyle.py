@@ -50,13 +50,15 @@ class PyCodeStyleTrapdoorProgram(TrapdoorProgram):
         TrapdoorProgram.prepare(self)
         shutil.copy('tools/qa/%s' % os.path.basename(self.config_file), self.config_file)
 
-    def get_stats(self, config):
+    def get_stats(self, config, args):
         """Run tests using pycodestyle.
 
         Parameters
         ----------
         config : dict
                  The dictionary loaded from ``trapdoor.cfg``.
+        args : argparse.Namespace
+            The result of parsing the command line arguments.
 
         Returns
         -------

@@ -44,13 +44,15 @@ class PyDocStyleTrapdoorProgram(TrapdoorProgram):
         """Initialize a PyDocStyleTrapdoorProgram instance."""
         TrapdoorProgram.__init__(self, 'pydocstyle')
 
-    def get_stats(self, config):
+    def get_stats(self, config, args):
         """Run tests using pydocstyle.
 
         Parameters
         ----------
         config : dict
                  The dictionary loaded from ``trapdoor.cfg``.
+        args : argparse.Namespace
+            The result of parsing the command line arguments.
 
         Returns
         -------

@@ -45,13 +45,15 @@ class ImportTrapdoorProgram(TrapdoorProgram):
         """Initialize the ImportTrapdoorProgram."""
         TrapdoorProgram.__init__(self, 'import')
 
-    def get_stats(self, config):
+    def get_stats(self, config, args):
         """Count number of bad tests.
 
         Parameters
         ----------
         config : dict
                  The dictionary loaded from ``trapdoor.cfg``.
+        args : argparse.Namespace
+            The result of parsing the command line arguments.
 
         Returns
         -------
