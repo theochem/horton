@@ -70,7 +70,6 @@ cdef class LibXCWrapper(object):
 
         Parameters
         ----------
-
         key : str
             The name of the functional in LibXC, e.g. `"lda_x"`.
         '''
@@ -125,7 +124,6 @@ cdef class RLibXCWrapper(LibXCWrapper):
 
         Parameters
         ----------
-
         key : str
             The name of the functional in LibXC, e.g. `"lda_x"`.
         '''
@@ -142,7 +140,6 @@ cdef class RLibXCWrapper(LibXCWrapper):
 
         Parameters
         ----------
-
         rho : np.ndarray, shape=(npoint,)
             The total electron density.
         zk : np.ndarray, shape=(npoint,), output
@@ -160,7 +157,6 @@ cdef class RLibXCWrapper(LibXCWrapper):
 
         Parameters
         ----------
-
         rho : np.ndarray, shape=(npoint,)
             The total electron density.
         vrho : np.ndarray, shape=(npoint,), output
@@ -181,7 +177,6 @@ cdef class RLibXCWrapper(LibXCWrapper):
 
         Parameters
         ----------
-
         rho : np.ndarray, shape=(npoint,)
             The total electron density.
         sigma : np.ndarray, shape=(npoint,)
@@ -201,11 +196,13 @@ cdef class RLibXCWrapper(LibXCWrapper):
                               np.ndarray[double, ndim=1] sigma not None,
                               np.ndarray[double, ndim=1] vrho not None,
                               np.ndarray[double, ndim=1] vsigma not None):
-        """Compute the GGA potential"s".
+        """Compute the GGA functional derivatives.
+
+        For every input `x`, a functional derivative is computed, `vx`, stored in an array
+        with the same shape.
 
         Parameters
         ----------
-
         rho : np.ndarray, shape=(npoint,)
             The total electron density.
         sigma : np.ndarray, shape=(npoint,)
@@ -237,7 +234,6 @@ cdef class RLibXCWrapper(LibXCWrapper):
 
         Parameters
         ----------
-
         rho : np.ndarray, shape=(npoint,)
             The total electron density.
         sigma : np.ndarray, shape=(npoint,)
@@ -269,11 +265,13 @@ cdef class RLibXCWrapper(LibXCWrapper):
                                np.ndarray[double, ndim=1] vsigma not None,
                                np.ndarray[double, ndim=1] vlapl not None,
                                np.ndarray[double, ndim=1] vtau not None,):
-        """Compute the MGGA potential"s".
+        """Compute the MGGA functional derivatives.
+
+        For every input `x`, a functional derivative is computed, `vx`, stored in an array
+        with the same shape.
 
         Parameters
         ----------
-
         rho : np.ndarray, shape=(npoint,)
             The total electron density.
         sigma : np.ndarray, shape=(npoint,)
@@ -317,7 +315,6 @@ cdef class ULibXCWrapper(LibXCWrapper):
 
         Parameters
         ----------
-
         key
             The name of the functional in LibXC, e.g. lda_x
         '''
@@ -334,7 +331,6 @@ cdef class ULibXCWrapper(LibXCWrapper):
 
         Parameters
         ----------
-
         rho : np.ndarray, shape=(npoint, 2)
             The alpha and beta electron density.
         zk : np.ndarray, shape=(npoint,), output
@@ -349,11 +345,10 @@ cdef class ULibXCWrapper(LibXCWrapper):
 
     def compute_lda_vxc(self, np.ndarray[double, ndim=2] rho not None,
                               np.ndarray[double, ndim=2] vrho not None):
-        """Compute the LDA potential.
+        """Compute the LDA potentials (alpha and beta).
 
         Parameters
         ----------
-
         rho : np.ndarray, shape=(npoint, 2)
             The alpha and beta electron density.
         vrho : np.ndarray, shape=(npoint, 2), output
@@ -377,7 +372,6 @@ cdef class ULibXCWrapper(LibXCWrapper):
 
         Parameters
         ----------
-
         rho : np.ndarray, shape=(npoint, 2)
             The alpha and beta electron density.
         sigma : np.ndarray, shape=(npoint, 3)
@@ -400,11 +394,13 @@ cdef class ULibXCWrapper(LibXCWrapper):
                               np.ndarray[double, ndim=2] sigma not None,
                               np.ndarray[double, ndim=2] vrho not None,
                               np.ndarray[double, ndim=2] vsigma not None):
-        """Compute the GGA potential"s".
+        """Compute the GGA functional derivatives.
+
+        For every input `x`, a functional derivative is computed, `vx`, stored in an array
+        with the same shape.
 
         Parameters
         ----------
-
         rho : np.ndarray, shape=(npoint, 2)
             The alpha and beta electron density.
         sigma : np.ndarray, shape=(npoint, 3)
@@ -441,7 +437,6 @@ cdef class ULibXCWrapper(LibXCWrapper):
 
         Parameters
         ----------
-
         rho : np.ndarray, shape=(npoint, 2)
             The alpha and beta electron density.
         sigma : np.ndarray, shape=(npoint, 3)
@@ -478,11 +473,13 @@ cdef class ULibXCWrapper(LibXCWrapper):
                                np.ndarray[double, ndim=2] vsigma not None,
                                np.ndarray[double, ndim=2] vlapl not None,
                                np.ndarray[double, ndim=2] vtau not None):
-        """Compute the MGGA potential"s".
+        """Compute the MGGA functional derivatives.
+
+        For every input `x`, a functional derivative is computed, `vx`, stored in an array
+        with the same shape.
 
         Parameters
         ----------
-
         rho : np.ndarray, shape=(npoint, 2)
             The alpha and beta electron density.
         sigma : np.ndarray, shape=(npoint, 3)
@@ -491,13 +488,13 @@ cdef class ULibXCWrapper(LibXCWrapper):
             The laplacian of the alpha and beta density.
         tau : np.ndarray, shape=(npoint, 2)
             The alph and beta kinetic energy density.
-        vrho : np.ndarray, shape=(npoint,)
+        vrho : np.ndarray, shape=(npoint, 2)
             The derivative of the energy w.r.t. the alpha and beta electron density.
-        vsigma : np.ndarray, shape=(npoint,)
+        vsigma : np.ndarray, shape=(npoint, 3)
             The derivative of the energy w.r.t. the reduced density gradient norms.
-        vlapl : np.ndarray, shape=(npoint,)
+        vlapl : np.ndarray, shape=(npoint, 2)
             The derivative of the energy w.r.t. the laplacian of the alpha and beta density.
-        vtau : np.ndarray, shape=(npoint,)
+        vtau : np.ndarray, shape=(npoint, 2)
             The derivative of the energy w.r.t. the alpha and beta kinetic energy density.
         """
         assert rho.flags['C_CONTIGUOUS']
