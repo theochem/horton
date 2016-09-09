@@ -3,7 +3,7 @@
 if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     source tools/qa/buildkite_common.sh
     checkout_merge_commit
-    get_ancestor #writes $SHA variable
+    get_ancestor  # Writes $ANCESTOR_SHA variable.
 
     PATH=$PATH:~/.local/bin
 
@@ -17,6 +17,6 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     trapdoor_pydocstyle.py"
 
     for i in ${TRAPDOORS}; do
-        tools/qa/simulate_trapdoor_pr.py -vA $SHA tools/qa/$i
+        tools/qa/simulate_trapdoor_pr.py -vA $ANCESTOR_SHA tools/qa/$i
     done
 fi
