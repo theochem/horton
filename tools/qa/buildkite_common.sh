@@ -35,7 +35,8 @@ get_ancestor () {
     if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
         echo "--- Finding PR ancestor"
         API_URL=`echo "$BUILDKITE_REPO" | sed "s/git@/https:\/\/api./" | sed "s/\.com:/\.com\/repos\//" | sed "s/\.git$/\/pulls\/$BUILDKITE_PULL_REQUEST/"`
-        SHA=`curl $API_URL | jq .base.sha`
+        # Redundant quotes are removed from ANCESTOR_SHA.
+        ANCESTOR_SHA=`curl $API_URL | jq .base.sha | sed "s/\"//g"`
     fi
 
     return 0

@@ -270,7 +270,7 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild, ancestor=
         # Check out the master branch. (We should be constructing the ancestor etc. but
         # that should come down to the same thing for a PR.)
         if ancestor:
-            repo.head.reference = repo.commit(ancestor.strip('\"'))  # remove bash quotes
+            repo.head.reference = repo.commit(ancestor)  # remove bash quotes
             repo.head.reset(index=True, working_tree=True)
         else:
             repo.heads.master.checkout()

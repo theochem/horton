@@ -3,7 +3,7 @@
 if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     source tools/qa/buildkite_common.sh
     checkout_merge_commit
-    get_ancestor #writes $SHA variable
+    get_ancestor  # Writes $ANCESTOR_SHA variable.
 
     echo "--- Build refatoms"
     rm -rf data/refatoms/*.h5 data/refatoms/*.tar.bz2
@@ -19,6 +19,6 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     export HORTONDATA=`pwd`/data
 
     for i in ${TRAPDOORS}; do
-        tools/qa/simulate_trapdoor_pr.py -vrA $SHA tools/qa/$i
+        tools/qa/simulate_trapdoor_pr.py -vrA $ANCESTOR_SHA tools/qa/$i
     done
 fi
