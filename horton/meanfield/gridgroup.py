@@ -180,7 +180,7 @@ class GridGroup(Observable):
         """
         # Get the potentials. If they are not yet evaluated, some computations
         # are needed.
-        lda_pots, gga_pots, mgga_pots, new = self._get_potentials(cache)
+        pots, new = self._get_potentials(cache)
 
         if new:
             # compute stuff on the grid that the grid_observables may use
@@ -188,26 +188,21 @@ class GridGroup(Observable):
 
             # Collect the total potentials.
             for grid_term in self.grid_terms:
-                if grid_term.df_level == DF_LEVEL_LDA:
-                    grid_term.add_pot(cache, self.grid, *lda_pots)
-                elif grid_term.df_level == DF_LEVEL_GGA:
-                    grid_term.add_pot(cache, self.grid, *gga_pots)
-                elif grid_term.df_level == DF_LEVEL_MGGA:
-                    grid_term.add_pot(cache, self.grid, *mgga_pots)
+                grid_term.add_pot(cache, self.grid, *pots)
 
         for ichannel in xrange(len(focks)):
             if self.df_level == DF_LEVEL_LDA:
                 self.obasis.compute_grid_density_fock(
                     self.grid.points, self.grid.weights,
-                    lda_pots[ichannel], focks[ichannel])
+                    pots[ichannel][:,0], focks[ichannel])
             elif self.df_level == DF_LEVEL_GGA:
                 self.obasis.compute_grid_gga_fock(
                     self.grid.points, self.grid.weights,
-                    gga_pots[ichannel], focks[ichannel])
+                    pots[ichannel], focks[ichannel])
             elif self.df_level == DF_LEVEL_MGGA:
                 self.obasis.compute_grid_mgga_fock(
                     self.grid.points, self.grid.weights,
-                    mgga_pots[ichannel], focks[ichannel])
+                    pots[ichannel], focks[ichannel])
 
 
 class RGridGroup(GridGroup):
@@ -257,17 +252,17 @@ class RGridGroup(GridGroup):
             lda_pot_alpha, new = cache.load('lda_pot_total_alpha', alloc=self.grid.size)
             if new:
                 lda_pot_alpha[:] = 0.0
-            return (lda_pot_alpha,), (None,), (None,), new
+            return (lda_pot_alpha.reshape(-1, 1),), new
         elif self.df_level == DF_LEVEL_GGA:
             gga_pot_alpha, new = cache.load('gga_pot_total_alpha', alloc=(self.grid.size, 4))
             if new:
                 gga_pot_alpha[:] = 0.0
-            return (gga_pot_alpha[:, 0],), (gga_pot_alpha,), (None,), new
+            return (gga_pot_alpha,), new
         elif self.df_level == DF_LEVEL_MGGA:
             mgga_pot_alpha, new = cache.load('mgga_pot_total_alpha', alloc=(self.grid.size, 6))
             if new:
                 mgga_pot_alpha[:] = 0.0
-            return (mgga_pot_alpha[:, 0],), (mgga_pot_alpha[:, :4],), (mgga_pot_alpha,), new
+            return (mgga_pot_alpha,), new
         else:
             raise ValueError('Internal error: non-existent DF level.')
 
@@ -353,7 +348,7 @@ class UGridGroup(GridGroup):
             lda_pot_beta, newb = cache.load('lda_pot_total_beta', alloc=self.grid.size)
             if newb:
                 lda_pot_beta[:] = 0.0
-            return (lda_pot_alpha, lda_pot_beta), (None, None), (None, None), (newa or newb)
+            return (lda_pot_alpha.reshape(-1, 1), lda_pot_beta.reshape(-1, 1)), (newa or newb)
         elif self.df_level == DF_LEVEL_GGA:
             gga_pot_alpha, newa = cache.load('gga_pot_total_alpha', alloc=(self.grid.size, 4))
             if newa:
@@ -361,9 +356,7 @@ class UGridGroup(GridGroup):
             gga_pot_beta, newb = cache.load('gga_pot_total_beta', alloc=(self.grid.size, 4))
             if newb:
                 gga_pot_beta[:] = 0.0
-            return (gga_pot_alpha[:, 0], gga_pot_beta[:, 0]), \
-                   (gga_pot_alpha, gga_pot_beta), \
-                   (None, None), (newa or newb)
+            return (gga_pot_alpha, gga_pot_beta), (newa or newb)
         elif self.df_level == DF_LEVEL_MGGA:
             mgga_pot_alpha, newa = cache.load('mgga_pot_total_alpha', alloc=(self.grid.size, 6))
             if newa:
@@ -371,9 +364,7 @@ class UGridGroup(GridGroup):
             mgga_pot_beta, newb = cache.load('mgga_pot_total_beta', alloc=(self.grid.size, 6))
             if newb:
                 mgga_pot_beta[:] = 0.0
-            return (mgga_pot_alpha[:, 0], mgga_pot_beta[:, 0]), \
-                   (mgga_pot_alpha[:, :4], mgga_pot_beta[:, :4]), \
-                   (mgga_pot_alpha, mgga_pot_beta), (newa or newb)
+            return (mgga_pot_alpha, mgga_pot_beta), (newa or newb)
         else:
             raise ValueError('Internal error: non-existent DF level.')
 
@@ -455,6 +446,14 @@ class GridObservable(object):
             A list of potential arrays. (Only one array for the alpha density in case of
             restricted. Two arrays, one for alpha and one for beta electrons, in case of
             unrestricted.) Each array contains `potential` data, e.g. derivatives of a
-            density functional toward the density, the gradient of the density, etc.
+            density functional toward:
+
+            * column 0: the density,
+            * columns 1,2,3: gradient.
+            * column 4: laplacian
+            * column 5: kinetic energy density
+
+            Later columns may not be present if the functional does not need them. They
+            could be prexent when other terms in the effective Hamiltonian need them.
         """
         raise NotImplementedError

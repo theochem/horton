@@ -84,7 +84,7 @@ class RLibXCLDA(LibXCEnergy):
 
     @timer.with_section('LDA pot')
     @doc_inherit(LibXCEnergy)
-    def add_pot(self, cache, grid, lda_pot_alpha):
+    def add_pot(self, cache, grid, pots_alpha):
         # LibXC expects the following input:
         #   - total density
         # LibXC computes:
@@ -92,7 +92,7 @@ class RLibXCLDA(LibXCEnergy):
         pot, new = cache.load('pot_libxc_%s_alpha' % self._name, alloc=grid.size)
         if new:
             self._libxc_wrapper.compute_lda_vxc(cache['rho_full'], pot)
-        lda_pot_alpha += pot
+        pots_alpha[:, 0] += pot
 
 
 class ULibXCLDA(LibXCEnergy):
@@ -120,7 +120,7 @@ class ULibXCLDA(LibXCEnergy):
 
     @timer.with_section('LDA pot')
     @doc_inherit(LibXCEnergy)
-    def add_pot(self, cache, grid, lda_pot_alpha, lda_pot_beta):
+    def add_pot(self, cache, grid, pots_alpha, pots_beta):
         # LibXC expects the following input:
         #   - alpha density
         #   - beta density
@@ -130,8 +130,8 @@ class ULibXCLDA(LibXCEnergy):
         pot_both, new = cache.load('pot_libxc_%s_both' % self._name, alloc=(grid.size, 2))
         if new:
             self._libxc_wrapper.compute_lda_vxc(cache['rho_both'], pot_both)
-        lda_pot_alpha += pot_both[:, 0]
-        lda_pot_beta += pot_both[:, 1]
+        pots_alpha[:, 0] += pot_both[:, 0]
+        pots_beta[:, 0] += pot_both[:, 1]
 
 
 class RLibXCGGA(LibXCEnergy):
@@ -158,7 +158,7 @@ class RLibXCGGA(LibXCEnergy):
 
     @timer.with_section('GGA pot')
     @doc_inherit(LibXCEnergy)
-    def add_pot(self, cache, grid, gga_pot_alpha):
+    def add_pot(self, cache, grid, pots_alpha):
         # LibXC expects the following input:
         #   - total density
         #   - norm of the gradient of the total density
@@ -183,7 +183,7 @@ class RLibXCGGA(LibXCEnergy):
             my_gga_pot_alpha[:, 1:4] *= 2
 
         # Add to the output argument
-        gga_pot_alpha += my_gga_pot_alpha
+        pots_alpha[:, :4] += my_gga_pot_alpha
 
 
 class ULibXCGGA(LibXCEnergy):
@@ -214,7 +214,7 @@ class ULibXCGGA(LibXCEnergy):
 
     @timer.with_section('GGA pot')
     @doc_inherit(LibXCEnergy)
-    def add_pot(self, cache, grid, gga_pot_alpha, gga_pot_beta):
+    def add_pot(self, cache, grid, pots_alpha, pots_beta):
         # LibXC expects the following input:
         #   - alpha density
         #   - beta density
@@ -256,8 +256,8 @@ class ULibXCGGA(LibXCEnergy):
             my_gga_pot_beta[:, 1:4] = (2*spot_all[:, 2].reshape(-1, 1))*grad_beta
             my_gga_pot_beta[:, 1:4] += (spot_all[:, 1].reshape(-1, 1))*grad_alpha
 
-        gga_pot_alpha += my_gga_pot_alpha
-        gga_pot_beta += my_gga_pot_beta
+        pots_alpha[:, :4] += my_gga_pot_alpha
+        pots_beta[:, :4] += my_gga_pot_beta
 
 
 class RLibXCHybridGGA(RLibXCGGA):
@@ -309,7 +309,7 @@ class RLibXCMGGA(LibXCEnergy):
 
     @timer.with_section('MGGA pot')
     @doc_inherit(LibXCEnergy)
-    def add_pot(self, cache, grid, mgga_pot_alpha):
+    def add_pot(self, cache, grid, pots_alpha):
         # LibXC expects the following input:
         #   - total density
         #   - norm of the gradient of the total density
@@ -345,7 +345,7 @@ class RLibXCMGGA(LibXCEnergy):
             my_mgga_pot_alpha[:, 5] = tpot
 
         # Add to the output argument
-        mgga_pot_alpha += my_mgga_pot_alpha
+        pots_alpha[:, :6] += my_mgga_pot_alpha
 
 
 class ULibXCMGGA(LibXCEnergy):
@@ -383,7 +383,7 @@ class ULibXCMGGA(LibXCEnergy):
 
     @timer.with_section('MGGA pot')
     @doc_inherit(LibXCEnergy)
-    def add_pot(self, cache, grid, mgga_pot_alpha, mgga_pot_beta):
+    def add_pot(self, cache, grid, pots_alpha, pots_beta):
         # LibXC expects the following input:
         #   - alpha density
         #   - beta density
@@ -440,8 +440,8 @@ class ULibXCMGGA(LibXCEnergy):
             my_mgga_pot_beta[:, 4] = lpot_both[:, 1]
             my_mgga_pot_beta[:, 5] = tpot_both[:, 1]
 
-        mgga_pot_alpha += my_mgga_pot_alpha
-        mgga_pot_beta += my_mgga_pot_beta
+        pots_alpha[:, :6] += my_mgga_pot_alpha
+        pots_beta[:, :6] += my_mgga_pot_beta
 
 
 class RLibXCHybridMGGA(RLibXCMGGA):

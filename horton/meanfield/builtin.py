@@ -84,19 +84,19 @@ class RBeckeHartree(BeckeHartree):
     """Hartree term with numerical Becke-Poisson solver for restricted wavefunctions."""
 
     @doc_inherit(BeckeHartree)
-    def add_pot(self, cache, grid, lda_pot_alpha):
+    def add_pot(self, cache, grid, pots_alpha):
         pot = self._update_pot(cache, grid)
-        lda_pot_alpha += pot
+        pots_alpha[:, 0] += pot
 
 
 class UBeckeHartree(BeckeHartree):
     """Hartree term with numerical Becke-Poisson solver for unrestricted wavefunctions."""
 
     @doc_inherit(BeckeHartree)
-    def add_pot(self, cache, grid, lda_pot_alpha, lda_pot_beta):
+    def add_pot(self, cache, grid, pots_alpha, pots_beta):
         pot = self._update_pot(cache, grid)
-        lda_pot_alpha += pot
-        lda_pot_beta += pot
+        pots_alpha[:, 0] += pot
+        pots_beta[:, 0] += pot
 
 
 class DiracExchange(GridObservable):
@@ -153,8 +153,8 @@ class RDiracExchange(DiracExchange):
         return (3.0 / 2.0) * grid.integrate(pot, rho)
 
     @doc_inherit(GridObservable)
-    def add_pot(self, cache, grid, lda_pot_alpha):
-        lda_pot_alpha += self._update_pot(cache, grid, 'alpha')
+    def add_pot(self, cache, grid, pots_alpha):
+        pots_alpha[:, 0] += self._update_pot(cache, grid, 'alpha')
 
 
 class UDiracExchange(DiracExchange):
@@ -170,6 +170,6 @@ class UDiracExchange(DiracExchange):
                               grid.integrate(pot_beta, rho_beta))
 
     @doc_inherit(GridObservable)
-    def add_pot(self, cache, grid, dpot_alpha, dpot_beta):
-        dpot_alpha += self._update_pot(cache, grid, 'alpha')
-        dpot_beta += self._update_pot(cache, grid, 'beta')
+    def add_pot(self, cache, grid, pots_alpha, pots_beta):
+        pots_alpha[:, 0] += self._update_pot(cache, grid, 'alpha')
+        pots_beta[:, 0] += self._update_pot(cache, grid, 'beta')
