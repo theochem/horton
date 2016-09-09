@@ -162,12 +162,12 @@ def test_gobasis_contraction():
         gbc.normalize()
 
 
-def test_dump_basis_atom_map():
+def test_dump_basis_atom_map_gbs():
     sto3g = GOBasisFamily('original STO-3G', filename=context.get_fn('basis/sto-3g.gbs'))
     sto3g.load()
-    with tmpdir('horton.gbasis.test.test_iobas.test_dump_basis_atom_map') as tmp:
+    with tmpdir('horton.gbasis.test.test_iobas.test_dump_basis_atom_map_gbs') as tmp:
         tmp_gbs = '{0}/test.gbs'.format(tmp)
-        new_gobasis = dump_basis_atom_map(tmp_gbs, sto3g)
+        new_gobasis = dump_basis_atom_map_gbs(tmp_gbs, sto3g)
         new_sto3g = GOBasisFamily('new STO-3G', filename=tmp_gbs)
         new_sto3g.load()
         for atom, bca in new_sto3g.basis_atom_map.iteritems():

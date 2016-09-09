@@ -28,7 +28,7 @@ from horton.periodic import periodic
 __all__ = [
     'str_to_shell_types', 'shell_type_to_str', 'fortran_float',
     'load_basis_atom_map_nwchem', 'load_basis_atom_map_gbs',
-    'dump_basis_atom_map'
+    'dump_basis_atom_map_gbs'
 ]
 
 
@@ -130,7 +130,7 @@ def load_basis_atom_map_gbs(filename):
     return basis_atom_map
 
 
-def dump_basis_atom_map(filename, basis_atom_map):
+def dump_basis_atom_map_gbs(filename, basis_atom_map):
     """Write gaussian basis file from the basis object in HORTON.
 
     Parameters
