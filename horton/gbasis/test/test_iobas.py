@@ -164,7 +164,7 @@ def test_dump_basis_atom_map_gbs():
     sto3g.load()
     with tmpdir('horton.gbasis.test.test_iobas.test_dump_basis_atom_map_gbs') as tmp:
         tmp_gbs = '{0}/test.gbs'.format(tmp)
-        new_gobasis = dump_basis_atom_map_gbs(tmp_gbs, sto3g)
+        dump_basis_atom_map_gbs(tmp_gbs, sto3g)
         new_sto3g = GOBasisFamily('new STO-3G', filename=tmp_gbs)
         new_sto3g.load()
         for atom, bca in new_sto3g.basis_atom_map.iteritems():

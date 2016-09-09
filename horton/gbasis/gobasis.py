@@ -262,7 +262,7 @@ class GOBasisFamily(object):
         if filename is None:
             filename = ''.join(self.filename.split('.')[:-1] + ['_mod.gbs'])
         if filename.endswith('.gbs'):
-            dump_basis_atom_maps_gbs(filename)
+            dump_basis_atom_map_gbs(filename)
         else:
             raise IOError('File format not supported: %s' % filename)
 
