@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+cat ${0}
+
 set -exo pipefail
 
 abort_error () {
