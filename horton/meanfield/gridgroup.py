@@ -194,7 +194,7 @@ class GridGroup(Observable):
             if self.df_level == DF_LEVEL_LDA:
                 self.obasis.compute_grid_density_fock(
                     self.grid.points, self.grid.weights,
-                    pots[ichannel][:,0], focks[ichannel])
+                    pots[ichannel][:, 0], focks[ichannel])
             elif self.df_level == DF_LEVEL_GGA:
                 self.obasis.compute_grid_gga_fock(
                     self.grid.points, self.grid.weights,

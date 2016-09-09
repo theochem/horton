@@ -21,8 +21,6 @@
 """Interface to LDA, GGA and hybrid functionals from LibXC"""
 
 
-import numpy as np
-
 from horton.log import log, timer
 from horton.utils import doc_inherit
 from horton.meanfield.gridgroup import GridObservable, DF_LEVEL_LDA, \
