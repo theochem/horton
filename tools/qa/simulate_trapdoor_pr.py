@@ -115,11 +115,9 @@ def main():
     try:
         if not (args.ancestor or args.skip_merge):
             make_temporary_merge(repo, merge_head_name)
-        retcode = 0
-        for s in args.script:
-            retcode += trapdoor_workflow(
-                repo, s, qaworkdir, args.skip_ancestor, args.rebuild,
-                args.trapdoor_arguments, args.ancestor)
+        retcode = trapdoor_workflow(
+            repo, args.script, qaworkdir, args.skip_ancestor, args.rebuild,
+            args.trapdoor_arguments, args.ancestor)
         if retcode > 0:
             print >> sys.stderr, '\033[91m' + "ERROR in tests. Please inspect log carefully" \
                 + '\033[0m'
@@ -134,7 +132,7 @@ def main():
 def parse_args():
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description='Simulate trapdoor test locally.')
-    parser.add_argument('script', type=str, metavar='trapdoor', nargs="*",
+    parser.add_argument('script', type=str, metavar='trapdoor',
                         help='Paths to trapdoor scripts, separated by spaces.')
     parser.add_argument('-v', '--verbose', default=False, action='store_true',
                         help='Prints debugging information.')
