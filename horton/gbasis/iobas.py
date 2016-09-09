@@ -95,7 +95,7 @@ def load_basis_atom_map_gbs(filename):
     from horton.gbasis.gobasis import GOBasisAtom, GOBasisContraction
 
     basis_atom_map = {}
-    bc = None # The current contraction being loaded
+    bc = None  # The current contraction being loaded
     cur_atom = None
     cur_shell_types = None
     with open(filename, 'r') as f:
@@ -115,7 +115,8 @@ def load_basis_atom_map_gbs(filename):
                 # A new contraction begins, maybe even a new atom.
                 n = periodic[cur_atom].number
                 cur_shell_types = str_to_shell_types(words[0])
-                empty_contr = [GOBasisContraction(shell_type, [], []) for shell_type in cur_shell_types]
+                empty_contr = [GOBasisContraction(shell_type, [], [])
+                               for shell_type in cur_shell_types]
                 try:
                     basis_atom_map[n].bcs.extend(empty_contr)
                 except KeyError:
@@ -154,8 +155,8 @@ def dump_basis_atom_map_gbs(filename, basis_atom_map):
                 if len(contraction.con_coeffs.shape) == 1:
                     con_coeffs = contraction.con_coeffs.reshape(contraction.con_coeffs.size, 1)
                 con_numbers = np.hstack((exponents, con_coeffs))
-                f.write('{0:<4}{1:<4}1.00\n'.format(shell_type_to_str(contraction.shell_type).upper(),
-                                                    exponents.size))
+                f.write('{0:<4}{1:<4}1.00\n'.format(
+                    shell_type_to_str(contraction.shell_type).upper(), exponents.size))
                 for con_number in con_numbers:
                     f.write(('{:>17}'*con_number.size).format(*con_number))
                     f.write('\n')
