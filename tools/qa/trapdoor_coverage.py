@@ -96,13 +96,14 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
 
         # Run fast unit tests with nosetests, with coverage
         command = ['nosetests', '-v', '-a', '!slow',
-                   '--processes=%s' % args.nproc,
-                   '--process-timeout=600',
                    '--with-coverage',
                    '--cover-erase',
                    '--cover-branches',
                    '--cover-package=%s' % ','.join(config['py_packages'])] + \
                    config['py_directories']
+        if args.nproc > 1:
+            command.extend(['--processes=%s' % args.nproc,
+                            '--process-timeout=600'])
         output = run_command(command)[0]
         lines = [line.strip() for line in output.split('\n')]
 
