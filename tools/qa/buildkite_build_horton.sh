@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 source tools/qa/buildkite_common.sh
-checkout_merge_commit
 
 echo "--- Basic source tests"
 ./tools/qa/check_names.py
