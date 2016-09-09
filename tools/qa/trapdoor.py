@@ -207,9 +207,9 @@ class TrapdoorProgram(object):
         print r'                                                          +~~~~~~~~~~~~~~~~~~~~'
         if args.mode == 'feature':
             self.prepare()
-            self.run_tests(args.mode)
+            self.run_tests(args)
         elif args.mode == 'ancestor':
-            self.run_tests(args.mode)
+            self.run_tests(args)
         elif args.mode == 'report':
             self.report(args.noisy, args.pattern)
         print
@@ -223,13 +223,23 @@ class TrapdoorProgram(object):
                The parsed command-line arguments.
         """
         parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]))
+        self.add_argparse_arguments(parser)
+        return parser.parse_args()
+
+    def add_argparse_arguments(self, parser):
+        """Add command-line arguments to the argument parser.
+
+        Parameters
+        ----------
+        parser : argparse.ArgumentParser
+            The parser to which arguments must be added.
+        """
         parser.add_argument('mode', choices=['feature', 'ancestor', 'report'])
         parser.add_argument('-n', '--noisy', default=False, action='store_true',
                             help='Also print output for problems that did not '
                                  'deteriorate.')
         parser.add_argument('-f', '--pattern', metavar='PATTERN', dest='pattern',
                             help='Only print messages whose filename contains PATTERN')
-        return parser.parse_args()
 
     def prepare(self):
         """Prepare for the tests, only once, needed for both feature branch and ancestor.
@@ -239,14 +249,13 @@ class TrapdoorProgram(object):
         """
         shutil.copy('tools/qa/trapdoor.cfg', self.trapdoor_config_file)
 
-    def run_tests(self, mode):
+    def run_tests(self, args):
         """Run the tests on a single branch HEAD.
 
         Parameters
         ----------
-        mode: string
-              A name for the current branch on which the tests are run, typically
-              ``'feature'`` or ``'ancestor'``.
+        args : argparse.Namespace
+            The result of parsing the command line arguments.
 
         The results are written to disk in a file ``trapdoor_results_*.pp``. These files
         are later used by the report method to analyze the results.
@@ -254,18 +263,18 @@ class TrapdoorProgram(object):
         start_time = time.time()
         with open(self.trapdoor_config_file, 'r') as f:
             config = json.load(f)
-        counter, messages = self.get_stats(config)
+        counter, messages = self.get_stats(config, args)
         print 'NUMBER OF MESSAGES :', len(messages)
         print 'ADDING SOURCE ...'
         self._add_contexts(messages)
         print 'NUMBER OF MESSAGES :', len(messages)
         print 'SUM OF COUNTERS    :', sum(counter.itervalues())
-        fn_pp = 'trapdoor_results_%s_%s.pp' % (self.name, mode)
+        fn_pp = 'trapdoor_results_%s_%s.pp' % (self.name, args.mode)
         with open(os.path.join(self.qaworkdir, fn_pp), 'w') as f:
             cPickle.dump((counter, messages), f)
         print 'WALL TIME          : %.1f' % (time.time() - start_time)
 
-    def get_stats(self, config):
+    def get_stats(self, config, args):
         """Run tests using an external program and collect its output.
 
         This method must be implemented in a subclass.
@@ -274,6 +283,8 @@ class TrapdoorProgram(object):
         ----------
         config : dict
                  The dictionary loaded from ``trapdoor.cfg``.
+        args : argparse.Namespace
+            The result of parsing the command line arguments.
 
         Returns
         -------

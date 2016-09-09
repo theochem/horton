@@ -40,13 +40,15 @@ class NamespaceTrapdoorProgram(TrapdoorProgram):
         """Initialize the NamespaceTrapdoorProgram."""
         TrapdoorProgram.__init__(self, 'namespace')
 
-    def get_stats(self, config):
+    def get_stats(self, config, args):
         """Count number of bad tests.
 
         Parameters
         ----------
         config : dict
                  The dictionary loaded from ``trapdoor.cfg``.
+        args : argparse.Namespace
+            The result of parsing the command line arguments.
 
         Returns
         -------

@@ -40,13 +40,15 @@ class CPPCheckTrapdoorProgram(TrapdoorProgram):
         """Initialize the CPPCheckTrandoorProgram."""
         TrapdoorProgram.__init__(self, 'cppcheck')
 
-    def get_stats(self, config):
+    def get_stats(self, config, args):
         """Run tests using Cppcheck.
 
         Parameters
         ----------
         config : dict
                  The dictionary loaded from ``trapdoor.cfg``.
+        args : argparse.Namespace
+            The result of parsing the command line arguments.
 
         Returns
         -------

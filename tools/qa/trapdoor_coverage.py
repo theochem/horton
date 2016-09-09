@@ -54,13 +54,28 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
         """Initialize the CoverageTrapdoorProgram."""
         TrapdoorProgram.__init__(self, 'coverage')
 
-    def get_stats(self, config):
+    def add_argparse_arguments(self, parser):
+        """Add command-line arguments to the argument parser.
+
+        Parameters
+        ----------
+        parser : argparse.ArgumentParser
+            The parser to which arguments must be added.
+        """
+        TrapdoorProgram.add_argparse_arguments(self, parser)
+        parser.add_argument('--nproc', type=int, default=1,
+                            help='Number of parallel processes when running nose. '
+                                 '[default=%(default)s]')
+
+    def get_stats(self, config, args):
         """Run tests using nosetests with coverage analysis.
 
         Parameters
         ----------
         config : dict
                  The dictionary loaded from ``trapdoor.cfg``.
+        args : argparse.Namespace
+            The result of parsing the command line arguments.
 
         Returns
         -------
@@ -81,13 +96,14 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
 
         # Run fast unit tests with nosetests, with coverage
         command = ['nosetests', '-v', '-a', '!slow',
-                   '--processes=6',  # coverage is faster without parallel?!
-                   '--process-timeout=60',
                    '--with-coverage',
                    '--cover-erase',
                    '--cover-branches',
                    '--cover-package=%s' % ','.join(config['py_packages'])] + \
                    config['py_directories']
+        if args.nproc > 1:
+            command.extend(['--processes=%s' % args.nproc,
+                            '--process-timeout=600'])
         output = run_command(command)[0]
         lines = [line.strip() for line in output.split('\n')]
 

@@ -12,13 +12,9 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     echo "--- Running trapdoors tests"
     ./tools/qa/check_whitespace.py || report_error "Whitespace errors in some commits"
 
-    TRAPDOORS="trapdoor_coverage.py
-    trapdoor_namespace.py"
-
     export PYTHONPATH=`pwd`
     export HORTONDATA=`pwd`/data
 
-    for i in ${TRAPDOORS}; do
-        tools/qa/simulate_trapdoor_pr.py -vrA $ANCESTOR_SHA tools/qa/$i
-    done
+    tools/qa/simulate_trapdoor_pr.py -vrA $ANCESTOR_SHA tools/qa/trapdoor_coverage.py -t='--nproc=6'
+    tools/qa/simulate_trapdoor_pr.py -vrA $ANCESTOR_SHA tools/qa/trapdoor_namespace.py
 fi
