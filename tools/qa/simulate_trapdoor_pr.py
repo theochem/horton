@@ -29,6 +29,7 @@ import argparse
 from functools import wraps
 import os
 import shutil
+import shlex
 import subprocess
 import sys
 
@@ -115,10 +116,12 @@ def main():
     try:
         if not (args.ancestor or args.skip_merge):
             make_temporary_merge(repo, merge_head_name)
-        retcode = trapdoor_workflow(
-            repo, args.script, qaworkdir, args.skip_ancestor, args.rebuild,
-            args.trapdoor_arguments, args.ancestor)
-        if retcode > 0:
+        retcode = 0
+        for script in args.scripts:
+            retcode |= trapdoor_workflow(
+                repo, script, qaworkdir, args.skip_ancestor, args.rebuild,
+                args.trapdoor_args, args.ancestor)
+        if retcode != 0:
             print >> sys.stderr, '\033[91m' + "ERROR in tests. Please inspect log carefully" \
                 + '\033[0m'
         else:
@@ -132,7 +135,7 @@ def main():
 def parse_args():
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description='Simulate trapdoor test locally.')
-    parser.add_argument('script', type=str, metavar='trapdoor',
+    parser.add_argument('scripts', type=str, metavar='trapdoor', nargs='*',
                         help='Paths to trapdoor scripts, separated by spaces.')
     parser.add_argument('-v', '--verbose', default=False, action='store_true',
                         help='Prints debugging information.')
@@ -149,8 +152,8 @@ def parse_args():
     parser.add_argument('-S', '--skip-merge', default=False, action='store_true',
                         help='Skip the temporary merge and assume the current branch is already '
                              'merged with the ancestor.')
-    parser.add_argument('trapdoor_arguments', nargs='*',
-                        help='Options to be passed to the trapdoor script.')
+    parser.add_argument('-t', '--trapdoor-args', default=None,
+                        help='Options to be passed to the trapdoor scripts.')
     return parser.parse_args()
 
 
@@ -243,7 +246,7 @@ def make_temporary_merge(repo, merge_head_name):
 
 
 @log.section('trapdoor workflow')
-def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild, trapdoor_arguments,
+def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild, trapdoor_args,
                       ancestor=None):
     """Run the trapdoor scripts in the right order.
 
@@ -259,14 +262,14 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild, trapdoor_
         If True, the trapdoor script is not executed in the ancestor.
     rebuild : bool
         When True, extensions will be rebuilt.
-    trapdoor_arguments: list
-        List of arguments to pass to the trapdoor script.
+    trapdoor_args: str
+        Arguments to pass to the trapdoor script.
     ancestor : str or None
         When given, this is commit id of the ancestor.
     """
     if rebuild:
         subprocess.check_call(['./setup.py', 'build_ext', '-i'])
-    subprocess.check_call([script, 'feature'] + trapdoor_arguments)
+    subprocess.check_call([script, 'feature'] + shlex.split(trapdoor_args))
     if skip_ancestor:
         retcode = subprocess.call([script, 'report'])
     else:
@@ -282,7 +285,7 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild, trapdoor_
             repo.heads.master.checkout()
         if rebuild:
             subprocess.check_call(['./setup.py', 'build_ext', '-i'])
-        subprocess.check_call([copied_script, 'ancestor'] + trapdoor_arguments)
+        subprocess.check_call([copied_script, 'ancestor'] + shlex.split(trapdoor_args))
         retcode = subprocess.call([copied_script, 'report'])
 
     return retcode
