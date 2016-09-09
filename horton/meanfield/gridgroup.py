@@ -442,7 +442,7 @@ class GridObservable(object):
             grid. See :py:class:`RGridGroup` and :py:class:`UGridGroup` for more details.
         grid : IntGrid
             A numerical integration grid.
-        *args : list of [np.ndarray, shape=(npoint, npot), dtype=float]
+        args : list of [np.ndarray, shape=(npoint, npot), dtype=float]
             A list of potential arrays. (Only one array for the alpha density in case of
             restricted. Two arrays, one for alpha and one for beta electrons, in case of
             unrestricted.) Each array contains `potential` data, e.g. derivatives of a
