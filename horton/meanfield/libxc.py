@@ -179,7 +179,7 @@ class RLibXCGGA(LibXCEnergy):
         if new:
             my_gga_pot_alpha[:, 0] = dpot
             grad_rho = cache['grad_rho_full']
-            np.multiply(grad_rho, spot.reshape(-1, 1), out=my_gga_pot_alpha[:, 1:4])
+            my_gga_pot_alpha[:, 1:4] = grad_rho*spot.reshape(-1, 1)
             my_gga_pot_alpha[:, 1:4] *= 2
 
         # Add to the output argument
@@ -339,7 +339,7 @@ class RLibXCMGGA(LibXCEnergy):
         if new:
             my_mgga_pot_alpha[:, 0] = dpot
             grad_rho = cache['grad_rho_full']
-            np.multiply(grad_rho, spot.reshape(-1, 1), out=my_mgga_pot_alpha[:, 1:4])
+            my_mgga_pot_alpha[:, 1:4] = grad_rho*spot.reshape(-1, 1)
             my_mgga_pot_alpha[:, 1:4] *= 2
             my_mgga_pot_alpha[:, 4] = lpot
             my_mgga_pot_alpha[:, 5] = tpot
