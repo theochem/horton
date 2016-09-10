@@ -16,7 +16,7 @@ rm -rf installation
 ./setup.py build_ext -i
 
 echo "--- Packing build"
-tar -zcvf horton_pr.tar.gz horton
+find horton -name "*.so" -o -name "*.pyc" | tar -zcvf horton_pr.tar.gz -T -
 buildkite-agent artifact upload horton_pr.tar.gz
 
 if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
@@ -33,6 +33,6 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     ./setup.py build_ext -i
 
     echo "--- Packing build [Ancestor]"
-    tar -zcvf horton_ancestor.tar.gz horton
+    find horton -name "*.so" -o -name "*.pyc" | tar -zcvf horton_ancestor.tar.gz -T -
     buildkite-agent artifact upload horton_ancestor.tar.gz
 fi
