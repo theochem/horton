@@ -8,12 +8,12 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     get_ancestor  # Writes $ANCESTOR_SHA variable.
 
     echo "--- Prep working directory"
-    rm -rf horton_pr.tar.gz horton_ancestor.tar.gz
+    rm -rf *_pr.tar.gz *_ancestor.tar.gz
     ./cleanfiles.sh
 
-    echo "--- Build refatoms"
-    rm -rf data/refatoms/*.h5 data/refatoms/*.tar.bz2
-    make -C data/refatoms/
+    echo "--- Load PR refatoms"
+    buildkite-agent artifact download refatoms_pr.tar.gz .
+    tar xvf refatoms_pr.tar.gz
 
     echo "--- Running trapdoors tests"
     $dir/check_whitespace.py $ANCESTOR_SHA || report_error "Whitespace errors in some commits"
@@ -33,6 +33,11 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     buildkite-agent artifact download horton_ancestor.tar.gz .
     ./cleanfiles.sh
     tar xvf horton_ancestor.tar.gz
+
+    echo "--- Load ancestor refatoms"
+    buildkite-agent artifact download refatoms_ancestor.tar.gz .
+    rm -rf data/refatoms/*
+    tar xvf refatoms_ancestor.tar.gz
 
     echo "--- Running trapdoor tests on ancestor branch"
     for i in "ancestor" "report"; do

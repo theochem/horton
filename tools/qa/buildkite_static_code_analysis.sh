@@ -7,7 +7,6 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     get_ancestor  # Writes $ANCESTOR_SHA variable.
 
     echo "--- Prep working directory"
-    rm -rf horton_pr.tar.gz horton_ancestor.tar.gz
     ./cleanfiles.sh
 
     PATH=$PATH:~/.local/bin  # fix for ubuntu paths
