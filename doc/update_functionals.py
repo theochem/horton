@@ -19,7 +19,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-"""Generate list of functions in documentation."""
+"""Generate list of functionals in documentation."""
 
 
 from cStringIO import StringIO

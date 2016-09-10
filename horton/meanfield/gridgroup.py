@@ -51,17 +51,13 @@ class GridGroup(Observable):
         ----------
         obasis : GOBasis
             The orbital basis.
-
         grid : IntGrid
             A numerical integration grid. (must have ``points`` attribute and
             ``integrate`` method.)
-
         grid_terms : list of GridObservable instances.
             The contributions to the effective Hamiltonian.
-
         label : str
             A label for the group.
-
         density_cutoff : float
             Whenever the density on a grid point falls below this threshold, all data for
             that grid point is set to zero. This is mainly relevant for functionals that
@@ -148,13 +144,13 @@ class GridGroup(Observable):
     def compute_energy(self, cache):
         """Compute the sum of the expectation values.
 
+        This method basically dispatches the work to all ``GridObservable`` instances in
+        ``self.grid_terms``.
+
         Parameters
         ----------
         cache : Cache
             Used to store intermediate results.
-
-        This method basically dispatches the work to all ``GridObservable`` instances in
-        ``self.grid_terms``.
         """
         # compute stuff on the grid that the grid_observables may use
         self._update_grid_data(cache)
@@ -170,13 +166,13 @@ class GridGroup(Observable):
     def add_fock(self, cache, *focks):
         """Add contributions to the Fock matrix.
 
+        This method basically dispatches the work to all ``GridObservable`` instances in
+        ``self.grid_terms``.
+
         Parameters
         ----------
         cache : Cache
             Used to store intermediate results.
-
-        This method basically dispatches the work to all ``GridObservable`` instances in
-        ``self.grid_terms``.
         """
         # Get the potentials. If they are not yet evaluated, some computations
         # are needed.
@@ -448,12 +444,12 @@ class GridObservable(object):
             unrestricted.) Each array contains `potential` data, e.g. derivatives of a
             density functional toward:
 
-            * column 0: the density,
-            * columns 1,2,3: gradient.
-            * column 4: laplacian
+            * column 0: the density
+            * columns 1,2,3: gradient (x, y, z)
+            * column 4: Laplacian
             * column 5: kinetic energy density
 
             Later columns may not be present if the functional does not need them. They
-            could be prexent when other terms in the effective Hamiltonian need them.
+            could be present when other terms in the effective Hamiltonian need them.
         """
         raise NotImplementedError
