@@ -18,12 +18,12 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Built-in energy terms'''
+"""Built-in energy terms"""
 
 
 import numpy as np
 
-from horton.meanfield.gridgroup import GridObservable
+from horton.meanfield.gridgroup import GridObservable, DF_LEVEL_LDA
 from horton.grid.molgrid import BeckeMolGrid
 from horton.grid.poisson import solve_poisson_becke
 from horton.utils import doc_inherit
@@ -33,19 +33,24 @@ __all__ = ['RBeckeHartree', 'UBeckeHartree', 'RDiracExchange', 'UDiracExchange']
 
 
 class BeckeHartree(GridObservable):
+    """Hartree term with numerical Becke-Poisson solver."""
+
+    df_level = DF_LEVEL_LDA
+
     def __init__(self, lmax, label='hartree_becke'):
         self.lmax = lmax
         GridObservable.__init__(self, label)
 
     def _update_pot(self, cache, grid):
-        '''Recompute an Hartree potential if invalid
+        """Recompute a Hartree potential if invalid.
 
-           cache
-                A cache instance in which the potential is stored.
-
-           grid
-                The integration grid.
-        '''
+        Parameters
+        ----------
+        cache : Cache
+            Storage for the potentials.
+        grid : IntGrid
+            A numerical integration grid.
+        """
         # This only works under a few circumstances
         if not isinstance(grid, BeckeMolGrid):
             raise TypeError('The BeckeHatree term only works for Becke-Lebedev molecular integration grids')
@@ -76,34 +81,42 @@ class BeckeHartree(GridObservable):
 
 
 class RBeckeHartree(BeckeHartree):
+    """Hartree term with numerical Becke-Poisson solver for restricted wavefunctions."""
+
     @doc_inherit(BeckeHartree)
-    def add_pot(self, cache, grid, dpot_alpha):
+    def add_pot(self, cache, grid, pots_alpha):
         pot = self._update_pot(cache, grid)
-        dpot_alpha += pot
+        pots_alpha[:, 0] += pot
 
 
 class UBeckeHartree(BeckeHartree):
+    """Hartree term with numerical Becke-Poisson solver for unrestricted wavefunctions."""
+
     @doc_inherit(BeckeHartree)
-    def add_pot(self, cache, grid, dpot_alpha, dpot_beta):
+    def add_pot(self, cache, grid, pots_alpha, pots_beta):
         pot = self._update_pot(cache, grid)
-        dpot_alpha += pot
-        dpot_beta += pot
+        pots_alpha[:, 0] += pot
+        pots_beta[:, 0] += pot
 
 
 class DiracExchange(GridObservable):
-    '''Common code for the Dirac Exchange Functional implementations'''
+    """Common code for the Dirac Exchange Functional implementations."""
+
+    df_level = DF_LEVEL_LDA
+
     def __init__(self, label='x_dirac', coeff=None):
-        r'''
-           **Optional arguments:**
+        r"""Initialize a DiracExchange instance.
 
-           label
-                A label for this observable.
+        Parameters
+        ----------
+        label : str
+            A label for this observable.
 
-           coeff
-                The coefficient Cx in front of the Dirac exchange energy.
-                It defaults to the uniform electron gas value, i.e.
-                :math:`C_x = \frac{3}{4} \left(\frac{3}{\pi}\right)^{1/3}`.
-        '''
+        coeff : float
+            The coefficient Cx in front of the Dirac exchange energy. It defaults to the
+            uniform electron gas value, i.e. :math:`C_x = \frac{3}{4}
+            \left(\frac{3}{\pi}\right)^{1/3}`.
+        """
         if coeff is None:
             self.coeff = 3.0 / 4.0 * (3.0 / np.pi) ** (1.0 / 3.0)
         else:
@@ -112,18 +125,18 @@ class DiracExchange(GridObservable):
         GridObservable.__init__(self, label)
 
     def _update_pot(self, cache, grid, select):
-        '''Recompute an Exchange potential if invalid
+        """Recompute an Exchange potential if invalid.
 
-           cache
-                A cache instance in which the potential is stored.
-
-           grid
-                The integration grid.
-
-           select
-                'alpha' or 'beta'
-        '''
-        rho = cache['rho_%s' % select]
+        Parameters
+        ----------
+        cache : Cache
+            Storage for the potentials.
+        grid : IntGrid
+            A numerical integration grid.
+        select : str
+            'alpha' or 'beta'
+        """
+        rho = cache['all_%s' % select][:, 0]
         pot, new = cache.load('pot_x_dirac_%s' % select, alloc=grid.size)
         if new:
             pot[:] = self.derived_coeff * rho ** (1.0 / 3.0)
@@ -131,32 +144,32 @@ class DiracExchange(GridObservable):
 
 
 class RDiracExchange(DiracExchange):
-    '''The Dirac Exchange Functional for restricted wavefunctions'''
+    """The Dirac Exchange Functional for restricted wavefunctions."""
 
     @doc_inherit(GridObservable)
     def compute_energy(self, cache, grid):
         pot = self._update_pot(cache, grid, 'alpha')
-        rho = cache['rho_alpha']
+        rho = cache['all_alpha'][:, 0]
         return (3.0 / 2.0) * grid.integrate(pot, rho)
 
     @doc_inherit(GridObservable)
-    def add_pot(self, cache, grid, dpot_alpha):
-        dpot_alpha += self._update_pot(cache, grid, 'alpha')
+    def add_pot(self, cache, grid, pots_alpha):
+        pots_alpha[:, 0] += self._update_pot(cache, grid, 'alpha')
 
 
 class UDiracExchange(DiracExchange):
-    '''The Dirac Exchange Functional for unrestricted wavefunctions'''
+    """The Dirac Exchange Functional for unrestricted wavefunctions."""
 
     @doc_inherit(GridObservable)
     def compute_energy(self, cache, grid):
         pot_alpha = self._update_pot(cache, grid, 'alpha')
         pot_beta = self._update_pot(cache, grid, 'beta')
-        rho_alpha = cache['rho_alpha']
-        rho_beta = cache['rho_beta']
+        rho_alpha = cache['all_alpha'][:, 0]
+        rho_beta = cache['all_beta'][:, 0]
         return (3.0 / 4.0) * (grid.integrate(pot_alpha, rho_alpha) +
                               grid.integrate(pot_beta, rho_beta))
 
     @doc_inherit(GridObservable)
-    def add_pot(self, cache, grid, dpot_alpha, dpot_beta):
-        dpot_alpha += self._update_pot(cache, grid, 'alpha')
-        dpot_beta += self._update_pot(cache, grid, 'beta')
+    def add_pot(self, cache, grid, pots_alpha, pots_beta):
+        pots_alpha[:, 0] += self._update_pot(cache, grid, 'alpha')
+        pots_beta[:, 0] += self._update_pot(cache, grid, 'beta')

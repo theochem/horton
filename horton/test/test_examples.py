@@ -99,6 +99,13 @@ def test_example_rhf_water_dense():
 
 
 @attr('slow')
+def test_example_rks_water_lda():
+    required = [context.get_fn('examples/hf_dft/rks_water_lda.py')]
+    expected = ['water.h5']
+    check_script_in_tmp('./rks_water_lda.py', required, expected)
+
+
+@attr('slow')
 def test_example_rks_water_gga():
     required = [context.get_fn('examples/hf_dft/rks_water_gga.py')]
     expected = ['water.h5']
@@ -113,10 +120,17 @@ def test_example_rks_water_hybgga():
 
 
 @attr('slow')
-def test_example_rks_water_lda():
-    required = [context.get_fn('examples/hf_dft/rks_water_lda.py')]
+def test_example_rks_water_mgga():
+    required = [context.get_fn('examples/hf_dft/rks_water_mgga.py')]
     expected = ['water.h5']
-    check_script_in_tmp('./rks_water_lda.py', required, expected)
+    check_script_in_tmp('./rks_water_mgga.py', required, expected)
+
+
+@attr('slow')
+def test_example_rks_water_hybmgga():
+    required = [context.get_fn('examples/hf_dft/rks_water_hybmgga.py')]
+    expected = ['water.h5']
+    check_script_in_tmp('./rks_water_hybmgga.py', required, expected)
 
 
 @attr('slow')
@@ -146,6 +160,13 @@ def test_example_uhf_methyl_dense():
 
 
 @attr('slow')
+def test_example_uks_methyl_lda():
+    required = [context.get_fn('examples/hf_dft/uks_methyl_lda.py')]
+    expected = ['methyl.h5']
+    check_script_in_tmp('./uks_methyl_lda.py', required, expected)
+
+
+@attr('slow')
 def test_example_uks_methyl_gga():
     required = [context.get_fn('examples/hf_dft/uks_methyl_gga.py')]
     expected = ['methyl.h5']
@@ -160,10 +181,17 @@ def test_example_uks_methyl_hybgga():
 
 
 @attr('slow')
-def test_example_uks_methyl_lda():
-    required = [context.get_fn('examples/hf_dft/uks_methyl_lda.py')]
+def test_example_uks_methyl_mgga():
+    required = [context.get_fn('examples/hf_dft/uks_methyl_mgga.py')]
     expected = ['methyl.h5']
-    check_script_in_tmp('./uks_methyl_lda.py', required, expected)
+    check_script_in_tmp('./uks_methyl_mgga.py', required, expected)
+
+
+@attr('slow')
+def test_example_uks_methyl_hybmgga():
+    required = [context.get_fn('examples/hf_dft/uks_methyl_hybmgga.py')]
+    expected = ['methyl.h5']
+    check_script_in_tmp('./uks_methyl_hybmgga.py', required, expected)
 
 
 @attr('slow')

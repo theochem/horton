@@ -2,7 +2,7 @@
 #JSON {"lot": "RKS/6-31G*",
 #JSON  "scf": "CDIISSCFSolver",
 #JSON  "linalg": "CholeskyLinalgFactory",
-#JSON  "difficulty": 6,
+#JSON  "difficulty": 8,
 #JSON  "description": "RKS DFT example with LDA and numerical Hartree"}
 
 from horton import *
