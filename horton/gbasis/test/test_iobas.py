@@ -68,7 +68,8 @@ def test_go_basis_desc_neon_sto3g():
         assert (obasis.shell_map == np.array([0])).all()
         assert (obasis.nprims == np.array([3])).all()
         assert (obasis.shell_types == np.array([0])).all()
-        np.testing.assert_almost_equal(obasis.alphas, [6.36242139, 1.15892300, 0.31364979])
+        np.testing.assert_equal(obasis.alphas, [6.36242139, 1.15892300, 0.31364979])
+        # Limited precision due to normalization of contractions after loading them from file.
         np.testing.assert_almost_equal(obasis.con_coeffs, [0.15432897, 0.53532814, 0.44463454])
 
 
@@ -81,7 +82,8 @@ def test_go_basis_desc_hydrogen_321g():
         assert (obasis.shell_map == np.array([0, 0])).all()
         assert (obasis.nprims == np.array([2, 1])).all()
         assert (obasis.shell_types == np.array([0, 0])).all()
-        np.testing.assert_almost_equal(obasis.alphas, [5.4471780, 0.8245470, 0.1831920])
+        np.testing.assert_equal(obasis.alphas, [5.4471780, 0.8245470, 0.1831920])
+        # Limited precision due to normalization of contractions after loading them from file.
         np.testing.assert_almost_equal(obasis.con_coeffs, [0.1562850, 0.9046910, 1.0000000])
         assert obasis.nbasis == 2
 
@@ -100,7 +102,7 @@ def test_go_basis_desc_lithium_321g():
         assert (obasis.shell_map == np.array([0, 0, 0, 0, 0])).all()
         assert (obasis.nprims == np.array([3, 2, 2, 1, 1])).all()
         assert (obasis.shell_types == np.array([0, 0, 1, 0, 1])).all()
-        np.testing.assert_almost_equal(obasis.alphas, [
+        np.testing.assert_equal(obasis.alphas, [
             36.8382000, 5.4817200, 1.1132700,
             0.5402050, 0.1022550, 0.5402050, 0.1022550,
             0.0285650, 0.0285650,
@@ -132,7 +134,7 @@ def test_go_basis_desc_water_sto3g():
             5.0331513, 1.1695961, 0.3803890,
             3.42525091, 0.62391373, 0.16885540,
         ]
-        np.testing.assert_almost_equal(obasis.alphas, expected_alphas)
+        np.testing.assert_equal(obasis.alphas, expected_alphas)
         expected_con_coeffs = [
             0.15432897, 0.53532814, 0.44463454,
             0.15432897, 0.53532814, 0.44463454,
@@ -140,6 +142,7 @@ def test_go_basis_desc_water_sto3g():
             0.15591627, 0.60768372, 0.39195739,
             0.15432897, 0.53532814, 0.44463454,
         ]
+        # Limited precision due to normalization of contractions after loading them from file.
         np.testing.assert_almost_equal(obasis.con_coeffs, expected_con_coeffs)
         assert obasis.nbasis == 7
 
@@ -172,8 +175,10 @@ def test_dump_basis_atom_map_gbs():
             for i, contraction in enumerate(bca.bcs):
                 old_contraction = old_bca.bcs[i]
                 assert contraction.shell_type == old_contraction.shell_type
-                assert np.allclose(contraction.alphas, old_contraction.alphas)
-                assert np.allclose(contraction.con_coeffs, old_contraction.con_coeffs)
+                np.testing.assert_equal(contraction.alphas, old_contraction.alphas)
+                # Limited precision due to normalization of contractions after loading
+                # them from file.
+                np.testing.assert_almost_equal(contraction.con_coeffs, old_contraction.con_coeffs)
 
 
 def test_exceptions():

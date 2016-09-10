@@ -59,14 +59,12 @@ def load_basis_atom_map_nwchem(filename):
     basis_atom_map = {}
     bc = None # The current contraction being loaded
     for line in f:
-        # strip of comments and white space
+        # Strip off comments and white space.
         line = line[:line.find('#')].strip()
-        if len(line) == 0:
+        if len(line) == 0 or line.startswith('BASIS'):
             continue
         if line == 'END':
             break
-        if line.startswith('BASIS'):
-            continue
         words = line.split()
         if words[0].isalpha():
             # A new contraction begins, maybe even a new atom.
@@ -100,11 +98,9 @@ def load_basis_atom_map_gbs(filename):
     cur_shell_types = None
     with open(filename, 'r') as f:
         for line in f:
-            # strip of comments and white space
+            # Strip off comments and white space.
             line = line[:line.find('!')].strip()
-            if len(line) == 0:
-                continue
-            if line == '****':
+            if len(line) == 0 or line == '****':
                 continue
             words = line.split()
             # if first word is the atomic symbol
@@ -143,7 +139,7 @@ def dump_basis_atom_map_gbs(filename, name, basis_atom_map):
     name : str
         Name of the basis set to mention in the comments of the written file.
     basis_atom_map: dict
-        Keys a
+        Keys are atomic numbers, values are GOBasisAtom objects.
     """
     with open(filename, 'w') as f:
         f.write('!Basis set, {0}, generated using HORTON\n\n'.format(name))
