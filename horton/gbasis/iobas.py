@@ -20,13 +20,15 @@
 # --
 '''Input/Output routines for gaussian basis sets'''
 
+import numpy as np
 
 from horton.periodic import periodic
 
 
 __all__ = [
     'str_to_shell_types', 'shell_type_to_str', 'fortran_float',
-    'load_basis_atom_map_nwchem',
+    'load_basis_atom_map_nwchem', 'load_basis_atom_map_gbs',
+    'dump_basis_atom_map_gbs'
 ]
 
 
@@ -57,14 +59,12 @@ def load_basis_atom_map_nwchem(filename):
     basis_atom_map = {}
     bc = None # The current contraction being loaded
     for line in f:
-        # strip of comments and white space
+        # Strip off comments and white space.
         line = line[:line.find('#')].strip()
-        if len(line) == 0:
+        if len(line) == 0 or line.startswith('BASIS'):
             continue
         if line == 'END':
             break
-        if line.startswith('BASIS'):
-            continue
         words = line.split()
         if words[0].isalpha():
             # A new contraction begins, maybe even a new atom.
@@ -86,3 +86,76 @@ def load_basis_atom_map_nwchem(filename):
                 bc.con_coeffs.append(coeffs[i::len(bcs)])
     f.close()
     return basis_atom_map
+
+
+def load_basis_atom_map_gbs(filename):
+    """Load the basis set family from a GBS file."""
+    from horton.gbasis.gobasis import GOBasisAtom, GOBasisContraction
+
+    basis_atom_map = {}
+    bc = None  # The current contraction being loaded
+    cur_atom = None
+    cur_shell_types = None
+    with open(filename, 'r') as f:
+        for line in f:
+            # Strip off comments and white space.
+            line = line[:line.find('!')].strip()
+            if len(line) == 0 or line == '****':
+                continue
+            words = line.split()
+            # if first word is the atomic symbol
+            if words[0].isalpha() and len(words) == 2:
+                cur_atom = words[0]
+            # if first word is the angular momentum
+            elif words[0].isalpha() and len(words) == 3:
+                # A new contraction begins, maybe even a new atom.
+                n = periodic[cur_atom].number
+                cur_shell_types = str_to_shell_types(words[0])
+                empty_contr = [GOBasisContraction(shell_type, [], [])
+                               for shell_type in cur_shell_types]
+                # Try to get the atom and add emptry contraction, or create new atom.
+                goba = basis_atom_map.get(n)
+                if goba is None:
+                    basis_atom_map[n] = GOBasisAtom(empty_contr)
+                else:
+                    goba.bcs.extend(empty_contr)
+            else:
+                # An extra primitive for the current contraction(s).
+                exponent = fortran_float(words[0])
+                coeffs = [fortran_float(w) for w in words[1:]]
+                for i, bc in enumerate(empty_contr):
+                    bc.alphas.append(exponent)
+                    bc.con_coeffs.append(coeffs[i::len(cur_shell_types)])
+    return basis_atom_map
+
+
+def dump_basis_atom_map_gbs(filename, name, basis_atom_map):
+    """Write gaussian basis file from the basis object in HORTON.
+
+    Parameters
+    ----------
+    filename: str
+        File name of the new gbs file
+    name : str
+        Name of the basis set to mention in the comments of the written file.
+    basis_atom_map: dict
+        Keys are atomic numbers, values are GOBasisAtom objects.
+    """
+    with open(filename, 'w') as f:
+        f.write('!Basis set, {0}, generated using HORTON\n\n'.format(name))
+        f.write('****\n')
+        for atom, gobatom in sorted(basis_atom_map.iteritems()):
+            f.write('{0:<6}0\n'.format(periodic[atom].symbol))
+            contractions = gobatom.bcs
+            for contraction in contractions:
+                exponents = contraction.alphas.reshape(-1, 1)
+                con_coeffs = contraction.con_coeffs
+                if con_coeffs.ndim == 1:
+                    con_coeffs = contraction.con_coeffs.reshape(-1, 1)
+                con_numbers = np.hstack((exponents, con_coeffs))
+                f.write('{0:<4}{1:<4}1.00\n'.format(
+                    shell_type_to_str(contraction.shell_type).upper(), exponents.size))
+                for con_row in con_numbers:
+                    f.write(('{:>17}'*con_row.size).format(*con_row))
+                    f.write('\n')
+            f.write('****\n')
