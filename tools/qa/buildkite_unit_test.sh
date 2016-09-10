@@ -19,8 +19,8 @@ buildkite-agent artifact download horton_pr.tar.gz .
 tar xvf horton_pr.tar.gz
 
 echo "--- Running Nosetests"
-PATH=$PATH:`pwd`/bin PYTHONPATH=`pwd`/lib/python2.7/site-packages:`pwd`/lib64/python2.7/site-packages HORTONDATA=`pwd`/share/horton nosetests -v --processes=2 --process-timeout=60 -a slow horton
+nosetests -v --processes=2 --process-timeout=60 -a slow horton
 
 if [ "$BUILDKITE_PULL_REQUEST" = "false" ]; then
-  PATH=$PATH:`pwd`/bin PYTHONPATH=`pwd`/lib/python2.7/site-packages:`pwd`/lib64/python2.7/site-packages HORTONDATA=`pwd`/share/horton nosetests -v --processes=2 --process-timeout=60 -a "!slow" horton
+  nosetests -v --processes=2 --process-timeout=60 -a "!slow" horton
 fi
