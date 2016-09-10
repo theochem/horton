@@ -273,12 +273,15 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild, trapdoor_
         subprocess.check_call(['./setup.py', 'build_ext', '-i'])
 
     def run_feature():
+        """Run the trapdoor for features."""
         return subprocess.check_call([script, 'feature'] + shlex.split(trapdoor_args))
 
     def run_report():
+        """Run the trapdoor for generating reports."""
         return subprocess.call([script, 'report'])
 
     def run_ancestor():
+        """Checkout ancestor and run the trapdoor for ancestor."""
         copied_script = os.path.join(qaworkdir, os.path.basename(script))
         shutil.copy(script, copied_script)
         shutil.copy('tools/qa/trapdoor.py', os.path.join(qaworkdir, 'trapdoor.py'))

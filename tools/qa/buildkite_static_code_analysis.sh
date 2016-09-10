@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 
+dir="tools/qa"
+
 if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
-    source tools/qa/buildkite_common.sh
+    source $dir/buildkite_common.sh
     get_ancestor  # Writes $ANCESTOR_SHA variable.
 
-    PATH=$PATH:~/.local/bin
+    echo "--- Prep working directory"
+    rm -rf horton_pr.tar.gz horton_ancestor.tar.gz
+    ./cleanfiles.sh
+
+    PATH=$PATH:~/.local/bin  # fix for ubuntu paths
 
     echo "--- Running trapdoors tests"
 
@@ -16,6 +22,6 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     trapdoor_pydocstyle.py"
 
     for i in ${TRAPDOORS}; do
-        tools/qa/simulate_trapdoor_pr.py -vA $ANCESTOR_SHA tools/qa/$i
+        $dir/simulate_trapdoor_pr.py -vA $ANCESTOR_SHA $dir/$i
     done
 fi

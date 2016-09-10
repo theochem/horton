@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-set -exo pipefail
+#set -exo pipefail
+set -x
 
 abort_error () {
     echo -e "${RED}${1}${RESET}"
