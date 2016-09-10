@@ -117,10 +117,12 @@ def load_basis_atom_map_gbs(filename):
                 cur_shell_types = str_to_shell_types(words[0])
                 empty_contr = [GOBasisContraction(shell_type, [], [])
                                for shell_type in cur_shell_types]
-                try:
-                    basis_atom_map[n].bcs.extend(empty_contr)
-                except KeyError:
+                # Try to get the atom and add emptry contraction, or create new atom.
+                goba = basis_atom_map.get(n)
+                if goba is None:
                     basis_atom_map[n] = GOBasisAtom(empty_contr)
+                else:
+                    goba.bcs.extend(empty_contr)
             else:
                 # An extra primitive for the current contraction(s).
                 exponent = fortran_float(words[0])
