@@ -19,9 +19,6 @@ echo "--- Packing build"
 find horton -name "*.so" -o -name "*.pyc" | tar -zcvf horton_pr.tar.gz -T -
 buildkite-agent artifact upload horton_pr.tar.gz
 
-tar -zcvf refatoms_pr.tar.gz data/refatoms/
-buildkite-agent artifact upload refatoms_pr.tar.gz
-
 if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     echo "--- Checkout ancestor"
     git checkout $ANCESTOR_SHA
@@ -38,7 +35,4 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     echo "--- Packing build [Ancestor]"
     find horton -name "*.so" -o -name "*.pyc" | tar -zcvf horton_ancestor.tar.gz -T -
     buildkite-agent artifact upload horton_ancestor.tar.gz
-
-    tar -zcvf refatoms_ancestor.tar.gz data/refatoms/
-    buildkite-agent artifact upload refatoms_ancestor.tar.gz
 fi
