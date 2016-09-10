@@ -154,12 +154,20 @@ def check_delta(fun, fun_deriv, x, dxs):
 
        For every displacement in ``dxs``, the following computation is repeated:
 
-       1) D1 = 'fun(x+dx) - fun(x)' is computed.
-       2) D2 = '0.5 (fun_deriv(x+dx) + fun_deriv(x)) . dx' is computed.
+       1) ``D1 = fun(x+dx) - fun(x)`` is computed.
+       2) ``D2 = 0.5*dot(fun_deriv(x+dx) + fun_deriv(x), dx)`` is computed.
 
        A threshold is set to the median of the D1 set. For each case where |D1|
        is larger than the threshold, |D1 - D2|, should be smaller than the
        threshold.
+
+       This test makes two assumptions:
+
+       1) The gradient at ``x`` is non-zero.
+       2) The displacements, ``dxs``, are small enough such that in the majority
+          of cases, the linear term in ``fun(x+dx) - fun(x)`` dominates. Hence,
+          sufficient elements in ``dxs`` should be provided for this test to
+          work.
     """
     assert len(x.shape) == 1
     if len(dxs) < 20:
