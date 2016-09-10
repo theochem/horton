@@ -13,7 +13,7 @@ make -C data/refatoms/
 echo "--- Build Cython files & HORTON"
 ./cleanfiles.sh
 rm -rf installation
-./setup.py build_ext -i
+CC="ccache gcc" ./setup.py build_ext -i
 
 echo "--- Packing build"
 find horton -name "*.so" -o -name "*.pyc" | tar -zcvf horton_pr.tar.gz -T -
@@ -33,7 +33,7 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     echo "--- Build Cython files & HORTON [Ancestor]"
     ./cleanfiles.sh
     rm -rf installation
-    ./setup.py build_ext -i
+    CC="ccache gcc" ./setup.py build_ext -i
 
     echo "--- Packing build [Ancestor]"
     find horton -name "*.so" -o -name "*.pyc" | tar -zcvf horton_ancestor.tar.gz -T -
