@@ -28,7 +28,37 @@ from distutils.core import setup
 from distutils.extension import Extension
 from distutils.command.install_data import install_data
 from distutils.command.install_headers import install_headers
+import distutils.ccompiler
 from Cython.Distutils import build_ext
+
+
+
+# Distutils optimizations
+# -----------------------
+
+def parallelCCompile(self, sources, output_dir=None, macros=None,
+                     include_dirs=None, debug=0, extra_preargs=None, extra_postargs=None,
+                     depends=None):
+    """Monkey-patch for distutils compiler to run in parallel."""
+    # these lines are copied from distutils.ccompiler.CCompiler directly
+    macros, objects, extra_postargs, pp_opts, build = self._setup_compile(
+        output_dir, macros, include_dirs, sources, depends, extra_postargs)
+    cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
+    # parallel code
+    N = 2  # number of parallel compilations
+    import multiprocessing.pool
+    def _single_compile(obj):
+        try:
+            src, ext = build[obj]
+        except KeyError:
+            return
+        self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
+
+    # convert to list, imap is evaluated on-demand
+    list(multiprocessing.pool.ThreadPool(N).imap(_single_compile, objects))
+    return objects
+
+distutils.ccompiler.CCompiler.compile = parallelCCompile
 
 
 # Utility functions
@@ -63,6 +93,7 @@ class my_install_data(install_data):
        otherwise impossible to figure out the location of these data files at
        runtime.
     """
+
     def run(self):
         # Do the normal install_data
         install_data.run(self)
@@ -139,6 +170,7 @@ def get_lib_config_setup(prefix, fn_setup_cfg):
         print '   File %s not found. Skipping.' % fn_setup_cfg
     return lib_config
 
+
 def get_lib_config_env(prefix):
     '''Read library config from the environment variables'''
     lib_config = {}
@@ -158,7 +190,7 @@ class PkgConfigError(Exception):
 def run_pkg_config(libname, option):
     '''Safely try to call pkg-config'''
     try:
-        return subprocess.check_output(['pkg-config', libname, '--'+option],
+        return subprocess.check_output(['pkg-config', libname, '--' + option],
                                        stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError:
         raise PkgConfigError('pkg-config did not exit properly')
@@ -183,7 +215,7 @@ def all_empty(lib_config):
     '''Test if all lib_config fields are empty'''
     if len(lib_config) == 0:
         return True
-    return all(len(value)==0 for value in lib_config.itervalues())
+    return all(len(value) == 0 for value in lib_config.itervalues())
 
 
 def all_exist(lib_config):
@@ -202,7 +234,7 @@ def detect_machine():
         return ('Linux-%s-%s-%s' % (dist[0], dist[1], platform.machine())).replace(' ', '_')
     elif sys.platform == 'darwin':
         mac_ver = platform.mac_ver()
-        mac_os  = mac_ver[0].rpartition('.')
+        mac_os = mac_ver[0].rpartition('.')
         return 'Darwin-%s-%s' % (mac_os[0], mac_ver[2])
     else:
         return 'unknown'
@@ -278,22 +310,20 @@ def lib_config_magic(prefix, libname, static_config={}):
 
 print 'MACHINE=%s' % detect_machine()
 
-
 # Load dependency information
 # ---------------------------
 import json
+
 with open('dependencies.json') as f:
     dependencies = json.load(f)
 # Order does not matter here. Just make it easy to look things up
 dependencies = dict((d['name'], d) for d in dependencies)
-
 
 # Locate ${QAWORKDIR}
 # -------------------
 qaworkdir = os.getenv('QAWORKDIR')
 if qaworkdir is None:
     qaworkdir = 'qaworkdir'
-
 
 # Configuration of LibXC
 # ----------------------
@@ -307,7 +337,6 @@ libxc_static_config = {
 # Detect the configuration for LibXC
 libxc_config = lib_config_magic('libxc', 'xc', libxc_static_config)
 
-
 # Configuration of LibInt2
 # ------------------------
 
@@ -317,7 +346,6 @@ libint2_static_config = {
     'include_dirs': ['%s/include/libint2' % libint2_dir],
 }
 libint2_config = lib_config_magic('libint2', 'int2', libint2_static_config)
-
 
 # Configuration of BLAS
 # ---------------------
@@ -339,76 +367,74 @@ else:
     blas_precompiler = ('BLAS_OTHER', '1')
 print 'BLAS precompiler directive: -D%s' % blas_precompiler[0]
 
-
 # Define extension modules
 # ------------------------
 
 ext_modules = [
     Extension("horton.cext",
-        sources=get_sources('horton'),
-        depends=get_depends('horton'),
-        include_dirs=[np.get_include(), '.'],
-        extra_compile_args=['-std=c++11'],
-        language="c++"),
+              sources=get_sources('horton'),
+              depends=get_depends('horton'),
+              include_dirs=[np.get_include(), '.'],
+              extra_compile_args=['-std=c++11'],
+              language="c++"),
     Extension("horton.matrix.cext",
-        sources=get_sources('horton/matrix'),
-        depends=get_depends('horton/matrix'),
-        include_dirs=[np.get_include(), '.'],
-        extra_compile_args=['-std=c++11'],
-        language="c++"),
+              sources=get_sources('horton/matrix'),
+              depends=get_depends('horton/matrix'),
+              include_dirs=[np.get_include(), '.'],
+              extra_compile_args=['-std=c++11'],
+              language="c++"),
     Extension("horton.gbasis.cext",
-        sources=get_sources('horton/gbasis') + ['horton/moments.cpp'],
-        depends=get_depends('horton/gbasis') + ['horton/moments.pxd', 'horton/moments.h'],
-        include_dirs=[np.get_include(), '.'] +
-                      libint2_config['include_dirs'] +
-                      blas_config['include_dirs'],
-        library_dirs=libint2_config['library_dirs'] +
-                     blas_config['library_dirs'],
-        libraries=libint2_config['libraries'] + blas_config['libraries'],
-        extra_objects=libint2_config['extra_objects'] +
-                      blas_config['extra_objects'],
-        extra_compile_args=libint2_config['extra_compile_args'] +
-                            blas_config['extra_compile_args'] +
-                            ['-std=c++11'],
-        extra_link_args=libint2_config['extra_link_args'] +
-                         blas_config['extra_link_args'],
-        define_macros=[blas_precompiler],
-        language="c++"),
+              sources=get_sources('horton/gbasis') + ['horton/moments.cpp'],
+              depends=get_depends('horton/gbasis') + ['horton/moments.pxd', 'horton/moments.h'],
+              include_dirs=[np.get_include(), '.'] +
+                           libint2_config['include_dirs'] +
+                           blas_config['include_dirs'],
+              library_dirs=libint2_config['library_dirs'] +
+                           blas_config['library_dirs'],
+              libraries=libint2_config['libraries'] + blas_config['libraries'],
+              extra_objects=libint2_config['extra_objects'] +
+                            blas_config['extra_objects'],
+              extra_compile_args=libint2_config['extra_compile_args'] +
+                                 blas_config['extra_compile_args'] +
+                                 ['-std=c++11'],
+              extra_link_args=libint2_config['extra_link_args'] +
+                              blas_config['extra_link_args'],
+              define_macros=[blas_precompiler],
+              language="c++"),
     Extension("horton.grid.cext",
-        sources=get_sources('horton/grid') + [
-            'horton/cell.cpp',
-            'horton/moments.cpp'],
-        depends=get_depends('horton/grid') + [
-            'horton/cell.pxd', 'horton/cell.h',
-            'horton/moments.pxd', 'horton/moments.h'],
-        include_dirs=[np.get_include(), '.'],
-        extra_compile_args=['-std=c++11'],
-        language="c++",),
+              sources=get_sources('horton/grid') + [
+                  'horton/cell.cpp',
+                  'horton/moments.cpp'],
+              depends=get_depends('horton/grid') + [
+                  'horton/cell.pxd', 'horton/cell.h',
+                  'horton/moments.pxd', 'horton/moments.h'],
+              include_dirs=[np.get_include(), '.'],
+              extra_compile_args=['-std=c++11'],
+              language="c++", ),
     Extension("horton.meanfield.cext",
-        sources=get_sources('horton/meanfield'),
-        depends=get_depends('horton/meanfield'),
-        include_dirs=[np.get_include(), '.'] + libxc_config['include_dirs'],
-        library_dirs=libxc_config['library_dirs'],
-        libraries=libxc_config['libraries'],
-        extra_objects=libxc_config['extra_objects'],
-        extra_compile_args=libxc_config['extra_compile_args'] + ['-std=c++11'],
-        extra_link_args=libxc_config['extra_link_args'],
-        language="c++"),
+              sources=get_sources('horton/meanfield'),
+              depends=get_depends('horton/meanfield'),
+              include_dirs=[np.get_include(), '.'] + libxc_config['include_dirs'],
+              library_dirs=libxc_config['library_dirs'],
+              libraries=libxc_config['libraries'],
+              extra_objects=libxc_config['extra_objects'],
+              extra_compile_args=libxc_config['extra_compile_args'] + ['-std=c++11'],
+              extra_link_args=libxc_config['extra_link_args'],
+              language="c++"),
     Extension("horton.espfit.cext",
-        sources=get_sources('horton/espfit') + [
-            'horton/cell.cpp',
-            'horton/grid/uniform.cpp'],
-        depends=get_depends('horton/espfit') + [
-            'horton/cell.pxd', 'horton/cell.h',
-            'horton/grid/uniform.pxd', 'horton/grid/uniform.h'],
-        include_dirs=[np.get_include(), '.'],
-        extra_compile_args=['-std=c++11'],
-        language="c++"),
+              sources=get_sources('horton/espfit') + [
+                  'horton/cell.cpp',
+                  'horton/grid/uniform.cpp'],
+              depends=get_depends('horton/espfit') + [
+                  'horton/cell.pxd', 'horton/cell.h',
+                  'horton/grid/uniform.pxd', 'horton/grid/uniform.h'],
+              include_dirs=[np.get_include(), '.'],
+              extra_compile_args=['-std=c++11'],
+              language="c++"),
 ]
 
 for e in ext_modules:
     e.cython_directives = {"embedsignature": True}
-
 
 # Call distutils setup
 # --------------------
@@ -421,7 +447,7 @@ setup(
     author_email='Toon.Verstraelen@UGent.be',
     url='http://theochem.github.com/horton/',
     scripts=glob("scripts/*.py"),
-    package_dir = {'horton': 'horton'},
+    package_dir={'horton': 'horton'},
     packages=['horton', 'horton.test',
               'horton.espfit', 'horton.espfit.test',
               'horton.gbasis', 'horton.gbasis.test',
@@ -432,27 +458,28 @@ setup(
               'horton.part', 'horton.part.test',
               'horton.scripts', 'horton.scripts.test',
               'horton.modelhamiltonians', 'horton.modelhamiltonians.test'],
-    cmdclass = {
+    cmdclass={
         'build_ext': build_ext,
         'install_data': my_install_data,
         'install_headers': my_install_headers,
     },
     data_files=[
-        ('share/horton', glob('data/*.*')),
-        ('share/horton/test', glob('data/test/*.*')),
-        ('share/horton/basis', glob('data/basis/*.*')),
-        ('share/horton/grids', glob('data/grids/*.txt')),
-        ('share/horton/refatoms', glob('data/refatoms/*.h5')),
-    ] + [
-        ('share/horton/examples/%s' % os.path.basename(dn[:-1]), glob('%s/*.py' % dn) + glob('%s/README' % dn))
-        for dn in glob('data/examples/*/')
-    ] + [
-        ('include/horton', glob('horton/*.h')),
-        ('include/horton/grid', glob('horton/grid/*.h')),
-        ('include/horton/gbasis', glob('horton/gbasis/*.h')),
-        ('include/horton/espfit', glob('horton/espfit/*.h')),
-        ('include/horton/matrix', glob('horton/matrix/*.h')),
-    ],
+                   ('share/horton', glob('data/*.*')),
+                   ('share/horton/test', glob('data/test/*.*')),
+                   ('share/horton/basis', glob('data/basis/*.*')),
+                   ('share/horton/grids', glob('data/grids/*.txt')),
+                   ('share/horton/refatoms', glob('data/refatoms/*.h5')),
+               ] + [
+                   ('share/horton/examples/%s' % os.path.basename(dn[:-1]),
+                    glob('%s/*.py' % dn) + glob('%s/README' % dn))
+                   for dn in glob('data/examples/*/')
+                   ] + [
+                   ('include/horton', glob('horton/*.h')),
+                   ('include/horton/grid', glob('horton/grid/*.h')),
+                   ('include/horton/gbasis', glob('horton/gbasis/*.h')),
+                   ('include/horton/espfit', glob('horton/espfit/*.h')),
+                   ('include/horton/matrix', glob('horton/matrix/*.h')),
+               ],
     package_data={
         'horton': ['*.pxd'],
         'horton.espfit': ['*.pxd'],

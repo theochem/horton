@@ -8,7 +8,6 @@ echo "--- Basic source tests"
 
 echo "--- Build Cython files & HORTON"
 ./cleanfiles.sh
-rm -rf installation
 CC="ccache gcc" ./setup.py build_ext -i
 
 echo "--- Packing build"
@@ -21,7 +20,6 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
 
     echo "--- Build Cython files & HORTON [Ancestor]"
     ./cleanfiles.sh
-    rm -rf installation
     CC="ccache gcc" ./setup.py build_ext -i
 
     echo "--- Packing build [Ancestor]"
