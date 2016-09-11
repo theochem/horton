@@ -158,9 +158,9 @@ def check_dot_hessian(ham, lf, *dms0):
     mask = diffs > threshold
 
     assert abs(errors[mask]).max() < threshold, (
-            'The first order approximation off the difference between Fock '
-            'matrices is too wrong.\nThe threshold is %.1e.\nDiffs and Errors '
-            'are:\n%s') % (threshold, np.array([diffs, errors]).T)
+        'The first order approximation off the difference between Fock matrices is too '
+        'wrong.\nThe threshold is %.1e.\nDiffs and Errors are:\n%s') % \
+        (threshold, np.array([diffs, errors]).T)
 
 
 def check_dot_hessian_polynomial(olp, core, ham, exps, is_hf=True, extent=1.0,

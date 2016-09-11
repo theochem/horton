@@ -266,16 +266,16 @@ class RLibXCGGA(LibXCEnergy):
 
         # Chain rule
         my_gga_dot_alpha, new = cache.load('gga_dot_libxc_%s_alpha' % self._name,
-                                            alloc=(grid.size, 4), tags='d')
+                                           alloc=(grid.size, 4), tags='d')
         if new:
             grad_rho = cache['grad_rho_full']
             delta_rho = cache['delta_rho_full']
             delta_grad_rho = cache['delta_grad_rho_full']
             delta_sigma = cache['delta_sigma_full']
-            my_gga_dot_alpha[:,0] = kernel_dd*delta_rho + kernel_ds*delta_sigma
-            my_gga_dot_alpha[:,1:4] = 2*(kernel_ds*delta_rho +
-                                         kernel_ss*delta_sigma).reshape(-1, 1) * \
-                                      grad_rho
+            my_gga_dot_alpha[:, 0] = kernel_dd*delta_rho + kernel_ds*delta_sigma
+            my_gga_dot_alpha[:, 1:4] = 2*(kernel_ds*delta_rho +
+                                          kernel_ss*delta_sigma).reshape(-1, 1) * \
+                                       grad_rho
 
             # the easy-to-forget contribution
             spot = self._compute_dpot_spot(cache, grid)[1]

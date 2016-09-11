@@ -26,7 +26,7 @@ from horton.meanfield.test.common import check_interpolation, \
 
 
 def setup_gga_cs(name):
-    """Prepare datastructures for GGA calculation in CO."""
+    """Prepare datastructures for R-GGA calculation in CO."""
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)
     mol.dm_alpha = mol.exp_alpha.to_dm()
@@ -89,7 +89,7 @@ def test_dot_hessian_x_pbe_cs_cache():
 
 
 def setup_hfs_cs():
-    """Prepare datastructures for HFS calculation on CO."""
+    """Prepare datastructures for R-HFS (x-functional-only) calculation on CO."""
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)
     mol.dm_alpha = mol.exp_alpha.to_dm()
@@ -175,6 +175,7 @@ def test_dot_hessian_x_pbe_c_vwn_cs_cache():
 
 
 def setup_c_vwn_cs():
+    """Prepare datastructures for R-VWN (c-functional-only) calculation on water."""
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     mol = IOData.from_file(fn_fchk)
     mol.dm_alpha = mol.exp_alpha.to_dm()
@@ -198,7 +199,7 @@ def test_cubic_interpolation_c_vwn_cs():
 
 
 def test_dot_hessian_c_vwn_cs():
-    mol, olp, kin, na, ham = setup_c_vwn_cs()
+    mol, _olp, _kin, _na, ham = setup_c_vwn_cs()
     check_dot_hessian(ham, mol.lf, mol.dm_alpha)
 
 
@@ -210,12 +211,12 @@ def test_dot_hessian_c_vwn_cs_polynomial():
 
 
 def test_dot_hessian_c_vwn_cs_cache():
-    mol, olp, kin, na, ham = setup_c_vwn_cs()
+    mol, _olp, _kin, _na, ham = setup_c_vwn_cs()
     check_dot_hessian_cache(ham, mol.dm_alpha)
 
 
 def setup_o3lyp_cs():
-    """Prepare datastructures for O3LYP calculation on water."""
+    """Prepare datastructures for R-O3LYP (xc-functional-only) calculation on water."""
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     mol = IOData.from_file(fn_fchk)
     mol.dm_alpha = mol.exp_alpha.to_dm()
@@ -224,11 +225,9 @@ def setup_o3lyp_cs():
     olp = mol.obasis.compute_overlap(mol.lf)
     kin = mol.obasis.compute_kinetic(mol.lf)
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
     libxc_term = RLibXCHybridGGA('xc_o3lyp')
     terms = [
         RGridGroup(mol.obasis, grid, [libxc_term]),
-        RExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
     ]
     ham = REffHam(terms)
     return mol, olp, kin, na, ham
@@ -306,7 +305,7 @@ def test_cubic_interpolation_x_pbe_os():
 
 
 def setup_hfs_os():
-    """Prepare datastructures for calculation in H3 radical."""
+    """Prepare datastructures for U_HFS (x-functional-only) calculation in H3 radical."""
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     mol = IOData.from_file(fn_fchk)
     mol.dm_alpha = mol.exp_alpha.to_dm()

@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
+"""Unit tests for horton/meanfield/observable.py."""
 
 
 import numpy as np
@@ -64,6 +65,7 @@ def test_cache_dot_hessian_rhf():
 
 
 def setup_uhf_case():
+    """Prepare datastructures for UHF calculation."""
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     mol = IOData.from_file(fn_fchk)
     mol.dm_alpha = mol.exp_alpha.to_dm()
@@ -91,10 +93,10 @@ def test_dot_hessian_uhf_polynomial():
 
 
 def test_dot_hessian_uhf_fd():
-    mol, olp, core, ham = setup_uhf_case()
+    mol, _olp, _core, ham = setup_uhf_case()
     check_dot_hessian(ham, mol.lf, mol.dm_alpha, mol.dm_beta)
 
 
 def test_cache_dot_hessian_uhf():
-    mol, olp, core, ham = setup_uhf_case()
+    mol, _olp, _core, ham = setup_uhf_case()
     check_dot_hessian_cache(ham, mol.dm_alpha, mol.dm_beta)
