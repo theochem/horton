@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''C++ extensions'''
+"""C++ extensions"""
 
 
 import numpy as np
@@ -66,13 +66,13 @@ cdef class LibXCWrapper(object):
     cdef bytes _key
 
     def __cinit__(self, bytes key):
-        '''Initialize a LibXCWrapper.
+        """Initialize a LibXCWrapper.
 
         Parameters
         ----------
         key : str
             The name of the functional in LibXC, e.g. `"lda_x"`.
-        '''
+        """
         self._key = key
         self._func_id = -1
         self._func_id = xc_functional_get_number(key)
@@ -120,13 +120,13 @@ cdef class LibXCWrapper(object):
 
 cdef class RLibXCWrapper(LibXCWrapper):
     def __cinit__(self, bytes key):
-        '''Initialize a RLibXCWrapper.
+        """Initialize a RLibXCWrapper.
 
         Parameters
         ----------
         key : str
             The name of the functional in LibXC, e.g. `"lda_x"`.
-        '''
+        """
         retcode = xc_func_init(&self._func, self._func_id, XC_UNPOLARIZED)
         if retcode != 0:
             self._func_id = -1
@@ -311,13 +311,13 @@ cdef class RLibXCWrapper(LibXCWrapper):
 
 cdef class ULibXCWrapper(LibXCWrapper):
     def __cinit__(self, bytes key):
-        '''Initialize a ULibXCWrapper.
+        """Initialize a ULibXCWrapper.
 
         Parameters
         ----------
         key
             The name of the functional in LibXC, e.g. lda_x
-        '''
+        """
         retcode = xc_func_init(&self._func, self._func_id, XC_POLARIZED)
         if retcode != 0:
             self._func_id = -1
