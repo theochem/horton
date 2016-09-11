@@ -23,6 +23,7 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
         tools/qa/$i feature
     done
 
+    git checkout $ANCESTOR_SHA
     copy_qa_scripts
 
     for i in ${TRAPDOORS}; do

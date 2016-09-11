@@ -114,13 +114,13 @@ def main():
         repo, remote=args.remote, ancestor=args.ancestor)
 
     try:
-        if not (args.ancestor or args.skip_merge or args.only):
+        if not (args.ancestor or args.skip_merge):
             make_temporary_merge(repo, merge_head_name)
         retcode = 0
         for script in args.scripts:
             retcode |= trapdoor_workflow(
                 repo, script, qaworkdir, args.skip_ancestor, args.rebuild,
-                args.trapdoor_args, args.ancestor, args.only)
+                args.trapdoor_args, args.ancestor)
         if retcode != 0:
             print >> sys.stderr, '\033[91m' + "ERROR in tests. Please inspect log carefully" \
                 + '\033[0m'
@@ -142,8 +142,6 @@ def parse_args():
     parser.add_argument('-s', '--skip-ancestor', default=False, action='store_true',
                         help='Do not run the trapdoor on master and re-use result for '
                              'ancestor from previous run.')
-    parser.add_argument('-o', '--only', choices=['feature', 'ancestor', 'report'], default=None,
-                        help='Only run the specified branch or make a report. No merging')
     parser.add_argument('-r', '--rebuild', default=False, action='store_true',
                         help='Rebuild extension before running trapdoor script.')
     parser.add_argument('-R', '--remote', default='origin',
@@ -249,7 +247,7 @@ def make_temporary_merge(repo, merge_head_name):
 
 @log.section('trapdoor workflow')
 def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild, trapdoor_args,
-                      ancestor=None, only=None):
+                      ancestor=None):
     """Run the trapdoor scripts in the right order.
 
     Parameters
@@ -296,19 +294,10 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild, trapdoor_
             subprocess.check_call(['./setup.py', 'build_ext', '-i'])
         return subprocess.check_call([copied_script, 'ancestor'] + shlex.split(trapdoor_args))
 
-    if only:
-        if only == "feature":
-            return run_feature()
-        elif only == "report":
-            return run_report()
-        else:
-            return run_ancestor()
-    else:
-        run_feature()
-        if not skip_ancestor:
-            run_ancestor()
-        retcode = run_report()
-    return retcode
+    run_feature()
+    if not skip_ancestor:
+        run_ancestor()
+    return run_report()
 
 
 @log.section('roll back')
