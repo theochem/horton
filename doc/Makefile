@@ -3,8 +3,8 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS        =
-SPHINXBUILD       = PYTHONPATH=../:$(PYTHONPATH) sphinx-build
-SPHINXAUTOBUILD   = PYTHONPATH=../:$(PYTHONPATH) sphinx-autobuild
+SPHINXBUILD       = PYTHONPATH=../:./:$(PYTHONPATH) sphinx-build
+SPHINXAUTOBUILD   = PYTHONPATH=../:./:$(PYTHONPATH) sphinx-autobuild
 PAPER             =
 BUILDDIR          = _build
 

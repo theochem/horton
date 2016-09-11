@@ -88,7 +88,7 @@ def main():
     print >> s, 'The following functionals are available in HORTON through `LibXC'
     print >> s, '<http://www.tddft.org/programs/octopus/wiki/index.php/Libxc>`_ %s.' % \
         libxc_version
-    print >> s, ' [marques2012]_'
+    print >> s, '[marques2012]_'
     print >> s
     for key in keys:
         try:

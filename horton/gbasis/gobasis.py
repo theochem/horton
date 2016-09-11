@@ -251,8 +251,8 @@ class GOBasisFamily(object):
     def dump(self, filename):
         """Dump the basis set in the gbs format.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         filename : str
             Name of the gbs file that will be created.
         """
