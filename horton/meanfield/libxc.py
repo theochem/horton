@@ -159,7 +159,7 @@ class RLibXCGGA(LibXCEnergy):
     def add_pot(self, cache, grid, pots_alpha):
         # LibXC expects the following input:
         #   - total density
-        #   - norm of the gradient of the total density
+        #   - norm squared of the gradient of the total density
         # LibXC computes:
         #   - the derivative of the energy towards the alpha density.
         #   - the derivative of the energy towards the norm squared of the alpha density.
@@ -310,7 +310,7 @@ class RLibXCMGGA(LibXCEnergy):
     def add_pot(self, cache, grid, pots_alpha):
         # LibXC expects the following input:
         #   - total density
-        #   - norm of the gradient of the total density
+        #   - norm squared of the gradient of the total density
         #   - the laplacian of the density
         #   - the kinetic energy density
         # LibXC computes:
