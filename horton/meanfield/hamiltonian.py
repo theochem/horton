@@ -86,6 +86,17 @@ class EffHam(object):
         """
         raise NotImplementedError
 
+    def reset_delta(self, *delta_dms):
+        """Remove intermediate results for delta_dms from cache and specify new inputs.
+
+        Parameters
+        ----------
+        delta_dm1, delta_dm2, ... : TwoIndex
+            First-order changes to the density matrix, used to compute the dot product
+            with the energy Hessian.
+        """
+        raise NotImplementedError
+
     def compute_energy(self):
         """Compute the total energy.
 
@@ -146,6 +157,30 @@ class EffHam(object):
         for term in self.terms:
             term.add_fock(self.cache, *focks)
 
+    def compute_dot_hessian(self, *outputs):
+        """Compute the dot product of the energy Hessian with a delta DM.
+
+        The Hessian in this method is the second derivative of the energy towards the
+        matrix elements of the input density matrix or matrices. The ``dms`` and
+        ``delta_dms`` are set via the ``reset`` and ``reset_delta`` methods, respectively.
+
+        Parameters
+        ----------
+        outputs : TwoIndex
+            A list of output TwoIndex objects in which the dot product of the energy
+            Hessian with the delta density matrices is stored.
+
+        Note that the result must be multiplied by the feactor deriv_scale squared in
+        order to obtain the proper second order derivative. This is due to conventions
+        related to the definition of the Fock matrix.
+        """
+        for output in outputs:
+            output.clear()
+        # Loop over all terms and add contributions to the output two-index
+        # objects.
+        for term in self.terms:
+            term.add_dot_hessian(self.cache, *outputs)
+
 
 class REffHam(EffHam):
     ndm = 1
@@ -159,8 +194,19 @@ class REffHam(EffHam):
         dm_alpha.assign(in_dm_alpha)
 
     @doc_inherit(EffHam)
+    def reset_delta(self, in_delta_dm_alpha):
+        self.cache.clear(tags='d')
+        # Take a copy of the input alpha delta density matrix in the cache.
+        delta_dm_alpha = self.cache.load('delta_dm_alpha', alloc=in_delta_dm_alpha.new, tags='d')[0]
+        delta_dm_alpha.assign(in_delta_dm_alpha)
+
+    @doc_inherit(EffHam)
     def compute_fock(self, fock_alpha):
         EffHam.compute_fock(self, fock_alpha)
+
+    @doc_inherit(EffHam)
+    def compute_dot_hessian(self, output_alpha):
+        EffHam.compute_dot_hessian(self, output_alpha)
 
 
 class UEffHam(EffHam):
@@ -176,5 +222,18 @@ class UEffHam(EffHam):
         dm_beta.assign(in_dm_beta)
 
     @doc_inherit(EffHam)
+    def reset_delta(self, in_delta_dm_alpha, in_delta_dm_beta):
+        self.cache.clear(tags='d')
+        # Take a copy of the input alpha and beta delta density matrix in the cache.
+        delta_dm_alpha = self.cache.load('delta_dm_alpha', alloc=in_delta_dm_alpha.new, tags='d')[0]
+        delta_dm_alpha.assign(in_delta_dm_alpha)
+        delta_dm_beta = self.cache.load('delta_dm_beta', alloc=in_delta_dm_beta.new, tags='d')[0]
+        delta_dm_beta.assign(in_delta_dm_beta)
+
+    @doc_inherit(EffHam)
     def compute_fock(self, fock_alpha, fock_beta):
         EffHam.compute_fock(self, fock_alpha, fock_beta)
+
+    @doc_inherit(EffHam)
+    def compute_dot_hessian(self, output_alpha, output_beta):
+        EffHam.compute_dot_hessian(self, output_alpha, output_beta)
