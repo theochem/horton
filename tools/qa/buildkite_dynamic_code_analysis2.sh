@@ -17,7 +17,7 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     make -C data/refatoms/
 
     echo "--- Running trapdoors tests on PR branch"
-    tools/qa/simulate_trapdoor_pr.py -vA $ANCESTOR_SHA -o feature tools/qa/trapdoor_pylint.py
+    tools/qa/trapdoor_pylint.py feature
 
     echo "--- Unpack ancestor build from previous step"
     buildkite-agent artifact download horton_ancestor.tar.gz .
@@ -29,7 +29,8 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     make -C data/refatoms/
 
     echo "--- Running trapdoor tests on ancestor branch"
-    for i in "ancestor" "report"; do
-        tools/qa/simulate_trapdoor_pr.py -vA $ANCESTOR_SHA -o $i tools/qa/trapdoor_pylint.py
-    done
+    copy_qa_scripts
+
+    $QAWORKDIR/trapdoor_pylint.py ancestor
+    $QAWORKDIR/trapdoor_pylint.py report
 fi

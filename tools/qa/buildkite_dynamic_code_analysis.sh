@@ -23,8 +23,8 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     tar xvf horton_pr.tar.gz
 
     echo "--- Running trapdoor tests on PR branch"
-    tools/qa/simulate_trapdoor_pr.py -vA $ANCESTOR_SHA -o feature tools/qa/trapdoor_coverage.py -t='--nproc=6'
-    tools/qa/simulate_trapdoor_pr.py -vA $ANCESTOR_SHA -o feature tools/qa/trapdoor_namespace.py
+    tools/qa/trapdoor_coverage.py --nproc=6 feature
+    tools/qa/trapdoor_namespace.py feature
 
     echo "--- Unpack ancestor build from previous step"
     buildkite-agent artifact download horton_ancestor.tar.gz .
@@ -36,8 +36,11 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     make -C data/refatoms/
 
     echo "--- Running trapdoor tests on ancestor branch"
-    for i in "ancestor" "report"; do
-        tools/qa/simulate_trapdoor_pr.py -vA $ANCESTOR_SHA -o $i tools/qa/trapdoor_coverage.py -t='--nproc=6'
-        tools/qa/simulate_trapdoor_pr.py -vA $ANCESTOR_SHA -o $i tools/qa/trapdoor_namespace.py
-    done
+    copy_qa_scripts
+
+    $QAWORKDIR/trapdoor_coverage.py --nproc=6 ancestor
+    $QAWORKDIR/trapdoor_namespace.py ancestor
+
+    $QAWORKDIR/trapdoor_coverage.py report
+    $QAWORKDIR/trapdoor_namespace.py report
 fi

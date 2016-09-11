@@ -10,7 +10,6 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     PATH=$PATH:~/.local/bin  # fix for ubuntu paths
 
     echo "--- Running trapdoors tests"
-
     TRAPDOORS="trapdoor_cppcheck.py
     trapdoor_cpplint.py
     trapdoor_doxygen.py
@@ -19,6 +18,16 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     trapdoor_pydocstyle.py"
 
     for i in ${TRAPDOORS}; do
-        tools/qa/simulate_trapdoor_pr.py -vA $ANCESTOR_SHA tools/qa/$i
+        tools/qa/$i feature
+    done
+
+    copy_qa_scripts
+
+    for i in ${TRAPDOORS}; do
+        $QAWORKDIR/$i ancestor
+    done
+
+    for i in ${TRAPDOORS}; do
+        $QAWORKDIR/$i report
     done
 fi

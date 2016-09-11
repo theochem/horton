@@ -2,6 +2,8 @@
 
 set -exo pipefail
 
+QAWORKDIR="qaworkdir"
+
 abort_error () {
     echo -e "${RED}${1}${RESET}"
     echo -e "${RED}TESTS ABORTED${RESET}"
@@ -42,6 +44,11 @@ get_ancestor () {
     return 0
 }
 
+copy_qa_scripts () {
+    rm -rf $QAWORKDIR
+    mkdir -p $QAWORKDIR
+    cp -Ra tools/qa/* $QAWORKDIR/
+}
 
 # Some colors
 GREEN='\e[0;32m'
