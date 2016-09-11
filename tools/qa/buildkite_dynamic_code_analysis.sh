@@ -23,6 +23,7 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     tar xvf horton_pr.tar.gz
 
     echo "--- Running trapdoor tests on PR branch"
+    rm -rf $QAWORKDIR
     tools/qa/trapdoor_coverage.py --nproc=6 feature
     tools/qa/trapdoor_namespace.py feature
 

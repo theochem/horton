@@ -45,7 +45,6 @@ get_ancestor () {
 }
 
 copy_qa_scripts () {
-    rm -rf $QAWORKDIR
     mkdir -p $QAWORKDIR
     cp -Ra tools/qa/* $QAWORKDIR/
 }

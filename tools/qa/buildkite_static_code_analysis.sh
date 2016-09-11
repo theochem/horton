@@ -10,6 +10,8 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     PATH=$PATH:~/.local/bin  # fix for ubuntu paths
 
     echo "--- Running trapdoors tests"
+    rm -rf $QAWORKDIR
+
     TRAPDOORS="trapdoor_cppcheck.py
     trapdoor_cpplint.py
     trapdoor_doxygen.py

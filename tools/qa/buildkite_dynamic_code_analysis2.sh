@@ -17,6 +17,7 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     make -C data/refatoms/
 
     echo "--- Running trapdoors tests on PR branch"
+    rm -rf $QAWORKDIR
     tools/qa/trapdoor_pylint.py feature
 
     echo "--- Unpack ancestor build from previous step"
