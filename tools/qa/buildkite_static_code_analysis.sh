@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-dir="tools/qa"
-
 if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
-    source $dir/buildkite_common.sh
+    source tools/qa/buildkite_common.sh
     get_ancestor  # Writes $ANCESTOR_SHA variable.
 
     echo "--- Prep working directory"
@@ -21,6 +19,6 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     trapdoor_pydocstyle.py"
 
     for i in ${TRAPDOORS}; do
-        $dir/simulate_trapdoor_pr.py -vA $ANCESTOR_SHA $dir/$i
+        tools/qa/simulate_trapdoor_pr.py -vA $ANCESTOR_SHA tools/qa/$i
     done
 fi

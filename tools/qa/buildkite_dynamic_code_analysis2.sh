@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-dir="tools/qa"
-
 if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
-    source $dir/buildkite_common.sh
+    source tools/qa/buildkite_common.sh
     get_ancestor  # Writes $ANCESTOR_SHA variable.
 
     echo "--- Prep working directory"
@@ -19,7 +17,7 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     make -C data/refatoms/
 
     echo "--- Running trapdoors tests on PR branch"
-    $dir/simulate_trapdoor_pr.py -vA $ANCESTOR_SHA -o feature $dir/trapdoor_pylint.py
+    tools/qa/simulate_trapdoor_pr.py -vA $ANCESTOR_SHA -o feature tools/qa/trapdoor_pylint.py
 
     echo "--- Unpack ancestor build from previous step"
     buildkite-agent artifact download horton_ancestor.tar.gz .
@@ -32,6 +30,6 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
 
     echo "--- Running trapdoor tests on ancestor branch"
     for i in "ancestor" "report"; do
-        $dir/simulate_trapdoor_pr.py -vA $ANCESTOR_SHA -o $i $dir/trapdoor_pylint.py
+        tools/qa/simulate_trapdoor_pr.py -vA $ANCESTOR_SHA -o $i tools/qa/trapdoor_pylint.py
     done
 fi

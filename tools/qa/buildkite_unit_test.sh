@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-dir="tools/qa"
-source ${dir}/buildkite_common.sh
+source tools/qa/buildkite_common.sh
 
 echo "--- Prep working directory"
 rm -rf *_pr.tar.gz *_ancestor.tar.gz
@@ -11,8 +10,8 @@ echo "--- Build refatoms"
 rm -rf data/refatoms/*.h5 data/refatoms/*.tar.bz2
 make -C data/refatoms/
 
-export PYTHONPATH=`pwd`
-export HORTONDATA=`pwd`/data
+export PYTHONPATH=$PWD
+export HORTONDATA=$PWD/data
 
 echo "--- Unpack PR build from previous step"
 buildkite-agent artifact download horton_pr.tar.gz .
