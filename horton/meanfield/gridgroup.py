@@ -103,7 +103,7 @@ class GridGroup(Observable):
         cache : Cache
             Used to store intermediate results.
         select : str
-                'alpha' or 'beta'.
+            'alpha' or 'beta'.
         """
         # Compute the density (and optionally derivatives, etc.) on all the grid
         # points.
@@ -173,6 +173,8 @@ class GridGroup(Observable):
         ----------
         cache : Cache
             Used to store intermediate results.
+        focks : list of TwoIndex
+            A list of Fock matrices.
         """
         # Get the potentials. If they are not yet evaluated, some computations
         # are needed.

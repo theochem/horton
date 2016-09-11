@@ -47,9 +47,10 @@ class Observable(object):
     """Base class for contribution to EffHam classes.
 
     These are usually energy expressions (as function of one or more density matrices).
-    One may also add in other observables, e.g. to construct a Lagrangian instead of a
-    Hessian.
+    One may also use this for other observables, e.g. to construct a Lagrangian instead of
+    a regular effective Hamiltonian.
     """
+
     def __init__(self, label):
         """Initialize an Observable instance.
 
@@ -78,11 +79,9 @@ class Observable(object):
         cache : Cache
             Used to store intermediate results that can be reused or inspected later.
         fock1, fock2, ... : TwoIndex
-            A list of output fock operators. The caller is responsible for setting these
+            A list of output Fock operators. The caller is responsible for setting these
             operators initially to zero (if desired).
         """
-        raise NotImplementedError
-
         raise NotImplementedError
 
 

@@ -32,7 +32,7 @@ __all__ = [
 
 
 class EffHam(object):
-    """Base class for the effective Hamiltonians
+    """Base class for the effective Hamiltonians.
 
     Class attributes
     ----------------
@@ -46,11 +46,12 @@ class EffHam(object):
         factor to obtain proper derivatives. This factor is stored in the class attribute
         ``deriv_scale``. It defaults to 1.0.
     """
+
     ndm = None
     deriv_scale = 1.0
 
     def __init__(self, terms, external=None):
-        """Initialize and EffHam instance.
+        """Initialize an EffHam instance.
 
         Parameters
         ----------
@@ -137,7 +138,7 @@ class EffHam(object):
         Parameters
         ----------
         fock1, fock2, ... : TwoIndex
-            A list of output fock operators. Old content is discarded.
+            A list of output Fock operators. Old content is discarded.
         """
         for fock in focks:
             fock.clear()
