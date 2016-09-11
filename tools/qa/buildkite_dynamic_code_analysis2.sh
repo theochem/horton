@@ -20,6 +20,7 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     tools/qa/trapdoor_pylint.py feature
 
     echo "--- Unpack ancestor build from previous step"
+    git checkout $ANCESTOR_SHA
     buildkite-agent artifact download horton_ancestor.tar.gz .
     ./cleanfiles.sh
     tar xvf horton_ancestor.tar.gz
