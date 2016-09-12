@@ -21,14 +21,13 @@
 """Unit tests for horton/meanfield/observable.py."""
 
 
-import numpy as np
-
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from horton.meanfield.test.common import check_interpolation, \
-    check_dot_hessian, check_dot_hessian_polynomial, check_dot_hessian_cache
+from horton.meanfield.test.common import check_dot_hessian, \
+    check_dot_hessian_polynomial, check_dot_hessian_cache
 
 
 def setup_rhf_case():
+    """Prepare datastructures for R-HF calculation on Water."""
     fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
     mol = IOData.from_file(fn_fchk)
     mol.dm_alpha = mol.exp_alpha.to_dm()
@@ -55,12 +54,12 @@ def test_dot_hessian_rhf_polynomial():
 
 
 def test_dot_hessian_rhf_fd():
-    mol, olp, core, ham = setup_rhf_case()
+    mol, _olp, _core, ham = setup_rhf_case()
     check_dot_hessian(ham, mol.lf, mol.dm_alpha)
 
 
 def test_cache_dot_hessian_rhf():
-    mol, olp, core, ham = setup_rhf_case()
+    mol, _olp, _core, ham = setup_rhf_case()
     check_dot_hessian_cache(ham, mol.dm_alpha)
 
 

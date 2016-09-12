@@ -183,6 +183,8 @@ class EffHam(object):
 
 
 class REffHam(EffHam):
+    """Effective Hamiltonian for restricted wavefunctions."""
+
     ndm = 1
     deriv_scale = 2.0
 
@@ -210,6 +212,8 @@ class REffHam(EffHam):
 
 
 class UEffHam(EffHam):
+    """Effective Hamiltonian for unrestricted wavefunctions."""
+
     ndm = 2
 
     @doc_inherit(EffHam)
