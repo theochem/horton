@@ -269,26 +269,35 @@ def trapdoor_workflow(repo, script, qaworkdir, skip_ancestor, rebuild, trapdoor_
     """
     if rebuild:
         subprocess.check_call(['./setup.py', 'build_ext', '-i'])
-    subprocess.check_call([script, 'feature'] + shlex.split(trapdoor_args))
-    if skip_ancestor:
-        retcode = subprocess.call([script, 'report'])
-    else:
+
+    def run_feature():
+        """Run the trapdoor for features."""
+        return subprocess.check_call([script, 'feature'] + shlex.split(trapdoor_args))
+
+    def run_report():
+        """Run the trapdoor for generating reports."""
+        return subprocess.call([script, 'report'])
+
+    def run_ancestor():
+        """Checkout ancestor and run the trapdoor for ancestor."""
         copied_script = os.path.join(qaworkdir, os.path.basename(script))
         shutil.copy(script, copied_script)
         shutil.copy('tools/qa/trapdoor.py', os.path.join(qaworkdir, 'trapdoor.py'))
         # Check out the master branch. (We should be constructing the ancestor etc. but
         # that should come down to the same thing for a PR.)
         if ancestor:
-            repo.head.reference = repo.commit(ancestor)  # remove bash quotes
+            repo.head.reference = repo.commit(ancestor)
             repo.head.reset(index=True, working_tree=True)
         else:
             repo.heads.master.checkout()
         if rebuild:
             subprocess.check_call(['./setup.py', 'build_ext', '-i'])
-        subprocess.check_call([copied_script, 'ancestor'] + shlex.split(trapdoor_args))
-        retcode = subprocess.call([copied_script, 'report'])
+        return subprocess.check_call([copied_script, 'ancestor'] + shlex.split(trapdoor_args))
 
-    return retcode
+    run_feature()
+    if not skip_ancestor:
+        run_ancestor()
+    return run_report()
 
 
 @log.section('roll back')
