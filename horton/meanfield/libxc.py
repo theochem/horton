@@ -92,6 +92,21 @@ class RLibXCLDA(LibXCEnergy):
             self._libxc_wrapper.compute_lda_vxc(cache['rho_full'], pot)
         pots_alpha[:, 0] += pot
 
+    @timer.with_section('LDA dot')
+    @doc_inherit(LibXCEnergy)
+    def add_dot(self, cache, grid, dots_alpha):
+        # LibXC expects the following input:
+        #   - total density
+        # This method also uses
+        #   - change in total density
+        # LibXC computes:
+        #   - the diagonal second order derivative of the energy towards the
+        #     density
+        kernel, new = cache.load('kernel_libxc_%s_alpha' % self._name, alloc=grid.size)
+        if new:
+            self._libxc_wrapper.compute_lda_fxc(cache['rho_full'], kernel)
+        dots_alpha[:, 0] += kernel*cache['delta_rho_full']
+
 
 class ULibXCLDA(LibXCEnergy):
     """Any LDA functional from LibXC for unrestricted wavefunctions."""
@@ -154,6 +169,26 @@ class RLibXCGGA(LibXCEnergy):
             self._libxc_wrapper.compute_gga_exc(rho_full, sigma_full, edens)
         return grid.integrate(edens, rho_full)
 
+    def _compute_dpot_spot(self, cache, grid):
+        """Helper function to compute potential resutls with LibXC.
+
+        This is needed for add_pot and add_dot.
+
+        Parameters
+        ----------
+        cache : Cache
+            Used to share intermediate results.
+        grid : IntGrid
+            A numerical integration grid.
+        """
+        dpot, newd = cache.load('dpot_libxc_%s_alpha' % self._name, alloc=grid.size)
+        spot, news = cache.load('spot_libxc_%s_alpha' % self._name, alloc=grid.size)
+        if newd or news:
+            rho_full = cache['rho_full']
+            sigma_full = cache['sigma_full']
+            self._libxc_wrapper.compute_gga_vxc(rho_full, sigma_full, dpot, spot)
+        return dpot, spot
+
     @timer.with_section('GGA pot')
     @doc_inherit(LibXCEnergy)
     def add_pot(self, cache, grid, pots_alpha):
@@ -163,12 +198,7 @@ class RLibXCGGA(LibXCEnergy):
         # LibXC computes:
         #   - the derivative of the energy towards the alpha density.
         #   - the derivative of the energy towards the norm squared of the alpha density.
-        dpot, newd = cache.load('dpot_libxc_%s_alpha' % self._name, alloc=grid.size)
-        spot, news = cache.load('spot_libxc_%s_alpha' % self._name, alloc=grid.size)
-        if newd or news:
-            rho_full = cache['rho_full']
-            sigma_full = cache['sigma_full']
-            self._libxc_wrapper.compute_gga_vxc(rho_full, sigma_full, dpot, spot)
+        dpot, spot = self._compute_dpot_spot(cache, grid)
 
         # Chain rule: convert derivative toward sigma into a derivative toward
         # the gradients.
@@ -182,6 +212,77 @@ class RLibXCGGA(LibXCEnergy):
 
         # Add to the output argument
         pots_alpha[:, :4] += my_gga_pot_alpha
+
+    @timer.with_section('GGA dot')
+    @doc_inherit(LibXCEnergy)
+    def add_dot(self, cache, grid, dots_alpha):
+        # LibXC expects the following input:
+        #   - total density
+        #   - norm squared of the gradient of the total density
+        # This method also uses
+        #   - change in total density
+        #   - change in total gradient
+        # LibXC computes:
+        #   - the diagonal second order derivative of the energy towards the
+        #     density and the gradient
+
+        # if False:
+        #    # Finite difference method. One day, this should become a end-user option.
+        #    eps = 1e-5
+        #    dpot_p = np.zeros(grid.size)
+        #    dpot_m = np.zeros(grid.size)
+        #    spot_p = np.zeros(grid.size)
+        #    spot_m = np.zeros(grid.size)
+        #
+        #    rho = cache['rho_full']
+        #    grad_rho = cache['grad_rho_full']
+        #    sigma = cache['sigma_full']
+        #    delta_rho = cache['delta_rho_full']
+        #    delta_grad_rho = cache['delta_grad_rho_full']
+        #    delta_sigma = cache['delta_sigma_full']
+        #
+        #    rho_p = rho + eps*delta_rho
+        #    rho_m = rho - eps*delta_rho
+        #    grad_rho_p = grad_rho + eps*delta_grad_rho
+        #    grad_rho_m = grad_rho - eps*delta_grad_rho
+        #    sigma_p = sigma + eps*delta_sigma
+        #    sigma_m = sigma - eps*delta_sigma
+        #    self._libxc_wrapper.compute_gga_vxc(rho_p, sigma_p, dpot_p, spot_p)
+        #    self._libxc_wrapper.compute_gga_vxc(rho_m, sigma_m, dpot_m, spot_m)
+        #    gpot_p = 2*(grad_rho_p*spot_p.reshape(-1, 1))
+        #    gpot_m = 2*(grad_rho_m*spot_m.reshape(-1, 1))
+        #    dots_alpha[:, 0] += (dpot_p - dpot_m)/(2*eps)
+        #    dots_alpha[:, 1:4] += (gpot_p - gpot_m)/(2*eps)
+        # else:
+
+        kernel_dd, new1 = cache.load('kernel_dd_libxc_%s_alpha' % self._name, alloc=grid.size)
+        kernel_ds, new2 = cache.load('kernel_ds_libxc_%s_alpha' % self._name, alloc=grid.size)
+        kernel_ss, new3 = cache.load('kernel_ss_libxc_%s_alpha' % self._name, alloc=grid.size)
+        if new1 or new2 or new3:
+            rho_full = cache['rho_full']
+            sigma_full = cache['sigma_full']
+            self._libxc_wrapper.compute_gga_fxc(rho_full, sigma_full, kernel_dd,
+                                                kernel_ds, kernel_ss)
+
+        # Chain rule
+        my_gga_dot_alpha, new = cache.load('gga_dot_libxc_%s_alpha' % self._name,
+                                           alloc=(grid.size, 4), tags='d')
+        if new:
+            grad_rho = cache['grad_rho_full']
+            delta_rho = cache['delta_rho_full']
+            delta_grad_rho = cache['delta_grad_rho_full']
+            delta_sigma = cache['delta_sigma_full']
+            my_gga_dot_alpha[:, 0] = kernel_dd*delta_rho + kernel_ds*delta_sigma
+            my_gga_dot_alpha[:, 1:4] = 2*(kernel_ds*delta_rho +
+                                          kernel_ss*delta_sigma).reshape(-1, 1) * \
+                                       grad_rho
+
+            # the easy-to-forget contribution
+            spot = self._compute_dpot_spot(cache, grid)[1]
+            my_gga_dot_alpha[:, 1:4] += 2*spot.reshape(-1, 1)*delta_grad_rho
+
+        # Add to the output argument
+        dots_alpha[:, :4] += my_gga_dot_alpha
 
 
 class ULibXCGGA(LibXCEnergy):

@@ -85,17 +85,32 @@ class GridGroup(Observable):
 
     df_level = property(_get_df_level)
 
-    def _get_potentials(self, cache):
+    def _get_potentials(self, cache, label='pot', tags=None):
         """Get list of output arrays passed to ```GridObservable.add_pot```.
 
         Parameters
         ----------
         cache : Cache
             Used to store intermediate results.
+        label : str
+            The default value is 'pot', which is suitable for potential data. The
+            _get_dots method is implemented by calling _get_potentials with label='dot'.
+        tags : str
+            The tags to use for the cache when allocating the arrays.
         """
         raise NotImplementedError
 
-    def _update_grid_basics(self, cache, select):
+    def _get_dots(self, cache):
+        """Get list of output arrays passed to ```GridObservable.add_dot```.
+
+        Parameters
+        ----------
+        cache : Cache
+            Used to store intermediate results.
+        """
+        return self._get_potentials(cache, label='dot', tags='d')
+
+    def _update_grid_basics(self, cache, select, prefix='', tags=None):
         """Recompute a density, gradient, ... when not present in the cache.
 
         Parameters
@@ -104,35 +119,63 @@ class GridGroup(Observable):
             Used to store intermediate results.
         select : str
             'alpha' or 'beta'.
+        prefix : str
+            A prefix, in case one wants to load a special density matrix and store the
+            results in a special place. The typical use case is the 'delta_' prefix which
+            is used to process a change in density.
+        tags : str
+            The tags to use for the cache when allocating the arrays. In case of changes
+            in density matrices, this argument is typically equal to 'd'.
         """
         # Compute the density (and optionally derivatives, etc.) on all the grid
         # points.
         if self.df_level == DF_LEVEL_LDA:
-            all_basics, new = cache.load('all_%s' % select, alloc=(self.grid.size, 1))
+            all_basics, new = cache.load('%sall_%s' % (prefix, select),
+                                         alloc=(self.grid.size, 1), tags=tags)
             if new:
-                dm = cache['dm_%s' % select]
+                dm = cache['%sdm_%s' % (prefix, select)]
                 self.obasis.compute_grid_density_dm(dm, self.grid.points, all_basics[:, 0])
         elif self.df_level == DF_LEVEL_GGA:
-            all_basics, new = cache.load('all_%s' % select, alloc=(self.grid.size, 4))
+            all_basics, new = cache.load('%sall_%s' % (prefix, select),
+                                         alloc=(self.grid.size, 4), tags=tags)
             if new:
-                dm = cache['dm_%s' % select]
+                dm = cache['%sdm_%s' % (prefix, select)]
                 self.obasis.compute_grid_gga_dm(dm, self.grid.points, all_basics)
         elif self.df_level == DF_LEVEL_MGGA:
-            all_basics, new = cache.load('all_%s' % select, alloc=(self.grid.size, 6))
+            all_basics, new = cache.load('%sall_%s' % (prefix, select),
+                                         alloc=(self.grid.size, 6), tags=tags)
             if new:
-                dm = cache['dm_%s' % select]
+                dm = cache['%sdm_%s' % (prefix, select)]
                 self.obasis.compute_grid_mgga_dm(dm, self.grid.points, all_basics)
         else:
             raise ValueError('Internal error: non-existent DF level.')
 
         # Prune grid data where the density is lower than the threshold
         if self.density_cutoff > 0:
-            mask = all_basics[:, 0] < self.density_cutoff
+            # The prefix is not used here to make sure the second-order
+            # derivatives are strictly consistent.
+            mask = cache['all_%s' % select][:, 0] < self.density_cutoff
             all_basics[mask, :] = 0.0
         return all_basics
 
     def _update_grid_data(self, cache):
         """Compute all grid data used as input for GridObservable instances.
+
+        This includes all densities, gradients, ... but also derived quantities such as
+        the sigma variables (norm squared of gradient, etc).
+
+        Parameters
+        ----------
+        cache : Cache
+            Used to store intermediate results.
+        """
+        raise NotImplementedError
+
+    def _update_delta_grid_data(self, cache):
+        """Compute grid data used as input for ``GridObservable.add_dot``.
+
+        This includes change of density or gradient and also the change in derived
+        quantities sigma.
 
         Parameters
         ----------
@@ -163,31 +206,18 @@ class GridGroup(Observable):
             result += energy
         return result
 
-    def add_fock(self, cache, *focks):
-        """Add contributions to the Fock matrix.
-
-        This method basically dispatches the work to all ``GridObservable`` instances in
-        ``self.grid_terms``.
+    def _grid_fock_build(self, pots, *focks):
+        """Convert potential data into contributions to the Fock matrices.
 
         Parameters
         ----------
-        cache : Cache
-            Used to store intermediate results.
+        pots : np.ndarray, dtype=float, shape(npoint, npot)
+            Derivatives of the energy toward density, gradient, ... the number of columns
+            depends on the DF level.
+
         focks : list of TwoIndex
             A list of Fock matrices.
         """
-        # Get the potentials. If they are not yet evaluated, some computations
-        # are needed.
-        pots, new = self._get_potentials(cache)
-
-        if new:
-            # compute stuff on the grid that the grid_observables may use
-            self._update_grid_data(cache)
-
-            # Collect the total potentials.
-            for grid_term in self.grid_terms:
-                grid_term.add_pot(cache, self.grid, *pots)
-
         for ichannel in xrange(len(focks)):
             if self.df_level == DF_LEVEL_LDA:
                 self.obasis.compute_grid_density_fock(
@@ -201,6 +231,59 @@ class GridGroup(Observable):
                 self.obasis.compute_grid_mgga_fock(
                     self.grid.points, self.grid.weights,
                     pots[ichannel], focks[ichannel])
+
+    def add_fock(self, cache, *focks):
+        """Add contributions to the Fock matrix.
+
+        This method basically dispatches the work to all ``GridObservable`` instances in
+        ``self.grid_terms``.
+
+        Parameters
+        ----------
+        cache : Cache
+            Used to store intermediate results.
+        focks : list of TwoIndex
+            A list of Fock matrices.
+        """
+        # A) Allocate arrays for the sum of the potentials that will be
+        #    computed in step C. If these were already computed, new will equal
+        #    False
+        pots, new = self._get_potentials(cache)
+
+        if new:
+            # B) compute stuff on the grid that the grid_observables may use
+            self._update_grid_data(cache)
+
+            # C) For every term: compute the derivative of the energy toward
+            #    whatever is used as input (density, gradient, ...)
+            for grid_term in self.grid_terms:
+                grid_term.add_pot(cache, self.grid, *pots)
+
+        # D) Pull the sum of all these dot products through the grid-Fock-build
+        #    code.
+        self._grid_fock_build(pots, *focks)
+
+    @doc_inherit(Observable)
+    def add_dot_hessian(self, cache, *outputs):
+        # A) Allocate arrays for the sum of the dot products that will be
+        #    computed in step C. If these were already computed, new will equal
+        #    False.
+        dots, new = self._get_dots(cache)
+
+        if new:
+            # B) Compute the (changes in) density, gradient, ... based on what
+            #    is needed by the grid terms.
+            self._update_grid_data(cache)
+            self._update_delta_grid_data(cache)
+
+            # C) For every term: compute the dot product of the kernel with the
+            #    change in density, gradient, ...
+            for grid_term in self.grid_terms:
+                grid_term.add_dot(cache, self.grid, *dots)
+
+        # D) Pull the sum of all these dot products through the grid-Fock-build
+        #    code.
+        self._grid_fock_build(dots, *outputs)
 
 
 class RGridGroup(GridGroup):
@@ -245,22 +328,25 @@ class RGridGroup(GridGroup):
     """
 
     @doc_inherit(GridGroup)
-    def _get_potentials(self, cache):
+    def _get_potentials(self, cache, label='pot', tags=None):
         if self.df_level == DF_LEVEL_LDA:
-            lda_pot_alpha, new = cache.load('lda_pot_total_alpha', alloc=self.grid.size)
+            lda_xxx_alpha, new = cache.load('lda_%s_total_alpha' % label,
+                                            alloc=self.grid.size, tags=tags)
             if new:
-                lda_pot_alpha[:] = 0.0
-            return (lda_pot_alpha.reshape(-1, 1),), new
+                lda_xxx_alpha[:] = 0.0
+            return (lda_xxx_alpha.reshape(-1, 1),), new
         elif self.df_level == DF_LEVEL_GGA:
-            gga_pot_alpha, new = cache.load('gga_pot_total_alpha', alloc=(self.grid.size, 4))
+            gga_xxx_alpha, new = cache.load('gga_%s_total_alpha' % label,
+                                            alloc=(self.grid.size, 4), tags=tags)
             if new:
-                gga_pot_alpha[:] = 0.0
-            return (gga_pot_alpha,), new
+                gga_xxx_alpha[:] = 0.0
+            return (gga_xxx_alpha,), new
         elif self.df_level == DF_LEVEL_MGGA:
-            mgga_pot_alpha, new = cache.load('mgga_pot_total_alpha', alloc=(self.grid.size, 6))
+            mgga_xxx_alpha, new = cache.load('mgga_%s_total_alpha' % label,
+                                             alloc=(self.grid.size, 6), tags=tags)
             if new:
-                mgga_pot_alpha[:] = 0.0
-            return (mgga_pot_alpha,), new
+                mgga_xxx_alpha[:] = 0.0
+            return (mgga_xxx_alpha,), new
         else:
             raise ValueError('Internal error: non-existent DF level.')
 
@@ -287,6 +373,31 @@ class RGridGroup(GridGroup):
             tau_full, new = cache.load('tau_full', alloc=self.grid.size)
             if new:
                 tau_full[:] = 2*all_alpha[:, 5]
+
+    @doc_inherit(GridGroup)
+    def _update_delta_grid_data(self, cache):
+        delta_all_alpha = self._update_grid_basics(cache, 'alpha', 'delta_', 'd')
+        # Compute some derived quantities
+        if self.df_level >= DF_LEVEL_LDA:
+            delta_rho_full, new = cache.load('delta_rho_full',
+                                             alloc=self.grid.size, tags='d')
+            if new:
+                delta_rho_full[:] = 2*delta_all_alpha[:, 0]
+        if self.df_level >= DF_LEVEL_GGA:
+            delta_grad_rho_full, new = cache.load('delta_grad_rho_full',
+                                                  alloc=(self.grid.size, 3), tags='d')
+            if new:
+                delta_grad_rho_full[:] = 2*delta_all_alpha[:, 1:4]
+            delta_sigma_full, new = cache.load('delta_sigma_full',
+                                               alloc=self.grid.size, tags='d')
+            if new:
+                grad_rho_full = cache['grad_rho_full']
+                delta_sigma_full[:] = 2*(delta_grad_rho_full*grad_rho_full).sum(axis=1)
+
+    @doc_inherit(Observable)
+    def add_dot_hessian(self, cache, output_alpha):
+        GridGroup.add_dot_hessian(self, cache, output_alpha)
+        output_alpha.iscale(0.5)
 
 
 class UGridGroup(GridGroup):
@@ -338,31 +449,37 @@ class UGridGroup(GridGroup):
     """
 
     @doc_inherit(GridGroup)
-    def _get_potentials(self, cache):
+    def _get_potentials(self, cache, label='pot', tags=None):
         if self.df_level == DF_LEVEL_LDA:
-            lda_pot_alpha, newa = cache.load('lda_pot_total_alpha', alloc=self.grid.size)
+            lda_xxx_alpha, newa = cache.load('lda_%s_total_alpha' % label,
+                                             alloc=self.grid.size, tags=tags)
             if newa:
-                lda_pot_alpha[:] = 0.0
-            lda_pot_beta, newb = cache.load('lda_pot_total_beta', alloc=self.grid.size)
+                lda_xxx_alpha[:] = 0.0
+            lda_xxx_beta, newb = cache.load('lda_%s_total_beta' % label,
+                                            alloc=self.grid.size, tags=tags)
             if newb:
-                lda_pot_beta[:] = 0.0
-            return (lda_pot_alpha.reshape(-1, 1), lda_pot_beta.reshape(-1, 1)), (newa or newb)
+                lda_xxx_beta[:] = 0.0
+            return (lda_xxx_alpha.reshape(-1, 1), lda_xxx_beta.reshape(-1, 1)), (newa or newb)
         elif self.df_level == DF_LEVEL_GGA:
-            gga_pot_alpha, newa = cache.load('gga_pot_total_alpha', alloc=(self.grid.size, 4))
+            gga_xxx_alpha, newa = cache.load('gga_%s_total_alpha' % label,
+                                             alloc=(self.grid.size, 4), tags=tags)
             if newa:
-                gga_pot_alpha[:] = 0.0
-            gga_pot_beta, newb = cache.load('gga_pot_total_beta', alloc=(self.grid.size, 4))
+                gga_xxx_alpha[:] = 0.0
+            gga_xxx_beta, newb = cache.load('gga_%s_total_beta' % label,
+                                            alloc=(self.grid.size, 4), tags=tags)
             if newb:
-                gga_pot_beta[:] = 0.0
-            return (gga_pot_alpha, gga_pot_beta), (newa or newb)
+                gga_xxx_beta[:] = 0.0
+            return (gga_xxx_alpha, gga_xxx_beta), (newa or newb)
         elif self.df_level == DF_LEVEL_MGGA:
-            mgga_pot_alpha, newa = cache.load('mgga_pot_total_alpha', alloc=(self.grid.size, 6))
+            mgga_xxx_alpha, newa = cache.load('mgga_%s_total_alpha' % label,
+                                              alloc=(self.grid.size, 6), tags=tags)
             if newa:
-                mgga_pot_alpha[:] = 0.0
-            mgga_pot_beta, newb = cache.load('mgga_pot_total_beta', alloc=(self.grid.size, 6))
+                mgga_xxx_alpha[:] = 0.0
+            mgga_xxx_beta, newb = cache.load('mgga_%s_total_beta' % label,
+                                             alloc=(self.grid.size, 6), tags=tags)
             if newb:
-                mgga_pot_beta[:] = 0.0
-            return (mgga_pot_alpha, mgga_pot_beta), (newa or newb)
+                mgga_xxx_beta[:] = 0.0
+            return (mgga_xxx_alpha, mgga_xxx_beta), (newa or newb)
         else:
             raise ValueError('Internal error: non-existent DF level.')
 
@@ -453,5 +570,26 @@ class GridObservable(object):
 
             Later columns may not be present if the functional does not need them. They
             could be present when other terms in the effective Hamiltonian need them.
+        """
+        raise NotImplementedError
+
+    def add_dot(self, cache, grid, *args):
+        """Add a dot product with the kernel to the output arguments.
+
+        Parameters
+        ----------
+        cache : Cache
+            Used to share intermediate results between the ``compute`` and ``add_pot``
+            methods. This cache will also contain pre-computed functions evaluate on the
+            grid. See :py:class:`RGridGroup` and :py:class:`UGridGroup` for more details.
+        grid : IntGrid
+            A numerical integration grid.
+        args : list of [np.ndarray, shape=(npoint, npot), dtype=float]
+            The result of this method is added to these output arguments. They are a list
+            of `dot` arrays. (Only one array for the alpha density in case of restricted.
+            Two arrays, one for alpha and one for beta electrons, in case of
+            unrestricted.) To each array `dot` data will be added, e.g. the dot product of
+            the density kernel with a change in density, the dot product of the gradient
+            kernel with a change in gradient, etc.
         """
         raise NotImplementedError

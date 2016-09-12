@@ -32,11 +32,24 @@ __all__ = [
 ]
 
 
-def compute_dm_full(cache):
-    """Add the spin-summed density matrix to the cache unless it is already present."""
-    dm_alpha = cache['dm_alpha']
-    dm_beta = cache['dm_beta']
-    dm_full, new = cache.load('dm_full', alloc=dm_alpha.new)
+def compute_dm_full(cache, prefix='', tags=None):
+    """Add the spin-summed density matrix to the cache unless it is already present.
+
+    Parameters
+    ----------
+    cache : Cache
+        Used to store intermediate results that can be reused or inspected later.
+    prefix : str
+        A prefix, in case one wants to load a special density matrix and store the results
+        in a special place. The typical use case is the 'delta_' prefix which is used to
+        process a change in density.
+    tags : str
+        The tags to use for the cache when allocating the arrays. In case of changes in
+        density matrices, this argument is typically equal to 'd'.
+    """
+    dm_alpha = cache['%sdm_alpha' % prefix]
+    dm_beta = cache['%sdm_beta' % prefix]
+    dm_full, new = cache.load('%sdm_full' % prefix, alloc=dm_alpha.new, tags=tags)
     if new:
         dm_full.assign(dm_alpha)
         dm_full.iadd(dm_beta)
@@ -84,6 +97,25 @@ class Observable(object):
         """
         raise NotImplementedError
 
+    def add_dot_hessian(self, cache, *outputs):
+        """Add contribution to the dot product of the Hessian with the trial delta DM.
+
+        The Hessian in this method is the second derivative of the observable towards the
+        matrix elements of the density matrix or matrices. The ``dms`` and ``delta dms``
+        are stored in the cache.
+
+        Parameters
+        ----------
+        cache
+            A cache object used to store intermediate results that can be reused or
+            inspected later. All results specific for the detla_dm are stored with the tag
+            'd' in the cache object.
+        output1, output2, ... : TwoIndex
+            Output objects, to which contributions from the dot product of the Hessian
+            with the delta density matrices is added.
+        """
+        raise NotImplementedError
+
 
 class RTwoIndexTerm(Observable):
     """Observable linear in the density matrix (restricted)."""
@@ -109,6 +141,10 @@ class RTwoIndexTerm(Observable):
     @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha):
         fock_alpha.iadd(self.op_alpha)
+
+    @doc_inherit(Observable)
+    def add_dot_hessian(self, cache, output_alpha):
+        pass
 
 
 class UTwoIndexTerm(Observable):
@@ -148,6 +184,10 @@ class UTwoIndexTerm(Observable):
     def add_fock(self, cache, fock_alpha, fock_beta):
         fock_alpha.iadd(self.op_alpha)
         fock_beta.iadd(self.op_beta)
+
+    @doc_inherit(Observable)
+    def add_dot_hessian(self, cache, output_alpha, output_beta):
+        pass
 
 
 class RDirectTerm(Observable):
@@ -192,6 +232,12 @@ class RDirectTerm(Observable):
         self._update_direct(cache)
         direct = cache.load('op_%s_alpha' % self.label)
         fock_alpha.iadd(direct)
+
+    @doc_inherit(Observable)
+    def add_dot_hessian(self, cache, output_alpha):
+        delta_dm_alpha = cache.load('delta_dm_alpha')
+        self.op_alpha.contract_two_to_two('abcd,bd->ac', delta_dm_alpha, output_alpha,
+                                          clear=False)
 
 
 class UDirectTerm(Observable):
@@ -259,6 +305,19 @@ class UDirectTerm(Observable):
             # add the proper code here.
             raise NotImplementedError
 
+    @doc_inherit(Observable)
+    def add_dot_hessian(self, cache, output_alpha, output_beta):
+        if self.op_alpha is self.op_beta:
+            delta_dm_full = compute_dm_full(cache, prefix='delta_', tags='d')
+            self.op_alpha.contract_two_to_two('abcd,bd->ac', delta_dm_full, output_alpha,
+                                              factor=1.0, clear=False)
+            self.op_alpha.contract_two_to_two('abcd,bd->ac', delta_dm_full, output_beta,
+                                              factor=1.0, clear=False)
+        else:
+            # This is probably never going to happen. In case it does, please
+            # add the proper code here.
+            raise NotImplementedError
+
 
 class RExchangeTerm(Observable):
     """Exchange term of the expectation value of a two-body operator (restricted)."""
@@ -306,6 +365,12 @@ class RExchangeTerm(Observable):
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
         fock_alpha.iadd(exchange_alpha, -self.fraction)
+
+    @doc_inherit(Observable)
+    def add_dot_hessian(self, cache, output_alpha):
+        delta_dm_alpha = cache.load('delta_dm_alpha')
+        self.op_alpha.contract_two_to_two('abcd,cb->ad', delta_dm_alpha, output_alpha,
+                                          factor=-0.5*self.fraction, clear=False)
 
 
 class UExchangeTerm(Observable):
@@ -369,3 +434,12 @@ class UExchangeTerm(Observable):
         fock_alpha.iadd(exchange_alpha, -self.fraction)
         exchange_beta = cache['op_%s_beta' % self.label]
         fock_beta.iadd(exchange_beta, -self.fraction)
+
+    @doc_inherit(Observable)
+    def add_dot_hessian(self, cache, output_alpha, output_beta):
+        delta_dm_alpha = cache.load('delta_dm_alpha')
+        self.op_alpha.contract_two_to_two('abcd,cb->ad', delta_dm_alpha, output_alpha,
+                                          factor=-self.fraction, clear=False)
+        delta_dm_beta = cache.load('delta_dm_beta')
+        self.op_beta.contract_two_to_two('abcd,cb->ad', delta_dm_beta, output_beta,
+                                         factor=-self.fraction, clear=False)

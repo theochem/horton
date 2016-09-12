@@ -50,11 +50,17 @@ cdef extern from "xc.h":
     void xc_func_end(xc_func_type *p)
     void xc_lda_exc(xc_func_type *p, int npoint, double *rho, double *zk)
     void xc_lda_vxc(xc_func_type *p, int npoint, double *rho, double *vrho)
+    void xc_lda_fxc(xc_func_type *p, int npoint, double *rho, double *v2rho2)
     void xc_gga_exc(xc_func_type *p, int npoint, double *rho, double *sigma, double *zk)
-    void xc_gga_vxc(xc_func_type *p, int npoint, double *rho, double *sigma, double *vrho, double *vsigma)
-    void xc_mgga_exc(xc_func_type *p, int npoint, double *rho, double *sigma, double *lapl, double *tau, double *zk)
-    void xc_mgga_vxc(xc_func_type *p, int npoint, double *rho, double *sigma, double *lapl, double *tau,
-                     double* vrho, double* vsigma, double* vlapl, double* vtau);
+    void xc_gga_vxc(xc_func_type *p, int npoint, double *rho, double *sigma,
+                    double *vrho, double *vsigma)
+    void xc_gga_fxc(xc_func_type *p, int npoint, double *rho, double *sigma,
+                    double *v2rho2, double *v2rhosigma, double *v2sigma2)
+    void xc_mgga_exc(xc_func_type *p, int npoint, double *rho, double *sigma,
+                     double *lapl, double *tau, double *zk)
+    void xc_mgga_vxc(xc_func_type *p, int npoint, double *rho, double *sigma,
+                     double *lapl, double *tau, double* vrho, double* vsigma,
+                     double* vlapl, double* vtau);
     double xc_hyb_exx_coef(xc_func_type *p)
 
 
@@ -168,6 +174,23 @@ cdef class RLibXCWrapper(LibXCWrapper):
         assert vrho.shape[0] == npoint
         xc_lda_vxc(&self._func, npoint, &rho[0], &vrho[0])
 
+    def compute_lda_fxc(self, np.ndarray[double, ndim=1] rho not None,
+                              np.ndarray[double, ndim=1] v2rho2 not None):
+        """Compute the LDA hardness kernel.
+
+        Parameters
+        ----------
+        rho : np.ndarray, shape=(npoint,)
+            The total electron density.
+        v2rho2 : np.ndarray, shape=(npoint,), output
+            The (diagonal) LDA kernel.
+        """
+        assert rho.flags['C_CONTIGUOUS']
+        npoint = rho.shape[0]
+        assert v2rho2.flags['C_CONTIGUOUS']
+        assert v2rho2.shape[0] == npoint
+        xc_lda_fxc(&self._func, npoint, &rho[0], &v2rho2[0])
+
     ## GGA
 
     def compute_gga_exc(self, np.ndarray[double, ndim=1] rho not None,
@@ -222,6 +245,38 @@ cdef class RLibXCWrapper(LibXCWrapper):
         assert vsigma.flags['C_CONTIGUOUS']
         assert vsigma.shape[0] == npoint
         xc_gga_vxc(&self._func, npoint, &rho[0], &sigma[0], &vrho[0], &vsigma[0])
+
+    def compute_gga_fxc(self, np.ndarray[double, ndim=1] rho not None,
+                              np.ndarray[double, ndim=1] sigma not None,
+                              np.ndarray[double, ndim=1] v2rho2 not None,
+                              np.ndarray[double, ndim=1] v2rhosigma not None,
+                              np.ndarray[double, ndim=1] v2sigma2 not None):
+        """Compute the GGA hardness kernel.
+
+        Parameters
+        ----------
+        rho : np.ndarray, shape=(npoint,)
+            The total electron density.
+        sigma : np.ndarray, shape=(npoint,)
+            The reduced density gradient norm.
+        v2rho2 : np.ndarray, shape=(npoint,)
+            The second derivative of the energy w.r.t. density (twice).
+        v2rhosigma: np.ndarray, shape=(npoint,)
+            The second derivative of the energy w.r.t. density (once) and sigma (once).
+        v2sigma2: np.ndarray, shape=(npoint,)
+            The second derivative of the energy w.r.t. sigma (twice).
+        """
+        assert rho.flags['C_CONTIGUOUS']
+        npoint = rho.shape[0]
+        assert sigma.flags['C_CONTIGUOUS']
+        assert sigma.shape[0] == npoint
+        assert v2rho2.flags['C_CONTIGUOUS']
+        assert v2rho2.shape[0] == npoint
+        assert v2rhosigma.flags['C_CONTIGUOUS']
+        assert v2rhosigma.shape[0] == npoint
+        assert v2sigma2.flags['C_CONTIGUOUS']
+        assert v2sigma2.shape[0] == npoint
+        xc_gga_fxc(&self._func, npoint, &rho[0], &sigma[0], &v2rho2[0], &v2rhosigma[0], &v2sigma2[0])
 
     ## MGGA
 
