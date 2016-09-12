@@ -24,6 +24,7 @@ import numpy as np, h5py as h5, scipy as scipy
 from nose.tools import assert_raises
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from horton.test.common import numpy_seed
 
 
 #
@@ -642,16 +643,17 @@ def test_expansion_error_eigen():
 
 
 def test_expansion_from_fock():
-    lf = DenseLinalgFactory(5)
-    a = np.random.normal(0, 1, (5, 5))
-    fock = lf.create_two_index()
-    fock._array[:] = a+a.T
-    a = np.random.normal(0, 1, (5, 5))
-    olp = lf.create_two_index()
-    olp._array[:] = np.dot(a, a.T)
-    exp = lf.create_expansion()
-    exp.from_fock(fock, olp)
-    assert exp.error_eigen(fock, olp) < 1e-5
+    with numpy_seed(1):
+        lf = DenseLinalgFactory(5)
+        a = np.random.normal(0, 1, (5, 5))
+        fock = lf.create_two_index()
+        fock._array[:] = a+a.T
+        a = np.random.normal(0, 1, (5, 5))
+        olp = lf.create_two_index()
+        olp._array[:] = np.dot(a, a.T)
+        exp = lf.create_expansion()
+        exp.from_fock(fock, olp)
+        assert exp.error_eigen(fock, olp) < 1e-5
 
 
 def test_expansion_from_fock_and_dm():
