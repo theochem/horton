@@ -47,7 +47,8 @@ done
 import sys
 import numpy as np
 
-from horton import context, log
+# from horton import horton.context, horton.log
+import horton.context, horton.log
 
 
 def gen_regression_test():
@@ -59,11 +60,11 @@ def gen_regression_test():
     default_threshold = 1e-8
 
     # Optional, silence horton output (useful for batch jobs)
-    log.set_level(log.silent)
+    horton.log.set_level(horton.log.silent)
 
     # Set path to operate on
     data_relative_path = sys.argv[1]
-    test_path = context.get_fn(data_relative_path)
+    test_path = horton.context.get_fn(data_relative_path)
 
     # If the example has no result_ variables, then skip the file and just return
     with open(test_path) as fh:
@@ -98,7 +99,7 @@ import sys
 from numpy import array, allclose
 from nose.plugins.attrib import attr
 
-from horton import context\n""".format(header)
+import horton.context\n""".format(header)
 
     # Generate the function name.
 #    test_name = test_path.split("/")[-1].split(".py", 1)[0]
@@ -134,7 +135,7 @@ def test_regression():\n"""
 
     # Execute script in unit test
     unit_test += """
-    test_path = context.get_fn("{0}")
+    test_path = horton.context.get_fn("{0}")
 
     l = {{}}
     m = locals()
@@ -151,7 +152,7 @@ def test_regression():\n"""
 if __name__ == "__main__":
     test_regression()\n"""
 
-    with open("{out}/{name}.py".format(out=context.get_fn("test"), name=test_name), "w") as fh:
+    with open("{out}/{name}.py".format(out=horton.context.get_fn("test"), name=test_name), "w") as fh:
         fh.write(unit_test)
 
     if len(sys.argv) > 2:
@@ -162,11 +163,11 @@ if __name__ == "__main__":
     with open("{out}test_{name}.py".format(out=out_path, name=test_name), "w") as fh:
         fh.write("""{1}
 
-from horton import context
+import horton.context
 from horton.test.common import check_script_in_tmp
 
 def test_regression():
-    required = [context.get_fn('test/{0}.py')]
+    required = [horton.context.get_fn('test/{0}.py')]
     expected = []
     check_script_in_tmp('/usr/bin/env python {0}.py', required, expected)
 """.format(test_name, header))
