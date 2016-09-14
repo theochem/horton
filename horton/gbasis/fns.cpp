@@ -139,7 +139,6 @@ void GB1DMGridDensityFn::add(double coeff, double alpha0, const double* scales0)
 void GB1DMGridDensityFn::compute_point_from_dm(double* work_basis, double* dm,
                                                long nbasis, double* output,
                                                double epsilon, double* dmmaxrow) {
-
   // The epsilon argument allows one to skip part of the calculation where the density is
   // low.
   if (epsilon > 0) {
@@ -177,10 +176,9 @@ void GB1DMGridDensityFn::compute_point_from_dm(double* work_basis, double* dm,
       tmp += work_basis[ibasis1]*dm[ibasis0*nbasis+ibasis1];
     }
     // Finally, also include diagonal contribution
-    rho += (
-        2*tmp +  // off-diagonal
-        dm[ibasis0*(nbasis+1)]*work_basis[ibasis0]  // diagonal
-    )*work_basis[ibasis0];
+    rho += (2*tmp +  // off-diagonal
+            dm[ibasis0*(nbasis+1)]*work_basis[ibasis0])  // diagonal
+           *work_basis[ibasis0];
   }
   *output += rho;
 }
