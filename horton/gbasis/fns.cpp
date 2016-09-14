@@ -105,6 +105,7 @@ void GB1ExpGridOrbitalFn::compute_point_from_exp(double* work_basis, double* coe
   for (long i=0; i < norb; i++) {
     long iorb = iorbs[i];
     for (long ibasis=0; ibasis < nbasis; ibasis++) {
+      // Just evaluate the contribution of each basis function to an orbital:
       output[i] += coeffs[ibasis*nfn + iorb]*work_basis[ibasis];
     }
   }
@@ -138,6 +139,9 @@ void GB1DMGridDensityFn::add(double coeff, double alpha0, const double* scales0)
 void GB1DMGridDensityFn::compute_point_from_dm(double* work_basis, double* dm,
                                                long nbasis, double* output,
                                                double epsilon, double* dmmaxrow) {
+
+  // The epsilon argument allows one to skip part of the calculation where the density is
+  // low.
   if (epsilon > 0) {
     double absmax_basis = 0.0;
     // compute the maximum basis function
@@ -162,16 +166,21 @@ void GB1DMGridDensityFn::compute_point_from_dm(double* work_basis, double* dm,
   // Loop over all basis functions and add significant contributions
   double rho = 0.0;
   for (long ibasis0=0; ibasis0 < nbasis; ibasis0++) {
-    // if the contribution of this loop is smaller than epsilon/nbasis, skipt it.
+    // if the contribution of this loop is smaller than epsilon/nbasis, skip it.
     if (epsilon > 0) {
       if (fabs(work_basis[ibasis0])*dmmaxrow[ibasis0] < epsilon)
           continue;
     }
     double tmp = 0;
+    // Loop for off-diagonal contributions of density matrix.
     for (long ibasis1=ibasis0-1; ibasis1 >= 0; ibasis1--) {
       tmp += work_basis[ibasis1]*dm[ibasis0*nbasis+ibasis1];
     }
-    rho += (2*tmp+dm[ibasis0*(nbasis+1)]*work_basis[ibasis0])*work_basis[ibasis0];
+    // Finally, also include diagonal contribution
+    rho += (
+        2*tmp +  // off-diagonal
+        dm[ibasis0*(nbasis+1)]*work_basis[ibasis0]  // diagonal
+    )*work_basis[ibasis0];
   }
   *output += rho;
 }
@@ -200,7 +209,7 @@ void GB1DMGridGradientFn::reset(long _shell_type0, const double* _r0, const doub
   poly_work[1] = point[0] - r0[0];
   poly_work[2] = point[1] - r0[1];
   poly_work[3] = point[2] - r0[2];
-  // One order higher polynomials are required because of first derivative.
+  // One order higher and lower polynomials are required because of first derivative.
   offset_h1 = fill_cartesian_polynomials(poly_work+1, abs(shell_type0)+1)+1;
   offset = offset_h1 - ((abs(shell_type0)+1)*(abs(shell_type0)+2))/2;
   offset_l1 = offset - ((abs(shell_type0))*(abs(shell_type0)+1))/2;
@@ -218,20 +227,20 @@ void GB1DMGridGradientFn::add(double coeff, double alpha0, const double* scales0
     double pre0_h = -pre0*2.0*alpha0;
     long nnotx = i1p.n0[1] + i1p.n0[2];
 
-    // Orbital
+    // Basis function
     work_cart[4*i1p.ibasis0] += pre0*poly_work[i1p.ibasis0+offset];
 
-    // Orbital derived toward x
+    // Basis function derived toward x
     work_cart[4*i1p.ibasis0+1] += pre0_h*poly_work[i1p.ibasis0+offset_h1];
     if (i1p.n0[0] > 0)
       work_cart[4*i1p.ibasis0+1] += i1p.n0[0]*pre0*poly_work[i1p.ibasis0+offset_l1];
 
-    // Orbital derived toward y
+    // Basis function derived toward y
     work_cart[4*i1p.ibasis0+2] += pre0_h*poly_work[i1p.ibasis0+1+nnotx+offset_h1];
     if (i1p.n0[1] > 0)
       work_cart[4*i1p.ibasis0+2] += i1p.n0[1]*pre0*poly_work[i1p.ibasis0-nnotx+offset_l1];
 
-    // Orbital derived toward z
+    // Basis function derived toward z
     work_cart[4*i1p.ibasis0+3] += pre0_h*poly_work[i1p.ibasis0+2+nnotx+offset_h1];
     if (i1p.n0[2] > 0)
       work_cart[4*i1p.ibasis0+3] += i1p.n0[2]*pre0*poly_work[i1p.ibasis0-nnotx-1+offset_l1];
@@ -351,17 +360,17 @@ void GB1DMGridKineticFn::add(double coeff, double alpha0, const double* scales0)
     double pre0_h = -pre0*2.0*alpha0;
     long nnotx = i1p.n0[1] + i1p.n0[2];
 
-    // Orbital derived toward x
+    // Basis function derived toward x
     work_cart[3*i1p.ibasis0] += pre0_h*poly_work[i1p.ibasis0+offset_h1];
     if (i1p.n0[0] > 0)
       work_cart[3*i1p.ibasis0] += i1p.n0[0]*pre0*poly_work[i1p.ibasis0+offset_l1];
 
-    // Orbital derived toward y
+    // Basis function derived toward y
     work_cart[3*i1p.ibasis0+1] += pre0_h*poly_work[i1p.ibasis0+1+nnotx+offset_h1];
     if (i1p.n0[1] > 0)
       work_cart[3*i1p.ibasis0+1] += i1p.n0[1]*pre0*poly_work[i1p.ibasis0-nnotx+offset_l1];
 
-    // Orbital derived toward z
+    // Basis function derived toward z
     work_cart[3*i1p.ibasis0+2] += pre0_h*poly_work[i1p.ibasis0+2+nnotx+offset_h1];
     if (i1p.n0[2] > 0)
       work_cart[3*i1p.ibasis0+2] += i1p.n0[2]*pre0*poly_work[i1p.ibasis0-nnotx-1+offset_l1];
@@ -436,32 +445,32 @@ void GB1DMGridHessianFn::add(double coeff, double alpha0, const double* scales0)
     double pre0_hh = -pre0_h*2.0*alpha0;
     long nnotx = i1p.n0[1] + i1p.n0[2];
 
-    // Orbital
+    // Basis function
     work_cart[10*i1p.ibasis0] += pre0*poly_work[i1p.ibasis0+offset];
 
-    // Orbital derived toward x
+    // Basis function derived toward x
     work_cart[10*i1p.ibasis0+1] += pre0_h*poly_work[i1p.ibasis0+offset_h1];
     if (i1p.n0[0] > 0)
       work_cart[10*i1p.ibasis0+1] += i1p.n0[0]*pre0*poly_work[i1p.ibasis0+offset_l1];
 
-    // Orbital derived toward y
+    // Basis function derived toward y
     work_cart[10*i1p.ibasis0+2] += pre0_h*poly_work[i1p.ibasis0+1+nnotx+offset_h1];
     if (i1p.n0[1] > 0)
       work_cart[10*i1p.ibasis0+2] += i1p.n0[1]*pre0*poly_work[i1p.ibasis0-nnotx+offset_l1];
 
-    // Orbital derived toward z
+    // Basis function derived toward z
     work_cart[10*i1p.ibasis0+3] += pre0_h*poly_work[i1p.ibasis0+2+nnotx+offset_h1];
     if (i1p.n0[2] > 0)
       work_cart[10*i1p.ibasis0+3] += i1p.n0[2]*pre0*poly_work[i1p.ibasis0-nnotx-1+offset_l1];
 
-    // Orbital derived toward xx
+    // Basis function derived toward xx
     work_cart[10*i1p.ibasis0+4] += pre0_hh*poly_work[i1p.ibasis0+offset_h2];
     work_cart[10*i1p.ibasis0+4] += (2*i1p.n0[0]+1)*pre0_h*poly_work[i1p.ibasis0+offset];
     if (i1p.n0[0] > 1)
       work_cart[10*i1p.ibasis0+4] += i1p.n0[0]*(i1p.n0[0]-1)*pre0*
                                       poly_work[i1p.ibasis0+offset_l2];
 
-    // Orbital derived toward xy
+    // Basis function derived toward xy
     work_cart[10*i1p.ibasis0+5] += pre0_hh*poly_work[i1p.ibasis0+1+nnotx+offset_h2];
     if (i1p.n0[0] > 0)
       work_cart[10*i1p.ibasis0+5] += i1p.n0[0]*pre0_h*poly_work[i1p.ibasis0+1+nnotx+offset];
@@ -471,7 +480,7 @@ void GB1DMGridHessianFn::add(double coeff, double alpha0, const double* scales0)
       work_cart[10*i1p.ibasis0+5] += i1p.n0[0]*i1p.n0[1]*pre0*
                                      poly_work[i1p.ibasis0-nnotx+offset_l2];
 
-    // Orbital derived toward xz
+    // Basis function derived toward xz
     work_cart[10*i1p.ibasis0+6] += pre0_hh*poly_work[i1p.ibasis0+2+nnotx+offset_h2];
     if (i1p.n0[0] > 0)
       work_cart[10*i1p.ibasis0+6] += i1p.n0[0]*pre0_h*poly_work[i1p.ibasis0+2+nnotx+offset];
@@ -481,14 +490,14 @@ void GB1DMGridHessianFn::add(double coeff, double alpha0, const double* scales0)
       work_cart[10*i1p.ibasis0+6] += i1p.n0[0]*i1p.n0[2]*pre0*
                                      poly_work[i1p.ibasis0-1-nnotx+offset_l2];
 
-    // Orbital derived toward yy
+    // Basis function derived toward yy
     work_cart[10*i1p.ibasis0+7] += pre0_hh*poly_work[i1p.ibasis0+3+2*nnotx+offset_h2];
     work_cart[10*i1p.ibasis0+7] += (2*i1p.n0[1]+1)*pre0_h*poly_work[i1p.ibasis0+offset];
     if (i1p.n0[1] > 1)
       work_cart[10*i1p.ibasis0+7] += i1p.n0[1]*(i1p.n0[1]-1)*pre0*
                                      poly_work[i1p.ibasis0+1-2*nnotx+offset_l2];
 
-    // Orbital derived toward yz
+    // Basis function derived toward yz
     work_cart[10*i1p.ibasis0+8] += pre0_hh*poly_work[i1p.ibasis0+4+2*nnotx+offset_h2];
     if (i1p.n0[1] > 0)
       work_cart[10*i1p.ibasis0+8] += i1p.n0[1]*pre0_h*poly_work[i1p.ibasis0+1+offset];
@@ -498,7 +507,7 @@ void GB1DMGridHessianFn::add(double coeff, double alpha0, const double* scales0)
       work_cart[10*i1p.ibasis0+8] += i1p.n0[1]*i1p.n0[2]*pre0*
                                      poly_work[i1p.ibasis0-2*nnotx+offset_l2];
 
-    // Orbital derived toward zz
+    // Basis function derived toward zz
     work_cart[10*i1p.ibasis0+9] += pre0_hh*poly_work[i1p.ibasis0+5+2*nnotx+offset_h2];
     work_cart[10*i1p.ibasis0+9] += (2*i1p.n0[2]+1)*pre0_h*poly_work[i1p.ibasis0+offset];
     if (i1p.n0[2] > 1)
@@ -595,26 +604,26 @@ void GB1DMGridMGGAFn::add(double coeff, double alpha0, const double* scales0) {
     double pre0_hh = -pre0_h*2.0*alpha0;
     long nnotx = i1p.n0[1] + i1p.n0[2];
 
-    // Orbital
+    // Basis function
     work_cart[5*i1p.ibasis0] += pre0*poly_work[i1p.ibasis0+offset];
 
-    // Orbital derived toward x
+    // Basis function derived toward x
     work_cart[5*i1p.ibasis0+1] += pre0_h*poly_work[i1p.ibasis0+offset_h1];
     if (i1p.n0[0] > 0)
       work_cart[5*i1p.ibasis0+1] += i1p.n0[0]*pre0*poly_work[i1p.ibasis0+offset_l1];
 
-    // Orbital derived toward y
+    // Basis function derived toward y
     work_cart[5*i1p.ibasis0+2] += pre0_h*poly_work[i1p.ibasis0+1+nnotx+offset_h1];
     if (i1p.n0[1] > 0)
       work_cart[5*i1p.ibasis0+2] += i1p.n0[1]*pre0*poly_work[i1p.ibasis0-nnotx+offset_l1];
 
-    // Orbital derived toward z
+    // Basis function derived toward z
     work_cart[5*i1p.ibasis0+3] += pre0_h*poly_work[i1p.ibasis0+2+nnotx+offset_h1];
     if (i1p.n0[2] > 0)
       work_cart[5*i1p.ibasis0+3] += i1p.n0[2]*pre0*
                                     poly_work[i1p.ibasis0-nnotx-1+offset_l1];
 
-    // Laplacian of the orbital
+    // Laplacian of the Basis function
     work_cart[5*i1p.ibasis0+4] += pre0_hh*poly_work[i1p.ibasis0+offset_h2];
     work_cart[5*i1p.ibasis0+4] += (2*i1p.n0[0]+1)*pre0_h*poly_work[i1p.ibasis0+offset];
     if (i1p.n0[0] > 1)
