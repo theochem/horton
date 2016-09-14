@@ -7,7 +7,7 @@ rm -rf *_pr.tar.gz *_ancestor.tar.gz
 ./cleanfiles.sh
 
 echo "--- Build refatoms"
-rm -rf data/refatoms/*.h5 data/refatoms/*.tar.bz2
+rm -rf data/refatoms/*.h5 #data/refatoms/*.tar.bz2
 make -C data/refatoms/
 
 export PYTHONPATH=$PWD

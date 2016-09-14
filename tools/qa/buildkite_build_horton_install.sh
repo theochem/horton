@@ -6,7 +6,7 @@ echo "--- Basic source tests"
 ./tools/qa/check_names.py
 
 echo "--- Build refatoms"
-rm -rf data/refatoms/*.h5 data/refatoms/*.tar.bz2
+rm -rf data/refatoms/*.h5 #data/refatoms/*.tar.bz2
 make -C data/refatoms/
 
 echo "--- Build Cython files & HORTON"
