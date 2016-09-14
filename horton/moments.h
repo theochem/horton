@@ -23,7 +23,21 @@
 #ifndef HORTON_MOMENTS_H
 #define HORTON_MOMENTS_H
 
+/** @brief Compute Cartesian mononomials efficiently.
+
+    Computes all Cartesian mononomials (x, y, z) up to a given order in alphabetical
+    order. The first three elements of output must contain x, y and z.
+
+    @param output
+        The output array, which must be sufficiently large.
+
+    @param lmax
+        The highest order of the mononomials.
+
+    @returns The position of the first mononomials of the highest order.
+  */
 long fill_cartesian_polynomials(double* output, long lmax);
+
 long fill_pure_polynomials(double* output, long lmax);
 long fill_pure_polynomials_array(double* output, long lmax, long nrep, long stride);
 void fill_radial_polynomials(double* output, long lmax);
