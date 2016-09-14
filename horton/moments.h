@@ -34,7 +34,7 @@
     @param lmax
         The highest order of the mononomials.
 
-    @returns The position of the first mononomials of the highest order.
+    @returns The position of the first mononomial of the highest order.
   */
 long fill_cartesian_polynomials(double* output, long lmax);
 
