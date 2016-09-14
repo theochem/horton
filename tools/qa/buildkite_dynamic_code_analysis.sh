@@ -8,9 +8,9 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     rm -rf *_pr.tar.gz *_ancestor.tar.gz
     ./cleanfiles.sh
 
-#    echo "--- Build refatoms"
-#    rm -rf data/refatoms/*.h5 data/refatoms/*.tar.bz2
-#    make -C data/refatoms/
+    echo "--- Build refatoms"
+    rm -rf data/refatoms/*.h5 #data/refatoms/*.tar.bz2
+    make -C data/refatoms/
 
     echo "--- Running trapdoors tests"
     tools/qa/check_whitespace.py $ANCESTOR_SHA || report_error "Whitespace errors in some commits"
@@ -33,9 +33,9 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     ./cleanfiles.sh
     tar xvf horton_ancestor.tar.gz
 
-#    echo "--- Build refatoms"
-#    rm -rf data/refatoms/*.h5 data/refatoms/*.tar.bz2
-#    make -C data/refatoms/
+    echo "--- Build refatoms"
+    rm -rf data/refatoms/*.h5 #data/refatoms/*.tar.bz2
+    make -C data/refatoms/
 
     echo "--- Running trapdoor tests on ancestor branch"
     copy_qa_scripts

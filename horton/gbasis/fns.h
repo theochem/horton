@@ -18,7 +18,103 @@
 //
 //--
 
-// UPDATELIBDOCTITLE: Evaluation of functions expanded in a Gaussian basis
+// UPDATELIBDOCTITLE: Evaluate functions on grids and derive Fock matrices from potentials on grids.
+
+/**
+    @file fns.h
+    @brief Evaluate functions on grids and derive Fock matrices from potentials on grids.
+
+    Functions on grid points are calculated in three steps, which are controlled by
+    methods in the GBasis class in gbasis.h. Also code is shared with the Fock build from
+    potentials on grids.
+
+    GB1GridFn functions require only a single loop to compute properties of basis
+    functions. See following methods in gbasis.h:
+
+        GOBasis::compute_grid1_exp
+        GOBasis::compute_grid1_dm
+        GOBasis::compute_grid1_fock
+        GOBasis::compute_grid_point1 (called by the previous three)
+
+    GB2GridFn functions requires double loop to compute properties of basis pairs of basis
+    functions. See following methods in gbasis.h:
+
+        GOBasis::compute_grid2_dm
+        GOBasis::compute_grid_point2 (called by compute_grid2_dm)
+
+    The methods `reset`, `add`, `cart_to_pure` and `compute_point_from_*` or
+    `compute_fock_from_pot`, are called from functions in gbasis.cpp (GOBasis). For a
+    given grid point...
+
+    1) The method `reset` is called with basic information of the contraction and the
+       position of the grid point.
+
+    2) The method `add` is called to evaluate properties (function value and/or
+       derivatives) of primitives on the grid point. Code in gbasis.cpp takes care of
+       contractions and calls `add` with the proper prefactor `coeff`. The `add` method
+       adds results for one primitive in `work_cart`.
+
+    3) `cart_to_pure` to transform the results for a contraction to pure functions when
+       needed.
+
+    4) After looping over all the (pairs of) contractions (steps 1 to 3), one of the
+       following two happens, still just for one grid point
+
+    4a) The compute_point_from_* method is called to convert the properties of the basis
+        functions into the (density) function(s) of interest, making use of either
+        expansion coefficients of the orbitals or first-order density matrix coefficients.
+
+    4b) The compute_fock_from_pot method is called to convert a potential on a grid into
+        a Fock operator.
+
+    The above work flow is repeated for every grid point.
+
+
+    The Cartesian polynomials in the Gaussian primitives (and/or their derivatives) are
+    computed only once for a given contraction when calling the `reset` method. This is
+    done by calling `fill_cartesian_polynomials`, which computes all mononomials in
+    alphabetical order up to a given order. It returns an offset, which is the position of
+    the first mononomial of the highest order. This offset is used to quickly find the
+    desired mononomial for evaluating each primitive. The offset is stored as a class
+    attribute and used on the `add` method:
+
+    - There is only only offset attribute in many cases, i.e. when only mononomials of one
+      order are needed.
+
+    - When mononomials of different orders are needed, their offsets are computed in the
+      `reset` method: offset_l1, offset_h1, offset_l2 and offset_h2. The suffixes h and l
+      refer to higher and lower.
+
+    - Keep in mind that the derivative (toward x) of a primitive (with x^k) includes two
+      terms (one with a mononomial x^{k-1} and one with x^(k+1}). So in the case of GGA
+      and even more so for MGGA, many mononomials are needed and several relevant offsets
+      must be stored.
+
+    Given the position of a mononomial, related mononomials (increasing or decreasing one
+    or two powers) are "easily" found. Given a mononomial:
+
+    - mono = x**nx * y**ny * z**nz: offset + i
+    - mono * x: offset_h1 + i
+    - mono / x: offset_l1 + i
+    - mono * y: offset_h1 + i + 1 + ny + nz
+    - mono / y: offset_l1 + i - ny - nz
+    - mono * z: offset_h1 + i + 2 + ny + nz
+    - mono / z: offset_l1 + i - 1 - ny - nz
+    - mono * (x*x): offset_h2 + i
+    - mono / (x*x): offset_l2 + i
+    - mono * (x*y): offset_h2 + i + 1 + ny + nz
+    - mono / (x*y): offset_l2 + i - ny - nz
+    - mono * (x*z): offset_h2 + i + 2 + ny + nz
+    - mono / (x*z): offset_l2 + i - 1 - ny - nz
+    - mono * (y*y): offset_h2 + i + 3 + 2*ny + 2*nz
+    - mono / (y*y): offset_l2 + i + 1 - 2*ny - 2*nz
+    - mono * (y*z): offset_h2 + i + 4 + 2*ny + 2*nz
+    - mono / (y*z): offset_l2 + i - 2*ny - 2*nz
+    - mono * (z*z): offset_h2 + i + 5 + 2*ny + 2*nz
+    - mono / (z*z): offset_l2 + i - 1 - 2*ny - 2*nz
+
+    These rules are used on the `add` methods.
+  */
 
 #ifndef HORTON_GBASIS_FNS_H_
 #define HORTON_GBASIS_FNS_H_
@@ -27,28 +123,9 @@
 #include "horton/gbasis/common.h"
 #include "horton/gbasis/iter_pow.h"
 
-
 /** @brief
       Base class for grid calculators that require only a single loop over all basis
       functions.
-
-    All these functions split the work into two distinct steps. These steps are called
-    from functions in gbasis.cpp (GOBasis). For a given grid point...
-
-    1) The add method is called several times with all Gaussian primitives to evaluate
-       properties of these primitives on the grid points. After this stage, the code in
-       gbasis.cpp will take care of combining everything into proper contractions. It
-       also calls the cart_to_pure method to get transform the results to pure functions
-       when needed.
-
-    2) (optional)
-       The compute_point_from_* method is called to convert the properties of the basis
-       functions into the function of interest, making use of either expansion
-       coefficients of the orbitals or first-order density matrix coefficients.
-
-    3) (optional)
-       The compute_fock_from_pot method is called to convert a potential on a grid into
-       a Fock operator.
   */
 class GB1GridFn : public GBCalculator  {
  public:
