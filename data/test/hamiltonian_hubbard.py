@@ -25,7 +25,7 @@ import sys
 from numpy import array, allclose
 from nose.plugins.attrib import attr
 
-from horton import context
+from horton.context import context
 
 
 @attr('regression_check')

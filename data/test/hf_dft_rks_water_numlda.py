@@ -25,21 +25,21 @@ import sys
 from numpy import array, allclose
 from nose.plugins.attrib import attr
 
-from horton import context
+from horton.context import context
 
 
 @attr('regression_check')
 def test_regression():
-    ref_result_kin = 75.86617849727347
-    ref_result_energy = -75.839939972562192
-    ref_result_grid = 38.041659533054506
-    ref_result_exp_alpha = array([-18.58175354,  -0.89649368,  -0.47400848,  -0.29937158,
-        -0.22836776,   0.04533442,   0.12812446,   0.76334021,
-         0.8026184 ,   0.83070626,   0.86459563,   1.00423189,
-         1.31621837,   1.67067821,   1.67679206,   1.71883384,
-         2.23330753,   2.51973118])
+    ref_result_kin = 75.86628050616007
+    ref_result_energy = -75.839956410880902
+    ref_result_grid = 38.04168508198201
+    ref_result_exp_alpha = array([-18.58175488,  -0.89649903,  -0.47396871,  -0.29940619,
+        -0.22836067,   0.0451172 ,   0.12846043,   0.76348455,
+         0.80251951,   0.83072451,   0.86449305,   1.00433775,
+         1.31618315,   1.67084182,   1.67696357,   1.71860491,
+         2.23325627,   2.51954412])
     ref_result_nn = 9.1571750364299866
-    ref_result_ne = -198.90495303932016
+    ref_result_ne = -198.90509703545297
 
     thresholds = {'ref_result_kin': 1e-08, 'ref_result_energy': 1e-08, 'ref_result_grid': 1e-08, 'ref_result_ne': 1e-08, 'ref_result_exp_alpha': 1e-08, 'ref_result_nn': 1e-08}
 

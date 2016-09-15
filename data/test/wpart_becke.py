@@ -25,12 +25,12 @@ import sys
 from numpy import array, allclose
 from nose.plugins.attrib import attr
 
-from horton import context
+from horton.context import context
 
 
 @attr('regression_check')
 def test_regression():
-    ref_result_charges = array([-0.13538012,  0.06771209,  0.06764216])
+    ref_result_charges = array([-0.13538095,  0.06768121,  0.0676811 ])
 
     thresholds = {'ref_result_charges': 1e-08}
 

@@ -19,9 +19,11 @@
 #
 # --
 
+"""Regression test."""
 
-from horton import context
+from horton.context import context
 from horton.test.common import check_script_in_tmp
+
 
 def test_regression():
     required = [context.get_fn('test/hamiltonian_hubbard.py')]

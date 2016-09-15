@@ -25,12 +25,12 @@ import sys
 from numpy import array, allclose
 from nose.plugins.attrib import attr
 
-from horton import context
+from horton.context import context
 
 
 @attr('regression_check')
 def test_regression():
-    ref_result_r = 11.058112029253433
+    ref_result_r = 11.058147784706398
 
     thresholds = {'ref_result_r': 1e-08}
 
