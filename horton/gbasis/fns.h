@@ -214,7 +214,8 @@ class GB1ExpGridFn : public GB1GridFn  {
         be stored, such as an orbital and its gradient.
 
       @param dim_output
-        The number of results for each grid point, e.g. 3 for a density gradient.
+        The number of results, i.e. elements in output and pot arguments, for each grid
+        point, e.g. 3 for a density gradient.
     */
   GB1ExpGridFn(long max_shell_type, long nfn, long dim_work, long dim_output)
       : GB1GridFn(max_shell_type, dim_work, dim_output), nfn(nfn) {}
@@ -224,16 +225,16 @@ class GB1ExpGridFn : public GB1GridFn  {
 
       @param work_basis
         Properties of basis functions computed for the current grid point. (Work done by
-        add method.)
+        add method.) (size=nbasis*dim_work)
 
       @param coeffs
-        The orbital expansion coefficients.
+        The orbital expansion coefficients. (size=nbasis*nfn)
 
       @param nbasis
         The number of basis functions.
 
       @param output
-        The output array for the current grid point.
+        The output array for the current grid point. (size=dim_output)
     */
   virtual void compute_point_from_exp(double* work_basis, double* coeffs, long nbasis,
                                       double* output) = 0;
@@ -245,6 +246,11 @@ class GB1ExpGridFn : public GB1GridFn  {
 
 /** @brief
       Evaluates a selection of orbitals on a grid.
+
+    Content of work_basis (at one grid point):
+      0) Basis function value.
+    Content of the argument 'output' (at one grid point):
+      0-norb) Values of the orbitals.
   */
 class GB1ExpGridOrbitalFn : public GB1ExpGridFn  {
  public:
@@ -303,48 +309,61 @@ class GB1DMGridFn : public GB1GridFn  {
 
       @param work_basis
         Properties of basis functions computed for the current grid point. (Work done by
-        add method.)
+        add method.) (size=nbasis*dim_work)
 
       @param dm
-        The coefficients of the first-order density matrix.
+        The coefficients of the first-order density matrix. (size=nbasis*nbasis)
 
       @param nbasis
         The number of basis functions.
 
       @param output
-        The output array for the current grid point.
+        The output array for the current grid point. (size=dim_output)
 
       @param epsilon
         A cutoff value used to discard small contributions.
 
       @param dmmaxrow
-        The maximum value of the density matrix on each row.
+        The maximum value of the density matrix on each row. (size=nbasis)
     */
   virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis,
                                      double* output, double epsilon, double* dmmaxrow) = 0;
 
   /** @brief
-        Add contribution to Fock matrix for one grid point.
+        Add contribution to Fock matrix from one grid point.
+
+      The chain rule is used to transform grid potential data (in one point, see reset
+      method) into a Fock matrix contribution.
 
       @param pot
-        The value of the potential on the grid point. (This may be multiple values, e.g in
-        case of GGA.)
+        The value of the potential at the grid point. This may be multiple values, e.g in
+        case of GGA, this contains four elements: the functional derivative of the energy
+        w.r.t. the density and the components of the gradient. (size=dim_output)
 
       @param work_basis
-        Properties of the orbital basis in the current grid point.
+        Properties of the orbital basis in the current grid point, typically the value of
+        the basis function and optionally first or second derivatives toward x, y and z,
+        all evaluated in `point` (see reset method). (size=nbasis*dim_work)
 
       @param nbasis
         The number of basis functions.
 
-      @param output
-        The Fock matrix to which the result will be added.
+      @param fock
+        The Fock matrix to which the result will be added. (size=nbasis*nbasis)
     */
   virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis,
-                                     double* output) = 0;
+                                     double* fock) = 0;
 };
 
 
-//! Compute just the electron density on a grid.
+/** @brief
+      Compute just the electron density on a grid.
+
+    Content of work_basis (at one grid point):
+      0) Basis function value.
+    Content of the argument 'output' and the energy derivative in 'pot' (at one grid point):
+      0) The electron density
+  */
 class GB1DMGridDensityFn : public GB1DMGridFn  {
  public:
   /** @brief
@@ -371,7 +390,7 @@ class GB1DMGridDensityFn : public GB1DMGridFn  {
 
   //! Add contribution to Fock matrix for one grid point. (See base class for details.)
   virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis,
-                                     double* output);
+                                     double* fock);
 
  private:
   double poly_work[MAX_NCART_CUMUL];  //!< Work array with Cartesian polynomials.
@@ -379,7 +398,19 @@ class GB1DMGridDensityFn : public GB1DMGridFn  {
 };
 
 
-//! Compute gradient of the electron density on a grid.
+/** @brief
+      Compute gradient of the electron density on a grid.
+
+    Content of work_basis (at one grid point):
+      0) Basis function value.
+      1) Basis function derivative toward x.
+      2) Basis function derivative toward y.
+      3) Basis function derivative toward z.
+    Content of the argument 'output' and the energy derivative in 'pot' (at one grid point):
+      0) Density derivative toward x.
+      1) Density derivative toward y.
+      2) Density derivative toward z.
+  */
 class GB1DMGridGradientFn : public GB1DMGridFn  {
  public:
   /** @brief
@@ -421,7 +452,7 @@ class GB1DMGridGradientFn : public GB1DMGridFn  {
 
   //! Add contribution to Fock matrix for one grid point. (See base class for details.)
   virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis,
-                                     double* output);
+                                     double* fock);
 
  protected:
   double poly_work[MAX_NCART_CUMUL_D];  //!< Work array with Cartesian polynomials.
@@ -431,7 +462,20 @@ class GB1DMGridGradientFn : public GB1DMGridFn  {
 };
 
 
-//! Compute density and gradient on a grid.
+/** @brief
+      Compute density and gradient on a grid.
+
+    Content of work_basis (at one grid point):
+      0) Basis function value.
+      1) Basis function derivative toward x.
+      2) Basis function derivative toward y.
+      3) Basis function derivative toward z.
+    Content of the argument 'output' and the energy derivative in 'pot' (at one grid point):
+      0) Density.
+      1) Density derivative toward x.
+      2) Density derivative toward y.
+      3) Density derivative toward z.
+  */
 class GB1DMGridGGAFn : public GB1DMGridGradientFn  {
  public:
   /** @brief
@@ -448,11 +492,20 @@ class GB1DMGridGGAFn : public GB1DMGridGradientFn  {
 
   //! Add contribution to Fock matrix for one grid point. (See base class for details.)
   virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis,
-                                     double* output);
+                                     double* fock);
 };
 
 
-//! Compute kinetic energy density on a grid.
+/** @brief
+      Compute kinetic energy density on a grid.
+
+    Content of work_basis (at one grid point):
+      0) Basis function derivative toward x.
+      1) Basis function derivative toward y.
+      2) Basis function derivative toward z.
+    Content of the argument 'output' and the energy derivative in 'pot' (at one grid point):
+      0) Kinetic energy density.
+  */
 class GB1DMGridKineticFn : public GB1DMGridFn  {
  public:
   /** @brief
@@ -480,7 +533,7 @@ class GB1DMGridKineticFn : public GB1DMGridFn  {
 
   //! Add contribution to Fock matrix for one grid point. (See base class for details.)
   virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis,
-                                     double* output);
+                                     double* fock);
 
  private:
   double poly_work[MAX_NCART_CUMUL_D];  //!< Work array with Cartesian polynomials.
@@ -492,6 +545,25 @@ class GB1DMGridKineticFn : public GB1DMGridFn  {
 
 /** @brief
       Compute density Hessian on a grid: xx, xy, xz, yy, yz, zz.
+
+    Content of work_basis (at one grid point):
+      0) Basis function value.
+      1) Basis function derivative toward x.
+      2) Basis function derivative toward y.
+      3) Basis function derivative toward z.
+      4) Basis function derivative toward xx.
+      5) Basis function derivative toward xy.
+      6) Basis function derivative toward xz.
+      7) Basis function derivative toward yy.
+      8) Basis function derivative toward yz.
+      9) Basis function derivative toward zz.
+    Content of the argument 'output' and the energy derivative in 'pot' (at one grid point):
+      0) Density derivative toward xx.
+      1) Density derivative toward xy.
+      2) Density derivative toward xz.
+      3) Density derivative toward yy.
+      4) Density derivative toward yz.
+      5) Density derivative toward zz.
   */
 class GB1DMGridHessianFn : public GB1DMGridFn  {
  public:
@@ -520,7 +592,7 @@ class GB1DMGridHessianFn : public GB1DMGridFn  {
 
   //! Add contribution to Fock matrix for one grid point. (See base class for details.)
   virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis,
-                                     double* output);
+                                     double* fock);
 
  private:
   double poly_work[MAX_NCART_CUMUL_DD];  //!< Work array with Cartesian polynomials.
@@ -535,6 +607,20 @@ class GB1DMGridHessianFn : public GB1DMGridFn  {
 /** @brief
       Compute MGGA properties on a grid: density, gradient, laplacian and kinetic energy
       density.
+
+    Content of work_basis (at one grid point):
+      0) Basis function value.
+      1) Basis function derivative toward x.
+      2) Basis function derivative toward y.
+      3) Basis function derivative toward z.
+      4) Basis function Laplacian.
+    Content of the argument 'output' and the energy derivative in 'pot' (at one grid point):
+      0) Density.
+      1) Density derivative toward x.
+      2) Density derivative toward y.
+      3) Density derivative toward z.
+      4) Laplacian of the density.
+      5) Kinetic energy density.
   */
 class GB1DMGridMGGAFn : public GB1DMGridFn  {
  public:
@@ -563,7 +649,7 @@ class GB1DMGridMGGAFn : public GB1DMGridFn  {
 
   //! Add contribution to Fock matrix for one grid point. (See base class for details.)
   virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis,
-                                     double* output);
+                                     double* fock);
 
  private:
   double poly_work[MAX_NCART_CUMUL_DD];  //!< Work array with Cartesian polynomials.
@@ -650,6 +736,9 @@ class GB2DMGridFn : public GBCalculator  {
 
     This requires a double loop over all basis functions because the contributions from
     the products of basis functions cannot completely be factorized.
+
+    Content of work_basis (at one grid point):
+      0) The Hartree potential due to the product of the two basis functions.
  */
 class GB2DMGridHartreeFn : public GB2DMGridFn  {
  public:

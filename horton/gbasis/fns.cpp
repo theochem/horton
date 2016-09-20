@@ -95,6 +95,9 @@ void GB1ExpGridOrbitalFn::reset(long _shell_type0, const double* _r0, const doub
 
 void GB1ExpGridOrbitalFn::add(double coeff, double alpha0, const double* scales0) {
   double pre = coeff*exp(-alpha0*dist_sq(r0, point));
+  // The (Cartesian) basis function evaluated in `point` (see reset method) is added to
+  // work_cart, where ibasis0 is an index for the primitive in the current Cartesian
+  // shell.
   for (long ibasis0=get_shell_nbasis(abs(shell_type0))-1; ibasis0 >= 0; ibasis0--) {
     work_cart[ibasis0] += pre*scales0[ibasis0]*poly_work[ibasis0+offset];
   }
@@ -105,7 +108,9 @@ void GB1ExpGridOrbitalFn::compute_point_from_exp(double* work_basis, double* coe
   for (long i=0; i < norb; i++) {
     long iorb = iorbs[i];
     for (long ibasis=0; ibasis < nbasis; ibasis++) {
-      // Just evaluate the contribution of each basis function to an orbital:
+      // Just evaluate the contribution of each basis function to an orbital.
+      // The values of the basis functions at `point` (see reset method) are available in
+      // work_basis.
       output[i] += coeffs[ibasis*nfn + iorb]*work_basis[ibasis];
     }
   }
@@ -131,6 +136,9 @@ void GB1DMGridDensityFn::reset(long _shell_type0, const double* _r0, const doubl
 
 void GB1DMGridDensityFn::add(double coeff, double alpha0, const double* scales0) {
   double pre = coeff*exp(-alpha0*dist_sq(r0, point));
+  // The (Cartesian) basis function evaluated in `point` (see reset method) is added to
+  // work_cart, where ibasis0 is an index for the primitive in the current Cartesian
+  // shell.
   for (long ibasis0=get_shell_nbasis(abs(shell_type0))-1; ibasis0 >= 0; ibasis0--) {
     work_cart[ibasis0] += pre*scales0[ibasis0]*poly_work[ibasis0+offset];
   }
@@ -139,6 +147,9 @@ void GB1DMGridDensityFn::add(double coeff, double alpha0, const double* scales0)
 void GB1DMGridDensityFn::compute_point_from_dm(double* work_basis, double* dm,
                                                long nbasis, double* output,
                                                double epsilon, double* dmmaxrow) {
+  // The values of the basis functions at `point` (see reset method) are available in
+  // work_basis.
+
   // The epsilon argument allows one to skip part of the calculation where the density is
   // low.
   if (epsilon > 0) {
@@ -184,13 +195,17 @@ void GB1DMGridDensityFn::compute_point_from_dm(double* work_basis, double* dm,
 }
 
 void GB1DMGridDensityFn::compute_fock_from_pot(double* pot, double* work_basis,
-                                               long nbasis, double* output) {
+                                               long nbasis, double* fock) {
+  // The potential in `point` (see reset method) is given in `*pot`. It is the functional
+  // derivative of the energy w.r.t. to the density in `point`. This gets transformed to
+  // a contribution to the Fock matrix, i.e. the derivative of the energy w.r.t. the 1RDM
+  // elements, using the chain rule.
   for (long ibasis0=0; ibasis0 < nbasis; ibasis0++) {
     double tmp1 = (*pot)*work_basis[ibasis0];
     for (long ibasis1=0; ibasis1 <= ibasis0; ibasis1++) {
       double tmp2 = tmp1*work_basis[ibasis1];
-      output[ibasis0*nbasis+ibasis1] += tmp2;
-      if (ibasis0 != ibasis1) output[ibasis1*nbasis+ibasis0] += tmp2;
+      fock[ibasis0*nbasis+ibasis1] += tmp2;
+      if (ibasis0 != ibasis1) fock[ibasis1*nbasis+ibasis0] += tmp2;
     }
   }
 }
@@ -219,6 +234,8 @@ void GB1DMGridGradientFn::reset(long _shell_type0, const double* _r0, const doub
 
 void GB1DMGridGradientFn::add(double coeff, double alpha0, const double* scales0) {
   double pre = coeff*exp(-alpha0*dist_sq(r0, point));
+  // For every primitive, work_cart contains four values computed at `point` (see reset
+  // method): the basis function and its derivatives toward x, y and z.
   i1p.reset(abs(shell_type0));
   do {
     double pre0 = pre*scales0[i1p.ibasis0];
@@ -248,6 +265,9 @@ void GB1DMGridGradientFn::add(double coeff, double alpha0, const double* scales0
 void GB1DMGridGradientFn::compute_point_from_dm(double* work_basis, double* dm,
                                                 long nbasis, double* output,
                                                 double epsilon, double* dmmaxrow) {
+  // The value of the basis function and its derivatives toward x, y and z (at `point`)
+  // are available in work_basis. These are used, together with the 1RDM coefficients,
+  // to compute the density gradient at `point`.
   double rho_x = 0, rho_y = 0, rho_z = 0;
   for (long ibasis0=0; ibasis0 < nbasis; ibasis0++) {
     double row = 0;
@@ -264,7 +284,10 @@ void GB1DMGridGradientFn::compute_point_from_dm(double* work_basis, double* dm,
 }
 
 void GB1DMGridGradientFn::compute_fock_from_pot(double* pot, double* work_basis,
-                                                long nbasis, double* output) {
+                                                long nbasis, double* fock) {
+  // The functional derivative of the energy w.r.t. to the density gradient is given in
+  // the argument *pot (three components: x, y, and z). The chain rule is used to
+  // transform these into a contribution to Fock matrix.
   for (long ibasis0=0; ibasis0 < nbasis; ibasis0++) {
     double tmp0 = work_basis[ibasis0*4];
     double tmp1 = pot[0]*work_basis[ibasis0*4+1] +
@@ -275,10 +298,10 @@ void GB1DMGridGradientFn::compute_fock_from_pot(double* pot, double* work_basis,
                             pot[1]*work_basis[ibasis1*4+2] +
                             pot[2]*work_basis[ibasis1*4+3]) +
                       tmp1*work_basis[ibasis1*4];
-      output[ibasis1*nbasis+ibasis0] += result;
+      fock[ibasis1*nbasis+ibasis0] += result;
       if (ibasis1 != ibasis0) {
         // Enforce symmetry
-        output[ibasis0*nbasis+ibasis1] += result;
+        fock[ibasis0*nbasis+ibasis1] += result;
       }
     }
   }
@@ -292,6 +315,9 @@ void GB1DMGridGradientFn::compute_fock_from_pot(double* pot, double* work_basis,
 void GB1DMGridGGAFn::compute_point_from_dm(double* work_basis, double* dm, long nbasis,
                                            double* output, double epsilon,
                                            double* dmmaxrow) {
+  // The value of the basis function and its derivatives toward x, y and z (at `point`)
+  // are available in work_basis. These are used, together with the 1RDM coefficients,
+  // to compute the density and its gradient at `point`.
   double rho = 0, rho_x = 0, rho_y = 0, rho_z = 0;
   for (long ibasis0=0; ibasis0 < nbasis; ibasis0++) {
     double row = 0;
@@ -310,7 +336,10 @@ void GB1DMGridGGAFn::compute_point_from_dm(double* work_basis, double* dm, long 
 }
 
 void GB1DMGridGGAFn::compute_fock_from_pot(double* pot, double* work_basis, long nbasis,
-                                           double* output) {
+                                           double* fock) {
+  // The functional derivative of the energy w.r.t. to the density and its gradient are
+  // given inthe argument *pot (four components). The chain rule is used to transform
+  // these into a contribution to Fock matrix.
   for (long ibasis0=0; ibasis0 < nbasis; ibasis0++) {
     double tmp0 = pot[0]*work_basis[ibasis0*4] +
                   pot[1]*work_basis[ibasis0*4+1] +
@@ -324,10 +353,10 @@ void GB1DMGridGGAFn::compute_fock_from_pot(double* pot, double* work_basis, long
                       tmp1*work_basis[ibasis1*4+1] +
                       tmp2*work_basis[ibasis1*4+2] +
                       tmp3*work_basis[ibasis1*4+3];
-      output[ibasis1*nbasis+ibasis0] += result;
+      fock[ibasis1*nbasis+ibasis0] += result;
       if (ibasis1 != ibasis0) {
         // Enforce symmetry
-        output[ibasis0*nbasis+ibasis1] += result;
+        fock[ibasis0*nbasis+ibasis1] += result;
       }
     }
   }
@@ -352,6 +381,8 @@ void GB1DMGridKineticFn::reset(long _shell_type0, const double* _r0, const doubl
 
 void GB1DMGridKineticFn::add(double coeff, double alpha0, const double* scales0) {
   double pre = coeff*exp(-alpha0*dist_sq(r0, point));
+  // For every primitive, work_cart contains three values computed at `point` (see reset
+  // method): the derivatives of the basis function toward x, y and z.
   i1p.reset(abs(shell_type0));
   do {
     double pre0 = pre*scales0[i1p.ibasis0];
@@ -378,6 +409,9 @@ void GB1DMGridKineticFn::add(double coeff, double alpha0, const double* scales0)
 void GB1DMGridKineticFn::compute_point_from_dm(double* work_basis, double* dm,
                                                long nbasis, double* output,
                                                double epsilon, double* dmmaxrow) {
+  // The derivatives of the basis function w.r.t. x, y and z, at `point` (see reset
+  // method) are given in work_basis. Together with the 1RDM coefficients, dm, these are
+  // used to compute the kinetic energy density in `point`.
   double tau = 0.0;
   for (long ibasis0=0; ibasis0 < nbasis; ibasis0++) {
     double tmp_x = 0;
@@ -399,7 +433,9 @@ void GB1DMGridKineticFn::compute_point_from_dm(double* work_basis, double* dm,
 }
 
 void GB1DMGridKineticFn::compute_fock_from_pot(double* pot, double* work_basis,
-                                               long nbasis, double* output) {
+                                               long nbasis, double* fock) {
+  // The derivative of the energy w.r.t. the kinetic energy density in `point`, is given
+  // in *pot. This is used to compute a contribution to the Fock matrix from `point`.
   for (long ibasis0=0; ibasis0 < nbasis; ibasis0++) {
     double tmp_x = 0.5*(*pot)*work_basis[ibasis0*3  ];
     double tmp_y = 0.5*(*pot)*work_basis[ibasis0*3+1];
@@ -408,9 +444,9 @@ void GB1DMGridKineticFn::compute_fock_from_pot(double* pot, double* work_basis,
       double result = tmp_x*work_basis[ibasis1*3  ] +
                       tmp_y*work_basis[ibasis1*3+1] +
                       tmp_z*work_basis[ibasis1*3+2];
-      output[ibasis1*nbasis+ibasis0] += result;
+      fock[ibasis1*nbasis+ibasis0] += result;
       if (ibasis0 != ibasis1)
-        output[ibasis0*nbasis+ibasis1] += result;
+        fock[ibasis0*nbasis+ibasis1] += result;
     }
   }
 }
@@ -436,6 +472,8 @@ void GB1DMGridHessianFn::reset(long _shell_type0, const double* _r0, const doubl
 
 void GB1DMGridHessianFn::add(double coeff, double alpha0, const double* scales0) {
   double pre = coeff*exp(-alpha0*dist_sq(r0, point));
+  // The value of the basis functions in the Cartesian primitive shell are added to
+  // work_basis, together with its first and second derivatives, all evaluated at `point`.
   i1p.reset(abs(shell_type0));
   do {
     double pre0 = pre*scales0[i1p.ibasis0];
@@ -517,6 +555,8 @@ void GB1DMGridHessianFn::add(double coeff, double alpha0, const double* scales0)
 void GB1DMGridHessianFn::compute_point_from_dm(double* work_basis, double* dm,
                                                long nbasis, double* output,
                                                double epsilon, double* dmmaxrow) {
+  // The density Hessian is computed in `point` using the results in work_basis (basis
+  // function values and their first and second derivatives).
   double rho_xx = 0, rho_xy = 0, rho_xz = 0;
   double rho_yy = 0, rho_yz = 0, rho_zz = 0;
   for (long ibasis0=0; ibasis0 < nbasis; ibasis0++) {
@@ -546,7 +586,10 @@ void GB1DMGridHessianFn::compute_point_from_dm(double* work_basis, double* dm,
 }
 
 void GB1DMGridHessianFn::compute_fock_from_pot(double* pot, double* work_basis,
-                                               long nbasis, double* output) {
+                                               long nbasis, double* fock) {
+  // The derivative of the energy w.r.t. the density Hessian matrix elements, evaluated in
+  // `point` is given in `*pot` (six elements). These are transformed with the chain rule
+  // to a contribution to the Fock matrix from `point`.
   for (long ibasis0=0; ibasis0 < nbasis; ibasis0++) {
     double tmp = pot[0]*work_basis[ibasis0*10+4]
                 +pot[1]*work_basis[ibasis0*10+5]
@@ -568,8 +611,8 @@ void GB1DMGridHessianFn::compute_fock_from_pot(double* pot, double* work_basis,
                      +tmp_x*work_basis[ibasis1*10+1]
                      +tmp_y*work_basis[ibasis1*10+2]
                      +tmp_z*work_basis[ibasis1*10+3];
-      output[ibasis1*nbasis+ibasis0] += result;
-      output[ibasis0*nbasis+ibasis1] += result;
+      fock[ibasis1*nbasis+ibasis0] += result;
+      fock[ibasis0*nbasis+ibasis1] += result;
     }
   }
 }
@@ -595,6 +638,9 @@ void GB1DMGridMGGAFn::reset(long _shell_type0, const double* _r0, const double* 
 
 void GB1DMGridMGGAFn::add(double coeff, double alpha0, const double* scales0) {
   double pre = coeff*exp(-alpha0*dist_sq(r0, point));
+  // The primitive basis functions in one Cartesian shell are added to work_cart,
+  // including the first derivatives and the Laplacian. (Five elements in total per basis
+  // function.)
   i1p.reset(abs(shell_type0));
   do {
     double pre0 = pre*scales0[i1p.ibasis0];
@@ -643,6 +689,9 @@ void GB1DMGridMGGAFn::add(double coeff, double alpha0, const double* scales0) {
 void GB1DMGridMGGAFn::compute_point_from_dm(double* work_basis, double* dm, long nbasis,
                                             double* output, double epsilon,
                                             double* dmmaxrow) {
+  // The density, its gradient, the kinetic energy density and the Laplacian, are computed
+  // in `point` (see reset method), using the results in work_basis and the 1RDM
+  // coefficients in dm.
   double rho = 0, rho_x = 0, rho_y = 0, rho_z = 0;
   double lapl_part = 0, tau2 = 0.0;
   for (long ibasis0=0; ibasis0 < nbasis; ibasis0++) {
@@ -674,7 +723,10 @@ void GB1DMGridMGGAFn::compute_point_from_dm(double* work_basis, double* dm, long
 }
 
 void GB1DMGridMGGAFn::compute_fock_from_pot(double* pot, double* work_basis, long nbasis,
-                                            double* output) {
+                                            double* fock) {
+  // The functional derivative of the energy w.r.t. density, its gradient, the kinetic
+  // energy density and the Laplacian, are given in *pot. These are transformed to a
+  // contribution to the Fock matrix using the chain rule.
   double auxpot = 0.5*pot[5] + 2.0*pot[4];
   for (long ibasis0=0; ibasis0 < nbasis; ibasis0++) {
     double tmp0 = pot[0]*work_basis[ibasis0*5] +
@@ -692,10 +744,10 @@ void GB1DMGridMGGAFn::compute_fock_from_pot(double* pot, double* work_basis, lon
                       tmp2*work_basis[ibasis1*5+2] +
                       tmp3*work_basis[ibasis1*5+3] +
                       tmp4*work_basis[ibasis1*5+4];
-      output[ibasis1*nbasis+ibasis0] += result;
+      fock[ibasis1*nbasis+ibasis0] += result;
       if (ibasis1 != ibasis0) {
         // Enforce symmetry
-        output[ibasis0*nbasis+ibasis1] += result;
+        fock[ibasis0*nbasis+ibasis1] += result;
       }
     }
   }
