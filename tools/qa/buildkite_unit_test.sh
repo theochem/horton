@@ -17,9 +17,13 @@ echo "--- Unpack PR build from previous step"
 buildkite-agent artifact download horton_pr.tar.gz .
 tar xvf horton_pr.tar.gz
 
-echo "--- Running Nosetests"
-nosetests -v --processes=2 --process-timeout=60 -a slow horton
+echo "--- Running Nosetests (slow)"
+nosetests -v --processes=2 --process-timeout=60 -A slow horton
+
+echo "--- Running Nosetests (regression tests)"
+nosetests -v --processes=2 --process-timeout=60 -A rt horton
 
 if [ "$BUILDKITE_PULL_REQUEST" = "false" ]; then
-  nosetests -v --processes=2 --process-timeout=60 -a "!slow" horton
+  echo "--- Running Nosetests (fast)"
+  nosetests -v --processes=2 --process-timeout=60 -A 'not (slow or rt)' horton
 fi
