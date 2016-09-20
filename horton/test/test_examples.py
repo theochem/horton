@@ -268,7 +268,9 @@ def test_example_wpart_becke():
 
 @attr('slow')
 def test_example_hf_compare():
-    required = [context.get_fn('examples/hf_compare/compare.py')]
-    expected = []
-    check_script_in_tmp('./compare.py %s' % context.get_fn('test/helium_hf_sto3g.fchk'),
-                        required, expected)
+    required = [context.get_fn('examples/hf_compare/compare.py'),
+                context.get_fn('examples/hf_compare/compare_rt.py')]
+    expected = ['compare.log']
+    cmd = './compare.py %s > compare.log' % context.get_fn('test/helium_hf_sto3g.fchk')
+    cmd += '; horton-regression-test.py ./compare_rt.py'
+    check_script_in_tmp(cmd, required, expected)
