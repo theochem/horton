@@ -5,7 +5,8 @@
 #JSON  "difficulty": 7,
 #JSON  "description": "Basic UKS DFT example with hybrid MGGA exhange-correlation functional (M05)"}
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 
 # Load the coordinates from file.
 # Use the XYZ file from HORTON's test data directory.

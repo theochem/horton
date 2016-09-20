@@ -5,7 +5,7 @@
 #JSON  "difficulty": 1,
 #JSON  "description": "Basic RHF example with dense matrices"}
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 # Hartree-Fock calculation

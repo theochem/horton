@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 import os
-from horton import *
+
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 
 for z in xrange(1, 18):
     for charge in xrange(-1, 3):

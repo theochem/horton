@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 import numpy as np
-from horton import *
+
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 
 # Load the Gaussian output from file
 fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')

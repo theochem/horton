@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
-import os, numpy as np, sys
 from glob import glob
-from horton import *
+import numpy as np
+import os
+import sys
+
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.meanfield.test.common import check_cubic_wrapper
+
 
 #log.set_level(log.high)
 log.set_level(log.silent)

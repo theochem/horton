@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 # Define Occupation model, expansion coefficients and overlap

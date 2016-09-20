@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 import numpy as np
-from horton import *
+
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 
 # define the ring
 natom = 11

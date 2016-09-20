@@ -5,7 +5,8 @@
 #JSON  "difficulty": 2,
 #JSON  "description": "Basic RHF example with Cholesky decomposition of the ERI"}
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 
 # Load the coordinates from file.
 # Use the XYZ file from HORTON's test data directory.

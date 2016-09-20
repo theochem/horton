@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 
 # Load the integrals from the file
 data = IOData.from_file('hamiltonian_ao.h5')

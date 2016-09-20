@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-from horton import *
 import numpy as np
+
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 
 # Set up Neon atom, define basis set
 # ----------------------------------

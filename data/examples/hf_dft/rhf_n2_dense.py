@@ -5,8 +5,9 @@
 #JSON  "difficulty": 1,
 #JSON  "description": "Basic RHF example with dense matrices, includes export of Hamiltonian"}
 
-from horton import *
 import numpy as np
+
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 # Hartree-Fock calculation

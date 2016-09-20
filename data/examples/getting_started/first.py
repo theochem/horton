@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 
 # Load the molecule from an ``.xyz`` file.
 mol = IOData.from_file(context.get_fn('test/water.xyz'))

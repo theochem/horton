@@ -5,7 +5,8 @@
 #JSON  "difficulty": 3,
 #JSON  "description": "Basic UKS DFT example with LDA exhange-correlation functional (Dirac+VWN)"}
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 
 # Load the coordinates from file.
 # Use the XYZ file from HORTON's test data directory.

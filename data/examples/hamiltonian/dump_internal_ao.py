@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 # Set up molecule, define basis set
 # ---------------------------------

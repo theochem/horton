@@ -5,7 +5,8 @@
 #JSON  "difficulty": 8,
 #JSON  "description": "RKS DFT example with LDA and numerical Hartree"}
 
-from horton import *
+from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 
 # Load the coordinates from file.
 # Use the XYZ file from HORTON's test data directory.
