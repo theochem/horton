@@ -71,7 +71,8 @@ def main(fns_fchk):
         dms = [exp.to_dm() for exp in exps]
 
         # Configure orbital occupations.
-        occ_model = AufbauOccModel(*[exp.occupations.sum() for exp in exps])
+        noccs = np.round(np.array([exp.occupations.sum() for exp in exps])).astype(int)
+        occ_model = AufbauOccModel(*noccs)
 
         # Converge the SCF.
         scf_solver = ODASCFSolver(1e-8, 1024)
