@@ -21,9 +21,17 @@
 
 
 from nose.plugins.attrib import attr
+from nose.tools import assert_raises
 
 from horton.test.common import check_script, check_script_in_tmp
 from horton import context
+
+
+def test_check_script_in_tmp():
+    check_script_in_tmp('echo foo > bar', [], ['bar'])
+    with assert_raises(AssertionError):
+        check_script_in_tmp('echo foo > bar', [], ['egg'])
+    check_script_in_tmp('echo', [context.get_fn('test/h2.xyz')], ['h2.xyz'])
 
 
 @attr('rt')
