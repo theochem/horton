@@ -148,7 +148,7 @@ for building NumPy and SciPy.
 
 **LibXC**
 
-The directory ``tooals/qa`` of the HORTON source tree contains scripts to download and
+The directory ``tools/qa`` of the HORTON source tree contains scripts to download and
 build LibXC, which will work on most systems:
 
 .. code-block:: bash
@@ -161,7 +161,7 @@ the website: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 
 **LibInt2**
 
-The directory ``tooals/qa`` of the HORTON source tree contains scripts to download and
+The directory ``tools/qa`` of the HORTON source tree contains scripts to download and
 build LibInt2, which will work on most systems:
 
 .. code-block:: bash
