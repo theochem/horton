@@ -44,9 +44,9 @@ get_ancestor () {
     return 0
 }
 
-copy_qa_scripts () {
+copy_trapdoor_scripts () {
     mkdir -p $QAWORKDIR
-    cp -Ra tools/qa/* $QAWORKDIR/
+    cp -Ra tools/qa/trapdoor* $QAWORKDIR/
 }
 
 # Some colors

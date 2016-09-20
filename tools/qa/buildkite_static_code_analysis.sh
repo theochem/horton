@@ -9,7 +9,7 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
 
     PATH=$PATH:~/.local/bin  # fix for ubuntu paths
 
-    echo "--- Running trapdoors tests"
+    echo "--- Running trapdoors tests on PR branch"
     rm -rf $QAWORKDIR/*.pp
 
     TRAPDOORS="trapdoor_cppcheck.py
@@ -23,8 +23,11 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
         tools/qa/$i feature
     done
 
+    echo "--- Copy PR version of trapdoor scripts to QAWORKDIR"
+    copy_trapdoor_scripts
+
+    echo "--- Checkout ancestor, rerun trapdoor scripts and report
     git checkout $ANCESTOR_SHA
-    copy_qa_scripts
 
     for i in ${TRAPDOORS}; do
         $QAWORKDIR/$i ancestor
