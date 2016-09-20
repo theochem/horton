@@ -79,6 +79,8 @@ class ImportTrapdoorProgram(TrapdoorProgram):
                 continue
             if filename.endswith('/__init__.py'):
                 continue
+            if 'data/examples/' in filename:
+                continue
             # Look for bad imports
             with codecs.open(filename, encoding='utf-8') as f:
                 for lineno, line in enumerate(f):
