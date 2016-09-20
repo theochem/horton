@@ -95,7 +95,7 @@ With Ubuntu, most of these dependencies can be installed with a `apt-get`:
     sudo apt-get install ${dependencies_ubuntu_16_deb}
 
   Note that Ubuntu 16.04 does not have up-to-date packages for all dependencies. LibInt2
-  must be compiled manually as explained in :ref:`linux_manual_dependency_install`.
+  must be compiled manually as explained in :ref:`windows_manual_dependency_install`.
 
 * **Ubuntu Linux 15.04 and 14.04**:
 
@@ -106,8 +106,20 @@ With Ubuntu, most of these dependencies can be installed with a `apt-get`:
 
   Note that Ubuntu 15.04 and 14.04 do not have up-to-date packages for all dependencies.
   Hence, some are installed with PIP. LibInt2 must be compiled manually as explained in
-  :ref:`linux_manual_dependency_install`.
+  :ref:`windows_manual_dependency_install`.
 
+
+.. _windows_manual_dependency_install:
+
+Installing dependencies manually
+--------------------------------
+
+If the package manager of your Linux distribution does not have the desired
+packages (or the right versions), you have to install them manually, e.g.
+download and execute an installer, or download and unpack a binary package. On
+HPC environments a compilation from scratch is recommended.
+
+**LibXC**
 
 The directory ``tools/qa`` of the HORTON source tree contains scripts to download and
 build LibXC, which will work on most systems:
@@ -117,7 +129,7 @@ build LibXC, which will work on most systems:
     ${custom_install_libxc}
 
 This results in a LibXC library suitable for compiling HORTON. If this fails,
-consult your local Linux/Windows guru to build LibXC. For more info about LibXC, check
+consult your local Linux guru to build LibXC. For more info about LibXC, check
 the website: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 
 **LibInt2**
@@ -130,7 +142,7 @@ build LibInt2, which will work on most systems:
     ${custom_install_libint}
 
 The compilation of LibInt2 takes a few minutes and results in a library suitable for
-compiling HORTON. If this fails, consult your local Linux/Windows guru to build LibInt2. For more
+compiling HORTON. If this fails, consult your local Linux guru to build LibInt2. For more
 info about LibInt2, check the website: https://github.com/evaleev/libint
 
 **Python dependencies**
@@ -246,7 +258,7 @@ Installing the dependencies with a package manager and PIP
       sudo apt-get install ${doc_dependencies_ubuntu_15_deb}
       pip install --user --upgrade ${doc_dependencies_ubuntu_15_pip}
 
-You must also manually build LibXC as explained in :ref:`linux_manual_dependency_install`,
+You must also manually build LibXC as explained in :ref:`windows_manual_dependency_install`,
 to generate the list of DFT functionals in the documentation.
 
 
