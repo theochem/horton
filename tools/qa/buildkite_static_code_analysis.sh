@@ -26,7 +26,7 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     echo "--- Copy PR version of trapdoor scripts to QAWORKDIR"
     copy_trapdoor_scripts
 
-    echo "--- Checkout ancestor, rerun trapdoor scripts and report
+    echo "--- Checkout ancestor, rerun trapdoor scripts and report"
     git checkout $ANCESTOR_SHA
 
     for i in ${TRAPDOORS}; do
