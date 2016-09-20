@@ -30,12 +30,13 @@ Disclaimer
 
 HORTON has been tested on Ubuntu 14.04 subsystem available on Windows 10 64-bit (after
 Windows 10 Anniversary Update i.e. v.1607). The Ubuntu 14.04 subsystem is not available to
-any Windows operating systems prior to the Windows 10 (v.1607) or 32-bit Windows system.s
-Cygwin based installation is not supported (although doable in theory).
+any Windows operating systems prior to the Windows 10 (v.1607) or 32-bit Windows systems.
+Cygwin based installation is not supported (although possible in theory).
 
 
 Enable Bash on Windows 10
 =========================
+
 Provided you are using the appropriate version of Windows 10 (64-bit, after Window 10
 Anniversary Update), go to "Settings > Update & Security > For Developers" (or
 alternatively search "Use Developer Features") and activate "Developer Mode". Then, go to
@@ -60,20 +61,6 @@ Choose a suitable directory, e.g. ``~/build``, download and unpack the archive
     curl -kLO https://github.com/theochem/horton/releases/download/2.0.1/horton-2.0.1.tar.gz
     tar -xvzf horton-2.0.1.tar.gz
     cd horton-2.0.1
-
-For Developers
---------------
-If you have git installed,
-
-.. code-block:: bash
-
-    git clone https://github.com/theochem/horton.git
-
-You may also want to checkout the HORTON release `2.0.0`. It seems to be more stable on Windows.
-
-.. code-block:: bash
-
-    git checkout 2.0.0
 
 
 Check Ubuntu Version (Just In Case)
@@ -108,9 +95,7 @@ With Ubuntu, most of these dependencies can be installed with a `apt-get`:
     sudo apt-get install ${dependencies_ubuntu_16_deb}
 
   Note that Ubuntu 16.04 does not have up-to-date packages for all dependencies. LibInt2
-  must be compiled manually as explained in :ref:`linux_manual_dependency_install`. (The
-  beta version of LibInt2 that comes with Ubuntu 16.04 is compiled with a too low
-  LIBINT2_MAX_AM_ERI value.)
+  must be compiled manually as explained in :ref:`linux_manual_dependency_install`.
 
 * **Ubuntu Linux 15.04 and 14.04**:
 
@@ -123,36 +108,8 @@ With Ubuntu, most of these dependencies can be installed with a `apt-get`:
   Hence, some are installed with PIP. LibInt2 must be compiled manually as explained in
   :ref:`linux_manual_dependency_install`.
 
-* **Precautionary Measures:
-  Those of you that are installing HORTON as a dependency for other possibly "top
-  secret" stuff (you know who you are) should also upgrade `scipy` and `matplotlib`.
 
-  Scipy is quite simple to upgrade:
-  .. code-block:: bash
-
-    pip install --user --upgrade scipy
-
-  Matplotlib requires a little more:
-  .. code-block:: bash
-
-    sudo apt-get install libfreetype6-dev libpng pkg-config
-    ln -s /usr/include/freetype2/ft2build.h /usr/include/
-    pip install --user --upgrade matplotlib
-
-
-.. _linux_manual_dependency_install:
-
-Installing dependencies manually
---------------------------------
-
-If the package manager of your Linux distribution does not have the desired
-packages (or the right versions), you have to install them manually, e.g.
-download and execute an installer, or download and unpack a binary package. On
-HPC environments a compilation from scratch is recommended.
-
-**LibXC**
-
-The directory ``tooals/qa`` of the HORTON source tree contains scripts to download and
+The directory ``tools/qa`` of the HORTON source tree contains scripts to download and
 build LibXC, which will work on most systems:
 
 .. code-block:: bash
@@ -160,12 +117,12 @@ build LibXC, which will work on most systems:
     ${custom_install_libxc}
 
 This results in a LibXC library suitable for compiling HORTON. If this fails,
-consult your local Linux guru to build LibXC. For more info about LibXC, check
+consult your local Linux/Windows guru to build LibXC. For more info about LibXC, check
 the website: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 
 **LibInt2**
 
-The directory ``tooals/qa`` of the HORTON source tree contains scripts to download and
+The directory ``tools/qa`` of the HORTON source tree contains scripts to download and
 build LibInt2, which will work on most systems:
 
 .. code-block:: bash
@@ -173,8 +130,8 @@ build LibInt2, which will work on most systems:
     ${custom_install_libint}
 
 The compilation of LibInt2 takes a few minutes and results in a library suitable for
-compiling HORTON. If this fails, consult your local Linux guru to build LibInt2. For more
-info about LibInt2, check the website: http://sourceforge.net/p/libint/home
+compiling HORTON. If this fails, consult your local Linux/Windows guru to build LibInt2. For more
+info about LibInt2, check the website: https://github.com/evaleev/libint
 
 **Python dependencies**
 
@@ -183,7 +140,7 @@ the most recent versions of the Python packages in the list of dependencies. Exa
 are given above for Ubuntu and Fedora.
 
 
-.. _linux_compile_install:
+.. _windows_compile_install:
 
 Compilation and installation
 ============================
@@ -236,30 +193,6 @@ following line to your ``matplotlibrc`` file:
 
 This file is located in either ``${HOME}/.matplotlib`` or
 ``${HOME}/.config/matplotlib``.
-
-
-Compilation and Installation For Developers
-===========================================
-It's important to note that everytime you change the HORTON source code, you need
-to *reinstall* all of HORTON (because during installation all of the source code
-is copied to a `~/.local/lib/python2.7/site-packages`). Instead, we can work directly
-off of the source code, but requires you to link some environment variables.
-
-Build
------
-.. code-block:: bash
-
-    ./setup.py build_ext -i
-
-Link Environment Variables
---------------------------
-.. code-block:: bash
-
-    export PYTHONPATH=$PYTHONPATH:horton_source/
-    export PATH=$PATH:horton_source/scripts
-    export HORTONDATA=horton_source/data
-
-You might want to put this in your `~/.bashrc` so you don't have to do this everytime.
 
 
 
@@ -327,7 +260,7 @@ The documentation is compiled and viewed as follows:
     (cd doc; make html; firefox _build/html/index.html)
 
 
-.. _linux_install_dev:
+.. _windows_install_dev:
 
 Development tools
 =================
