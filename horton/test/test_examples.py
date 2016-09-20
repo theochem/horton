@@ -266,7 +266,7 @@ def test_example_wpart_becke():
                         required, expected)
 
 
-@attr('slow')
+@attr('rt')
 def test_example_hf_compare():
     required = [context.get_fn('examples/hf_compare/compare.py'),
                 context.get_fn('examples/hf_compare/compare_rt.py')]
