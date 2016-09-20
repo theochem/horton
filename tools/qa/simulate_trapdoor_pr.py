@@ -111,7 +111,7 @@ def main():
 
     # Pre-flight checks.
     orig_head_name, merge_head_name = run_pre_flight_checks(
-        repo, remote=args.remote, ancestor=args.ancestor)
+        repo, remote=args.remote, ancestor=args.ancestor, clean=args.clean)
 
     try:
         if not (args.ancestor or args.skip_merge):
@@ -152,13 +152,16 @@ def parse_args():
     parser.add_argument('-S', '--skip-merge', default=False, action='store_true',
                         help='Skip the temporary merge and assume the current branch is already '
                              'merged with the ancestor.')
+    parser.add_argument('-c', '--clean', default=False, action='store_true',
+                        help='deletes the temporary merge that was left over from a failed run '
+                             'of the script')
     parser.add_argument('-t', '--trapdoor-args', default='',
                         help='Options to be passed to the trapdoor scripts.')
     return parser.parse_args()
 
 
 @log.section('pre-flight checks')
-def run_pre_flight_checks(repo, remote, ancestor):
+def run_pre_flight_checks(repo, remote, ancestor, clean=False):
     """Run some initial checks before doing anything.
 
     Parameters
@@ -185,7 +188,11 @@ def run_pre_flight_checks(repo, remote, ancestor):
     orig_head_name = repo.active_branch.name
     merge_head_name = '%s-trapdoor-tmp-merge' % orig_head_name
     if merge_head_name in repo.heads:
-        raise RepoError('The branch %s exists, probably due to earlier failures of this program.')
+        if clean:
+            repo.delete_head(merge_head_name)
+        else:
+            raise RepoError('The branch %s exists, probably due to earlier '
+                            'failures of this program.')
 
     return orig_head_name, merge_head_name
 
