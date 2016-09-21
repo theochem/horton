@@ -147,6 +147,8 @@ def main():
 
         # Run example and collect results.
         example_globals = {}
+        with numpy_seed():
+            print '   First random number:', np.random.rand()
         with open(example_path) as fh, numpy_seed():
             exec fh in example_globals  # pylint: disable=exec-used
 
