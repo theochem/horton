@@ -15,9 +15,10 @@ include doc/_templates/footer.html
 exclude doc/tech_ref_literature.rst
 exclude doc/tech_ref_functionals.rst
 
-include depends/Makefile
+include tools/qa/common.sh
+include tools/qa/install_libint-2.0.3.sh
+include tools/qa/install_libxc-2.2.2.sh
 
 include README
 include COPYING
-
-recursive-include tools *.py
+include dependencies.json
