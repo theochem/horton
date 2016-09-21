@@ -169,10 +169,10 @@ def main():
                 rt_status[key] = 'PREVIOUS OR REFERENCE MISSING'
             else:
                 threshold = rt_thresholds.get(key, default_threshold)
-                if np.allclose(result, target, atol=threshold, rtol=1e100):
+                if np.allclose(result, target, atol=threshold, rtol=0):
                     rt_status[key] = 'OK'
                 else:
-                    rt_status[key] = 'MISMATCH'
+                    rt_status[key] = 'BOUNDS EXCEEDED'
 
         if do_update:
             update_example(example_path, example_lines, rt_previous, rt_results,
@@ -267,35 +267,36 @@ def format_value(value, key, example_path):
     if isinstance(value, np.ndarray):
         # Multidimensional arrays are written as raveled vectors and are later reshaped
         # properly. This facilitates code formatting and results in more compact code.
-        result = 'np.array({})'.format(value.ravel().tolist())
+        head = 'np.array(['
+        data = ', '.join(repr(v) for v in value.flat)
+        tail = '])'
         if len(value.shape) > 1:
-            result += '.reshape{}'.format(value.shape)
-        if len(result) > 82 - len(key):
+            tail += '.reshape{}'.format(value.shape)
+        if len(head) + len(data) + len(tail) <= 82 - len(key):
+            result = head + data + tail
+        else:
             # Wrap array over multiple lines, assuming key is not excessively long.
             # The result must be PEP8 compatible.
-            data = ', '.join(repr(v) for v in value.flat)
             lines = textwrap.wrap(data, 90, initial_indent=' '*8, subsequent_indent=' '*8)
-            lines = ['np.array(['] + lines + ['    ])']
+            lines = [head] + lines + ['    ' + tail]
             result = '\n'.join(lines)
-            if len(value.shape) > 1:
-                result += '.reshape{}'.format(value.shape)
-        return result
     elif isinstance(value, numbers.Number):
-        return repr(value)
+        result = repr(value)
     else:
         raise RegressionTestError('Cannot handle datatype of {} in "{}"'
                                   .format(key, example_path))
+    return result
 
 
 def report_regressions(rt_results, rt_thresholds, rt_references, rt_previous, rt_status):
-    """Report mismatches.
+    """Report regressions.
 
     An update to the exit status is returned. Absence of a previous value is also an error.
     """
     exit_status = 0
     for key, status in rt_status.iteritems():
         print '   Status "{}": {}'.format(key, status)
-        if status == 'MISMATCH':
+        if status == 'BOUNDS EXCEEDED':
             target = rt_references.get(key, rt_previous.get(key))
             result = rt_results.get(key)
             threshold = rt_thresholds.get(key, default_threshold)

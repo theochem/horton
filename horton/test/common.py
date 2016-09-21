@@ -128,9 +128,7 @@ def check_script_in_tmp(command, required, expected):
     '''
     # Create a unique-ish suffix
     m = hashlib.sha256(command)
-    for s in required:
-        m.update(s)
-    for s in expected:
+    for s in required + expected:
         m.update(s)
     suffix = m.hexdigest()
     # Do the actual work.
