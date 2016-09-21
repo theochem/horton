@@ -33,6 +33,10 @@ import textwrap
 import numpy as np
 
 
+from horton.test.common import numpy_seed
+from horton.log import log
+
+
 default_threshold = 1e-7
 comment_regtest = '# CODE BELOW IS FOR horton-regression-test.py ONLY. ' \
                   'IT IS NOT PART OF THE EXAMPLE.\n'
@@ -115,7 +119,11 @@ def capture_io():
 def main():
     """Main program."""
     # Get command-line args
-    example_paths, do_update, do_force, do_capture = parse_args()
+    example_paths, do_update, do_force, do_verbose = parse_args()
+
+    # Silence the logger
+    if not do_verbose:
+        log.set_level(log.silent)
 
     # Exit status becomes 1 when some test results have changed beyond the threshold, or
     # when previous or reference values are missing.
@@ -139,12 +147,8 @@ def main():
 
         # Run example and collect results.
         example_globals = {}
-        with open(example_path) as fh:
-            if do_capture:
-                with capture_io():
-                    exec fh in example_globals  # pylint: disable=exec-used
-            else:
-                exec fh in example_globals  # pylint: disable=exec-used
+        with open(example_path) as fh, numpy_seed():
+            exec fh in example_globals  # pylint: disable=exec-used
 
         # Check that rt_results is defined in the example.
         if 'rt_results' not in example_globals:
@@ -199,11 +203,10 @@ def parse_args():
                              'to update the "previous" results only when they deviate '
                              'from the old "previous" results. This option forces all '
                              '"previous" results to be updated.')
-    parser.add_argument('-s', '--nocapture', default=True, dest='capture', action='store_false',
-                        help='Don\'t capture stdout (any stdout output will be printed '
-                             'immediately).')
+    parser.add_argument('-v', '--verbose', default=False, action='store_true',
+                        help='Do not silence the HORTON log.')
     args = parser.parse_args()
-    return args.example_paths, args.update, args.force, args.capture
+    return args.example_paths, args.update, args.force, args.verbose
 
 
 def update_example(example_path, example_lines, rt_previous, rt_results, rt_status, do_force):
