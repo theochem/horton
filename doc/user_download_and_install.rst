@@ -27,5 +27,6 @@ Download and Installation
 
    user_download_and_install_linux
    user_download_and_install_mac
+   user_download_and_install_windows
    user_download_and_install_setup_cfg
    user_download_and_install_troubleshooting
