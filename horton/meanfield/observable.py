@@ -41,7 +41,7 @@ def compute_dm_full(cache, prefix='', tags=None):
         Used to store intermediate results that can be reused or inspected later.
     prefix : str
         A prefix, in case one wants to load a special density matrix and store the results
-        in a special place. The typical use case is the 'delta_' prefix which is used to
+        in a special place. The typical use case is the `delta_` prefix which is used to
         process a change in density.
     tags : str
         The tags to use for the cache when allocating the arrays. In case of changes in
