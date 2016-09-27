@@ -18,6 +18,7 @@ exclude doc/tech_ref_literature.rst
 exclude doc/tech_ref_functionals.rst
 exclude doc/user_download_and_install_linux.rst
 exclude doc/user_download_and_install_mac.rst
+exclude doc/user_download_and_install_windows.rst
 
 include tools/qa/common.sh
 include tools/qa/install_libint-2.0.3.sh

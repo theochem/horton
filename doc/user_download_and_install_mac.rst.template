@@ -170,7 +170,7 @@ build LibInt2, which will work on most systems:
 
 The compilation of LibInt2 takes a few minutes and results in a library suitable for
 compiling HORTON. If this fails, consult your local Mac guru to build LibInt2. For more
-info about LibInt2, check the website: http://sourceforge.net/p/libint/home
+info about LibInt2, check the website: https://github.com/evaleev/libint
 
 
 Compilation and installation

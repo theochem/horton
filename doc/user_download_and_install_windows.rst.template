@@ -21,15 +21,28 @@
 
 ${big_fat_warning}
 
-Download and installation on Linux (Fedora and Ubuntu)
-######################################################
+Download and installation on Windows 10 64-bit (v. 1607)
+########################################################
 
 
 Disclaimer
 ==========
 
-HORTON has been tested on Fedora and Ubuntu Linux. If you are running
-another Linux distribution, some of the instructions below may not work.
+HORTON has been tested on Ubuntu 14.04 subsystem available on Windows 10 64-bit (after
+Windows 10 Anniversary Update i.e. v.1607). The Ubuntu 14.04 subsystem is not available to
+any Windows operating systems prior to the Windows 10 (v.1607) or 32-bit Windows systems.
+Cygwin based installation is not supported (although possible in theory).
+
+
+Enable Bash on Windows 10
+=========================
+
+Provided you are using the appropriate version of Windows 10 (64-bit, after Window 10
+Anniversary Update), go to "Settings > Update & Security > For Developers" (or
+alternatively search "Use Developer Features") and activate "Developer Mode". Then, go to
+"Programs and Features" and click "Turn Windows Features On or Off". Check the box
+"Windows Subsystem for Linux (Beta)". Restart Computer. Search "Bash" to open Ubuntu 14.04
+subsystem terminal.
 
 
 Download the code
@@ -50,6 +63,17 @@ Choose a suitable directory, e.g. ``~/build``, download and unpack the archive
     cd horton-2.0.1
 
 
+Check Ubuntu Version (Just In Case)
+===================================
+On bash,
+
+.. code-block:: bash
+
+  lsb_release -a
+
+It should be `14.04.4 LTS`, but other versions may be available.
+
+
 Dependencies for building, installing and testing HORTON
 ========================================================
 
@@ -62,8 +86,7 @@ ${dependencies_rst}
 Installing dependencies with a package manager
 ----------------------------------------------
 
-With popular Linux distributions, most of these dependencies can be installed
-with a package manager:
+With Ubuntu, most of these dependencies can be installed with a `apt-get`:
 
 * **Ubuntu Linux 16.04**:
 
@@ -72,9 +95,7 @@ with a package manager:
     sudo apt-get install ${dependencies_ubuntu_16_deb}
 
   Note that Ubuntu 16.04 does not have up-to-date packages for all dependencies. LibInt2
-  must be compiled manually as explained in :ref:`linux_manual_dependency_install`. (The
-  beta version of LibInt2 that comes with Ubuntu 16.04 is compiled with a too low
-  LIBINT2_MAX_AM_ERI value.)
+  must be compiled manually as explained in :ref:`windows_manual_dependency_install`.
 
 * **Ubuntu Linux 15.04 and 14.04**:
 
@@ -85,22 +106,10 @@ with a package manager:
 
   Note that Ubuntu 15.04 and 14.04 do not have up-to-date packages for all dependencies.
   Hence, some are installed with PIP. LibInt2 must be compiled manually as explained in
-  :ref:`linux_manual_dependency_install`.
-
-* **Fedora Linux 24**:
-
-  .. code-block:: bash
-
-    sudo dnf install ${dependencies_fedora_24_rpm}
-
-* **Fedora Linux 22 and 23**:
-
-  .. code-block:: bash
-
-    sudo dnf install ${dependencies_fedora_22_rpm}
+  :ref:`windows_manual_dependency_install`.
 
 
-.. _linux_manual_dependency_install:
+.. _windows_manual_dependency_install:
 
 Installing dependencies manually
 --------------------------------
@@ -109,13 +118,6 @@ If the package manager of your Linux distribution does not have the desired
 packages (or the right versions), you have to install them manually, e.g.
 download and execute an installer, or download and unpack a binary package. On
 HPC environments a compilation from scratch is recommended.
-
-**BLAS**
-
-In principle, any BLAS implementation may be used. In case of a custom build,
-some environment variables must be set prior to building HORTON, as discussed
-in :ref:`linux_compile_install`.
-
 
 **LibXC**
 
@@ -150,7 +152,7 @@ the most recent versions of the Python packages in the list of dependencies. Exa
 are given above for Ubuntu and Fedora.
 
 
-.. _linux_compile_install:
+.. _windows_compile_install:
 
 Compilation and installation
 ============================
@@ -205,6 +207,8 @@ This file is located in either ``${HOME}/.matplotlib`` or
 ``${HOME}/.config/matplotlib``.
 
 
+
+
 Reference atoms
 ===============
 
@@ -254,20 +258,7 @@ Installing the dependencies with a package manager and PIP
       sudo apt-get install ${doc_dependencies_ubuntu_15_deb}
       pip install --user --upgrade ${doc_dependencies_ubuntu_15_pip}
 
-* **Fedora Linux 24**:
-
-  .. code-block:: bash
-
-      sudo dnf install ${doc_dependencies_fedora_24_rpm}
-
-* **Fedora Linux 22 and 23**:
-
-  .. code-block:: bash
-
-      sudo dnf install ${doc_dependencies_fedora_22_rpm}
-      pip install --user --upgrade ${doc_dependencies_fedora_22_pip}
-
-You must also manually build LibXC as explained in :ref:`linux_manual_dependency_install`,
+You must also manually build LibXC as explained in :ref:`windows_manual_dependency_install`,
 to generate the list of DFT functionals in the documentation.
 
 
@@ -281,7 +272,7 @@ The documentation is compiled and viewed as follows:
     (cd doc; make html; firefox _build/html/index.html)
 
 
-.. _linux_install_dev:
+.. _windows_install_dev:
 
 Development tools
 =================
@@ -307,17 +298,3 @@ with ``pip``.
 
       sudo apt-get install ${dev_dependencies_ubuntu_15_deb}
       pip install --user --upgrade ${dev_dependencies_ubuntu_15_pip}
-
-* **Fedora Linux 24**:
-
-  .. code-block:: bash
-
-      sudo dnf install ${dev_dependencies_fedora_24_rpm}
-      pip install --user --upgrade ${dev_dependencies_fedora_24_pip}
-
-* **Fedora Linux 22 and 23**:
-
-  .. code-block:: bash
-
-      sudo dnf install ${dev_dependencies_fedora_22_rpm}
-      pip install --user --upgrade ${dev_dependencies_fedora_22_pip}
