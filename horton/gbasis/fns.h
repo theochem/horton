@@ -248,9 +248,9 @@ class GB1ExpGridFn : public GB1GridFn  {
       Evaluates a selection of orbitals on a grid.
 
     Content of work_basis (at one grid point):
-      0) Basis function value.
+      [0 Basis function value.
     Content of the argument 'output' (at one grid point):
-      0-norb) Values of the orbitals.
+      [0-norb] Values of the orbitals.
   */
 class GB1ExpGridOrbitalFn : public GB1ExpGridFn  {
  public:
@@ -360,9 +360,9 @@ class GB1DMGridFn : public GB1GridFn  {
       Compute just the electron density on a grid.
 
     Content of work_basis (at one grid point):
-      0) Basis function value.
+      [0] Basis function value.
     Content of the argument 'output' and the energy derivative in 'pot' (at one grid point):
-      0) The electron density
+      [0] The electron density
   */
 class GB1DMGridDensityFn : public GB1DMGridFn  {
  public:
@@ -402,14 +402,14 @@ class GB1DMGridDensityFn : public GB1DMGridFn  {
       Compute gradient of the electron density on a grid.
 
     Content of work_basis (at one grid point):
-      0) Basis function value.
-      1) Basis function derivative toward x.
-      2) Basis function derivative toward y.
-      3) Basis function derivative toward z.
+      [0] Basis function value.
+      [1] Basis function derivative toward x.
+      [2] Basis function derivative toward y.
+      [3] Basis function derivative toward z.
     Content of the argument 'output' and the energy derivative in 'pot' (at one grid point):
-      0) Density derivative toward x.
-      1) Density derivative toward y.
-      2) Density derivative toward z.
+      [0] Density derivative toward x.
+      [1] Density derivative toward y.
+      [2] Density derivative toward z.
   */
 class GB1DMGridGradientFn : public GB1DMGridFn  {
  public:
@@ -466,15 +466,15 @@ class GB1DMGridGradientFn : public GB1DMGridFn  {
       Compute density and gradient on a grid.
 
     Content of work_basis (at one grid point):
-      0) Basis function value.
-      1) Basis function derivative toward x.
-      2) Basis function derivative toward y.
-      3) Basis function derivative toward z.
+      [0] Basis function value.
+      [1] Basis function derivative toward x.
+      [2] Basis function derivative toward y.
+      [3] Basis function derivative toward z.
     Content of the argument 'output' and the energy derivative in 'pot' (at one grid point):
-      0) Density.
-      1) Density derivative toward x.
-      2) Density derivative toward y.
-      3) Density derivative toward z.
+      [0] Density.
+      [1] Density derivative toward x.
+      [2] Density derivative toward y.
+      [3] Density derivative toward z.
   */
 class GB1DMGridGGAFn : public GB1DMGridGradientFn  {
  public:
@@ -500,11 +500,11 @@ class GB1DMGridGGAFn : public GB1DMGridGradientFn  {
       Compute kinetic energy density on a grid.
 
     Content of work_basis (at one grid point):
-      0) Basis function derivative toward x.
-      1) Basis function derivative toward y.
-      2) Basis function derivative toward z.
+      [0] Basis function derivative toward x.
+      [1] Basis function derivative toward y.
+      [2] Basis function derivative toward z.
     Content of the argument 'output' and the energy derivative in 'pot' (at one grid point):
-      0) Kinetic energy density.
+      [0] Kinetic energy density.
   */
 class GB1DMGridKineticFn : public GB1DMGridFn  {
  public:
@@ -547,23 +547,23 @@ class GB1DMGridKineticFn : public GB1DMGridFn  {
       Compute density Hessian on a grid: xx, xy, xz, yy, yz, zz.
 
     Content of work_basis (at one grid point):
-      0) Basis function value.
-      1) Basis function derivative toward x.
-      2) Basis function derivative toward y.
-      3) Basis function derivative toward z.
-      4) Basis function derivative toward xx.
-      5) Basis function derivative toward xy.
-      6) Basis function derivative toward xz.
-      7) Basis function derivative toward yy.
-      8) Basis function derivative toward yz.
-      9) Basis function derivative toward zz.
+      [0] Basis function value.
+      [1] Basis function derivative toward x.
+      [2] Basis function derivative toward y.
+      [3] Basis function derivative toward z.
+      [4] Basis function derivative toward xx.
+      [5] Basis function derivative toward xy.
+      [6] Basis function derivative toward xz.
+      [7] Basis function derivative toward yy.
+      [8] Basis function derivative toward yz.
+      [9] Basis function derivative toward zz.
     Content of the argument 'output' and the energy derivative in 'pot' (at one grid point):
-      0) Density derivative toward xx.
-      1) Density derivative toward xy.
-      2) Density derivative toward xz.
-      3) Density derivative toward yy.
-      4) Density derivative toward yz.
-      5) Density derivative toward zz.
+      [0] Density derivative toward xx.
+      [1] Density derivative toward xy.
+      [2] Density derivative toward xz.
+      [3] Density derivative toward yy.
+      [4] Density derivative toward yz.
+      [5] Density derivative toward zz.
   */
 class GB1DMGridHessianFn : public GB1DMGridFn  {
  public:
@@ -609,18 +609,18 @@ class GB1DMGridHessianFn : public GB1DMGridFn  {
       density.
 
     Content of work_basis (at one grid point):
-      0) Basis function value.
-      1) Basis function derivative toward x.
-      2) Basis function derivative toward y.
-      3) Basis function derivative toward z.
-      4) Basis function Laplacian.
+      [0] Basis function value.
+      [1] Basis function derivative toward x.
+      [2] Basis function derivative toward y.
+      [3] Basis function derivative toward z.
+      [4] Basis function Laplacian.
     Content of the argument 'output' and the energy derivative in 'pot' (at one grid point):
-      0) Density.
-      1) Density derivative toward x.
-      2) Density derivative toward y.
-      3) Density derivative toward z.
-      4) Laplacian of the density.
-      5) Kinetic energy density.
+      [0] Density.
+      [1] Density derivative toward x.
+      [2] Density derivative toward y.
+      [3] Density derivative toward z.
+      [4] Laplacian of the density.
+      [5] Kinetic energy density.
   */
 class GB1DMGridMGGAFn : public GB1DMGridFn  {
  public:
@@ -738,7 +738,7 @@ class GB2DMGridFn : public GBCalculator  {
     the products of basis functions cannot completely be factorized.
 
     Content of work_basis (at one grid point):
-      0) The Hartree potential due to the product of the two basis functions.
+      [0] The Hartree potential due to the product of the two basis functions.
  */
 class GB2DMGridHartreeFn : public GB2DMGridFn  {
  public:
