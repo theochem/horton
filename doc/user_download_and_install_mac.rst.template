@@ -131,8 +131,10 @@ space, the ``sudo`` can be omitted.):
 
 .. code-block:: bash
 
-${dependencies_macports_command}
-
+    sudo port install gcc49; sudo port select --set gcc mp-gcc49
+    sudo port install python27; sudo port select --set python python27
+    sudo port install horton
+    sudo port install py27-pip; sudo port select --set pip pip27
 
 .. _mac_manual_dependency_install:
 
