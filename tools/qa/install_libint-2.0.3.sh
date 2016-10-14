@@ -9,7 +9,7 @@ if [ ! -d "${CACHED}/${NAMEVER}/lib" ]; then
     cd ${QAWORKDIR}
     mkdir -p depbuild
     cd depbuild
-    wget 'http://downloads.sourceforge.net/project/libint/libint-for-mpqc/libint-2.0.3-stable.tgz'
+    curl -OL 'http://downloads.sourceforge.net/project/libint/libint-for-mpqc/libint-2.0.3-stable.tgz'
     tar -xzf libint-2.0.3-stable.tgz
     cd libint-2.0.3-stable
     echo "Actual build and install. This may take a while."
