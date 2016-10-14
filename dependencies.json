@@ -82,7 +82,7 @@
 }, {
     "name": "cython",
     "title": "Cython",
-    "version_requirement": ">= 0.17.1",
+    "version_requirement": ">=0.17.1,!=0.24",
     "homepage": "http://www.cython.org/",
     "fedora_24_rpm": "Cython",
     "fedora_22_rpm": "Cython",
