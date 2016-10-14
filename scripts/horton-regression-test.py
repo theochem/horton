@@ -255,7 +255,7 @@ def update_example(example_path, example_lines, rt_previous, rt_results, rt_stat
         # Add new previous results
         example_lines.append(comment_auto)
         if any(isinstance(x, np.ndarray) for x in rt_new_previous.itervalues()) and \
-           'import numpy as np\n' not in example_lines:
+           not any('import numpy as np' in line for line in example_lines):
             example_lines.append('import numpy as np  # pylint: disable=wrong-import-position\n')
         example_lines.append('rt_previous = {\n')
         for key, new_previous in sorted(rt_new_previous.iteritems()):
