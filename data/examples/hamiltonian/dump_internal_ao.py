@@ -49,7 +49,7 @@ rt_results = {
 }
 # We can be extra picky because the integrals are the result of relatively simple
 # deterministic algorithms. The numerical noise should be low.
-rt_thresholds = {
+rt_atols = {
     'kin': 1e-12,
     'na': 1e-12,
     'er': 1e-12,
