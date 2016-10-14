@@ -24,7 +24,8 @@ rm -rf data/refatoms/*.h5
 # In-place build of HORTON
 python setup.py build_ext -i || report_error "Failed to build HORTON (current branch)"
 # Run the slow tests
-nosetests -v -a slow || report_error "Some slow tests failed (current branch)"
+nosetests -v -A slow || report_error "Some slow tests failed (current branch)"
+nosetests -v -A rt || report_error "Some regression tests failed (current branch)"
 # Build the documentation
 (cd doc; make html) || report_error "Failed to build documentation (current branch)"
 
@@ -34,7 +35,7 @@ ANCESTOR_COMMIT=$(git merge-base master ${CURRENT_BRANCH})
 CURRENT_COMMIT=$(git rev-parse HEAD)
 if [ "${CURRENT_BRANCH}" == 'master' ] || [ "${CURRENT_COMMIT}" == ${ANCESTOR_COMMIT} ]; then
     # Run the fast tests
-    nosetests -v -a '!slow' || report_error "Some fast tests failed (master branch)"
+    nosetests -v -A 'not (slow or rt)' || report_error "Some fast tests failed (master branch)"
 else
     # Check for whitespace errors in every commit.
     ./tools/qa/check_whitespace.py || report_error "Whitespace errors in some commits"

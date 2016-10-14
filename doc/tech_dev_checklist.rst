@@ -353,6 +353,9 @@ The following pycodestyle error codes are disabled.
     * **E127** continuation line over-indented for visual indent
     * **E128** continuation line under-indented for visual indent
 
+* Because PyLint does handles them already:
+    * **E402** module level import not at top of file
+
 
 Pydocstyle
 ~~~~~~~~~~
@@ -380,7 +383,7 @@ PyLint
 See https://www.pylint.org/.
 
 The complete list of error messages can be found here:
-https://pylint.readthedocs.io/en/latest/features.html
+https://pylint.readthedocs.io/en/latest/reference_guide/features.html
 
 The following messages are excluded by default: I0020, I0021, W0704. (It is not clear what
 these stand for. They are not documented in Pylint.)
@@ -457,6 +460,10 @@ The following are excluded due false positives:
   concrete class.
 
   PyLint does not understand `*args, **kwargs`.
+
+* **W0511**: *fixme*. Used when a warning note as FIXME or XXX is detected.
+
+  PyLint also issues this warning for FIXME, XXX or TODO present in multiline strings.
 
 
 The PyLint settings used by the QA scripts can be found in ``tools/qa/pylintrc``. Some

@@ -21,11 +21,13 @@
 
 
 from contextlib import contextmanager
-import numpy as np
+import hashlib
 import os
 import shutil
 import subprocess
 import tempfile
+
+import numpy as np
 
 from horton.cext import Cell
 from horton.moments import get_cartesian_powers
@@ -124,7 +126,13 @@ def check_script_in_tmp(command, required, expected):
             A list of files expected to be present in the tmp dir after
             execution.
     '''
-    with tmpdir('check_scrip_in_tmp-%s' % os.path.basename(command)) as dn:
+    # Create a unique-ish suffix
+    m = hashlib.sha256(command)
+    for s in required + expected:
+        m.update(s)
+    suffix = m.hexdigest()
+    # Do the actual work.
+    with tmpdir('check_scrip_in_tmp-{}'.format(suffix)) as dn:
         # copy files into tmp
         for fn in required:
             shutil.copy(fn, os.path.join(dn, os.path.basename(fn)))
