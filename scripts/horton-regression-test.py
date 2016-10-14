@@ -175,7 +175,11 @@ def main():
                 rt_status[key] = 'PREVIOUS OR REFERENCE MISSING'
             else:
                 threshold = rt_thresholds.get(key, default_threshold)
-                if np.allclose(result, target, atol=threshold, rtol=0):
+                if not isinstance(result, target.__class__):
+                    rt_status[key] = 'WRONG TYPE'
+                elif isinstance(result, np.ndarray) and (result.shape != target.shape):
+                    rt_status[key] = 'WRONG SHAPE'
+                elif np.allclose(result, target, atol=threshold, rtol=0):
                     rt_status[key] = 'OK'
                 else:
                     rt_status[key] = 'BOUNDS EXCEEDED'
@@ -249,7 +253,7 @@ def update_example(example_path, example_lines, rt_previous, rt_results, rt_stat
            'import numpy as np\n' not in example_lines:
             example_lines.append('import numpy as np  # pylint: disable=wrong-import-position\n')
         example_lines.append('rt_previous = {\n')
-        for key, new_previous in rt_new_previous.iteritems():
+        for key, new_previous in sorted(rt_new_previous.iteritems()):
             representation = format_value(new_previous, key, example_path)
             example_lines.append('    \'{}\': {},\n'.format(key, representation))
         example_lines.append('}\n')
