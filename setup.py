@@ -21,16 +21,21 @@
 # --
 
 
-import os, sys, platform, ConfigParser, subprocess
-import numpy as np
-from glob import glob
-from distutils.core import setup
-from distutils.extension import Extension
+import ConfigParser
+import distutils.ccompiler
 from distutils.command.install_data import install_data
 from distutils.command.install_headers import install_headers
-import distutils.ccompiler
-from Cython.Distutils import build_ext
+from distutils.core import setup
+from distutils.extension import Extension
+from glob import glob
+import json
+import os
+import platform
+import subprocess
+import sys
 
+import numpy as np
+from Cython.Distutils import build_ext
 
 
 # Distutils optimizations
@@ -312,8 +317,6 @@ print 'MACHINE=%s' % detect_machine()
 
 # Load dependency information
 # ---------------------------
-import json
-
 with open('dependencies.json') as f:
     dependencies = json.load(f)
 # Order does not matter here. Just make it easy to look things up
@@ -366,6 +369,22 @@ else:
     print '   Unknown BLAS implementation. Assuming Netlib-compatible headers.'
     blas_precompiler = ('BLAS_OTHER', '1')
 print 'BLAS precompiler directive: -D%s' % blas_precompiler[0]
+
+
+# Print versions of (almost) all dependencies
+# -------------------------------------------
+print 'Version of dependencies:'
+for name, dependency in sorted(dependencies.iteritems()):
+    version_command = dependency.get('version_command')
+    if version_command is not None:
+        try:
+            version_info = subprocess.check_output(
+                dependency['version_command'], shell=True,
+                stderr=subprocess.STDOUT).strip()
+        except subprocess.CalledProcessError:
+            version_info = '-- not found --'
+        print '{:>20}: {}'.format(name, version_info)
+
 
 # Define extension modules
 # ------------------------
