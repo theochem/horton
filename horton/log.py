@@ -66,7 +66,7 @@ class ScreenLog(object):
     # Screen width parameter.
     width = 100
 
-    def __init__(self, name, version, head_banner, foot_banner, timer, f=None):
+    def __init__(self, name, version, head_banner, foot_banner, timer, biblio, f=None):
         """Initialize a ScreenLog object.
 
         Parameters
@@ -81,6 +81,10 @@ class ScreenLog(object):
             The last test to be printed on screen.
         timer : Timer
             A timer to keep track of CPU time taken by different parts of the program.
+        biblio : Biblio
+            A database of (cited) references.
+        f : file
+            When given, print log to this file instead of stdout.
         """
         self.name = name
         self.version = version
@@ -244,26 +248,6 @@ class ScreenLog(object):
         widest = max(len(item[0]) for item in l)
         for name, value in l:
             self('  %s :&%s' % (name.ljust(widest), value))
-
-    def cite(self, key, reason):
-        """Cite a reference from `data/references.bib` for given reason.
-
-        Parameters
-        ----------
-        key : str
-            The bibtex key in `data/references.bib`.
-        reason: str
-            The reason why this reference is cited, e.g. something in the form of
-            `"for using method bluh"`. You may want to cite the same reference for
-            different reasons from different parts of the code.
-
-        At the end of the program, a list of "relevant" references will be printed that
-        one should cite when using results obtained with a HORTON calculation.
-        """
-        if self._biblio is None:
-            filename = context.get_fn('references.bib')
-            self._biblio = Biblio(filename)
-        self._biblio.cite(key, reason)
 
     def progress(self, niter):
         """Return a progress bar for `niter` iterations.
@@ -695,6 +679,8 @@ class Biblio(object):
         reasons = self._cited.setdefault(key, set([]))
         reasons.add(reason)
 
+
+
     def reset(self):
         """Clear the list of references to be cited."""
         self._cited = {}
@@ -752,5 +738,6 @@ foot_banner = """
 ================================================================================""" % (horton.__version__)
 
 timer = TimerGroup()
-log = ScreenLog('HORTON', horton.__version__, head_banner, foot_banner, timer)
+biblio = Biblio(context.get_fn('references.bib'))
+log = ScreenLog('HORTON', horton.__version__, head_banner, foot_banner, timer, biblio)
 atexit.register(log.print_footer)
