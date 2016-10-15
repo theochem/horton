@@ -29,7 +29,7 @@ from horton.grid.base import IntGrid
 from horton.grid.cext import lebedev_laikov_sphere, lebedev_laikov_npoints, \
     RTransform, LinearRTransform, ExpRTransform, PowerRTransform, CubicSpline
 from horton.grid.radial import RadialGrid
-from horton.log import log, timer
+from horton.log import log, timer, biblio
 from horton.units import angstrom
 
 
@@ -165,7 +165,7 @@ class AtomicGrid(IntGrid):
                 ('1D Integrator', self._rgrid.int1d),
             ])
         # Cite reference
-        log.cite('lebedev1999', 'the use of Lebedev-Laikov grids (quadrature on a sphere)')
+        biblio.cite('lebedev1999', 'the use of Lebedev-Laikov grids (quadrature on a sphere)')
 
     @timer.with_section('Create spher')
     def get_spherical_average(self, *args, **kwargs):

@@ -27,7 +27,7 @@ import numpy as np
 from horton.grid.base import IntGrid
 from horton.grid.atgrid import AtomicGrid, AtomicGridSpec
 from horton.grid.cext import becke_helper_atom
-from horton.log import log, timer
+from horton.log import log, timer, biblio
 from horton.periodic import periodic
 from horton.utils import typecheck_geo, doc_inherit
 
@@ -225,8 +225,8 @@ class BeckeMolGrid(IntGrid):
             ])
             log.blank()
         # Cite reference
-        log.cite('becke1988_multicenter', 'the multicenter integration scheme used for the molecular integration grid')
-        log.cite('cordero2008', 'the covalent radii used for the Becke-Lebedev molecular integration grid')
+        biblio.cite('becke1988_multicenter', 'the multicenter integration scheme used for the molecular integration grid')
+        biblio.cite('cordero2008', 'the covalent radii used for the Becke-Lebedev molecular integration grid')
 
     @doc_inherit(IntGrid)
     def integrate(self, *args, **kwargs):

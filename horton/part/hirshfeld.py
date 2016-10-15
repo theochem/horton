@@ -22,7 +22,7 @@
 
 
 from horton.cache import just_once
-from horton.log import log
+from horton.log import log, biblio
 from horton.part.stockholder import StockholderWPart
 
 
@@ -56,7 +56,7 @@ class HirshfeldMixin(object):
                 ('Scheme', 'Hirshfeld'),
                 ('Proatomic DB',  self.proatomdb),
             ])
-            log.cite('hirshfeld1977', 'the use of Hirshfeld partitioning')
+            biblio.cite('hirshfeld1977', 'the use of Hirshfeld partitioning')
 
     def _get_proatomdb(self):
         return self._proatomdb
@@ -78,9 +78,9 @@ class HirshfeldMixin(object):
             return
 
         if log.do_medium:
-            log.cite('tkatchenko2009', 'the method to evaluate atoms-in-molecules C6 parameters')
-            log.cite('chu2004', 'the reference C6 parameters of isolated atoms')
-            log.cite('yan1996', 'the isolated hydrogen C6 parameter')
+            biblio.cite('tkatchenko2009', 'the method to evaluate atoms-in-molecules C6 parameters')
+            biblio.cite('chu2004', 'the reference C6 parameters of isolated atoms')
+            biblio.cite('yan1996', 'the isolated hydrogen C6 parameter')
 
         ref_c6s = { # reference C6 values in atomic units
             1: 6.499, 2: 1.42, 3: 1392.0, 4: 227.0, 5: 99.5, 6: 46.6, 7: 24.2,

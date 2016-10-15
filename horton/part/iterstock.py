@@ -23,7 +23,7 @@
 
 import numpy as np
 from horton.cache import just_once
-from horton.log import log
+from horton.log import log, biblio
 from horton.part.stockholder import StockholderWPart
 
 
@@ -141,7 +141,7 @@ class IterativeStockholderWPart(IterativeProatomMixin, StockholderWPart):
                 ('Convergence threshold', '%.1e' % self._threshold),
                 ('Maximum iterations', self._maxiter),
             ])
-            log.cite('lillestolen2008', 'the use of Iterative Stockholder partitioning')
+            biblio.cite('lillestolen2008', 'the use of Iterative Stockholder partitioning')
 
     def get_rgrid(self, index):
         return self.get_grid(index).rgrid

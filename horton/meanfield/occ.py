@@ -26,7 +26,7 @@ import numpy as np
 from horton.exceptions import ElectronCountError
 from horton.quadprog import find_1d_root
 from horton.constants import boltzmann
-from horton.log import log
+from horton.log import log, biblio
 from horton.utils import doc_inherit
 
 
@@ -221,7 +221,7 @@ class FermiOccModel(AufbauOccModel):
         self.temperature = float(temperature)
         self.eps = eps
         AufbauOccModel.__init__(self, *noccs)
-        log.cite('rabuck1999', 'the Fermi broading method to assign orbital occupations')
+        biblio.cite('rabuck1999', 'the Fermi broading method to assign orbital occupations')
 
     @doc_inherit(OccModel)
     def assign(self, *exps):

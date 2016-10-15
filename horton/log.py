@@ -34,7 +34,7 @@ from horton.context import context
 import horton
 
 
-__all__ = ['log', 'timer']
+__all__ = ['log', 'timer', 'biblio']
 
 
 class ScreenLog(object):
@@ -91,8 +91,8 @@ class ScreenLog(object):
         self.head_banner = head_banner
         self.foot_banner = foot_banner
         self.timer = timer
+        self.biblio = biblio
 
-        self._biblio = None
         self._active = False
         self._level = self.medium
         self._last_blank = False
@@ -281,16 +281,11 @@ class ScreenLog(object):
     def print_footer(self):
         """Print the last screen output."""
         if self.do_warning and self._active:
-            self._print_references()
+            self.biblio.report()
             self._print_basic_info()
             self.timer._stop('Total')
             self.timer.report(self)
             print >> self._file, self.foot_banner
-
-    def _print_references(self):
-        """Print all cited references."""
-        if self._biblio is not None:
-            self._biblio.log()
 
     def _print_basic_info(self):
         """Print basic runtime info."""
@@ -685,7 +680,7 @@ class Biblio(object):
         """Clear the list of references to be cited."""
         self._cited = {}
 
-    def log(self):
+    def report(self):
         """Report the cited references, typically at the end of a calculation."""
         if log.do_low:
             log('When you use this computation for the preparation of a scientific',

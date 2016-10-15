@@ -23,7 +23,7 @@
 
 import numpy as np
 
-from horton.log import log, timer
+from horton.log import log, timer, biblio
 from horton.grid.cext import CubicSpline, PotentialExtrapolation
 from horton.grid.ode2 import solve_ode2
 from horton.grid.radial import RadialGrid
@@ -46,7 +46,7 @@ def solve_poisson_becke(density_decomposition):
        hartree potential (felt by a particle with the same charge unit as the
        density).
     '''
-    log.cite('becke1988_poisson', 'the numerical integration of the Poisson equation')
+    biblio.cite('becke1988_poisson', 'the numerical integration of the Poisson equation')
 
     lmax = np.sqrt(len(density_decomposition)) - 1
     assert lmax == int(lmax)

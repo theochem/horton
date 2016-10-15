@@ -23,7 +23,7 @@
 
 import numpy as np
 
-from horton.log import log
+from horton.log import log, biblio
 from horton.part.hirshfeld import HirshfeldWPart
 from horton.part.iterstock import IterativeProatomMixin
 
@@ -48,7 +48,7 @@ class HirshfeldIMixin(IterativeProatomMixin):
                 ('Maximum iterations', self._maxiter),
                 ('Proatomic DB',  self._proatomdb),
             ])
-            log.cite('bultinck2007', 'the use of Hirshfeld-I partitioning')
+            biblio.cite('bultinck2007', 'the use of Hirshfeld-I partitioning')
 
     def get_memory_estimates(self):
         return [('Isolated atoms', np.ones(self.natom)*3, 0),] # This is a conservative estimate.
