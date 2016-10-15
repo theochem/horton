@@ -433,15 +433,13 @@ class TimerGroup(object):
 
     def __init__(self):
         """Initialize a TimerGroup object."""
-        self.parts = {}
-        self._stack = []
-        self._start('Total')
+        self.reset()
 
     def reset(self):
         """Reset all timers."""
-        for timer in self.parts.itervalues():
-            timer.total.cpu = 0.0
-            timer.own.cpu = 0.0
+        self.parts = {}
+        self._stack = []
+        self._start('Total')
 
     @contextmanager
     def section(self, label):
