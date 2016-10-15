@@ -23,7 +23,7 @@
 
 import numpy as np
 
-from horton.log import log, biblio
+from horton.log import biblio
 from horton.meanfield.scf_diis import DIISHistory, DIISSCFSolver
 from horton.meanfield.scf_cdiis import CDIISHistory
 from horton.meanfield.scf_ediis import EDIISHistory

@@ -22,7 +22,7 @@
 
 
 import numpy as np
-from horton.log import log
+
 from horton.utils import check_type, check_options, doc_inherit
 from horton.matrix.base import parse_four_index_transform_exps, FourIndex
 from horton.matrix.cext import slice_to_three_abbc_abc, \

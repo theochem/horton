@@ -23,7 +23,7 @@
 
 import numpy as np
 
-from horton.log import log, biblio
+from horton.log import biblio
 from horton.units import angstrom
 from horton.grid.cext import UniformGrid
 from horton.espfit.cext import setup_esp_cost_cube, multiply_dens_mask, \

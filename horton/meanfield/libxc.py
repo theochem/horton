@@ -21,7 +21,7 @@
 """Interface to LDA, GGA and hybrid functionals from LibXC"""
 
 
-from horton.log import log, timer, biblio
+from horton.log import timer, biblio
 from horton.utils import doc_inherit
 from horton.meanfield.gridgroup import GridObservable, DF_LEVEL_LDA, \
     DF_LEVEL_GGA, DF_LEVEL_MGGA

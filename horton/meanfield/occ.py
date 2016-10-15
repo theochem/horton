@@ -26,7 +26,7 @@ import numpy as np
 from horton.exceptions import ElectronCountError
 from horton.quadprog import find_1d_root
 from horton.constants import boltzmann
-from horton.log import log, biblio
+from horton.log import biblio
 from horton.utils import doc_inherit
 
 

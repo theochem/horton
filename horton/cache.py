@@ -27,7 +27,6 @@
 
 
 import numpy as np, types
-from horton.log import log
 
 
 __all__ = ['JustOnceClass', 'just_once', 'Cache']

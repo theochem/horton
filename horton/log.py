@@ -27,9 +27,17 @@ purpose, all useful information is written to a binary checkpoint file or kept i
 as attributes of the HORTON objects.
 """
 
-import sys, os, datetime, getpass, time, atexit, traceback, resource, urllib
+import atexit
 from contextlib import contextmanager
+import datetime
 from functools import wraps
+import getpass
+import os
+import sys
+import resource
+import time
+import urllib
+
 from horton.context import context
 import horton
 
