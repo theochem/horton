@@ -106,7 +106,6 @@ class BeckeMolGrid(IntGrid):
         points = np.zeros((size, 3), float)
         weights = np.zeros(size, float)
         self._becke_weights = np.ones(size, float)
-        log.mem.announce(points.nbytes + weights.nbytes)
 
         # construct the atomic grids
         if mode != 'discard':
@@ -145,10 +144,6 @@ class BeckeMolGrid(IntGrid):
 
         # Some screen info
         self._log_init()
-
-    def __del__(self):
-        if log is not None and hasattr(self, 'weights'):
-            log.mem.denounce(self.points.nbytes + self.weights.nbytes)
 
     @classmethod
     def from_hdf5(cls, grp):

@@ -93,7 +93,6 @@ class CholeskyFourIndex(FourIndex):
             if array2 is not None:
                 raise TypeError('Argument array2 only allowed when array is given.')
             self._array = np.zeros([nvec, nbasis, nbasis])
-            log.mem.announce(self._array.nbytes)
             self._array2 = self._array
         else:
             self._self_alloc = False
@@ -104,14 +103,6 @@ class CholeskyFourIndex(FourIndex):
             else:
                 check_array(array2, 'array2')
                 self._array2 = array2
-
-    def __del__(self):
-        if log is not None:
-            if hasattr(self, '_array') and hasattr(self, '_self_alloc'):
-                if self._self_alloc:
-                    log.mem.denounce(self._array.nbytes)
-                    if hasattr(self, '_array2') and self._array2 is not self._array:
-                        log.mem.denounce(self._array2.nbytes)
 
     #
     # Properties
@@ -284,13 +275,11 @@ class CholeskyFourIndex(FourIndex):
         '''Allocates a second Cholesky vector if not done yet'''
         if self._array2 is self._array:
             self._array2 = self._array.copy()
-            log.mem.announce(self._array2.nbytes)
 
     def reset_array2(self):
         """Deallocates the second cholesky vector and sets it to match the first.
         """
         if self._array2 is not self._array:
-            log.mem.denounce(self._array2.nbytes)
             self._array2 = self._array
 
     def get_dense(self):
