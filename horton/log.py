@@ -559,8 +559,6 @@ class TimerGroup(object):
         log.hline()
         bar_width = log.width-33
         for label, timer in sorted(self.parts.iteritems()):
-            #if timer.total.cpu == 0.0:
-            #    continue
             if max_own_cpu > 0:
                 cpu_bar = "W"*int(timer.own.cpu/max_own_cpu*bar_width)
             else:
