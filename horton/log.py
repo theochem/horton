@@ -650,7 +650,6 @@ class Biblio(object):
         self.filename = filename
         self._records = {}
         self._cited = {}
-        self._done = set([])
         self._load(filename)
 
     def _load(self, filename):
@@ -698,6 +697,10 @@ class Biblio(object):
         """
         reasons = self._cited.setdefault(key, set([]))
         reasons.add(reason)
+
+    def reset(self):
+        """Clear the list of references to be cited."""
+        self._cited = {}
 
     def log(self):
         """Report the cited references, typically at the end of a calculation."""
