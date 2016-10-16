@@ -23,7 +23,7 @@
 
 import numpy as np
 
-from horton.log import log
+from horton.log import biblio
 from horton.meanfield.scf_diis import DIISHistory, DIISSCFSolver
 from horton.quadprog import solve_safe
 from horton.utils import doc_inherit
@@ -57,7 +57,7 @@ class CDIISSCFSolver(DIISSCFSolver):
                 as soon as a state is encountered with a non-zero coefficient. Even
                 if some newer states have a zero coefficient.
         '''
-        log.cite('pulay1980', 'the commutator DIIS SCF algorithm')
+        biblio.cite('pulay1980', 'the commutator DIIS SCF algorithm')
         DIISSCFSolver.__init__(self, CDIISHistory, threshold, maxiter, nvector, skip_energy, prune_old_states)
 
 

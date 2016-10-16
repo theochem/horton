@@ -27,7 +27,7 @@ import numpy as np
 from horton.grid.base import IntGrid
 from horton.grid.atgrid import AtomicGrid, AtomicGridSpec
 from horton.grid.cext import becke_helper_atom
-from horton.log import log, timer
+from horton.log import log, timer, biblio
 from horton.periodic import periodic
 from horton.utils import typecheck_geo, doc_inherit
 
@@ -106,7 +106,6 @@ class BeckeMolGrid(IntGrid):
         points = np.zeros((size, 3), float)
         weights = np.zeros(size, float)
         self._becke_weights = np.ones(size, float)
-        log.mem.announce(points.nbytes + weights.nbytes)
 
         # construct the atomic grids
         if mode != 'discard':
@@ -145,10 +144,6 @@ class BeckeMolGrid(IntGrid):
 
         # Some screen info
         self._log_init()
-
-    def __del__(self):
-        if log is not None and hasattr(self, 'weights'):
-            log.mem.denounce(self.points.nbytes + self.weights.nbytes)
 
     @classmethod
     def from_hdf5(cls, grp):
@@ -230,8 +225,8 @@ class BeckeMolGrid(IntGrid):
             ])
             log.blank()
         # Cite reference
-        log.cite('becke1988_multicenter', 'the multicenter integration scheme used for the molecular integration grid')
-        log.cite('cordero2008', 'the covalent radii used for the Becke-Lebedev molecular integration grid')
+        biblio.cite('becke1988_multicenter', 'the multicenter integration scheme used for the molecular integration grid')
+        biblio.cite('cordero2008', 'the covalent radii used for the Becke-Lebedev molecular integration grid')
 
     @doc_inherit(IntGrid)
     def integrate(self, *args, **kwargs):

@@ -27,14 +27,22 @@ purpose, all useful information is written to a binary checkpoint file or kept i
 as attributes of the HORTON objects.
 """
 
-import sys, os, datetime, getpass, time, atexit, traceback, resource, urllib
+import atexit
 from contextlib import contextmanager
+import datetime
 from functools import wraps
+import getpass
+import os
+import sys
+import resource
+import time
+import urllib
+
 from horton.context import context
 import horton
 
 
-__all__ = ['log', 'timer']
+__all__ = ['log', 'timer', 'biblio']
 
 
 class ScreenLog(object):
@@ -66,7 +74,7 @@ class ScreenLog(object):
     # Screen width parameter.
     width = 100
 
-    def __init__(self, name, version, head_banner, foot_banner, timer, f=None):
+    def __init__(self, name, version, head_banner, foot_banner, timer, biblio, f=None):
         """Initialize a ScreenLog object.
 
         Parameters
@@ -81,15 +89,18 @@ class ScreenLog(object):
             The last test to be printed on screen.
         timer : Timer
             A timer to keep track of CPU time taken by different parts of the program.
+        biblio : Biblio
+            A database of (cited) references.
+        f : file
+            When given, print log to this file instead of stdout.
         """
         self.name = name
         self.version = version
         self.head_banner = head_banner
         self.foot_banner = foot_banner
         self.timer = timer
+        self.biblio = biblio
 
-        self._biblio = None
-        self.mem = MemoryLogger(self)
         self._active = False
         self._level = self.medium
         self._last_blank = False
@@ -246,26 +257,6 @@ class ScreenLog(object):
         for name, value in l:
             self('  %s :&%s' % (name.ljust(widest), value))
 
-    def cite(self, key, reason):
-        """Cite a reference from `data/references.bib` for given reason.
-
-        Parameters
-        ----------
-        key : str
-            The bibtex key in `data/references.bib`.
-        reason: str
-            The reason why this reference is cited, e.g. something in the form of
-            `"for using method bluh"`. You may want to cite the same reference for
-            different reasons from different parts of the code.
-
-        At the end of the program, a list of "relevant" references will be printed that
-        one should cite when using results obtained with a HORTON calculation.
-        """
-        if self._biblio is None:
-            filename = context.get_fn('references.bib')
-            self._biblio = Biblio(filename)
-        self._biblio.cite(key, reason)
-
     def progress(self, niter):
         """Return a progress bar for `niter` iterations.
 
@@ -298,16 +289,11 @@ class ScreenLog(object):
     def print_footer(self):
         """Print the last screen output."""
         if self.do_warning and self._active:
-            self._print_references()
+            self.biblio.report()
             self._print_basic_info()
             self.timer._stop('Total')
             self.timer.report(self)
             print >> self._file, self.foot_banner
-
-    def _print_references(self):
-        """Print all cited references."""
-        if self._biblio is not None:
-            self._biblio.log()
 
     def _print_basic_info(self):
         """Print basic runtime info."""
@@ -433,15 +419,13 @@ class TimerGroup(object):
 
     def __init__(self):
         """Initialize a TimerGroup object."""
-        self.parts = {}
-        self._stack = []
-        self._start('Total')
+        self.reset()
 
     def reset(self):
         """Reset all timers."""
-        for timer in self.parts.itervalues():
-            timer.total.cpu = 0.0
-            timer.own.cpu = 0.0
+        self.parts = {}
+        self._stack = []
+        self._start('Total')
 
     @contextmanager
     def section(self, label):
@@ -561,8 +545,6 @@ class TimerGroup(object):
         log.hline()
         bar_width = log.width-33
         for label, timer in sorted(self.parts.iteritems()):
-            #if timer.total.cpu == 0.0:
-            #    continue
             if max_own_cpu > 0:
                 cpu_bar = "W"*int(timer.own.cpu/max_own_cpu*bar_width)
             else:
@@ -652,7 +634,6 @@ class Biblio(object):
         self.filename = filename
         self._records = {}
         self._cited = {}
-        self._done = set([])
         self._load(filename)
 
     def _load(self, filename):
@@ -701,7 +682,13 @@ class Biblio(object):
         reasons = self._cited.setdefault(key, set([]))
         reasons.add(reason)
 
-    def log(self):
+
+
+    def reset(self):
+        """Clear the list of references to be cited."""
+        self._cited = {}
+
+    def report(self):
         """Report the cited references, typically at the end of a calculation."""
         if log.do_low:
             log('When you use this computation for the preparation of a scientific',
@@ -716,81 +703,6 @@ class Biblio(object):
             log.hline()
             log('Details can be found in the file %s' % self.filename)
             log.blank()
-
-
-class MemoryLogger(object):
-    def __init__(self, log):
-        self._big = 0
-        self.log = log
-
-    def _assign_unit(self, amount):
-        unitKB = float(1024)
-        unitMB = float(1024*unitKB)
-        unitGB = float(1024*unitMB)
-
-        if amount/unitGB > 1.:
-            unit = unitGB
-            label = "GB"
-        elif amount/unitMB > 1.:
-            unit = unitMB
-            label = "MB"
-        elif amount/unitKB > 1.:
-            unit = unitKB
-            label = "KB"
-        else:
-            unit = 1
-            label = "B"
-
-        return unit, label
-
-    def announce(self, amount):
-        if self.log.do_debug:
-            result={}
-
-            unit, label = self._assign_unit(amount)
-            result["allc_val"] = amount/unit
-            result["allc_lbl"] = label
-
-            unit, label = self._assign_unit(self._big)
-            result["cur_val"] = self._big/unit
-            result["cur_lbl"] = label
-
-            unit, label = self._assign_unit(self.get_rss())
-            result["rss_val"] = self.get_rss()/unit
-            result["rss_lbl"] = label
-
-            self.log('Allocated:    %(allc_val).3f %(allc_lbl)s. Current: %(cur_val).3f %(cur_lbl)s. RSS: %(rss_val).3f %(rss_lbl)s' % result)
-            self._big += amount
-        if self.log.do_debug:
-            traceback.print_stack()
-            self.log.blank()
-
-    def denounce(self, amount):
-        if self.log.do_debug:
-            result={}
-
-            unit, label = self._assign_unit(amount)
-            result["allc_val"] = amount/unit
-            result["allc_lbl"] = label
-
-            unit, label = self._assign_unit(self._big)
-            result["cur_val"] = self._big/unit
-            result["cur_lbl"] = label
-
-            unit, label = self._assign_unit(self.get_rss())
-            result["rss_val"] = self.get_rss()/unit
-            result["rss_lbl"] = label
-
-
-            self.log('Deallocated:    %(allc_val).3f %(allc_lbl)s. Current: %(cur_val).3f %(cur_lbl)s. RSS: %(rss_val).3f %(rss_lbl)s' % result
-            )
-            self._big -= amount
-        if self.log.do_debug:
-            traceback.print_stack()
-            self.log.blank()
-
-    def get_rss(self):
-        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*resource.getpagesize()
 
 
 head_banner = """\
@@ -829,5 +741,6 @@ foot_banner = """
 ================================================================================""" % (horton.__version__)
 
 timer = TimerGroup()
-log = ScreenLog('HORTON', horton.__version__, head_banner, foot_banner, timer)
+biblio = Biblio(context.get_fn('references.bib'))
+log = ScreenLog('HORTON', horton.__version__, head_banner, foot_banner, timer, biblio)
 atexit.register(log.print_footer)

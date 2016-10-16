@@ -42,7 +42,7 @@ cimport gbw
 
 import atexit
 
-from horton.log import log
+from horton.log import log, biblio
 from horton.matrix import LinalgFactory, CholeskyLinalgFactory
 from horton.cext import compute_grid_nucpot
 from horton.utils import typecheck_geo
@@ -812,7 +812,7 @@ cdef class GOBasis(GBasis):
 
         Keywords: :index:`ERI`, :index:`four-center integrals`
         '''
-        log.cite('valeev2014',
+        biblio.cite('valeev2014',
                  'the efficient implementation of four-center electron repulsion integrals')
         if isinstance(output, CholeskyLinalgFactory):
             lf = output
@@ -854,9 +854,9 @@ cdef class GOBasis(GBasis):
 
         Keywords: :index:`ERI`, :index:`four-center integrals`
         """
-        log.cite('valeev2014',
+        biblio.cite('valeev2014',
                  'the efficient implementation of four-center electron repulsion integrals')
-        log.cite('ahlrichs2006',
+        biblio.cite('ahlrichs2006',
                  'the methodology to implement various types of four-center integrals.')
         if isinstance(output, CholeskyLinalgFactory):
             lf = output
@@ -900,13 +900,13 @@ cdef class GOBasis(GBasis):
 
         Keywords: :index:`ERI`, :index:`four-center integrals`
         """
-        log.cite('valeev2014',
+        biblio.cite('valeev2014',
                  'the efficient implementation of four-center electron repulsion integrals')
-        log.cite('ahlrichs2006',
+        biblio.cite('ahlrichs2006',
                  'the methodology to implement various types of four-center integrals.')
-        log.cite('gill1996',
+        biblio.cite('gill1996',
                  'four-center integrals with a Gaussian interaction potential.')
-        log.cite('toulouse2004',
+        biblio.cite('toulouse2004',
                  'four-center integrals with a Gaussian interaction potential.')
         if isinstance(output, CholeskyLinalgFactory):
             lf = output
@@ -951,9 +951,9 @@ cdef class GOBasis(GBasis):
 
         Keywords: :index:`ERI`, :index:`four-center integrals`
         """
-        log.cite('valeev2014',
+        biblio.cite('valeev2014',
                  'the efficient implementation of four-center electron repulsion integrals')
-        log.cite('ahlrichs2006',
+        biblio.cite('ahlrichs2006',
                  'the methodology to implement various types of four-center integrals.')
         if isinstance(output, CholeskyLinalgFactory):
             lf = output

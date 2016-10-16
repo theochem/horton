@@ -27,7 +27,6 @@
 
 
 import numpy as np, types
-from horton.log import log
 
 
 __all__ = ['JustOnceClass', 'just_once', 'Cache']
@@ -93,7 +92,7 @@ def _normalize_tags(tags):
 
 class CacheItem(object):
     '''A container for an object stored in a Cache instance'''
-    def __init__(self, value, own=False, tags=None):
+    def __init__(self, value, tags=None):
         '''
            **Arguments:**
 
@@ -102,13 +101,11 @@ class CacheItem(object):
 
            **Optional arguments:**
 
-           own
-                If True, this container will denounce the memory allocated for
-                the contained object. This can only be True for a numpy array.
+           tags
+                Tags to be associated with the object
         '''
         self._value = value
         self._valid = True
-        self._own = own
         self._tags = _normalize_tags(tags)
 
     @classmethod
@@ -117,16 +114,10 @@ class CacheItem(object):
         if all(isinstance(i, int) for i in alloc):
             # initialize a floating point array
             array = np.zeros(alloc, float)
-            log.mem.announce(array.nbytes)
-            return cls(array, own=True, tags=tags)
+            return cls(array, tags=tags)
         else:
             # initialize a new object
             return cls(alloc[0](*alloc[1:]), tags=tags)
-
-    def __del__(self):
-        if self._own and log is not None:
-            assert isinstance(self._value, np.ndarray)
-            log.mem.denounce(self._value.nbytes)
 
     def check_alloc(self, alloc):
         alloc = _normalize_alloc(alloc)
@@ -367,14 +358,9 @@ class Cache(object):
 
            **Optional argument:**
 
-           own
-                When set to True, the cache will take care of denouncing the
-                memory usage due to this array.
-
            tags
                 Tags to be associated with the object
         '''
-        own = kwargs.pop('own', False)
         tags = kwargs.pop('tags', None)
         if len(kwargs) > 0:
             raise TypeError('Unknown optional arguments: %s' % kwargs.keys())
@@ -382,7 +368,7 @@ class Cache(object):
             raise TypeError('At least two arguments are required: key1 and value.')
         key = _normalize_key(args[:-1])
         value = args[-1]
-        item = CacheItem(value, own, tags)
+        item = CacheItem(value, tags)
         self._store[key] = item
 
     def __len__(self):
