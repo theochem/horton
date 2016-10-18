@@ -2920,15 +2920,13 @@ def test_nuclear_attraction_co_ccpv5z_cart_hf():
     check_g09_nuclear_attraction(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
 
 
-def check_g09_dipole(fn_fchk, dipole_values):
+def check_g09_dipole(fn_fchk):
     """Compare dipole moment computed from WFN and nuclei to reference value.
 
     Parameters
     ----------
     fn_fchk : str
         The FCHK filename.
-    dipole_values : array, shape=(3,)
-        Three components of the expected dipole moment.
     """
     mol = IOData.from_file(fn_fchk)
     xyz_array = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
@@ -2943,46 +2941,40 @@ def check_g09_dipole(fn_fchk, dipole_values):
                             pow(mol.coordinates[i, 1], xyz[1]) * \
                             pow(mol.coordinates[i, 2], xyz[2])
         dipole.append(dipole_v)
-    np.testing.assert_almost_equal(dipole, dipole_values, decimal=6)
+    np.testing.assert_almost_equal(dipole, mol.dipole_moment, decimal=6)
 
 
 def test_dipole_water_sto3g_hf():
-    check_g09_dipole(context.get_fn('test/water_sto3g_hf_g03.fchk'),
-                     np.array([5.46423145e-01, -1.25137695e-16, 3.86381228e-01]))
+    check_g09_dipole(context.get_fn('test/water_sto3g_hf_g03.fchk'))
 
 
 def test_dipole_water_ccpvdz_pure_hf():
-    check_g09_dipole(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'),
-                     np.array([6.46132274e-01, 3.28892045e-03, 3.40563176e-01]))
+    check_g09_dipole(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
 
 
 def test_dipole_ccpvdz_cart_hf():
-    check_g09_dipole(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'),
-                     np.array([6.46475310e-01, 3.32969714e-03, 3.41075744e-01]))
+    check_g09_dipole(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
 
 
 def test_dipole_co_ccpv5z_pure_hf():
-    check_g09_dipole(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'),
-                     np.array([-2.25401400e+00, -3.22002009e-01, 3.22002009e-01]))
+    check_g09_dipole(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
 
 
 def test_dipole_co_ccpv5z_cart_hf():
-    check_g09_dipole(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'),
-                     np.array([-2.25364754e+00, -3.21949654e-01, 3.21949654e-01]))
+    check_g09_dipole(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
 
 
-def check_g09_quadrupole(fn_fchk, quadrupole_values):
+def check_g09_quadrupole(fn_fchk):
     """Compare quadrupole moment computed from WFN and nuclei to reference value.
 
     Parameters
     ----------
     fn_fchk : str
         The FCHK filename.
-    dipole_values : array, shape=(6,)
-        Six components of the expected dipole moment: x^2, y^2, z^2, xy, xz, yz
     """
     mol = IOData.from_file(fn_fchk)
-    xyz_array = np.array([[2, 0, 0], [0, 2, 0], [0, 0, 2], [1, 1, 0], [1, 0, 1], [0, 1, 1]])
+    # HORTON ordering: xx, xy, xz, yy, yz, zz (alphabetic)
+    xyz_array = np.array([[2, 0, 0], [1, 1, 0], [1, 0, 1], [0, 2, 0], [0, 1, 1], [0, 0, 2]])
     center = np.zeros(3)
     mol.dm_full = mol.get_dm_full()
     quadrupole = []
@@ -2995,21 +2987,23 @@ def check_g09_quadrupole(fn_fchk, quadrupole_values):
                           pow(mol.coordinates[i, 2], xyz[2])
         quadrupole.append(quad_v)
     # removing trace:
-    trace = (quadrupole[0] + quadrupole[1] + quadrupole[2])/3.0
-    quadrupole[:3] -= trace
-    np.testing.assert_almost_equal(quadrupole, quadrupole_values, decimal=6)
+    mean = (quadrupole[0] + quadrupole[3] + quadrupole[5])/3.0
+    quadrupole[0] -= mean
+    quadrupole[3] -= mean
+    quadrupole[5] -= mean
+    np.testing.assert_almost_equal(quadrupole, mol.quadrupole_moment, decimal=6)
 
 
 def test_quadrupole_ch3_hf_sto3g():
-    check_g09_quadrupole(context.get_fn('test/ch3_hf_sto3g.fchk'),
-                         np.array([-3.00591674e-03, 1.50295837e-03, 1.50295837e-03,
-                                   -1.32772907e-01, -1.32772907e-01, -1.33146521e-01]))
+    check_g09_quadrupole(context.get_fn('test/ch3_hf_sto3g.fchk'))
 
 
 def test_quadrupole_li_h_321g_hf_g09():
-    check_g09_quadrupole(context.get_fn('test/li_h_3-21G_hf_g09.fchk'),
-                         np.array([-6.75277790e-01, -6.75277790e-01, 1.35055558e+00,
-                                   0.00000000e+00, 0.00000000e+00, 0.00000000e+00]))
+    check_g09_quadrupole(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+
+
+def test_quadrupole_monosilicic_acid_hf_lan_g09():
+    check_g09_quadrupole(context.get_fn('test/monosilicic_acid_hf_lan.fchk'))
 
 
 def check_g09_electron_repulsion(fn_fchk, check_g09_zeros=False):
