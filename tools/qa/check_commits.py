@@ -111,7 +111,10 @@ def check_commits(ancestor):
             new_blob = '{}:{}'.format(new_commit_id, new_filename)
 
             # Get the diff
-            print '   {} {} {}'.format(status, old_blob, new_blob)
+            if status == 'R':
+                print '   {} {} -> {}'.format(status, old_filename, new_filename)
+            else:
+                print '   {} {}'.format(status, new_filename)
             diff_lines = subprocess.check_output(
                 ['git', 'diff', '--color=never', '-M', old_blob, new_blob],
                 stderr=subprocess.STDOUT).decode("utf-8").splitlines()
