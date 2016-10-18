@@ -208,7 +208,8 @@ Always **loading**       ``title`` ``coordinates`` ``numbers`` ``obasis`` ``exp_
                          ``energy`` ``pseudo_numbers`` ``mulliken_charges``
 **loading** if present   ``npa_charges`` ``esp_charges`` ``exp_beta`` ``dm_full_mp2`` ``dm_spin_mp2`` |br|
                          ``dm_full_mp3`` ``dm_spin_mp3`` ``dm_full_cc`` ``dm_spin_cc`` ``dm_full_ci`` |br|
-                         ``dm_spin_ci`` ``dm_full_scf`` ``dm_spin_scf``
+                         ``dm_spin_ci`` ``dm_full_scf`` ``dm_spin_scf`` ``polar`` ``dipole_moment`` |br|
+                         ``quadrupole_moment``
 Derived when **loading** ``natom``
 ======================== =======================================================
 
