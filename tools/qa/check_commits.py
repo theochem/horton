@@ -52,7 +52,6 @@ def check_commits(ancestor):
 
     When ancestor is None, the staged files are checked.
     """
-
     # If all goes well, the exit code remains zero.
     result = 0
 
@@ -75,12 +74,12 @@ def check_commits(ancestor):
         # Define the ranges to be checked with git diff
         diff_args = []
         for i in xrange(len(commit_ids) - 1):
-            diff_args.append('{}..{}'.format(commit_ids[i], commit_ids[i+1]))
+            diff_args.append('{}..{}'.format(commit_ids[i+1], commit_ids[i]))
 
     # Loop over all commits and check them:
     for diff_arg in diff_args:
         if ancestor is not None:
-            print 'Checking diff {}'.format(diff_arg)
+            print '{}'.format(diff_arg)
         # Get a list of files in the diff.
         status_lines = subprocess.check_output(
             ['git', 'diff', '--name-status', '-M', diff_arg or '--cached'],
@@ -112,8 +111,7 @@ def check_commits(ancestor):
             new_blob = '{}:{}'.format(new_commit_id, new_filename)
 
             # Get the diff
-            print ' {} Comparing {} {}'.format(status, old_blob, new_blob)
-            command = ['git', 'diff', '--color=never', '-M', old_blob, new_blob]
+            print '   {} {} {}'.format(status, old_blob, new_blob)
             diff_lines = subprocess.check_output(
                 ['git', 'diff', '--color=never', '-M', old_blob, new_blob],
                 stderr=subprocess.STDOUT).decode("utf-8").splitlines()
@@ -129,14 +127,15 @@ def check_commits(ancestor):
                         line_number = line_number.partition(',')[0]
                     line_number = int(line_number)
                 elif line.startswith('+'):
+                    location = '{}:{}'.format(new_filename, line_number)
                     if '\t' in line:
-                        print '   Tab                   {}:{}'.format(new_filename, line_number)
+                        print '      Tab                   {}'.format(location)
                         result = 1
                     if line.endswith(' '):
-                        print '   Trailing whitespace   {}:{}'.format(new_filename, line_number)
+                        print '      Trailing whitespace   {}'.format(location)
                         result = 1
                     if new_filename.startswith('horton') and 'print' in line:
-                        print '   print command         {}:{}'.format(new_filename, line_number)
+                        print '      print command         {}'.format(location)
                         result = 1
                     line_number += 1
                 elif line.startswith(' '):
@@ -149,19 +148,20 @@ def check_commits(ancestor):
 
             # Check for other bad things in the entire file.
             if '\r' in new_contents:
-                print '   \\r                    {}'.format(new_filename)
+                print '      \\r                    {}'.format(new_filename)
                 result = 1
             if new_contents.endswith('\n\n'):
-                print '   Trailing newlines     {}'.format(new_filename)
+                print '      Trailing newlines     {}'.format(new_filename)
                 result = 1
             if not new_contents.endswith('\n'):
-                print '   Missing last newline  {}'.format(new_filename)
+                print '      Missing last newline  {}'.format(new_filename)
                 result = 1
 
         if ancestor is None:
             # Look for untracked files in important directories
             status_lines = subprocess.check_output(
-                ['git', 'status', '-u', 'data', 'horton', 'doc', 'scripts', 'tools', '--porcelain'],
+                ['git', 'status', '-u', 'data', 'horton', 'doc', 'scripts', 'tools',
+                 '--porcelain'],
                 stderr=subprocess.STDOUT).decode("utf-8").splitlines()
             for status_line in status_lines:
                 if status_line.startswith('??'):
