@@ -66,16 +66,9 @@ Also, install our pre-commit script as follows:
 
 .. code-block:: bash
 
-    cp -a tools/pre-commit .git/hooks/
+    cp -a tools/qa/check_commits.py .git/hooks/pre-commit
 
-This hook imposes some baseline quality checks on each commit:
-
-.. literalinclude :: ../tools/pre-commit
-    :language: python
-    :caption: tools/pre-commit
-
-If you think you have legitimate reasons to ignore this check, use the ``--no-verify``
-option when comitting.
+This hook imposes some baseline quality checks on each commit.
 
 Furthermore, it is useful to include the current branch in your shell prompt. To
 do so, put one of the following in your ``~/.bashrc`` (Linux) or

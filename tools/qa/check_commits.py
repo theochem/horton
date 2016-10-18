@@ -58,7 +58,7 @@ def check_commits(ancestor):
 
     if ancestor is None:
         print 'Checking for bad habits in files to be committed ...'
-        diff_args = ['--cached']
+        diff_args = [None]
     else:
         print 'Checking for bad habits in commits up to {} ...'.format(ancestor)
         lines = subprocess.check_output(
@@ -82,16 +82,42 @@ def check_commits(ancestor):
         if ancestor is not None:
             print 'Checking diff {}'.format(diff_arg)
         # Get a list of files in the diff.
-        filenames = subprocess.check_output(
-            ['git', 'diff', '--name-only', diff_arg],
+        status_lines = subprocess.check_output(
+            ['git', 'diff', '--name-status', '-M', diff_arg or '--cached'],
             stderr=subprocess.STDOUT).decode("utf-8").splitlines()
 
         # Check all files in the diff.
-        for fn in filenames:
-            # Get the diff for this file.
+        for status_line in status_lines:
+            # Parse the status line
+            words = status_line.split()
+            status = words[0][0]
+            if status == 'D':
+                continue
+            elif status == 'R':
+                old_filename, new_filename = words[1:]
+            else:
+                new_filename = words[1]
+                old_filename = new_filename
+
+            # Get the old and new blobs
+            if diff_arg is None:
+                old_commit_id = 'HEAD'
+                new_commit_id = ''
+            else:
+                old_commit_id, new_commit_id = diff_arg.split('..')
+            if status == 'A':
+                old_blob = '--'
+            else:
+                old_blob = '{}:{}'.format(old_commit_id, old_filename)
+            new_blob = '{}:{}'.format(new_commit_id, new_filename)
+
+            # Get the diff
+            print ' {} Comparing {} {}'.format(status, old_blob, new_blob)
+            command = ['git', 'diff', '--color=never', '-M', old_blob, new_blob]
             diff_lines = subprocess.check_output(
-                ['git', 'diff', '--color=never', diff_arg, '--', fn],
+                ['git', 'diff', '--color=never', '-M', old_blob, new_blob],
                 stderr=subprocess.STDOUT).decode("utf-8").splitlines()
+
             # Run some tests on the diff.
             for line in diff_lines:
                 if line.startswith('diff') or line.startswith('index') or \
@@ -104,34 +130,32 @@ def check_commits(ancestor):
                     line_number = int(line_number)
                 elif line.startswith('+'):
                     if '\t' in line:
-                        print '   Tab                   {}:{}'.format(fn, line_number)
+                        print '   Tab                   {}:{}'.format(new_filename, line_number)
                         result = 1
                     if line.endswith(' '):
-                        print '   Trailing whitespace   {}:{}'.format(fn, line_number)
+                        print '   Trailing whitespace   {}:{}'.format(new_filename, line_number)
                         result = 1
-                    if fn.startswith('horton') and 'print' in line:
-                        print '   print command         {}:{}'.format(fn, line_number)
+                    if new_filename.startswith('horton') and 'print' in line:
+                        print '   print command         {}:{}'.format(new_filename, line_number)
                         result = 1
                     line_number += 1
                 elif line.startswith(' '):
                     line_number += 1
-            # Get the entire file in the diff.
-            if ancestor is None:
-                commit_id = ''
-            else:
-                commit_id = diff_arg.partition('..')[-1]
+
+            # Get the entire new file.
             new_contents = subprocess.check_output(
-                ['git', 'show', commit_id + ':' + fn],
+                ['git', 'show', new_blob],
                 stderr=subprocess.STDOUT).decode("utf-8")
-            # Check for other bad things.
+
+            # Check for other bad things in the entire file.
             if '\r' in new_contents:
-                print '   \\r                    {}'.format(fn)
+                print '   \\r                    {}'.format(new_filename)
                 result = 1
             if new_contents.endswith('\n\n'):
-                print '   Trailing newlines     {}'.format(fn)
+                print '   Trailing newlines     {}'.format(new_filename)
                 result = 1
             if not new_contents.endswith('\n'):
-                print '   Missing last newline  {}'.format(fn)
+                print '   Missing last newline  {}'.format(new_filename)
                 result = 1
 
         if ancestor is None:
@@ -141,8 +165,8 @@ def check_commits(ancestor):
                 stderr=subprocess.STDOUT).decode("utf-8").splitlines()
             for status_line in status_lines:
                 if status_line.startswith('??'):
-                    fn = status_line[3:]
-                    print '   Untracked file        {}'.format(fn)
+                    new_filename = status_line[3:]
+                    print '   Untracked file        {}'.format(new_filename)
                     result = 1
 
     # Stop process with appropriate exit code.
