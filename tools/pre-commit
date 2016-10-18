@@ -1,25 +1,101 @@
-#!/bin/bash
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# HORTON: Helpful Open-source Research TOol for N-fermion systems.
+# Copyright (C) 2011-2016 The HORTON Development Team
+#
+# This file is part of HORTON.
+#
+# HORTON is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+#
+# HORTON is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>
+#
+# --
 
-red="\033[1;31m"
-color_end="\033[0m"
 
-# Check unwanted trailing whitespace or space/tab indents;
-if [[ `git diff --cached --check` ]]; then
-    echo -e "${red}Commit failed: trailing whitespace, trailing empty lines, DOS/Windows line endings${color_end}"
-    git diff --cached --check
-    exit 1
-fi
+import subprocess
+import sys
 
-# Check for untracked files (not in .gitignore)
-if [[ `git status -u data horton doc scripts tools -s | grep "^??"` ]]; then
-    echo -e "${red}Commit failed: untracked files (not in .gitignore).${color_end}"
-    git status -u data horton doc scripts tools -s | grep "^??"
-    exit 1
-fi
 
-# Check for new print statements
-if [[ `git diff --cached | grep '^+' | sed  's/^.//' | sed 's:#.*$::g' | grep 'print '` ]]; then
-    echo -e "${red}Commit failed: print statements${color_end}"
-    git diff --cached | grep '^+' | sed  's/^.//' | sed 's:#.*$::g' | grep print
-    exit 1
-fi
+def main():
+    # If all goes well, the exit code remains zero.
+    print 'Checking for bad habits in files to be committed ...'
+    result = 0
+
+    # Get a list of staged files.
+    filenames = subprocess.check_output(
+        ['git', 'diff', '--name-only', '--cached'],
+        stderr=subprocess.STDOUT).decode("utf-8").splitlines()
+
+    # Check all files to be comitted.
+    for fn in filenames:
+        # Get the diff for this file.
+        diff_lines = subprocess.check_output(
+            ['git', 'diff', '--color=never', '--cached', fn],
+            stderr=subprocess.STDOUT).decode("utf-8").splitlines()
+        # Run some tests on the diff.
+        for line in diff_lines:
+            if line.startswith('diff') or line.startswith('index') or \
+               line.startswith('-') or line.startswith('+++'):
+                pass
+            elif line.startswith('@@'):
+                line_number = line.split()[2]
+                if ',' in line_number:
+                    line_number = line_number.partition(',')[0]
+                line_number = int(line_number)
+            elif line.startswith('+'):
+                if '\t' in line:
+                    print '   Tab                   {}:{}'.format(fn, line_number)
+                    result = 1
+                if line.endswith(' '):
+                    print '   Trailing whitespace   {}:{}'.format(fn, line_number)
+                    result = 1
+                if fn.startswith('horton') and 'print' in line:
+                    print '   print command         {}:{}'.format(fn, line_number)
+                    result = 1
+                line_number += 1
+            elif line.startswith(' '):
+                line_number += 1
+        # Get the entire file to be comitted.
+        new_contents = subprocess.check_output(
+            ['git', 'show', ':' + fn],
+            stderr=subprocess.STDOUT).decode("utf-8")
+        # Check for other bad things.
+        if '\r' in new_contents:
+            print '   \\r                    {}'.format(fn)
+            result = 1
+        if new_contents.endswith('\n\n'):
+            print '   Trailing newlines     {}'.format(fn)
+            result = 1
+        if not new_contents.endswith('\n'):
+            print '   Missing last newline  {}'.format(fn)
+            result = 1
+
+    # Look for untracked files in important directories
+    status_lines = subprocess.check_output(
+        ['git', 'status', '-u', 'data', 'horton', 'doc', 'scripts', 'tools', '--porcelain'],
+        stderr=subprocess.STDOUT).decode("utf-8").splitlines()
+    for status_line in status_lines:
+        if status_line.startswith('??'):
+            fn = status_line[3:]
+            print '   Untracked file        {}'.format(fn)
+            result = 1
+
+    # Stop process with appropriate exit code.
+    if result != 0:
+        print 'Commit failed. Please, clean up and try again.'
+    else:
+        print 'OK.'
+    sys.exit(result)
+
+
+if __name__ == '__main__':
+    main()

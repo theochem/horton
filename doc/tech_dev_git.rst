@@ -71,12 +71,11 @@ Also, install our pre-commit script as follows:
 This hook imposes some baseline quality checks on each commit:
 
 .. literalinclude :: ../tools/pre-commit
-    :language: bash
+    :language: python
     :caption: tools/pre-commit
 
-The last part of the ``pre-commit`` script checks for python ``print`` lines. These should
-not be used in the HORTON library. If you think you have legitimate reasons to ignore this
-check, use the ``--no-verify`` option when comitting.
+If you think you have legitimate reasons to ignore this check, use the ``--no-verify``
+option when comitting.
 
 Furthermore, it is useful to include the current branch in your shell prompt. To
 do so, put one of the following in your ``~/.bashrc`` (Linux) or
