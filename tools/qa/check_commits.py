@@ -41,8 +41,11 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(description='Check basic formatting conventions in commits.')
     parser.add_argument('ancestor', type=str, default=None, nargs='?',
-                        help='The ancestor up to which to check the commits. When not '
-                             'given, the index is checked.')
+                        help='The ancestor up to which to check the commits. This can be '
+                             'an SHA1 hash of the commit or the name of a branch. In '
+                             'the latter case the HEAD of that branch is used as '
+                             'ancestor. When not given, the index (containing files to '
+                             'be committed) is checked.')
     args = parser.parse_args()
     return args.ancestor
 
