@@ -239,7 +239,7 @@ def detect_machine():
         return ('Linux-%s-%s-%s' % (dist[0], dist[1], platform.machine())).replace(' ', '_')
     elif sys.platform == 'darwin':
         mac_ver = platform.mac_ver()
-        mac_os = mac_ver[0].rpartition('.')
+        mac_os = mac_ver[0].partition('.')
         return 'Darwin-%s-%s' % (mac_os[0], mac_ver[2])
     else:
         return 'unknown'

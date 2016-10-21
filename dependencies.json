@@ -263,7 +263,7 @@
     "name": "pylint",
     "title": "PyLint",
     "version_requirement": ">=1.5.0",
-    "version_command": "pylint --version 2> /dev/null | head -2 | paste -s",
+    "version_command": "pylint --version 2> /dev/null | head -2 | paste -s -",
     "homepage": "https://www.pylint.org/",
     "fedora_24_pip": "pylint",
     "fedora_22_pip": "pylint",
