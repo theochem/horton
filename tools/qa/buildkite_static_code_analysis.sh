@@ -7,6 +7,9 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     echo "--- Prep working directory"
     ./cleanfiles.sh
 
+    echo "--- Checking for whitespace errors in every commit"
+    tools/qa/check_commits.py $ANCESTOR_SHA || report_error "Bad habits detected in some commits"
+
     PATH=$PATH:~/.local/bin  # fix for ubuntu paths
 
     echo "--- Running trapdoors tests on PR branch"

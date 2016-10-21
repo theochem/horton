@@ -12,9 +12,6 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     rm -rf data/refatoms/*.h5 #data/refatoms/*.tar.bz2
     make -C data/refatoms/
 
-    echo "--- Checking for whitespace errors in every commit"
-    tools/qa/check_whitespace.py $ANCESTOR_SHA || report_error "Whitespace errors in some commits"
-
     export PYTHONPATH=$PWD
     export HORTONDATA=$PWD/data
 
