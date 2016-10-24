@@ -134,7 +134,7 @@ def check_commits(ancestor):
                     line_number = int(line_number)
                 elif line.startswith('+'):
                     location = '{}:{}'.format(new_filename, line_number)
-                    if '\t' in line:
+                    if '\t' in line and not new_filename.endswith('Makefile'):
                         print '      Tab                   {}'.format(location)
                         result = 1
                     if line.endswith(' '):

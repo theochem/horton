@@ -56,6 +56,7 @@ clean:
 	rm -f doxygen_warnings.log
 	rm -f user_download_and_install_linux.rst
 	rm -f user_download_and_install_mac.rst
+	rm -f user_download_and_install_windows.rst
 
 html: autogendoc
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
