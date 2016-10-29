@@ -141,7 +141,7 @@ def check_commits(ancestor):
                         print '      Trailing whitespace   {}'.format(location)
                         result = 1
                     if new_filename.startswith('horton') and ' print' in line and \
-                       (not 'horton/io' in new_filename):
+                       ('horton/io' not in new_filename):
                         print '      print command         {}'.format(location)
                         result = 1
                     line_number += 1
