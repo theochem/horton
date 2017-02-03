@@ -466,7 +466,7 @@ for e in ext_modules:
 
 setup(
     name='horton',
-    version='2.0.1',
+    version='2.1.0b1',
     description='HORTON: Helpful Open-source Research TOol for N-fermion systems.',
     author='Toon Verstraelen',
     author_email='Toon.Verstraelen@UGent.be',

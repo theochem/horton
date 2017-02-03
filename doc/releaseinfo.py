@@ -14,7 +14,7 @@ def transform_git_date(s):
 def get_releaseinfo():
     """Retrieve release info from git and also write releaseinfo.json."""
     # Default values in case the git commands don't work
-    version = '2.0.1'
+    version = '2.1.0b1'
     describe = '%s-nogit' % version
     release_date = '??? ??, ????'
     doc_release_date = release_date
