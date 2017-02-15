@@ -974,7 +974,7 @@ cdef class GOBasis(GBasis):
                                   np.ndarray[double, ndim=2] points not None,
                                   np.ndarray[long, ndim=1] iorbs not None,
                                   np.ndarray[double, ndim=2] output=None):
-        """Compute the orbitals on a grid for a given set of expansion coefficients.
+        r"""Compute the orbitals on a grid for a given set of expansion coefficients.
 
         **Warning:** the results are added to the output array!
 
@@ -1016,6 +1016,56 @@ cdef class GOBasis(GBasis):
         (<gbasis.GOBasis*>self._this).compute_grid1_exp(
             nfn, &coeffs[0, 0], npoint, &points[0, 0],
             norb, &iorbs[0], &output[0, 0])
+        return output
+
+
+    def compute_grid_orb_gradient_exp(self, exp,
+                                  np.ndarray[double, ndim=2] points not None,
+                                  np.ndarray[long, ndim=1] iorbs not None,
+                                  np.ndarray[double, ndim=3] output=None):
+
+        r"""Compute the orbital gradient on a grid for a given set of expansion coefficients.
+
+        **Warning:** the results are added to the output array!
+
+        Parameters
+        ----------
+
+        exp : DenseExpansion
+            Orbitals.
+        points : np.ndarray, shape=(npoint, 3), dtype=float
+            Cartesian grid points.
+        iorbs : np.ndarray, shape=(n,), dtype=int
+            Indexes of the orbitals to be computed.
+        output : np.ndarray, shape=(npoint, n, 3), dtype=float
+            An output array. The results are added to this array. When not given, an
+            output array is allocated.
+
+        Returns
+        -------
+        output : np.ndarray, shape=(npoint, n, 3), dtype=float
+            the output array. (It is allocated when not given.)
+        """
+        # Do some type checking
+        cdef np.ndarray[double, ndim=2] coeffs = exp.coeffs
+        self.check_matrix_coeffs(coeffs)
+        nfn = coeffs.shape[1]
+        assert points.flags['C_CONTIGUOUS']
+        npoint = points.shape[0]
+        assert points.shape[1] == 3
+        assert iorbs.flags['C_CONTIGUOUS']
+        norb = iorbs.shape[0]
+        if output is None:
+            output = np.zeros((npoint, norb, 3), float)
+        else:
+            assert output.flags['C_CONTIGUOUS']
+            assert output.shape[0] == npoint
+            assert output.shape[1] == norb
+            assert output.shape[3] == 3
+        # compute
+        (<gbasis.GOBasis*>self._this).compute_grid1_grad_exp(
+            nfn, &coeffs[0, 0], npoint, &points[0, 0],
+            norb, &iorbs[0], &output[0, 0, 0])
         return output
 
     def _compute_grid1_dm(self, dm, np.ndarray[double, ndim=2] points not None,
