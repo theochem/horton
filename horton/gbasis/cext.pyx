@@ -66,6 +66,8 @@ __all__ = [
     'get_2index_slice', 'compute_diagonal', 'select_2index',
     # ints
     'GB2OverlapIntegral', 'GB2KineticIntegral',
+    'GB2ErfAttractionIntegral',
+    'GB2GaussAttractionIntegral',
     'GB2NuclearAttractionIntegral','GB4Integral',
     'GB4ElectronRepulsionIntegralLibInt',
     'GB4ErfIntegralLibInt', 'GB4GaussIntegralLibInt',
@@ -741,6 +743,107 @@ cdef class GOBasis(GBasis):
         (<gbasis.GOBasis*>self._this).compute_nuclear_attraction(
             &charges[0], &coordinates[0, 0], ncharge,
             &output_array[0, 0],
+        )
+        # done
+        return output
+
+    def compute_erf_attraction(self,
+                                   np.ndarray[double, ndim=2] coordinates not None,
+                                   np.ndarray[double, ndim=1] charges not None,
+                                   output, double mu=0.0):
+        r"""Compute the model nuclear attraction integral with the long-range potential
+
+        The potential has the following form:
+
+        .. math::
+            v = \frac{\mathrm{erf}(\mu r)}{r}
+
+        Parameters
+        ----------
+        coordinates: np.ndarray, shape = (ncharge,3)
+            A float array with shape (ncharge,3) with Cartesian coordinates
+            of point charges that define the external field.
+
+        charges: np.ndarray, shape=(ncharge,)
+             A float array with shape (ncharge,) with the values of the
+             charges.
+
+        output: TwoIndex
+             When a ``TwoIndex`` instance is given, it is used as output
+             argument and its contents are overwritten. When ``LinalgFactory``
+             is given, it is used to construct the output ``TwoIndex``
+             object. In both cases, the output two-index object is returned.
+
+         mu : float
+             Parameter for the erf(mu r)/r potential. Default is zero.
+
+        Returns
+        -------
+        ``TwoIndex`` object
+
+        Keywords: :index:`two-center integrals`
+        """
+        # type checking
+        assert coordinates.flags['C_CONTIGUOUS']
+        assert charges.flags['C_CONTIGUOUS']
+        ncharge, coordinates, charges = typecheck_geo(coordinates, None, charges, need_numbers=False)
+        # prepare the output array
+        cdef np.ndarray[double, ndim=2] output_array
+        if isinstance(output, LinalgFactory):
+            lf = output
+            output = lf.create_two_index(self.nbasis)
+        output_array = output._array
+        self.check_matrix_two_index(output_array)
+        # call the low-level routine
+        (<gbasis.GOBasis*>self._this).compute_erf_attraction(
+            &charges[0], &coordinates[0, 0], ncharge,
+            &output_array[0, 0], mu
+        )
+        # done
+        return output
+
+    def compute_gauss_attraction(self,
+                                   np.ndarray[double, ndim=2] coordinates not None,
+                                   np.ndarray[double, ndim=1] charges not None,
+                                   output, double c=1.0, double alpha=1.0):
+        r"""Compute the model nuclear attraction with a Gaussian potential.
+
+        The potential has the following form:
+
+        .. math::
+            v = c \exp(-\alpha r^2)
+
+        Parameters
+        ----------
+        output : TwoIndex
+            When a ``DenseTwoIndex`` object is given, it is used as output argument and
+            its contents are overwritten.
+        c : float
+            Coefficient of the gaussian.
+        alpha : float
+            Exponential parameter of the gaussian.
+
+        Returns
+        -------
+        output
+
+        Keywords: :index:`two-center integrals`
+        """
+        # type checking
+        assert coordinates.flags['C_CONTIGUOUS']
+        assert charges.flags['C_CONTIGUOUS']
+        ncharge, coordinates, charges = typecheck_geo(coordinates, None, charges, need_numbers=False)
+        # prepare the output array
+        cdef np.ndarray[double, ndim=2] output_array
+        if isinstance(output, LinalgFactory):
+            lf = output
+            output = lf.create_two_index(self.nbasis)
+        output_array = output._array
+        self.check_matrix_two_index(output_array)
+        # call the low-level routine
+        (<gbasis.GOBasis*>self._this).compute_gauss_attraction(
+            &charges[0], &coordinates[0, 0], ncharge,
+            &output_array[0, 0], c, alpha
         )
         # done
         return output
@@ -1707,8 +1810,61 @@ cdef class GB2NuclearAttractionIntegral(GB2Integral):
         self._charges = charges
         self._centers = centers
         self._this = <ints.GB2Integral*>(new ints.GB2NuclearAttractionIntegral(
-            max_nbasis, &charges[0], &centers[0, 0], ncharge
+           max_nbasis, &charges[0], &centers[0, 0], ncharge
         ))
+
+
+cdef class GB2ErfAttractionIntegral(GB2Integral):
+    '''Wrapper for ints.GB2ErfAttractionIntegral, for testing only'''
+    # make an additional reference to these arguments to avoid deallocation
+    cdef np.ndarray _charges
+    cdef np.ndarray _centers
+
+    def __cinit__(self, long max_nbasis,
+                  np.ndarray[double, ndim=1] charges not None,
+                  np.ndarray[double, ndim=2] centers not None, double mu):
+        assert charges.flags['C_CONTIGUOUS']
+        cdef long ncharge = charges.shape[0]
+        assert centers.flags['C_CONTIGUOUS']
+        assert centers.shape[0] == ncharge
+        self._charges = charges
+        self._centers = centers
+        self._this = <ints.GB2Integral*>(new ints.GB2ErfAttractionIntegral(
+            max_nbasis, &charges[0], &centers[0, 0], ncharge, mu
+        ))
+
+    property mu:
+        def __get__(self):
+            return (<ints.GB2ErfAttractionIntegral*>self._this).get_mu()
+
+
+cdef class GB2GaussAttractionIntegral(GB2Integral):
+    '''Wrapper for ints.GB2GaussAttractionIntegral, for testing only'''
+    # make an additional reference to these arguments to avoid deallocation
+    cdef np.ndarray _charges
+    cdef np.ndarray _centers
+
+    def __cinit__(self, long max_nbasis,
+                  np.ndarray[double, ndim=1] charges not None,
+                  np.ndarray[double, ndim=2] centers not None, double c,
+                  double alpha):
+        assert charges.flags['C_CONTIGUOUS']
+        cdef long ncharge = charges.shape[0]
+        assert centers.flags['C_CONTIGUOUS']
+        assert centers.shape[0] == ncharge
+        self._charges = charges
+        self._centers = centers
+        self._this = <ints.GB2Integral*>(new ints.GB2GaussAttractionIntegral(
+            max_nbasis, &charges[0], &centers[0, 0], ncharge, c, alpha
+        ))
+
+    property c:
+        def __get__(self):
+            return (<ints.GB2GaussAttractionIntegral*>self._this).get_c()
+
+    property alpha:
+        def __get__(self):
+            return (<ints.GB2GaussAttractionIntegral*>self._this).get_alpha()
 
 
 ints.libint2_static_init()

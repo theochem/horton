@@ -190,12 +190,12 @@ void GB2KineticIntegral::add(double coeff, double alpha0, double alpha1, const d
 
 /*
 
-   GB2NuclearAttractionIntegral
+   GB2NuclearAttractionIntegrals
 
 */
 
 
-GB2NuclearAttractionIntegral::GB2NuclearAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge) :
+GB2AttractionIntegral::GB2AttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge) :
             GB2Integral(max_shell_type), charges(charges), centers(centers), ncharge(ncharge) {
     work_g0 = new double[2*max_shell_type+1];
     work_g1 = new double[2*max_shell_type+1];
@@ -204,7 +204,7 @@ GB2NuclearAttractionIntegral::GB2NuclearAttractionIntegral(long max_shell_type, 
 }
 
 
-GB2NuclearAttractionIntegral::~GB2NuclearAttractionIntegral() {
+GB2AttractionIntegral::~GB2AttractionIntegral() {
     delete[] work_g0;
     delete[] work_g1;
     delete[] work_g2;
@@ -212,7 +212,7 @@ GB2NuclearAttractionIntegral::~GB2NuclearAttractionIntegral() {
 }
 
 
-void GB2NuclearAttractionIntegral::add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1) {
+void GB2AttractionIntegral::add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1) {
     double pre, gamma, gamma_inv, arg;
     double gpt_center[3], pa[3], pb[3], pc[3];
 
@@ -235,8 +235,18 @@ void GB2NuclearAttractionIntegral::add(double coeff, double alpha0, double alpha
 
         // Fill the work array with the Boys function values
         arg = gamma*(pc[0]*pc[0] + pc[1]*pc[1] + pc[2]*pc[2]);
+        //for (long nu=abs(shell_type0)+abs(shell_type1); nu>=0; nu--) {
+        //    work_boys[nu] = boys_function(nu, arg);
+        //}
+        /*
+           Laplace transform of the potential
+        */
+
+        int mmax = abs(shell_type0)+abs(shell_type1);
+        double kernel[2*max_shell_type+1];
+        laplace_of_potential(gamma, arg, mmax, kernel);
         for (long nu=abs(shell_type0)+abs(shell_type1); nu>=0; nu--) {
-            work_boys[nu] = boys_function(nu, arg);
+            work_boys[nu] = kernel[nu];
         }
 
         // Iterate over all combinations of Cartesian exponents
@@ -258,6 +268,32 @@ void GB2NuclearAttractionIntegral::add(double coeff, double alpha0, double alpha
             work_cart[i2p.offset] -= pre*scales0[i2p.ibasis0]*scales1[i2p.ibasis1]*arg*charges[icharge];
         } while (i2p.inc());
     }
+}
+
+
+void GB2NuclearAttractionIntegral::laplace_of_potential(double gamma, double arg, long mmax, double* output) {
+  boys_function_array(mmax, arg, output);
+}
+
+
+void GB2ErfAttractionIntegral::laplace_of_potential(double gamma, double arg, long mmax, double* output) {
+  double efac = mu*mu/(mu*mu + gamma);
+  boys_function_array(mmax, arg*efac, output);
+  double prefac = sqrt(efac);
+  for (long m=0; m <= mmax; m++) {
+    output[m] *= prefac;
+    prefac *= efac;
+  }
+}
+
+
+void GB2GaussAttractionIntegral::laplace_of_potential(double gamma, double arg, long mmax, double* output) {
+  double afac = alpha/(gamma+alpha);
+  double prefac = (M_PI/(gamma+alpha))*sqrt(M_PI/(gamma+alpha))*c*exp(-arg*afac)*(gamma/(2*M_PI));
+  for (long m=0; m <= mmax; m++) {
+    output[m] = prefac;
+    prefac *= afac;
+  }
 }
 
 
@@ -936,7 +972,7 @@ void GB4GaussIntegralLibInt::laplace_of_potential(double prefac, double rho, dou
   prefac *= (sqrt(M_PI*M_PI*M_PI)/(rho+alpha))*sqrt(1.0/(rho+alpha))*c*exp(-t*afac);
   for (long m=0; m <= mmax; m++) {
     output[m] = prefac;
-  prefac *= afac;
+    prefac *= afac;
   }
 }
 

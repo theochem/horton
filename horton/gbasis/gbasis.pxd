@@ -56,6 +56,8 @@ cdef extern from "horton/gbasis/gbasis.h":
         void compute_overlap(double* output)
         void compute_kinetic(double* output)
         void compute_nuclear_attraction(double* charges, double* centers, long ncharge, double* output)
+        void compute_erf_attraction(double* charges, double* centers, long ncharge, double* output, double mu)
+        void compute_gauss_attraction(double* charges, double* centers, long ncharge, double* output, double c, double alpha)
         void compute_multipole_moment(long* xyz, double* center, double* output)
         void compute_electron_repulsion(double* output)
         void compute_erf_repulsion(double* output, double mu)
