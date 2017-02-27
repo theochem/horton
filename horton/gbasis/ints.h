@@ -77,7 +77,7 @@ class GB2AttractionIntegral: public GB2Integral {
         GB2AttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge);
         ~GB2AttractionIntegral();
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
-	virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output) = 0 ;
+    virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output) = 0 ;
 };
 
 /** @brief
