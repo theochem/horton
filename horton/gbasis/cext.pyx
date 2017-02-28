@@ -116,7 +116,7 @@ def cart_to_pure_low(np.ndarray[double] work_cart not None,
 
 def compute_cholesky(GOBasis gobasis, GB4Integral gb4int, double threshold=1e-8, lf = None):
     cdef gbw.GB4IntegralWrapper* gb4w = NULL
-    cdef vector[np.float64_t]* vectors = NULL
+    cdef vector[double]* vectors = NULL
     cdef np.npy_intp dims[3]
     cdef np.ndarray result
 
@@ -126,7 +126,7 @@ def compute_cholesky(GOBasis gobasis, GB4Integral gb4int, double threshold=1e-8,
     try:
         gb4w = new gbw.GB4IntegralWrapper(<gbasis.GOBasis*> gobasis._this,
                                           <ints.GB4Integral*> gb4int._this)
-        vectors = new vector[np.float64_t]()
+        vectors = new vector[double]()
         nvec = cholesky.cholesky(gb4w, vectors, threshold)
         dims[0] = <np.npy_intp> nvec
         dims[1] = <np.npy_intp> gobasis.nbasis
