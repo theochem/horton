@@ -74,7 +74,7 @@ with Python scripts. The ``horton-hdf2csv.py`` script can be used to convert
 (part of) an HDF5 file into the "comma-separated value" (CSV) format, which is
 supported by most spreadsheet software.
 
-The usage of the tjree scripts (``horton-atomdb.py``, ``horton-wpart.py``, and
+The usage of the three scripts (``horton-atomdb.py``, ``horton-wpart.py``, and
 ``horton-hdf2csv.py``) will be discussed in :ref:`atomdb`, :ref:`wpart`, and
 :ref:`hdf2csv`, respectively. All scripts have a ``--help`` flag that prints out their
 complete list of command-line arguments. The penultimate section, :ref:`partition`, shows
