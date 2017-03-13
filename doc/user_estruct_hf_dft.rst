@@ -462,7 +462,7 @@ HORTON supports the following SCF algorithms:
 * :py:class:`~horton.meanfield.scf_ediis.EDIISSCFSolver`: the energy direct
   inversion of the iterative subspace (EDIIS) method. [kudin2002]_ This method
   works well for the initial iterations but becomes numerically unstable close
-  to the solution. It typically works better with a relativey poor initial
+  to the solution. It typically works better with a relatively poor initial
   guess.
 
 * :py:class:`~horton.meanfield.scf_ediis2.EDIIS2SCFSolver`: a combination of
