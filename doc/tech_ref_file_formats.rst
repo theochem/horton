@@ -258,7 +258,7 @@ Dump                     No
 Recognized by            File extension ``.wfn``
 Interoperation           `GAMESS <http://www.msg.ameslab.gov/gamess/>`_,
                          `Gaussian <http://www.gaussian.com/>`_,
-Always **loading**       ``title`` ``coordinates`` ``numbers`` ``obasis`` ``exp_alpha``
+Always **loading**       ``title`` ``coordinates`` ``numbers`` ``obasis`` ``exp_alpha`` ``energy``
 **loading** if present   ``exp_beta``
 Derived when **loading** ``natom``
 ======================== =======================================================
