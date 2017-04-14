@@ -293,7 +293,6 @@ class GB1ExpGridOrbitalFn : public GB1ExpGridFn  {
   long norb;    //!< The number of elements in iorbs.
 };
 
-//! @cond Doxygen_Suppress
 /** @brief
       Evaluates the gradient of a selection of orbitals on a grid.
 
