@@ -38,6 +38,8 @@ pip wheel cython
 pip install --no-index --upgrade cython
 pip wheel h5py
 pip install --no-index --upgrade h5py
+pip wheel sympy
+pip install --no-index --upgrade sympy
 
 # Packages for HORTON documentation
 pip wheel sphinx
