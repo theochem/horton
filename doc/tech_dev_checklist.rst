@@ -356,6 +356,8 @@ The following pycodestyle error codes are disabled.
 * Because PyLint does handles them already:
     * **E402** module level import not at top of file
 
+* Because we don't consider them the be fatal:
+    * **E201** (*) whitespace after '['
 
 Pydocstyle
 ~~~~~~~~~~
@@ -398,6 +400,8 @@ The following are excluded because we don't consider them the be fatal:
 
 * **C0103**: invalid-name. Invalid %s name “%s”%s used when the name doesn't match
   the regular expression associated to its type (constant, variable, class...).
+* **C0326**: bad-whitespace. %s space %s %s %s used when a wrong number of spaces
+  is used around an operator, bracket or block opener.
 * **I0011**: locally-disabled. used when an inline option disables a message or a messages
   category.
 * **W0613**: unused-argument. Unused argument %r used when a function or method argument

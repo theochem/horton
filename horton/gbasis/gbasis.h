@@ -38,7 +38,7 @@ class GBasis {
         long* prim_offsets;
         long* scales_offsets;
         long* shell_lookup;
-        double* scales; // pre-computed normalization constants.
+        double* scales;  // pre-computed normalization constants.
         long nbasis, nscales;
         long max_shell_type;
 
@@ -56,26 +56,26 @@ class GBasis {
                const long* shell_types, const double* alphas, const double* con_coeffs,
                const long ncenter, const long nshell, const long nprim_total);
         virtual ~GBasis();
-        virtual const double normalization(const double alpha, const long* n) const =0;
+        virtual const double normalization(const double alpha, const long* n) const = 0;
         void init_scales();
         void compute_two_index(double* output, GB2Integral* integral);
         void compute_four_index(double* output, GB4Integral* integral);
         void compute_grid_point1(double* output, double* point, GB1GridFn* grid_fn);
         double compute_grid_point2(double* dm, double* point, GB2DMGridFn* grid_fn);
 
-        const long get_nbasis() const {return nbasis;};
-        const long get_nscales() const {return nscales;};
-        const long get_max_shell_type() const {return max_shell_type;};
-        const long* get_basis_offsets() const {return basis_offsets;};
-        const long* get_prim_offsets() const {return prim_offsets;};
-        const long* get_shell_lookup() const {return shell_lookup;};
-        const double* get_scales(long iprim) const {return scales + scales_offsets[iprim];};
-    };
+        const long get_nbasis() const {return nbasis;}
+        const long get_nscales() const {return nscales;}
+        const long get_max_shell_type() const {return max_shell_type;}
+        const long* get_basis_offsets() const {return basis_offsets;}
+        const long* get_prim_offsets() const {return prim_offsets;}
+        const long* get_shell_lookup() const {return shell_lookup;}
+        const double* get_scales(long iprim) const {return scales + scales_offsets[iprim];}
+};
 
 
 class GOBasis : public GBasis {
     public:
-        //double compute_normalization(double alpha, long nx, long ny, long nz);
+         // double compute_normalization(double alpha, long nx, long ny, long nz);
         GOBasis(const double* centers, const long* shell_map, const long* nprims,
                 const long* shell_types, const double* alphas, const double* con_coeffs,
                 const long ncenter, const long nshell, const long nprim_total);
@@ -172,10 +172,42 @@ class GOBasis : public GBasis {
          */
         void compute_multipole_moment(long* xyz, double* center, double* output);
 
-        void compute_grid1_exp(long nfn, double* coeffs, long npoint, double* points, long norb, long* iorbs, double* output);
-        void compute_grid1_dm(double* dm, long npoint, double* points, GB1DMGridFn* grid_fn, double* output, double epsilon, double* dmmaxrow);
-        void compute_grid2_dm(double* dm, long npoint, double* points, double* output);
-        void compute_grid1_fock(long npoint, double* points, double* weights, long pot_stride, double* pots, GB1DMGridFn* grid_fn, double* output);
-    };
+        void compute_grid1_exp(long nfn, double* coeffs, long npoint, double* points,
+                               long norb, long* iorbs, double* output);
 
-#endif
+        /** @brief
+                Computes the gradient of the molecular orbital on a grid.
+
+            @param nfn
+                The number of functions.
+
+            @param coeffs
+                The coefficients for the basisfunction expanion.
+
+            @param npoint
+                The number of grid points to be calculated.
+
+            @param points
+                The coordinates of grid points to be calculated.
+
+            @param norb
+                The number of orbitals to be calculated.
+
+            @param iorbs
+                The orbitals to be calculated.
+
+            @param output
+                The output array with the integrals.
+     */
+        void compute_grid1_grad_exp(long nfn, double* coeffs, long npoint,
+                                    double* points, long norb, long* iorbs, double* output);
+        void compute_grid1_dm(double* dm, long npoint, double* points,
+                              GB1DMGridFn* grid_fn, double* output,
+                              double epsilon, double* dmmaxrow);
+        void compute_grid2_dm(double* dm, long npoint, double* points, double* output);
+        void compute_grid1_fock(long npoint, double* points, double* weights,
+                                long pot_stride, double* pots,
+                                GB1DMGridFn* grid_fn, double* output);
+};
+
+#endif  // HORTON_GBASIS_GBASIS_H_

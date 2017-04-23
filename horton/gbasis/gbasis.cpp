@@ -18,7 +18,7 @@
 //
 //--
 
-//#define DEBUG
+// #define DEBUG
 
 #ifdef DEBUG
 #include <cstdio>
@@ -46,7 +46,7 @@ const double gob_cart_normalization(const double alpha, const long* n) {
 
 
 const double gob_pure_normalization(const double alpha, const long l) {
-    return sqrt(pow(4.0*alpha,l)*pow(2.0*alpha/M_PI, 1.5)
+    return sqrt(pow(4.0*alpha, l)*pow(2.0*alpha/M_PI, 1.5)
            /fac2(2*l-1));
 }
 
@@ -69,7 +69,7 @@ GBasis::GBasis(const double* centers, const long* shell_map, const long* nprims,
     long shell_nbasis, shell_type;
 
     // check for maximum shell type
-    for (long ishell=0; ishell<nshell; ishell++) {
+    for (long ishell=0; ishell < nshell; ishell++) {
         shell_type = abs(shell_types[ishell]);
         if (shell_type > MAX_SHELL_TYPE) {
             throw std::domain_error("Exceeded the maximum shell type.");
@@ -83,7 +83,7 @@ GBasis::GBasis(const double* centers, const long* shell_map, const long* nprims,
     // contracted Gaussians.
     basis_offsets = new long[nshell];
     basis_offsets[0] = 0;
-    for (long ishell=1; ishell<nshell; ishell++) {
+    for (long ishell=1; ishell < nshell; ishell++) {
         shell_nbasis = get_shell_nbasis(shell_types[ishell-1]);
         basis_offsets[ishell] = basis_offsets[ishell-1] + shell_nbasis;
     }
@@ -94,7 +94,7 @@ GBasis::GBasis(const double* centers, const long* shell_map, const long* nprims,
     // contracted Gaussians.
     prim_offsets = new long[nshell];
     prim_offsets[0] = 0;
-    for (long ishell=1; ishell<nshell; ishell++) {
+    for (long ishell=1; ishell < nshell; ishell++) {
         prim_offsets[ishell] = prim_offsets[ishell-1] + nprims[ishell-1];
     }
 
@@ -102,7 +102,7 @@ GBasis::GBasis(const double* centers, const long* shell_map, const long* nprims,
     // basis function.
     shell_lookup = new long[nbasis];
     long ishell = 0;
-    for (long ibasis=0; ibasis<nbasis; ibasis++){
+    for (long ibasis=0; ibasis < nbasis; ibasis++) {
         shell_lookup[ibasis] = ishell;
         if ((ishell < nshell-1) && (ibasis+1 == basis_offsets[ishell+1])) {
             ishell++;
@@ -110,7 +110,7 @@ GBasis::GBasis(const double* centers, const long* shell_map, const long* nprims,
     }
 
     // nscales
-    for (long ishell=0; ishell<nshell; ishell++) {
+    for (long ishell=0; ishell < nshell; ishell++) {
         shell_nbasis = get_shell_nbasis(abs(shell_types[ishell]));
         nscales += shell_nbasis*nprims[ishell];
     }
@@ -131,8 +131,8 @@ GBasis::~GBasis() {
 void GBasis::init_scales() {
     long n[3], counter=0, oprim=0;
     double alpha;
-    for (long ishell=0; ishell<nshell; ishell++) {
-        for (long iprim=0; iprim<nprims[ishell]; iprim++) {
+    for (long ishell=0; ishell < nshell; ishell++) {
+        for (long iprim=0; iprim < nprims[ishell]; iprim++) {
             scales_offsets[oprim + iprim] = counter;
             alpha = alphas[oprim + iprim];
             n[0] = abs(shell_types[ishell]);
@@ -260,7 +260,8 @@ void GOBasis::compute_ralpha_repulsion(double* output, double alpha) {
     compute_four_index(output, &integral);
 }
 
-void GOBasis::compute_grid1_exp(long nfn, double* coeffs, long npoint, double* points, long norb, long* iorbs, double* output) {
+void GOBasis::compute_grid1_exp(long nfn, double* coeffs, long npoint, double* points,
+                                long norb, long* iorbs, double* output) {
     // The work array contains the basis functions evaluated at the grid point,
     // and optionally some of its derivatives.
     GB1ExpGridOrbitalFn grid_fn = GB1ExpGridOrbitalFn(get_max_shell_type(), nfn, iorbs, norb);
@@ -269,7 +270,7 @@ void GOBasis::compute_grid1_exp(long nfn, double* coeffs, long npoint, double* p
     long dim_output = grid_fn.get_dim_output();
     double* work_basis = new double[nwork];
 
-    for (long ipoint=0; ipoint<npoint; ipoint++) {
+    for (long ipoint=0; ipoint < npoint; ipoint++) {
         // A) clear the basis functions.
         memset(work_basis, 0, nwork*sizeof(double));
 
@@ -288,14 +289,46 @@ void GOBasis::compute_grid1_exp(long nfn, double* coeffs, long npoint, double* p
     delete[] work_basis;
 }
 
-void GOBasis::compute_grid1_dm(double* dm, long npoint, double* points, GB1DMGridFn* grid_fn, double* output, double epsilon, double* dmmaxrow) {
+void GOBasis::compute_grid1_grad_exp(long nfn, double* coeffs, long npoint,
+                                     double* points, long norb, long* iorbs, double* output) {
+    // The work array contains the basis functions evaluated at the grid point,
+    // and optionally some of its derivatives.
+    GB1ExpGridOrbGradientFn grid_fn = GB1ExpGridOrbGradientFn(get_max_shell_type(),
+                                                              nfn, iorbs, norb);
+
+    long nwork = get_nbasis()*grid_fn.get_dim_work();
+    long dim_output = grid_fn.get_dim_output();
+    double* work_basis = new double[nwork];
+
+    for (long ipoint=0; ipoint < npoint; ipoint++) {
+        // A) clear the basis functions.
+        memset(work_basis, 0, nwork*sizeof(double));
+
+        // B) evaluate the basis functions in the current point.
+        compute_grid_point1(work_basis, points, &grid_fn);
+
+        // C) Use the basis function results and the density matrix to evaluate
+        // the function at the grid point. The result is added to the output.
+        grid_fn.compute_point_from_exp(work_basis, coeffs, get_nbasis(), output);
+
+        // D) Prepare for next iteration
+        output += dim_output;
+        points += 3;
+    }
+
+    delete[] work_basis;
+}
+
+void GOBasis::compute_grid1_dm(double* dm, long npoint, double* points,
+                               GB1DMGridFn* grid_fn, double* output,
+                               double epsilon, double* dmmaxrow) {
     // The work array contains the basis functions evaluated at the grid point,
     // and optionally some of its derivatives.
     long nwork = get_nbasis()*grid_fn->get_dim_work();
     long dim_output = grid_fn->get_dim_output();
     double* work_basis = new double[nwork];
 
-    for (long ipoint=0; ipoint<npoint; ipoint++) {
+    for (long ipoint=0; ipoint < npoint; ipoint++) {
         // A) clear the basis functions.
         memset(work_basis, 0, nwork*sizeof(double));
 
@@ -324,7 +357,7 @@ void GOBasis::compute_grid2_dm(double* dm, long npoint, double* points, double* 
     // other things are for later.
     GB2DMGridHartreeFn grid_fn = GB2DMGridHartreeFn(get_max_shell_type());
 
-    for (long ipoint=0; ipoint<npoint; ipoint++) {
+    for (long ipoint=0; ipoint < npoint; ipoint++) {
         *output += compute_grid_point2(dm, points, &grid_fn);
         output++;
         points += 3;
@@ -339,7 +372,7 @@ void GOBasis::compute_grid1_fock(long npoint, double* points, double* weights, l
     long dim_output = grid_fn->get_dim_output();
     double* work_pot = new double[dim_output];
 
-    for (long ipoint=0; ipoint<npoint; ipoint++) {
+    for (long ipoint=0; ipoint < npoint; ipoint++) {
         // A) clear the work array.
         memset(work_basis, 0, nwork*sizeof(double));
 
@@ -347,7 +380,7 @@ void GOBasis::compute_grid1_fock(long npoint, double* points, double* weights, l
         compute_grid_point1(work_basis, points, grid_fn);
 
         // C) Add the contribution from this grid point to the operator
-        for (long i=dim_output-1; i>=0; i--) {
+        for (long i=dim_output-1; i >= 0; i--) {
             work_pot[i] = (*weights)*pots[i];
         }
         grid_fn->compute_fock_from_pot(work_pot, work_basis, get_nbasis(), output);
