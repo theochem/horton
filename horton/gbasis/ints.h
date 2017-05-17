@@ -63,7 +63,7 @@ class GB2KineticIntegral: public GB2Integral {
 /** @brief
  Compute the nuclear attraction integrals in a Gaussian orbital basis.
  */
-class GB2NuclearAttractionIntegral: public GB2Integral {
+class GB2AttractionIntegral: public GB2Integral {
     private:
         double* charges;
         double* centers;
@@ -74,10 +74,120 @@ class GB2NuclearAttractionIntegral: public GB2Integral {
         double* work_g2;
         double* work_boys;
     public:
-        GB2NuclearAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge);
-        ~GB2NuclearAttractionIntegral();
+        GB2AttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge);
+        ~GB2AttractionIntegral();
         virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
+    virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output) = 0 ;
 };
+
+/** @brief
+        Nuclear Electron Attraction two-center integrals.
+
+    The potential is 1/r.
+  */
+class GB2NuclearAttractionIntegral : public GB2AttractionIntegral {
+ public:
+  /** @brief
+          Initialize a GB2NuclearAttractionIntegral object.
+
+      @param max_shell_type
+          Highest angular momentum index to be expected in the reset method.
+    */
+  explicit GB2NuclearAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge)
+      : GB2AttractionIntegral(max_shell_type, charges, centers, ncharge) {}
+
+  /** @brief
+          Evaluate the Laplace transform of the ordinary Coulomb potential.
+
+      See Eq. (39) in Ahlrichs' paper. This is basically a rescaled Boys function.
+
+      See base class for more details.
+    */
+  virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output);
+};
+
+/** @brief
+        Short-range electron repulsion four-center integrals.
+
+    The potential is erf(mu*r)/r.
+  */
+class GB2ErfAttractionIntegral : public GB2AttractionIntegral {
+ public:
+  /** @brief
+          Initialize a GB2ErfAttractionIntegral object.
+
+      @param max_shell_type
+          Highest angular momentum index to be expected in the reset method.
+
+      @param mu
+          The range-separation parameter
+    */
+  GB2ErfAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge, double mu)
+      : GB2AttractionIntegral(max_shell_type, charges, centers, ncharge), mu(mu) {}
+
+  /** @brief
+          Evaluate the Laplace transform of the long-range Coulomb potential.
+          (The short-range part is damped away using an error function.) See (52) in
+          Ahlrichs' paper.
+
+      See base class for more details.
+    */
+  virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output);
+
+  const double get_mu() const {return mu;}  //!< The range-separation parameter.
+
+ private:
+  double mu;  //!< The range-separation parameter.
+};
+
+
+/** @brief
+        Gaussian nuclear electron attraction two-center integrals.
+
+    The potential is c exp(-alpha r^2).
+  */
+class GB2GaussAttractionIntegral : public GB2AttractionIntegral {
+ public:
+  /** @brief
+          Initialize a GB2GaussAttractionIntegral object.
+
+      @param max_shell_type
+          Highest angular momentum index to be expected in the reset method.
+
+      @param c
+          Coefficient of the gaussian.
+
+      @param alpha
+          Exponential parameter of the gaussian.
+    */
+  GB2GaussAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge, double c, double alpha)
+      : GB2AttractionIntegral(max_shell_type, charges, centers, ncharge), c(c), alpha(alpha) {}
+  /** @brief
+          Evaluate the Laplace transform of the Gaussian potential.
+
+          See Ahlrichs' paper for details. This type of potential is used in the papers
+          of P.M.W Gill et al. and J. Toulouse et al.:
+
+          Gill, P. M. W., & Adamson, R. D. (1996). A family of attenuated Coulomb
+          operators. Chem. Phys. Lett., 261(1-2), 105–110.
+          http://doi.org/10.1016/0009-2614(96)00931-1
+
+          Toulouse, J., Colonna, F., & Savin, A. (2004). Long-range-short-range separation
+          of the electron-electron interaction in density-functional theory. Phys. Rev. A,
+          70, 62505. http://doi.org/10.1103/PhysRevA.70.062505
+
+      See base class for more details.
+    */
+  virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output);
+
+  const double get_c() const {return c;}  //!< Coefficient of the gaussian.
+  const double get_alpha() const {return alpha;}  //!< Exponential parameter of the gaussian.
+
+ private:
+  double c;  //!< Coefficient of the gaussian.
+  double alpha;  //!< Exponential parameter of the gaussian.
+};
+
 
 /** @brief
         Compute the (multipole) moment integrals in a Gaussian orbital basis.
