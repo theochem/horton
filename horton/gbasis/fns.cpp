@@ -79,7 +79,6 @@ void GB1GridFn::cart_to_pure() {
     GB1ExpGridOrbitalFn
 */
 
-
 void GB1ExpGridOrbitalFn::reset(long _shell_type0, const double* _r0, const double* _point) {
   GB1GridFn::reset(_shell_type0, _r0, _point);
   poly_work[0] = 1.0;
@@ -113,6 +112,66 @@ void GB1ExpGridOrbitalFn::compute_point_from_exp(double* work_basis, double* coe
       // work_basis.
       output[i] += coeffs[ibasis*nfn + iorb]*work_basis[ibasis];
     }
+  }
+}
+
+
+/*
+ GB1ExpGridOrbGradientFn
+ */
+
+void GB1ExpGridOrbGradientFn::reset(long _shell_type0, const double* _r0, const double* _point) {
+  GB1GridFn::reset(_shell_type0, _r0, _point);
+  poly_work[0] = 1.0;
+  poly_work[1] = point[0] - r0[0];
+  poly_work[2] = point[1] - r0[1];
+  poly_work[3] = point[2] - r0[2];
+  // One order higher and lower polynomials are required because of first derivative.
+  offset_h1 = fill_cartesian_polynomials(poly_work+1, abs(shell_type0)+1)+1;
+  offset = offset_h1 - ((abs(shell_type0)+1)*(abs(shell_type0)+2))/2;
+  offset_l1 = offset - ((abs(shell_type0))*(abs(shell_type0)+1))/2;
+}
+
+void GB1ExpGridOrbGradientFn::add(double coeff, double alpha0, const double* scales0) {
+  double pre = coeff*exp(-alpha0*dist_sq(r0, point));
+  // For every primitive, work_cart contains four values computed at `point` (see reset
+  // method): the basis function and its derivatives toward x, y and z.
+  i1p.reset(abs(shell_type0));
+  do {
+    double pre0 = pre*scales0[i1p.ibasis0];
+    double pre0_h = -pre0*2.0*alpha0;
+    long nnotx = i1p.n0[1] + i1p.n0[2];
+
+    // Basis function derived toward x
+    work_cart[3*i1p.ibasis0+0] += pre0_h*poly_work[i1p.ibasis0+offset_h1];
+    if (i1p.n0[0] > 0)
+      work_cart[3*i1p.ibasis0+0] += i1p.n0[0]*pre0*poly_work[i1p.ibasis0+offset_l1];
+
+    // Basis function derived toward y
+      work_cart[3*i1p.ibasis0+1] += pre0_h*poly_work[i1p.ibasis0+1+nnotx+offset_h1];
+    if (i1p.n0[1] > 0)
+      work_cart[3*i1p.ibasis0+1] += i1p.n0[1]*pre0*poly_work[i1p.ibasis0-nnotx+offset_l1];
+
+    // Basis function derived toward z
+    work_cart[3*i1p.ibasis0+2] += pre0_h*poly_work[i1p.ibasis0+2+nnotx+offset_h1];
+    if (i1p.n0[2] > 0)
+      work_cart[3*i1p.ibasis0+2] += i1p.n0[2]*pre0*poly_work[i1p.ibasis0-nnotx-1+offset_l1];
+    } while (i1p.inc());
+}
+
+void GB1ExpGridOrbGradientFn::compute_point_from_exp(double* work_basis, double* coeffs,
+                                                     long nbasis, double* output) {
+  for (long i=0; i < norb; i++) {
+    double g_x = 0, g_y = 0, g_z = 0;
+    long iorb = iorbs[i];
+    for (long ibasis=0; ibasis < nbasis; ibasis++) {
+      g_x += coeffs[ibasis*nfn + iorb]*work_basis[ibasis*3+0];
+      g_y += coeffs[ibasis*nfn + iorb]*work_basis[ibasis*3+1];
+      g_z += coeffs[ibasis*nfn + iorb]*work_basis[ibasis*3+2];
+    }
+    output[i*3+0] += g_x;
+    output[i*3+1] += g_y;
+    output[i*3+2] += g_z;
   }
 }
 
@@ -226,10 +285,6 @@ void GB1DMGridGradientFn::reset(long _shell_type0, const double* _r0, const doub
   offset_h1 = fill_cartesian_polynomials(poly_work+1, abs(shell_type0)+1)+1;
   offset = offset_h1 - ((abs(shell_type0)+1)*(abs(shell_type0)+2))/2;
   offset_l1 = offset - ((abs(shell_type0))*(abs(shell_type0)+1))/2;
-#ifdef DEBUG
-  printf("shell_type0=%li offset_h1=%li offset=%li offset_l1=%li\n", shell_type0,
-         offset_h1, offset, offset_l1);
-#endif
 }
 
 void GB1DMGridGradientFn::add(double coeff, double alpha0, const double* scales0) {

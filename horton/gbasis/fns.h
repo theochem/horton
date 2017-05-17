@@ -247,10 +247,10 @@ class GB1ExpGridFn : public GB1GridFn  {
 /** @brief
       Evaluates a selection of orbitals on a grid.
 
-    Content of work_basis (at one grid point):
-      [0 Basis function value.
-    Content of the argument 'output' (at one grid point):
-      [0-norb] Values of the orbitals.
+      Content of work_basis (at one grid point):
+        [0] Basis function value.
+      Content of the argument 'output' (at one grid point):
+        [0-norb] Values of the orbitals.
   */
 class GB1ExpGridOrbitalFn : public GB1ExpGridFn  {
  public:
@@ -291,6 +291,62 @@ class GB1ExpGridOrbitalFn : public GB1ExpGridFn  {
   long offset;  //!< Offset for the polynomials for the density.
   long* iorbs;  //!< Array of indices of orbitals to be evaluated on grid.
   long norb;    //!< The number of elements in iorbs.
+};
+
+
+/** @brief
+      Evaluates the gradient of a selection of orbitals on a grid.
+
+      Content of work_basis (at one grid point):
+        [0] Basis function derivative toward x.
+        [1] Basis function derivative toward y.
+        [2] Basis function derivative toward z.
+      Content of the argument 'output' (at one grid point):
+        [i*norb + 0] derivative of orbital i toward x.
+        [i*norb + 1] derivative of orbital i toward y.
+        [i*norb + 2] derivative of orbital i toward z.
+ */
+class GB1ExpGridOrbGradientFn : public GB1ExpGridFn  {
+ public:
+  /** @brief
+        Construct a GB1ExpGridOrbGradientFn object.
+
+      @param max_shell_type
+        The maximum shell type in the basis set.
+
+      @param nfn
+        The number of orbitals (occupied and virtual).
+
+      @param iorbs
+        An array with orbitals to be computed.
+
+      @param norb
+        The number of elements in iorbs.
+    */
+  explicit GB1ExpGridOrbGradientFn(long max_shell_type, long nfn, long* iorbs, long norb)
+      : GB1ExpGridFn(max_shell_type, nfn, 3, norb*3), poly_work{0.0}, offset(0),
+        offset_l1(0), offset_h1(0), iorbs(iorbs), norb(norb) {}
+  //! Reset calculator for a new contraction. (See base class for details.)
+  virtual void reset(long _shell_type0, const double* _r0, const double* _point);
+
+  /** @brief
+        Add contributions to work array for current grid point and given primitive shell.
+        (See base class for more details.)
+    */
+  virtual void add(double coeff, double alpha0, const double* scales0);
+
+
+  //! Compute the final result on one grid point. (See base class for details.)
+  virtual void compute_point_from_exp(double* work_basis, double* coeffs,
+                                      long nbasis, double* output);
+
+ protected:
+  long* iorbs;     //!< Array of indices of orbitals to be evaluated on grid.
+  long norb;       //!< The number of elements in iorbs.
+  double poly_work[MAX_NCART_CUMUL_D];  //!< Work array with Cartesian polynomials.
+  long offset;     //!< Offset for the polynomials for the density
+  long offset_l1;  //!< Lower offset for the polynomials for the gradient.
+  long offset_h1;  //!< Higher offset for the polynomials for the gradient.
 };
 
 
