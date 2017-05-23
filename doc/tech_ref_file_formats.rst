@@ -224,7 +224,8 @@ Recognized by            File extension ``.molden``
 Interoperation           `Molpro <https://www.molpro.net/>`_,
                          `Orca <https://orcaforum.cec.mpg.de/>`_,
                          `PSI4 <http://www.psicode.org/>`_,
-                         `Molden <http://www.cmbi.ru.nl/molden/>`_
+                         `Molden <http://www.cmbi.ru.nl/molden/>`_,
+                         `Turbomole <http://www.turbomole.com/>`_
 Always **loading**       ``coordinates`` ``numbers`` ``obasis`` ``exp_alpha``
                          ``pseudo_numbers`` ``signs``
 **loading** if present   ``title`` ``exp_beta``

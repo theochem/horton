@@ -399,8 +399,10 @@ The basic usage of ``horton-wpart.py`` is as follows::
 
 This script has four important arguments:
 
-1. The ``wfn`` argument is the wave-function file, like a Gaussian03 or 09 formatted checkpoint file, a
-   Molekel file or a Molden input file.
+1. The ``wfn`` argument is the wave-function file, like a Gaussian03 or 09 formatted
+   checkpoint file, a Molekel file or a Molden input file. Many programs can write out
+   the wavefunction in the Molden format, albeit with some mistakes. For ORCA, PSI4 and
+   Turbomole, these mistakes are detected and corrected.
 
 2. The output file (HDF5 format) in which the partitioning results are written.
    Usually, the output file has the
