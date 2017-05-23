@@ -239,7 +239,7 @@
 }, {
     "name": "breathe",
     "title": "Breathe",
-    "version_requirement": ">=1.2.0",
+    "version_requirement": ">=1.2.0,!=4.4.*,!=4.5.*,!=4.6.*",
     "version_command": "python -c \"import breathe; print breathe.__version__\"",
     "homepage": "http://breathe.readthedocs.org/en/latest/",
     "fedora_24_rpm": "python2-breathe",
