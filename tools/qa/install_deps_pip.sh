@@ -46,10 +46,10 @@ pip wheel sphinx
 pip install --no-index --upgrade sphinx
 pip wheel sphinx_rtd_theme
 pip install --no-index --upgrade sphinx_rtd_theme
-pip wheel breathe
 # a bug in certain breathe versions hits us. It is fixed here:
 # https://github.com/arximboldi/breathe/commit/2af44a0d9f40e672dd1989b67d0e90a61deba77e
 # and it should be available in 4.7.*
+pip wheel 'breathe!=4.4.*,!=4.5.*,!=4.6.*'
 pip install --no-index --upgrade 'breathe!=4.4.*,!=4.5.*,!=4.6.*'
 
 # Remove old wheels
