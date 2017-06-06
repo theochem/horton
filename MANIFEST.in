@@ -19,5 +19,8 @@ include depends/Makefile
 
 include README
 include COPYING
+include dependencies.json
 
-recursive-include tools *.py
+include tools/qa/common.sh
+include tools/qa/install_libint-2.0.3.sh
+include tools/qa/install_libxc-2.2.2.sh
