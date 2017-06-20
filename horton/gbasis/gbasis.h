@@ -112,7 +112,8 @@ class GOBasis : public GBasis {
             @param output
                 The output array with the integrals.
          */
-        void compute_nuclear_attraction(double* charges, double* centers, long ncharge, double* output);
+        void compute_nuclear_attraction(double* charges, double* centers, long ncharge,
+                                        double* output);
 
         /** @brief
                 Computes the nuclear attraction integrals.
@@ -132,7 +133,8 @@ class GOBasis : public GBasis {
             @param mu
                 The range-separation parameter.
          */
-        void compute_erf_attraction(double* charges, double* centers, long ncharge, double* output, double mu);
+        void compute_erf_attraction(double* charges, double* centers, long ncharge,
+                                    double* output, double mu);
 
         /** @brief
                 Computes the nuclear attraction integrals.
@@ -154,7 +156,8 @@ class GOBasis : public GBasis {
             @param alpha
                 Exponential parameter of the gaussian.
          */
-        void compute_gauss_attraction(double* charges, double* centers, long ncharge, double* output, double c, double alpha);
+        void compute_gauss_attraction(double* charges, double* centers, long ncharge,
+                                      double* output, double c, double alpha);
 
         /** @brief
                 Computes the electron repulsion integrals.

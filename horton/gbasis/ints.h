@@ -65,6 +65,30 @@ class GB2KineticIntegral: public GB2Integral {
  */
 class GB2AttractionIntegral: public GB2Integral {
     private:
+    /** @brief
+         Initialize a GB2AttractionIntegral object.
+
+     @param charges
+         Array with values of the charges.
+
+     @param centers
+         The centers [[C1_x, C1_y, C1_z],[...],] around which the moment integrals are computed.
+
+     @param ncharge
+         Negative charge
+
+     @param work_g0
+         Temporal array to store inside results (gaussian functions)
+
+     @param work_g1
+         Temporal array to store inside results (gaussian functions)
+
+     @param work_g2
+         Temporal array to store inside results (gaussian functions)
+
+     @param work_boys
+         Temporal array to store inside results from the laplace of the potential (boys function)
+    */
         double* charges;
         double* centers;
         long ncharge;
@@ -74,10 +98,83 @@ class GB2AttractionIntegral: public GB2Integral {
         double* work_g2;
         double* work_boys;
     public:
+        /** @brief
+              Basic class for Nuclear attraction integrals.
+
+         @param max_shell_type
+             Highest angular momentum index to be expected in the reset method.
+
+         @param charges
+             Array with values of the charges.
+
+         @param centers
+             The centers [[C1_x, C1_y, C1_z],[...],] around which the moment integrals are computed.
+
+         @param ncharge
+             Negative charge
+
+         @param work_g0
+             Temporal array to store inside results (gaussian functions)
+
+         @param work_g1
+             Temporal array to store inside results (gaussian functions)
+
+         @param work_g2
+             Temporal array to store inside results (gaussian functions)
+
+         @param work_boys
+             Temporal array to store inside results from the laplace of the potential (boys function)
+        */
         GB2AttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge);
         ~GB2AttractionIntegral();
-        virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
-        virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output) = 0 ;
+        /** @brief
+          Add results for a combination of Cartesian primitive shells to the work array.
+
+         @param coeff
+             Product of the contraction coefficients of the four primitives.
+
+         @param alpha0
+             The exponent of primitive shell 0.
+
+         @param alpha1
+             The exponent of primitive shell 1.
+
+         @param scales0
+            The normalization prefactors for basis functions in primitive shell 0
+
+         @param scales1
+            The normalization prefactors for basis functions in primitive shell 1
+        */
+        virtual void add(double coeff, double alpha0, double alpha1, const double* scales0,
+                         const double* scales1);
+        /** @brief
+          Evaluate the Laplace transform of the the potential applied to nuclear attraction terms.
+
+         For theoretical details and the precise definition of the Laplace transform, we
+         refer to the following paper:
+
+         Ahlrichs, R. A simple algebraic derivation of the Obara-Saika scheme for general
+         two-electron interaction potentials. Phys. Chem. Chem. Phys. 8, 3072–3077 (2006).
+         10.1039/B605188J
+
+         For the general definition of this transform, see Eq. (8) in the reference above.
+         Section 5 contains solutions of the Laplace transform for several popular cases.
+
+         @param gamma
+             Sum of the exponents of the two gaussian functions involved in the integral.
+             Similar to  the first term in Eq. (3) in Ahlrichs' paper.
+
+         @param arg
+             Rescaled distance between the two centers obtained from the application of the
+             Gaussian product theorem. Equivalent to Eq. (5) in Ahlrichs' paper.
+
+         @param mmax
+             Maximum derivative of the Laplace transform to be considered.
+
+         @param output
+             Output array. The size must be at least mmax + 1.
+        */
+        virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output) = 0;
 };
 
 /** @brief
@@ -92,8 +189,18 @@ class GB2NuclearAttractionIntegral : public GB2AttractionIntegral {
 
       @param max_shell_type
           Highest angular momentum index to be expected in the reset method.
-    */
-  explicit GB2NuclearAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge)
+
+      @param charges
+          Array with values of the charges.
+
+      @param centers
+          The centers [[C1_x, C1_y, C1_z],[...],] around which the moment integrals are computed.
+
+      @param ncharge
+          Negative charge
+   */
+  explicit GB2NuclearAttractionIntegral(long max_shell_type, double* charges,
+                                        double* centers, long ncharge)
       : GB2AttractionIntegral(max_shell_type, charges, centers, ncharge) {}
 
   /** @brief
@@ -119,10 +226,20 @@ class GB2ErfAttractionIntegral : public GB2AttractionIntegral {
       @param max_shell_type
           Highest angular momentum index to be expected in the reset method.
 
+      @param charges
+          Array with values of the charges.
+
+      @param centers
+          The centers [[C1_x, C1_y, C1_z],[...],] around which the moment integrals are computed.
+
+      @param ncharge
+          Negative charge.
+
       @param mu
-          The range-separation parameter
+          The range-separation parameter.
     */
-  GB2ErfAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge, double mu)
+  GB2ErfAttractionIntegral(long max_shell_type, double* charges, double* centers,
+                           long ncharge, double mu)
       : GB2AttractionIntegral(max_shell_type, charges, centers, ncharge), mu(mu) {}
 
   /** @brief
@@ -154,13 +271,23 @@ class GB2GaussAttractionIntegral : public GB2AttractionIntegral {
       @param max_shell_type
           Highest angular momentum index to be expected in the reset method.
 
+      @param charges
+          Array with values of the charges.
+
+      @param centers
+          The centers [[C1_x, C1_y, C1_z],[...],] around which the moment integrals are computed.
+
+      @param ncharge
+          Negative charge
+
       @param c
           Coefficient of the gaussian.
 
       @param alpha
           Exponential parameter of the gaussian.
     */
-  GB2GaussAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge, double c, double alpha)
+  GB2GaussAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge,
+                             double c, double alpha)
       : GB2AttractionIntegral(max_shell_type, charges, centers, ncharge), c(c), alpha(alpha) {}
   /** @brief
           Evaluate the Laplace transform of the Gaussian potential.

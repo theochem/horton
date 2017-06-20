@@ -229,18 +229,24 @@ void GOBasis::compute_kinetic(double* output) {
     compute_two_index(output, &integral);
 }
 
-void GOBasis::compute_nuclear_attraction(double* charges, double* centers, long ncharge, double* output) {
-    GB2NuclearAttractionIntegral integral = GB2NuclearAttractionIntegral(get_max_shell_type(), charges, centers, ncharge);
+void GOBasis::compute_nuclear_attraction(double* charges, double* centers, long ncharge,
+                                         double* output) {
+    GB2NuclearAttractionIntegral integral = GB2NuclearAttractionIntegral(get_max_shell_type(),
+                                            charges, centers, ncharge);
     compute_two_index(output, &integral);
 }
 
-void GOBasis::compute_erf_attraction(double* charges, double* centers, long ncharge, double* output, double mu) {
-    GB2ErfAttractionIntegral integral = GB2ErfAttractionIntegral(get_max_shell_type(), charges, centers, ncharge, mu);
+void GOBasis::compute_erf_attraction(double* charges, double* centers, long ncharge, double* output,
+                                     double mu) {
+    GB2ErfAttractionIntegral integral = GB2ErfAttractionIntegral(get_max_shell_type(),
+                                        charges, centers, ncharge, mu);
     compute_two_index(output, &integral);
 }
 
-void GOBasis::compute_gauss_attraction(double* charges, double* centers, long ncharge, double* output, double c, double alpha) {
-    GB2GaussAttractionIntegral integral = GB2GaussAttractionIntegral(get_max_shell_type(), charges, centers, ncharge, c, alpha);
+void GOBasis::compute_gauss_attraction(double* charges, double* centers, long ncharge,
+                                       double* output, double c, double alpha) {
+    GB2GaussAttractionIntegral integral = GB2GaussAttractionIntegral(get_max_shell_type(),
+                                          charges, centers, ncharge, c, alpha);
     compute_two_index(output, &integral);
 }
 

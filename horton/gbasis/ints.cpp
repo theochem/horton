@@ -195,7 +195,8 @@ void GB2KineticIntegral::add(double coeff, double alpha0, double alpha1, const d
 */
 
 
-GB2AttractionIntegral::GB2AttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge) :
+GB2AttractionIntegral::GB2AttractionIntegral(long max_shell_type, double* charges,
+                                             double* centers, long ncharge) :
             GB2Integral(max_shell_type), charges(charges), centers(centers), ncharge(ncharge) {
     work_g0 = new double[2*max_shell_type+1];
     work_g1 = new double[2*max_shell_type+1];
@@ -235,17 +236,17 @@ void GB2AttractionIntegral::add(double coeff, double alpha0, double alpha1, cons
 
         // Fill the work array with the Boys function values
         arg = gamma*(pc[0]*pc[0] + pc[1]*pc[1] + pc[2]*pc[2]);
-        //for (long nu=abs(shell_type0)+abs(shell_type1); nu>=0; nu--) {
+        // for (long nu=abs(shell_type0)+abs(shell_type1); nu>=0; nu--) {
         //    work_boys[nu] = boys_function(nu, arg);
         //}
         /*
            Laplace transform of the potential
         */
 
-        int mmax = abs(shell_type0)+abs(shell_type1);
+        int mmax = abs(shell_type0) + abs(shell_type1);
         double kernel[2*max_shell_type+1];
         laplace_of_potential(gamma, arg, mmax, kernel);
-        for (long nu=abs(shell_type0)+abs(shell_type1); nu>=0; nu--) {
+        for (long nu=abs(shell_type0)+abs(shell_type1); nu >= 0; nu--) {
             work_boys[nu] = kernel[nu];
         }
 
@@ -271,12 +272,14 @@ void GB2AttractionIntegral::add(double coeff, double alpha0, double alpha1, cons
 }
 
 
-void GB2NuclearAttractionIntegral::laplace_of_potential(double gamma, double arg, long mmax, double* output) {
+void GB2NuclearAttractionIntegral::laplace_of_potential(double gamma, double arg, long mmax,
+                                                        double* output) {
   boys_function_array(mmax, arg, output);
 }
 
 
-void GB2ErfAttractionIntegral::laplace_of_potential(double gamma, double arg, long mmax, double* output) {
+void GB2ErfAttractionIntegral::laplace_of_potential(double gamma, double arg, long mmax,
+                                                    double* output) {
   double efac = mu*mu/(mu*mu + gamma);
   boys_function_array(mmax, arg*efac, output);
   double prefac = sqrt(efac);
@@ -287,7 +290,8 @@ void GB2ErfAttractionIntegral::laplace_of_potential(double gamma, double arg, lo
 }
 
 
-void GB2GaussAttractionIntegral::laplace_of_potential(double gamma, double arg, long mmax, double* output) {
+void GB2GaussAttractionIntegral::laplace_of_potential(double gamma, double arg, long mmax,
+                                                      double* output) {
   double afac = alpha/(gamma+alpha);
   double prefac = (M_PI/(gamma+alpha))*sqrt(M_PI/(gamma+alpha))*c*exp(-arg*afac)*(gamma/(2*M_PI));
   for (long m=0; m <= mmax; m++) {
