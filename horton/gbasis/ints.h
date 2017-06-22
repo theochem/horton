@@ -67,7 +67,7 @@ class GB2AttractionIntegral: public GB2Integral {
      private:
         double* charges;    //!< Array with values of the nuclear charges.
         double* centers;    //!< The centers where the charges are located.
-        long ncharge;       //!< Negative charge.
+        long ncharge;       //!< Number of nuclear charges.
 
         double* work_g0;    //!< Temporary array to store intermediate results.
         double* work_g1;    //!< Temporary array to store intermediate results.
@@ -154,7 +154,7 @@ class GB2NuclearAttractionIntegral : public GB2AttractionIntegral {
           The centers [[C1_x, C1_y, C1_z],[...],] around which the moment integrals are computed.
 
       @param ncharge
-          Negative charge
+          Number of nuclear charges.
    */
   explicit GB2NuclearAttractionIntegral(long max_shell_type, double* charges,
                                         double* centers, long ncharge)
@@ -190,7 +190,7 @@ class GB2ErfAttractionIntegral : public GB2AttractionIntegral {
           The centers [[C1_x, C1_y, C1_z],[...],] around which the moment integrals are computed.
 
       @param ncharge
-          Negative charge.
+          Number of nuclear charges.
 
       @param mu
           The range-separation parameter.
@@ -235,7 +235,7 @@ class GB2GaussAttractionIntegral : public GB2AttractionIntegral {
           The centers [[C1_x, C1_y, C1_z],[...],] around which the moment integrals are computed.
 
       @param ncharge
-          Negative charge
+          Number of nuclear charges.
 
       @param c
           Coefficient of the gaussian.
