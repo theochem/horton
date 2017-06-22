@@ -64,7 +64,7 @@ class GB2KineticIntegral: public GB2Integral {
  Compute the nuclear attraction integrals in a Gaussian orbital basis.
  */
 class GB2AttractionIntegral: public GB2Integral {
-    private:
+     private:
         double* charges;    //!< Array with values of the nuclear charges.
         double* centers;    //!< The centers where the charges are located.
         long ncharge;       //!< Negative charge.
@@ -73,7 +73,8 @@ class GB2AttractionIntegral: public GB2Integral {
         double* work_g1;    //!< Temporary array to store intermediate results.
         double* work_g2;    //!< Temporary array to store intermediate results.
         double* work_boys;  //!< Temporary array to store the laplace of the interaction potential.
-    public:
+
+     public:
         /** @brief
               Initialize a GB2AttractionIntegral object.
 
