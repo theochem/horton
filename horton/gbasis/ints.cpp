@@ -244,11 +244,7 @@ void GB2AttractionIntegral::add(double coeff, double alpha0, double alpha1, cons
         */
 
         int mmax = abs(shell_type0) + abs(shell_type1);
-        double kernel[2*max_shell_type+1];
-        laplace_of_potential(gamma, arg, mmax, kernel);
-        for (long nu=abs(shell_type0)+abs(shell_type1); nu >= 0; nu--) {
-            work_boys[nu] = kernel[nu];
-        }
+        laplace_of_potential(gamma, arg, mmax, work_boys);
 
         // Iterate over all combinations of Cartesian exponents
         i2p.reset(abs(shell_type0), abs(shell_type1));

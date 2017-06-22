@@ -1976,6 +1976,29 @@ def check_gauss_attraction(alphas0, alphas1, r0, r1, scales0, scales1, charges, 
     # This test compares output from HORTON with reference data computed with
     # a Mathematica script based on the modified integrals from Andreas Savin
     # and Julien Toulouse.
+    """Compare output from HORTON Gauss integrals with reference data.
+
+    The reference data was generated with a Mathematica script.
+
+    Parameters
+    ----------
+    alpha0, alpha1 : float
+        Exponents of the four primitive shells.
+    r0, r1 : np.ndarray, shape=(3,), dtype=float
+        Cartesian coordinates of the centers of the four primitive shells.
+    scales0, scales1 : float
+        Normalization prefactors for the Gaussian shells.
+    charges : np.darray, shape=(natoms,) dtype=float
+        The charges of the nuclei.
+    shell_type0, shell_type1 : int
+        Shell types of the two primitive shells.
+    result0 : np.ndarray, shape=(nbasis, nbasis), dtype=float
+        The expected result.
+    c : float
+        The coefficient of the Gaussian function.
+    alpha : float
+        The exponential parameter of the Gaussian function.
+    """
     max_shell_type = 4
     max_nbasis = get_shell_nbasis(max_shell_type)
     gb2i = GB2GaussAttractionIntegral(max_shell_type, charges, centers, c, alpha)

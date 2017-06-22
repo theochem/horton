@@ -65,66 +65,22 @@ class GB2KineticIntegral: public GB2Integral {
  */
 class GB2AttractionIntegral: public GB2Integral {
     private:
-    /** @brief
-         Initialize a GB2AttractionIntegral object.
+        double* charges;    //!< Array with values of the nuclear charges.
+        double* centers;    //!< The centers where the charges are located.
+        long ncharge;       //!< Negative charge.
 
-     @param charges
-         Array with values of the charges.
-
-     @param centers
-         The centers [[C1_x, C1_y, C1_z],[...],] around which the moment integrals are computed.
-
-     @param ncharge
-         Negative charge
-
-     @param work_g0
-         Temporal array to store inside results (gaussian functions)
-
-     @param work_g1
-         Temporal array to store inside results (gaussian functions)
-
-     @param work_g2
-         Temporal array to store inside results (gaussian functions)
-
-     @param work_boys
-         Temporal array to store inside results from the laplace of the potential (boys function)
-    */
-        double* charges;
-        double* centers;
-        long ncharge;
-
-        double* work_g0;
-        double* work_g1;
-        double* work_g2;
-        double* work_boys;
+        double* work_g0;    //!< Temporary array to store intermediate results.
+        double* work_g1;    //!< Temporary array to store intermediate results.
+        double* work_g2;    //!< Temporary array to store intermediate results.
+        double* work_boys;  //!< Temporary array to store the laplace of the interaction potential.
     public:
         /** @brief
-              Basic class for Nuclear attraction integrals.
+              Initialize a GB2AttractionIntegral object.
 
          @param max_shell_type
              Highest angular momentum index to be expected in the reset method.
 
-         @param charges
-             Array with values of the charges.
-
-         @param centers
-             The centers [[C1_x, C1_y, C1_z],[...],] around which the moment integrals are computed.
-
-         @param ncharge
-             Negative charge
-
-         @param work_g0
-             Temporal array to store inside results (gaussian functions)
-
-         @param work_g1
-             Temporal array to store inside results (gaussian functions)
-
-         @param work_g2
-             Temporal array to store inside results (gaussian functions)
-
-         @param work_boys
-             Temporal array to store inside results from the laplace of the potential (boys function)
-        */
+         */
         GB2AttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge);
         ~GB2AttractionIntegral();
         /** @brief
@@ -173,7 +129,7 @@ class GB2AttractionIntegral: public GB2Integral {
 
          @param output
              Output array. The size must be at least mmax + 1.
-        */
+         */
         virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output) = 0;
 };
 
