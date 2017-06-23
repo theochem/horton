@@ -63,21 +63,215 @@ class GB2KineticIntegral: public GB2Integral {
 /** @brief
  Compute the nuclear attraction integrals in a Gaussian orbital basis.
  */
-class GB2NuclearAttractionIntegral: public GB2Integral {
-    private:
-        double* charges;
-        double* centers;
-        long ncharge;
+class GB2AttractionIntegral: public GB2Integral {
+     private:
+        double* charges;    //!< Array with values of the nuclear charges.
+        double* centers;    //!< The centers where the charges are located.
+        long ncharge;       //!< Number of nuclear charges.
 
-        double* work_g0;
-        double* work_g1;
-        double* work_g2;
-        double* work_boys;
-    public:
-        GB2NuclearAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge);
-        ~GB2NuclearAttractionIntegral();
-        virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
+        double* work_g0;    //!< Temporary array to store intermediate results.
+        double* work_g1;    //!< Temporary array to store intermediate results.
+        double* work_g2;    //!< Temporary array to store intermediate results.
+        double* work_boys;  //!< Temporary array to store the laplace of the interaction potential.
+
+     public:
+        /** @brief
+              Initialize a GB2AttractionIntegral object.
+
+         @param max_shell_type
+             Highest angular momentum index to be expected in the reset method.
+
+         */
+        GB2AttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge);
+        ~GB2AttractionIntegral();
+        /** @brief
+          Add results for a combination of Cartesian primitive shells to the work array.
+
+         @param coeff
+             Product of the contraction coefficients of the four primitives.
+
+         @param alpha0
+             The exponent of primitive shell 0.
+
+         @param alpha1
+             The exponent of primitive shell 1.
+
+         @param scales0
+            The normalization prefactors for basis functions in primitive shell 0
+
+         @param scales1
+            The normalization prefactors for basis functions in primitive shell 1
+        */
+        virtual void add(double coeff, double alpha0, double alpha1, const double* scales0,
+                         const double* scales1);
+        /** @brief
+          Evaluate the Laplace transform of the the potential applied to nuclear attraction terms.
+
+         For theoretical details and the precise definition of the Laplace transform, we
+         refer to the following paper:
+
+         Ahlrichs, R. A simple algebraic derivation of the Obara-Saika scheme for general
+         two-electron interaction potentials. Phys. Chem. Chem. Phys. 8, 3072–3077 (2006).
+         10.1039/B605188J
+
+         For the general definition of this transform, see Eq. (8) in the reference above.
+         Section 5 contains solutions of the Laplace transform for several popular cases.
+
+         @param gamma
+             Sum of the exponents of the two gaussian functions involved in the integral.
+             Similar to  the first term in Eq. (3) in Ahlrichs' paper.
+
+         @param arg
+             Rescaled distance between the two centers obtained from the application of the
+             Gaussian product theorem. Equivalent to Eq. (5) in Ahlrichs' paper.
+
+         @param mmax
+             Maximum derivative of the Laplace transform to be considered.
+
+         @param output
+             Output array. The size must be at least mmax + 1.
+         */
+        virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output) = 0;
 };
+
+/** @brief
+        Nuclear Electron Attraction two-center integrals.
+
+    The potential is 1/r.
+  */
+class GB2NuclearAttractionIntegral : public GB2AttractionIntegral {
+ public:
+  /** @brief
+          Initialize a GB2NuclearAttractionIntegral object.
+
+      @param max_shell_type
+          Highest angular momentum index to be expected in the reset method.
+
+      @param charges
+          Array with values of the charges.
+
+      @param centers
+          The centers [[C1_x, C1_y, C1_z],[...],] around which the moment integrals are computed.
+
+      @param ncharge
+          Number of nuclear charges.
+   */
+  explicit GB2NuclearAttractionIntegral(long max_shell_type, double* charges,
+                                        double* centers, long ncharge)
+      : GB2AttractionIntegral(max_shell_type, charges, centers, ncharge) {}
+
+  /** @brief
+          Evaluate the Laplace transform of the ordinary Coulomb potential.
+
+      See Eq. (39) in Ahlrichs' paper. This is basically a rescaled Boys function.
+
+      See base class for more details.
+    */
+  virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output);
+};
+
+/** @brief
+        Short-range electron repulsion four-center integrals.
+
+    The potential is erf(mu*r)/r.
+  */
+class GB2ErfAttractionIntegral : public GB2AttractionIntegral {
+ public:
+  /** @brief
+          Initialize a GB2ErfAttractionIntegral object.
+
+      @param max_shell_type
+          Highest angular momentum index to be expected in the reset method.
+
+      @param charges
+          Array with values of the charges.
+
+      @param centers
+          The centers [[C1_x, C1_y, C1_z],[...],] around which the moment integrals are computed.
+
+      @param ncharge
+          Number of nuclear charges.
+
+      @param mu
+          The range-separation parameter.
+    */
+  GB2ErfAttractionIntegral(long max_shell_type, double* charges, double* centers,
+                           long ncharge, double mu)
+      : GB2AttractionIntegral(max_shell_type, charges, centers, ncharge), mu(mu) {}
+
+  /** @brief
+          Evaluate the Laplace transform of the long-range Coulomb potential.
+          (The short-range part is damped away using an error function.) See (52) in
+          Ahlrichs' paper.
+
+      See base class for more details.
+    */
+  virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output);
+
+  const double get_mu() const {return mu;}  //!< The range-separation parameter.
+
+ private:
+  double mu;  //!< The range-separation parameter.
+};
+
+
+/** @brief
+        Gaussian nuclear electron attraction two-center integrals.
+
+    The potential is c exp(-alpha r^2).
+  */
+class GB2GaussAttractionIntegral : public GB2AttractionIntegral {
+ public:
+  /** @brief
+          Initialize a GB2GaussAttractionIntegral object.
+
+      @param max_shell_type
+          Highest angular momentum index to be expected in the reset method.
+
+      @param charges
+          Array with values of the charges.
+
+      @param centers
+          The centers [[C1_x, C1_y, C1_z],[...],] around which the moment integrals are computed.
+
+      @param ncharge
+          Number of nuclear charges.
+
+      @param c
+          Coefficient of the gaussian.
+
+      @param alpha
+          Exponential parameter of the gaussian.
+    */
+  GB2GaussAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge,
+                             double c, double alpha)
+      : GB2AttractionIntegral(max_shell_type, charges, centers, ncharge), c(c), alpha(alpha) {}
+  /** @brief
+          Evaluate the Laplace transform of the Gaussian potential.
+
+          See Ahlrichs' paper for details. This type of potential is used in the papers
+          of P.M.W Gill et al. and J. Toulouse et al.:
+
+          Gill, P. M. W., & Adamson, R. D. (1996). A family of attenuated Coulomb
+          operators. Chem. Phys. Lett., 261(1-2), 105–110.
+          http://doi.org/10.1016/0009-2614(96)00931-1
+
+          Toulouse, J., Colonna, F., & Savin, A. (2004). Long-range-short-range separation
+          of the electron-electron interaction in density-functional theory. Phys. Rev. A,
+          70, 62505. http://doi.org/10.1103/PhysRevA.70.062505
+
+      See base class for more details.
+    */
+  virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output);
+
+  const double get_c() const {return c;}  //!< Coefficient of the gaussian.
+  const double get_alpha() const {return alpha;}  //!< Exponential parameter of the gaussian.
+
+ private:
+  double c;  //!< Coefficient of the gaussian.
+  double alpha;  //!< Exponential parameter of the gaussian.
+};
+
 
 /** @brief
         Compute the (multipole) moment integrals in a Gaussian orbital basis.
