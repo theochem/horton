@@ -210,17 +210,6 @@ This file is located in either ``${HOME}/.matplotlib`` or
 ``${HOME}/.config/matplotlib``.
 
 
-
-
-Reference atoms
-===============
-
-Several parts of HORTON make use of reference atomic computations. When compiling
-a stable release from a .tar.gz file these reference atoms are already included in
-the release. When building a development version of HORTON, please refer to
-:ref:`ref_build_refatoms` on how to build these reference atoms.
-
-
 Running the tests
 =================
 
@@ -231,74 +220,3 @@ as follows:
 .. code-block:: bash
 
     (cd ~; nosetests -v horton)
-
-
-Building the documentation
-==========================
-
-Dependencies
-------------
-
-If you are interested in generating the documentation from source, the following
-packages are also needed:
-
-${doc_dependencies_rst}
-
-
-Installing the dependencies with a package manager and PIP
-----------------------------------------------------------
-
-* **Ubuntu Linux 16.04**:
-
-  .. code-block:: bash
-
-      sudo apt-get install ${doc_dependencies_ubuntu_16_deb}
-
-* **Ubuntu Linux 15.04 and 14.04**:
-
-  .. code-block:: bash
-
-      sudo apt-get install ${doc_dependencies_ubuntu_15_deb}
-      pip install --user --upgrade ${doc_dependencies_ubuntu_15_pip}
-
-You must also manually build LibXC as explained in :ref:`windows_manual_dependency_install`,
-to generate the list of DFT functionals in the documentation.
-
-
-Actual build
-------------
-
-The documentation is compiled and viewed as follows:
-
-.. code-block:: bash
-
-    (cd doc; make html; firefox _build/html/index.html)
-
-
-.. _windows_install_dev:
-
-
-Development tools
-=================
-
-If you want to contribute to the development of HORTON, you'll need to install at least
-the following dependencies:
-
-${dev_dependencies_rst}
-
-For the python development tools, we generally recommend installing the latest versions
-with ``pip``.
-
-* **Ubuntu Linux 16.04**:
-
-  .. code-block:: bash
-
-      sudo apt-get install ${dev_dependencies_ubuntu_16_deb}
-      pip install --user --upgrade ${dev_dependencies_ubuntu_16_pip}
-
-* **Ubuntu Linux 15.04 and 14.04**:
-
-  .. code-block:: bash
-
-      sudo apt-get install ${dev_dependencies_ubuntu_15_deb}
-      pip install --user --upgrade ${dev_dependencies_ubuntu_15_pip}
