@@ -124,13 +124,6 @@ ${dependencies_macports_command}
 Installing dependencies manually
 --------------------------------
 
-**BLAS**
-
-In principle, any BLAS implementation may be used. In case of a custom build,
-some environment variables must be set prior to building HORTON, as discussed
-in :ref:`mac_compile_install`. Also, Keep in mind that MacPorts only supports Atlas
-for building NumPy and SciPy.
-
 **LibXC**
 
 The directory ``tools/qa`` of the HORTON source tree contains scripts to download and
@@ -193,13 +186,13 @@ The regular build and install is done as follows:
     ./setup.py install --user
 
 The ``setup.py`` script makes a reasonable attempt configuring the compiler and
-linker settings for the LibXC, LibInt2 and BLAS libraries. However, this does
-not work in all environments. In case of a failure, or if a configuration other
-than the default is desired, read the following section.
+linker settings for the LibXC and LibInt2 libraries. However, this does not work in all
+environments. In case of a failure, or if a configuration other than the default is
+desired, read the following section.
 
 
-Overriding default compiler/linker settings for LibXC, LibInt2 and BLAS
------------------------------------------------------------------------
+Overriding default compiler/linker settings for LibXC and LibInt2
+-----------------------------------------------------------------
 
 The manual configuration of the compiler and linker settings is described here:
 :ref:`setup_cfg`. You should read this section if the default build and install

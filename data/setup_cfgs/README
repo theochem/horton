@@ -18,5 +18,4 @@ flags.
 The purpose of these *.cfg file is to fill in the right settings for a default
 configuration on the machine.
 
-Read the section "Controlling dynamic/static linking against LibXC, LibInt2
-and BLAS" in the HORTON documentation for more details.
+Read the section "Controlling dynamic/static linking against LibXC, LibInt2" in the HORTON documentation for more details.

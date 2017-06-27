@@ -21,16 +21,16 @@
 
 .. _setup_cfg:
 
-Controlling dynamic/static linking against LibXC, LibInt2 and BLAS
-##################################################################
+Controlling dynamic/static linking against LibXC and LibInt2
+############################################################
 
 Introduction
 ============
 
 The script ``setup.py`` also compiles C++ code into Python extensions. Some of
-these extension are linked against LibXC, LibInt2, BLAS library or a combination
-of these. The ``setup.py`` script attempts to detect all of the compiler and
-linker settings for these libraries automatically.
+these extension are linked against LibXC, LibInt2 or a combination of both. The
+``setup.py`` script attempts to detect all of the compiler and linker settings for these
+libraries automatically.
 
 For **each** library, following attempts are made (in the given order) to detect
 the compiler and linker flags. If the attempt succeeds, i.e. gives a set of
@@ -50,8 +50,8 @@ satisfactory flags, further steps are not considered for that library.\
    corresponds to your operating system and CPU architecture for compilation and
    link options for that library.
 
-5. Dynamically link libraries using default library names: ``xc``, ``int2`` and
-   ``atlas``, for LibXC, LibInt2 and BLAS, respectively.
+5. Dynamically link libraries using default library names: ``xc`` and ``int2``
+   for LibXC and LibInt2, respectively.
 
 However, if these steps do not result in decent compiler/linker options for some
 library or the dependencies are not installed, then the compilation will fail
@@ -74,12 +74,6 @@ extensions on a 64 bit version of Fedora 21:
 .. literalinclude:: ../data/setup_cfgs/setup.Linux-Fedora-21-x86_64.cfg
     :caption: data/setup_cfgs/setup.Linux-Fedora-21-x86_64.cfg
 
-
-This is a setup.cfg file for a compilation with the Intel MKL libraries on
-Fedora:
-
-.. literalinclude:: ../data/setup_cfgs/setup.Linux-Fedora-MKL.cfg
-    :caption: data/setup_cfgs/setup.Linux-Fedora-MKL.cfg
 
 In each section you can define the following variables: ``include_dirs``,
 ``library_dirs``, ``libraries``, ``extra_objects``, ``extra_compile_args`` and
@@ -126,11 +120,6 @@ also set the following environment variables:
 * ``LIBINT2_EXTRA_OBJECTS``
 * ``LIBINT2_EXTRA_COMPILE_ARGS``
 * ``LIBINT2_EXTRA_LINK_ARGS``
-* ``BLAS_LIBRARY_DIRS``
-* ``BLAS_LIBRARIES``
-* ``BLAS_EXTRA_OBJECTS``
-* ``BLAS_EXTRA_COMPILE_ARGS``
-* ``BLAS_EXTRA_LINK_ARGS``
 
 
 Other ways of controlling compilation and linker flags

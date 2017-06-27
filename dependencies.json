@@ -43,20 +43,6 @@
     "macports_command": "sudo port install py27-nose; sudo port select --set nosetests nosetests27",
     "purpose": "testing"
 }, {
-    "name": "atlas",
-    "title": "Atlas",
-    "version_requirement": ">=3.10.1",
-    "homepage": "http://math-atlas.sourceforge.net/",
-    "comment": "Also install development files. You should be able to use any other BLAS implementation as well.",
-    "fedora_24_rpm": "atlas-devel",
-    "fedora_22_rpm": "atlas-devel",
-    "ubuntu_16_deb": "libatlas-base-dev",
-    "ubuntu_15_deb": "libatlas-base-dev",
-    "macports_name": "atlas",
-    "macports_url": "https://trac.macports.org/browser/trunk/dports/math/atlas/Portfile",
-    "macports_command": "sudo port install atlas",
-    "purpose": "runtime"
-}, {
     "name": "numpy",
     "title": "NumPy",
     "version_requirement": ">=1.9.1",

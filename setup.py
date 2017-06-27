@@ -350,27 +350,6 @@ libint2_static_config = {
 }
 libint2_config = lib_config_magic('libint2', 'int2', libint2_static_config)
 
-# Configuration of BLAS
-# ---------------------
-
-# First try to get the BLAS Configuration from environment variables.
-blas_config = lib_config_magic('blas', 'atlas')
-
-# Detect which BLAS implementation is used and set a corresponding preprocessor
-# flag.
-blas_names = blas_config['libraries'] + blas_config['extra_objects']
-if any(('mkl' in l) for l in blas_names):
-    blas_precompiler = ('BLAS_MKL', '1')
-elif any(('atlas' in l) for l in blas_names):
-    blas_precompiler = ('BLAS_ATLAS', '1')
-elif any(('openblas' in l) for l in blas_names):
-    blas_precompiler = ('BLAS_OPENBLAS', '1')
-else:
-    print '   Unknown BLAS implementation. Assuming Netlib-compatible headers.'
-    blas_precompiler = ('BLAS_OTHER', '1')
-print 'BLAS precompiler directive: -D%s' % blas_precompiler[0]
-
-
 # Print versions of (almost) all dependencies
 # -------------------------------------------
 print 'Version of dependencies:'
@@ -409,19 +388,13 @@ ext_modules = [
         sources=get_sources('horton/gbasis') + ['horton/moments.cpp'],
         depends=get_depends('horton/gbasis') + ['horton/moments.pxd', 'horton/moments.h'],
         include_dirs=[np.get_include(), '.'] +
-                     libint2_config['include_dirs'] +
-                     blas_config['include_dirs'],
-        library_dirs=libint2_config['library_dirs'] +
-                     blas_config['library_dirs'],
-        libraries=libint2_config['libraries'] + blas_config['libraries'],
-        extra_objects=libint2_config['extra_objects'] +
-                      blas_config['extra_objects'],
+                     libint2_config['include_dirs'],
+        library_dirs=libint2_config['library_dirs'],
+        libraries=libint2_config['libraries'],
+        extra_objects=libint2_config['extra_objects'],
         extra_compile_args=libint2_config['extra_compile_args'] +
-                           blas_config['extra_compile_args'] +
                            ['-std=c++11'],
-        extra_link_args=libint2_config['extra_link_args'] +
-                        blas_config['extra_link_args'],
-        define_macros=[blas_precompiler],
+        extra_link_args=libint2_config['extra_link_args'],
         language="c++"),
     Extension(
         "horton.grid.cext",

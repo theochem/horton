@@ -26,16 +26,6 @@
 #include <vector>
 #include "horton/gbasis/gbw.h"
 
-// Include the CBLAS headers
-#ifdef BLAS_MKL
-#include <mkl.h>
-#else
-extern "C"
-{
-#include <cblas.h>
-}
-#endif
-
 /**
     @brief
         Computes Cholesky vectors for a four-index object

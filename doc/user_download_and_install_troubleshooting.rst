@@ -49,7 +49,7 @@ or when you run ``nosetests``, you get an unexpected error message. The problem
 is most likely related to finding and using the dependencies. You have to make
 sure ``setup.py`` and the HORTON modules can find the right dependencies and are
 able to use them. We have seen problems with three types of dependencies: Python
-modules, executables, and libraries.
+modules, executables, and failing tests.
 
 
 Python modules
@@ -207,94 +207,12 @@ location of the ``sphinx-build`` executable:
     find / | grep sphinx-build
 
 
-Libraries
-=========
+Failing tests
+=============
 
-You need to make sure ``setup.py`` can find the necessary libraries. You should
-consult :ref:`setup_cfg` for a more complete understanding of the library
-linking process when installing HORTON. Here, we will show how we solved some
-library problems we encountered before.
+The following failing tests are symptoms of specific problems:
 
-First, you need to locate the library that can not be found by ``setup.py``. You
-can locate libraries in standard directories by using the unix command
-``ldconfig``:
-
-.. code-block:: bash
-
-    ldconfig -p | grep libraryname
-
-``ldconfig -p`` prints all cached libraries, and piping to ``grep`` searches through
-the results for the library with the ``libraryname``. This only works when a
-library is installed in a standard location and the library cache is up-to-date.
-If you can not find it with ``ldconfig``, you may try to used the ``find``
-command, e.g.:
-
-.. code-block:: bash
-
-    find / | grep libraryname
-
-Here is an example that searches for the Atlas libraries on a cluster:
-
-.. code-block:: bash
-
-    ldconfig -p | grep atlas
-
-which gives
-
-.. code-block:: bash
-
-    libptf77blas.so.3 (libc6,x86-64) => /usr/lib64/atlas/libptf77blas.so.3
-    libptf77blas.so (libc6,x86-64) => /usr/lib64/atlas/libptf77blas.so
-    libptcblas.so.3 (libc6,x86-64) => /usr/lib64/atlas/libptcblas.so.3
-    libptcblas.so (libc6,x86-64) => /usr/lib64/atlas/libptcblas.so
-    liblapack.so.3 (libc6,x86-64) => /usr/lib64/atlas/liblapack.so.3
-    liblapack.so (libc6,x86-64) => /usr/lib64/atlas/liblapack.so
-    libf77blas.so.3 (libc6,x86-64) => /usr/lib64/atlas/libf77blas.so.3
-    libf77blas.so (libc6,x86-64) => /usr/lib64/atlas/libf77blas.so
-    libclapack.so.3 (libc6,x86-64) => /usr/lib64/atlas/libclapack.so.3
-    libclapack.so (libc6,x86-64) => /usr/lib64/atlas/libclapack.so
-    libcblas.so.3 (libc6,x86-64) => /usr/lib64/atlas/libcblas.so.3
-    libcblas.so (libc6,x86-64) => /usr/lib64/atlas/libcblas.so
-    libatlas.so.3 (libc6,x86-64) => /usr/lib64/atlas/libatlas.so.3
-    libatlas.so (libc6,x86-64) => /usr/lib64/atlas/libatlas.so
-
-All the libraries are located in ``/usr/lib64/atlas/``. Notice that all the
-libraries use the x86-64 instruction set.
-
-Next, we need to find the include directory. You can find this with the ``find``
-command function. Usually, the include directory is almost same as the library
-directory, except instead of the ``lib`` or ``lib64``, it reads ``include``.
-Continuing the above example,
-
-.. code-block:: bash
-
-    ls -d /usr/include/*atlas*
-
-will give the list of directories that includes the word ``atlas``. The output
-gives:
-
-.. code-block:: bash
-
-   /usr/include/atlas
-   /usr/include/atlas-x86_64-base
-
-Since we used the x86-64 instruction set, we select the directory that would
-correspond with that instruction set, i.e. ``/usr/include/atlas-x86_64-base``.
-(This should not matter too much as header files are normally indepedent of the
-architecture.)
-
-In the above list of libraries associated with atlas, we have ``ptf77blas``,
-``ptcblas``, ``lapack``, ``f77blas``, ``clapack``, ``cblas``, and ``atlas``.
-Though we can include all these libraries, HORTON only uses ``atlas`` and
-``cblas``. Therefore, the resulting ``setup.cfg`` file includes
-
-.. code-block:: bash
-
-  [blas]
-  library_dirs=/usr/lib64/atlas
-  libraries=atlas:cblas
-  include_dirs=/usr/include/atlas-x86_64-base
-
-Similarly, we can repeat the process for the LibXC and Libint2, where the
-libraries that are needed are only ``libxc`` and ``libint``, respectively. See
-:ref:`setup_cfg` for more details.
+* ``horton.meanfield.test.test_libxc.test_dot_hessian_o3lyp_cs_polynomial``. This is most
+  likely caused by linking against a LibXC that has been compiled with too aggressive
+  optimization flags. Use the script ``/toos/qa/install_libxc-*.sh`` to build a more
+  modest version of LibXC, which can then be used to compile HORTON.

@@ -12,7 +12,6 @@ addons:
      - gcc-6
      - g++-6
      - gfortran-6
-     - libatlas-base-dev
      - libhdf5-serial-dev
      # libtool is needed by libint
      - libtool
@@ -43,10 +42,6 @@ install:
 
 # Handle detached-HEAD situations that seem to be common on Travis-CI.
  - tools/qa/fix_detached_head.sh
-
-# BLAS_LIBRARIES must be set because Python thinks it is running in Debian
-# wheezy/sid while it is actually running Ubuntu-12.04. This is Travis-CI specific.
- - export BLAS_LIBRARIES=atlas:cblas
 
 # Build all required dependencies from source, i.e. the ones not provided by the build
 # infrastructure. These dependencies are built from source for two reasons:
