@@ -121,9 +121,9 @@ long cholesky(GB4IntegralWrapper* gbw4, std::vector<double>* vectors,
       maxdiag = 1.0 / sqrt(maxdiag);
 
       // compute sum of past Ls
-      for (unsigned long l=0; l<nvec; l++){
+      for (unsigned long l = 0; l < nvec; l++) {
         double factor = (*vectors)[l*nbasis*nbasis + index1*nbasis + index2];
-        for (long i=nbasis*nbasis-1; i>=0; i--){
+        for (long i = nbasis*nbasis-1; i >= 0; i--) {
           pastvector_sum[i] += factor*(*vectors)[l*nbasis*nbasis + i];
         }
         /*
@@ -134,8 +134,8 @@ long cholesky(GB4IntegralWrapper* gbw4, std::vector<double>* vectors,
       }
 
       // compute current L
-      for (long i=0; i<nbasis; i++){
-        for (long j=0; j<nbasis; j++){
+      for (long i = 0; i < nbasis; i++) {
+        for (long j = 0; j < nbasis; j++) {
           vectors->push_back(maxdiag * (slice[i*nbasis + j] -
                              pastvector_sum[i*nbasis + j]));
         }
