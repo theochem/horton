@@ -26,7 +26,7 @@
     "ubuntu_15_deb": "python-dev",
     "macports_name": "python27",
     "macports_url": "https://trac.macports.org/browser/trunk/dports/lang/python27/Portfile",
-    "macports_command": "sudo port install python27; sudo port select --set python python27",
+    "macports_command": "sudo port install python27 +readline; sudo port select --set python python27",
     "purpose": "runtime"
 }, {
     "name": "nose",
