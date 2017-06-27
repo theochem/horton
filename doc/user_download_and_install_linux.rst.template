@@ -32,24 +32,6 @@ HORTON has been tested on Fedora and Ubuntu Linux. If you are running
 another Linux distribution, some of the instructions below may not work.
 
 
-Download the code
-=================
-
-The latest stable source code release of HORTON can be downloaded here:
-
-    https://github.com/theochem/horton/releases/download/2.1.0b2/horton-2.1.0b2.tar.gz
-
-Choose a suitable directory, e.g. ``~/build``, download and unpack the archive
-
-.. code-block:: bash
-
-    mkdir -p ~/build
-    cd ~/build
-    curl -kLO https://github.com/theochem/horton/releases/download/2.1.0b2/horton-2.1.0b2.tar.gz
-    tar -xvzf horton-2.1.0b2.tar.gz
-    cd horton-2.1.0b2
-
-
 Dependencies for building, installing and testing HORTON
 ========================================================
 
@@ -148,6 +130,24 @@ info about LibInt2, check the website: https://github.com/evaleev/libint
 In some cases, PIP, the Python package manager, may be a good choice to install
 the most recent versions of the Python packages in the list of dependencies. Examples
 are given above for Ubuntu and Fedora.
+
+
+Download the code
+=================
+
+The latest stable source code release of HORTON can be downloaded here:
+
+    https://github.com/theochem/horton/releases/download/2.1.0b2/horton-2.1.0b2.tar.gz
+
+Choose a suitable directory, e.g. ``~/build``, download and unpack the archive
+
+.. code-block:: bash
+
+    mkdir -p ~/build
+    cd ~/build
+    curl -kLO https://github.com/theochem/horton/releases/download/2.1.0b2/horton-2.1.0b2.tar.gz
+    tar -xvzf horton-2.1.0b2.tar.gz
+    cd horton-2.1.0b2
 
 
 .. _linux_compile_install:

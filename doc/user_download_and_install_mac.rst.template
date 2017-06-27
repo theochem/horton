@@ -24,6 +24,7 @@ ${big_fat_warning}
 Download and installation on Mac OS X (10.8--10.11)
 ###################################################
 
+
 Disclaimer
 ==========
 
@@ -90,24 +91,6 @@ Here are some basic MacPorts commands:
       sudo port select --set python python27
 
 
-Download the code
-=================
-
-The latest stable source code release of HORTON can be downloaded here:
-
-    https://github.com/theochem/horton/releases/download/2.1.0b2/horton-2.1.0b2.tar.gz
-
-Choose a suitable directory, e.g. ``~/build``, download and unpack the archive:
-
-.. code-block:: bash
-
-    mkdir -p ~/build
-    cd ~/build
-    curl -kLO https://github.com/theochem/horton/releases/download/2.1.0b2/horton-2.1.0b2.tar.gz
-    tar -xvzf horton-2.1.0b2.tar.gz
-    cd horton-2.1.0b2
-
-
 Dependencies for building, installing and testing HORTON
 ========================================================
 
@@ -118,6 +101,7 @@ ${dependencies_rst}
 
 
 .. _mac_compile_install:
+
 
 Installing the dependencies with MacPorts
 -----------------------------------------
@@ -135,6 +119,7 @@ ${dependencies_macports_command}
 
 
 .. _mac_manual_dependency_install:
+
 
 Installing dependencies manually
 --------------------------------
@@ -171,6 +156,26 @@ build LibInt2, which will work on most systems:
 The compilation of LibInt2 takes a few minutes and results in a library suitable for
 compiling HORTON. If this fails, consult your local Mac guru to build LibInt2. For more
 info about LibInt2, check the website: https://github.com/evaleev/libint
+
+
+Download the code
+=================
+
+The latest stable source code release of HORTON can be downloaded here:
+
+    https://github.com/theochem/horton/releases/download/2.1.0b2/horton-2.1.0b2.tar.gz
+
+Choose a suitable directory, e.g. ``~/build``, download and unpack the archive:
+
+.. code-block:: bash
+
+    mkdir -p ~/build
+    cd ~/build
+    curl -kLO https://github.com/theochem/horton/releases/download/2.1.0b2/horton-2.1.0b2.tar.gz
+    tar -xvzf horton-2.1.0b2.tar.gz
+    cd horton-2.1.0b2
+
+Alternatively, you could use MacPorts to install HORTON:
 
 
 Compilation and installation

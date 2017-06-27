@@ -45,24 +45,6 @@ alternatively search "Use Developer Features") and activate "Developer Mode". Th
 subsystem terminal.
 
 
-Download the code
-=================
-
-The latest stable source code release of HORTON can be downloaded here:
-
-    https://github.com/theochem/horton/releases/download/2.0.1/horton-2.0.1.tar.gz
-
-Choose a suitable directory, e.g. ``~/build``, download and unpack the archive
-
-.. code-block:: bash
-
-    mkdir -p ~/build
-    cd ~/build
-    curl -kLO https://github.com/theochem/horton/releases/download/2.0.1/horton-2.0.1.tar.gz
-    tar -xvzf horton-2.0.1.tar.gz
-    cd horton-2.0.1
-
-
 Check Ubuntu Version (Just In Case)
 ===================================
 On bash,
@@ -111,6 +93,7 @@ With Ubuntu, most of these dependencies can be installed with a `apt-get`:
 
 .. _windows_manual_dependency_install:
 
+
 Installing dependencies manually
 --------------------------------
 
@@ -150,6 +133,24 @@ info about LibInt2, check the website: https://github.com/evaleev/libint
 In some cases, PIP, the Python package manager, may be a good choice to install
 the most recent versions of the Python packages in the list of dependencies. Examples
 are given above for Ubuntu and Fedora.
+
+
+Download the code
+=================
+
+The latest stable source code release of HORTON can be downloaded here:
+
+    https://github.com/theochem/horton/releases/download/2.0.1/horton-2.0.1.tar.gz
+
+Choose a suitable directory, e.g. ``~/build``, download and unpack the archive
+
+.. code-block:: bash
+
+    mkdir -p ~/build
+    cd ~/build
+    curl -kLO https://github.com/theochem/horton/releases/download/2.0.1/horton-2.0.1.tar.gz
+    tar -xvzf horton-2.0.1.tar.gz
+    cd horton-2.0.1
 
 
 .. _windows_compile_install:
@@ -273,6 +274,7 @@ The documentation is compiled and viewed as follows:
 
 
 .. _windows_install_dev:
+
 
 Development tools
 =================
