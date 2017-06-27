@@ -12,6 +12,7 @@ addons:
      - gcc-6
      - g++-6
      - gfortran-6
+     - libatlas-base-dev
      - libhdf5-serial-dev
      # libtool is needed by libint
      - libtool
