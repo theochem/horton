@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#JSON {"lot": "UKS/6-31G*",
+#JSON {"lot": "UKS/6-31G(d)",
 #JSON  "scf": "ODASCFSolver",
 #JSON  "linalg": "CholeskyLinalgFactory",
 #JSON  "difficulty": 3,
@@ -14,7 +14,7 @@ fn_xyz = context.get_fn('test/methyl.xyz')
 mol = IOData.from_file(fn_xyz)
 
 # Create a Gaussian basis set
-obasis = get_gobasis(mol.coordinates, mol.numbers, '6-31g*')
+obasis = get_gobasis(mol.coordinates, mol.numbers, '6-31g(d)')
 
 # Create a linalg factory
 lf = DenseLinalgFactory(obasis.nbasis)
