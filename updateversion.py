@@ -36,6 +36,10 @@ rules = [
     ('doc/user_download_and_install_mac.rst.template', '^    curl -kLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
     ('doc/user_download_and_install_mac.rst.template', '^    tar -xvzf horton-(...+).tar.gz$'),
     ('doc/user_download_and_install_mac.rst.template', '^    cd horton-(...+)$'),
+    ('doc/user_download_and_install_windows.rst.template', '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
+    ('doc/user_download_and_install_windows.rst.template', '^    curl -kLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
+    ('doc/user_download_and_install_windows.rst.template', '^    tar -xvzf horton-(...+).tar.gz$'),
+    ('doc/user_download_and_install_windows.rst.template', '^    cd horton-(...+)$'),
 ]
 
 
