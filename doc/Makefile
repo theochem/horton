@@ -57,6 +57,7 @@ clean:
 	rm -f user_download_and_install_linux.rst
 	rm -f user_download_and_install_mac.rst
 	rm -f user_download_and_install_windows.rst
+	rm -f tech_dev_git.rst
 
 html: autogendoc
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html

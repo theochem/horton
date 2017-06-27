@@ -15,6 +15,7 @@ doc/doxygen_warnings.log
 doc/user_download_and_install_linux.rst
 doc/user_download_and_install_mac.rst
 doc/user_download_and_install_windows.rst
+doc/tech_dev_git.rst
 
 # Ignore (in-place) build results
 cext.cpp

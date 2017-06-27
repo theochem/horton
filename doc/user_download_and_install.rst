@@ -19,6 +19,9 @@
     :
     : --
 
+
+.. _user_download_and_install:
+
 Download and Installation
 #########################
 

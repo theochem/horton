@@ -167,6 +167,7 @@ def main():
     substitute_file(fields, 'user_download_and_install_linux.rst.template')
     substitute_file(fields, 'user_download_and_install_mac.rst.template')
     substitute_file(fields, 'user_download_and_install_windows.rst.template')
+    substitute_file(fields, 'tech_dev_git.rst.template')
 
 
 if __name__ == '__main__':

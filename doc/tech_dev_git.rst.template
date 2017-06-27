@@ -19,31 +19,151 @@
     :
     : --
 
-How to use Git
-##############
+${big_fat_warning}
+
+HORTON Development with Git
+###########################
 
 HORTON uses `Git <http://git-scm.com/>`_ for version control.
 
-A version control systems (VCS) allows many people to copy and modify the same source code while keeping
-track of all changes made. The VCS software also helps you merge different
+A version control systems (VCS) allows many people to copy and modify the same source code
+while keeping track of all changes made. The VCS software also helps you merge different
 developments into one common source tree.
 
-To refresh your mind on commonly used Git commands, please refer to `Git Reference <http://gitref.org/>`_.
+This section goes through the basics of VCSs to get you started with a developer
+installation of HORTON. When working on a development version of HORTON, most of the
+:ref:`user_download_and_install` instructions for released versions of HORTON are still
+applicable, except for some additional steps explained below.
 
-This section goes through the basics of VCSs to get you started with developing new features in HORTON. Although the commands
-below are specific to Git, the following entails good practices that can be
-generalized and applied to other modern VCS such as Bazaar or Mercurial.
+
+Additional steps required to build the development version of HORTON
+====================================================================
+
+Reference atoms
+---------------
+
+Several parts of HORTON make use of reference atomic computations. These files
+are too large to be included in the git revision system. Therefore, they must be
+downloaded separately when compiling a development version of HORTON:
+
+.. code-block:: bash
+
+    (cd data/refatoms; make all)
 
 
-Installing Git
-==============
+Other development tools
+-----------------------
 
-The installation of git is covered in the sections :ref:`linux_install_dev` (Linux) or
-:ref:`mac_install_dev` (Mac).
+If you want to contribute to the development of HORTON, the following tools will be
+convenient:
 
+${dev_dependencies_rst}
+
+For the python development tools, we generally recommend installing the latest versions
+with ``pip``.
+
+**Ubuntu Linux 16.04**
+
+.. code-block:: bash
+
+   sudo apt-get install ${dev_dependencies_ubuntu_16_deb}
+   pip install --user --upgrade ${dev_dependencies_ubuntu_16_pip}
+
+**Ubuntu Linux 15.04 and 14.04**
+
+.. code-block:: bash
+
+    sudo apt-get install ${dev_dependencies_ubuntu_15_deb}
+    pip install --user --upgrade ${dev_dependencies_ubuntu_15_pip}
+
+**Fedora Linux 24**
+
+.. code-block:: bash
+
+    sudo dnf install ${dev_dependencies_fedora_24_rpm}
+    pip install --user --upgrade ${dev_dependencies_fedora_24_pip}
+
+**Fedora Linux 22 and 23**
+
+.. code-block:: bash
+
+    sudo dnf install ${dev_dependencies_fedora_22_rpm}
+    pip install --user --upgrade ${dev_dependencies_fedora_22_pip}
+
+**MacPorts**
+
+These are the required ports:
+
+${dev_dependencies_macports_rst}
+
+.. code-block:: bash
+
+${dev_dependencies_macports_command}
+    pip install --user --upgrade ${dev_dependencies_macports_pip}
+
+
+Building the documentation
+--------------------------
+
+If you are interested in generating the documentation from source, the following
+packages are also needed:
+
+${doc_dependencies_rst}
+
+These can be installed as follows.
+
+**Ubuntu Linux 16.04**
+
+.. code-block:: bash
+
+    sudo apt-get install ${doc_dependencies_ubuntu_16_deb}
+
+**Ubuntu Linux 15.04 and 14.04**
+
+.. code-block:: bash
+
+    sudo apt-get install ${doc_dependencies_ubuntu_15_deb}
+    pip install --user --upgrade ${doc_dependencies_ubuntu_15_pip}
+
+**Fedora Linux 24**
+
+.. code-block:: bash
+
+    sudo dnf install ${doc_dependencies_fedora_24_rpm}
+
+**Fedora Linux 22 and 23**
+
+.. code-block:: bash
+
+    sudo dnf install ${doc_dependencies_fedora_22_rpm}
+    pip install --user --upgrade ${doc_dependencies_fedora_22_pip}
+
+**MacPorts**
+
+These are the required ports
+
+${doc_dependencies_macports_rst}
+
+.. code-block:: bash
+
+${doc_dependencies_macports_command}
+    pip install --user --upgrade ${doc_dependencies_macports_pip}
+
+You must also manually build LibXC as explained in :ref:`linux_manual_dependency_install`,
+to generate the list of DFT functionals in the documentation.
+
+The documentation is compiled and viewed as follows:
+
+.. code-block:: bash
+
+    (cd doc; make html; firefox _build/html/index.html)
+
+
+Git
+===
 
 Git configuration
-=================
+-----------------
 
 We recommend you to set the following in your ``~/.gitconfig`` file:
 
@@ -95,7 +215,7 @@ commit messages.
 
 
 Some terminology
-================
+----------------
 
 Patch
     A set of changes in the source code. These are typically recorded in a
@@ -129,7 +249,7 @@ Branch HEAD
 
 
 Cloning the HORTON git repository
-=================================
+---------------------------------
 
 In order to `clone` the public HORTON repository, run the following commands:
 
@@ -151,18 +271,6 @@ https://github.com/theochem/horton
 
 
 .. _ref_build_refatoms:
-
-Additional steps required to build the development version of HORTON
-====================================================================
-
-Several parts of HORTON make use of reference atomic computations. These files
-are too large to be included in the git revision system. Therefore, they must be
-downloaded separately when compiling a development version of HORTON:
-
-.. code-block:: bash
-
-    (cd data/refatoms; make all)
-
 
 Work flow for adding a new feature
 ==================================
