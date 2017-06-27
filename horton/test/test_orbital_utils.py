@@ -125,12 +125,12 @@ def test_core_active_neon():
         coordinates=np.zeros((1, 3), float),
         numbers=np.array([10], int)
     )
-    check_core_active(mol, '6-31+g*', 2, 6)
+    check_core_active(mol, '6-31+g(d)', 2, 6)
 
 
 def test_core_active_water():
     mol = IOData.from_file(context.get_fn('test/water.xyz'))
-    check_core_active(mol, '6-31+g*', 1, 6)
+    check_core_active(mol, '6-31+g(d)', 1, 6)
 
 
 def test_core_active_2h_azirine():
