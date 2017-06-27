@@ -112,8 +112,10 @@ build LibXC, which will work on most systems:
     ${custom_install_libxc}
 
 This results in a LibXC library suitable for compiling HORTON. If this fails,
-consult your local Linux guru to build LibXC. For more info about LibXC, check
-the website: http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
+consult your local Ubuntu guru to build LibXC. If you decided to make a custom compilation
+of LibXC, keep in mind that it is not reliable when using aggressive compiler optimization
+flags. For more info about LibXC, check the website:
+http://www.tddft.org/programs/octopus/wiki/index.php/Libxc
 
 **LibInt2**
 
