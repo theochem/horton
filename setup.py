@@ -302,8 +302,7 @@ def lib_config_magic(prefix, libname, static_config={}, known_include_dirs=[]):
 # Print the Machine name on screen
 # --------------------------------
 
-print 'PLATFORM={}'.format(sys.platform)
-print 'MACHINE={}'.format(platform.machine())
+print 'PLATFORM={}'.format(platform.platform())
 
 # Load dependency information
 # ---------------------------
