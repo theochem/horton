@@ -69,6 +69,16 @@ with a package manager:
   Hence, some are installed with PIP. LibInt2 must be compiled manually as explained in
   :ref:`linux_manual_dependency_install`.
 
+* **Fedora Linux 25 and up**:
+
+  .. code-block:: bash
+
+    sudo dnf install ${dependencies_fedora_25_rpm}
+
+  Note that since release 25, Fedora comes with LibXC-3.x, which we do not support yet in
+  the current version of HORTON. Hence, you have to install LibXC-2.2.2 manually as
+  explained in :ref:`linux_manual_dependency_install`.
+
 * **Fedora Linux 24**:
 
   .. code-block:: bash
