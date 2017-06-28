@@ -120,25 +120,22 @@ long cholesky(GB4IntegralWrapper* gbw4, std::vector<double>* vectors,
       memset(pastvector_sum, 0, sizeof(double)*nbasis*nbasis);
       maxdiag = 1.0 / sqrt(maxdiag);
 
-      //compute sum of past Ls
-      for (unsigned long l=0; l<nvec; l++){
-        /*
-        for (long i=0; i<nbasis; i++){
-          for (long j=0; j<nbasis; j++){
-            pastvector_sum[i*nbasis + j] +=
-                (*vectors)[(l*nbasis*nbasis) + index1*nbasis + index2]
-                *(*vectors)[(l*nbasis*nbasis) + i*nbasis + j];
-          }
+      // compute sum of past Ls
+      for (unsigned long l = 0; l < nvec; l++) {
+        double factor = (*vectors)[l*nbasis*nbasis + index1*nbasis + index2];
+        for (long i = nbasis*nbasis-1; i >= 0; i--) {
+          pastvector_sum[i] += factor*(*vectors)[l*nbasis*nbasis + i];
         }
-        */
+        /*
         cblas_daxpy(nbasis*nbasis,
                     (*vectors)[(l*nbasis*nbasis) + index1*nbasis + index2],
                     &(*vectors)[l*nbasis*nbasis], 1, pastvector_sum, 1);
+        */
       }
 
-      //compute current L
-      for (long i=0; i<nbasis; i++){
-        for (long j=0; j<nbasis; j++){
+      // compute current L
+      for (long i = 0; i < nbasis; i++) {
+        for (long j = 0; j < nbasis; j++) {
           vectors->push_back(maxdiag * (slice[i*nbasis + j] -
                              pastvector_sum[i*nbasis + j]));
         }
