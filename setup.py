@@ -232,38 +232,29 @@ def all_exist(lib_config):
     return True
 
 
-def detect_machine():
-    '''Return a description of the machine name, used for data/setup_cfgs/...'''
-    if sys.platform == 'linux2':
-        dist = platform.linux_distribution()
-        return ('Linux-%s-%s-%s' % (dist[0], dist[1], platform.machine())).replace(' ', '_')
-    elif sys.platform == 'darwin':
-        mac_ver = platform.mac_ver()
-        mac_os = mac_ver[0].partition('.')
-        return 'Darwin-%s-%s' % (mac_os[0], mac_ver[2])
-    else:
-        return 'unknown'
-
-
-def lib_config_magic(prefix, libname, static_config={}):
+def lib_config_magic(prefix, libname, static_config={}, known_include_dirs=[]):
     '''Detect the configuration of a given library
 
-       **Arguments:**
+    Parameters
+    ----------
 
-       prefix
-            The prefix for this library. This is a name that HORTON uses to
-            refer to the library.
+    prefix : str
+        The prefix for this library. This is a name that HORTON uses to refer to the
+        library.
 
-       libname
-            The library name as it is known to the compiler and to pkg-config.
-            For example, if the shared object is libfoo.so, then the library
-            name is foo.
+    libname : str
+        The library name as it is known to the compiler and to pkg-config. For example, if
+        the shared object is libfoo.so, then the library name is foo.
 
-       **Optional arguments**
+    static_config : dict
+        If given, this static library configuration is attempted. Ignored when empty, or
+        when it contains non-existing files.
 
-       static_config
-            If given, this static library configuration is attempted. Ignored
-            when empty, or when it contains non-existing files.
+    known_include_dirs : list of str
+        When all other methods of finding the library settings fail, the first existing
+        directory in this list is added to the include path. This is useful when header
+        files are commonly installed in a place that is not considered by default by most
+        compilers.
     '''
     print '%s Configuration' % prefix.upper()
 
@@ -295,15 +286,13 @@ def lib_config_magic(prefix, libname, static_config={}):
         except PkgConfigError:
             print '   pkg-config failed.'
 
-    # If also pkg-config failed, try machine-specific setup.cfg
-    if all_empty(lib_config):
-        machine = detect_machine()
-        fn_setup_cfg = 'data/setup_cfgs/setup.%s.cfg' % machine
-        lib_config.update(get_lib_config_setup(prefix, fn_setup_cfg))
-
-    # Uber-dumb fallback. It works sometimes.
+    # Uber-dumb fallback. It works most of the times.
     if all_empty(lib_config):
         lib_config['libraries'] = [libname]
+        for include_dir in known_include_dirs:
+            if os.path.isdir(include_dir):
+                lib_config['include_dirs'] = [include_dir]
+                break
         print_lib_config('Last resort fallback plan', lib_config)
 
     print_lib_config('Final', lib_config)
@@ -313,7 +302,7 @@ def lib_config_magic(prefix, libname, static_config={}):
 # Print the Machine name on screen
 # --------------------------------
 
-print 'MACHINE=%s' % detect_machine()
+print 'PLATFORM={}'.format(platform.platform())
 
 # Load dependency information
 # ---------------------------
@@ -331,24 +320,31 @@ if qaworkdir is None:
 # Configuration of LibXC
 # ----------------------
 
-# Static build info in the depends directory to check for:
+# Static build info in the QAWORKDIR:
 libxc_dir = '%s/cached/libxc-%s' % (qaworkdir, str(dependencies['libxc']['version_ci']))
 libxc_static_config = {
     'extra_objects': ['%s/lib/libxc.a' % libxc_dir],
     'include_dirs': ['%s/include' % libxc_dir],
 }
+# Common include dirs that are not considered by the compiler by default:
+known_libxc_include_dirs = ['/opt/local/include']
 # Detect the configuration for LibXC
-libxc_config = lib_config_magic('libxc', 'xc', libxc_static_config)
+libxc_config = lib_config_magic(
+    'libxc', 'xc', libxc_static_config, known_libxc_include_dirs)
 
 # Configuration of LibInt2
 # ------------------------
 
+# Static build info in the QAWORKDIR:
 libint2_dir = '%s/cached/libint-%s' % (qaworkdir, str(dependencies['libint']['version_ci']))
 libint2_static_config = {
     'extra_objects': ['%s/lib/libint2.a' % libint2_dir],
     'include_dirs': ['%s/include/libint2' % libint2_dir],
 }
-libint2_config = lib_config_magic('libint2', 'int2', libint2_static_config)
+# Common include dirs that are not considered by the compiler by default:
+known_libint2_include_dirs = ['/usr/include/libint2', '/opt/local/include/libint2']
+libint2_config = lib_config_magic(
+    'libint2', 'int2', libint2_static_config, known_libint2_include_dirs)
 
 # Print versions of (almost) all dependencies
 # -------------------------------------------
