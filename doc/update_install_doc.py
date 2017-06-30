@@ -167,7 +167,6 @@ def main():
     fields = collect_fields()
     substitute_file(fields, 'user_download_and_install_linux.rst.template')
     substitute_file(fields, 'user_download_and_install_mac.rst.template')
-    substitute_file(fields, 'user_download_and_install_windows.rst.template')
 
 
 if __name__ == '__main__':
