@@ -1,6 +1,6 @@
 ..
     : HORTON: Helpful Open-source Research TOol for N-fermion systems.
-    : Copyright (C) 2011-2016 The HORTON Development Team
+    : Copyright (C) 2011-2017 The HORTON Development Team
     :
     : This file is part of HORTON.
     :
@@ -68,9 +68,3 @@ https://github.com/hpcugent/easybuild-easyconfigs/tree/master/easybuild/easyconf
 You can change the toolchain and the version of HORTON with the ``--try-*`` options
 discussed here:
 http://easybuild.readthedocs.io/en/latest/Using_the_EasyBuild_command_line.html#tweaking-existing-easyconfig-files-using-try
-
-
-Conda
-=====
-
-TODO

@@ -1,6 +1,6 @@
 ..
     : HORTON: Helpful Open-source Research TOol for N-fermion systems.
-    : Copyright (C) 2011-2016 The HORTON Development Team
+    : Copyright (C) 2011-2017 The HORTON Development Team
     :
     : This file is part of HORTON.
     :
@@ -142,7 +142,7 @@ Download the code
 
 The latest stable source code release of HORTON can be downloaded here:
 
-    https://github.com/theochem/horton/releases/download/2.1.0b2/horton-2.1.0b2.tar.gz
+    https://github.com/theochem/horton/releases/download/2.1.0b3/horton-2.1.0b3.tar.gz
 
 Choose a suitable directory, e.g. ``~/build``, download and unpack the archive
 
@@ -150,9 +150,9 @@ Choose a suitable directory, e.g. ``~/build``, download and unpack the archive
 
     mkdir -p ~/build
     cd ~/build
-    curl -kLO https://github.com/theochem/horton/releases/download/2.1.0b2/horton-2.1.0b2.tar.gz
-    tar -xvzf horton-2.1.0b2.tar.gz
-    cd horton-2.1.0b2
+    curl -kLO https://github.com/theochem/horton/releases/download/2.1.0b3/horton-2.1.0b3.tar.gz
+    tar -xvzf horton-2.1.0b3.tar.gz
+    cd horton-2.1.0b3
 
 
 .. _windows_compile_install:

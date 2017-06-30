@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # HORTON: Helpful Open-source Research TOol for N-fermion systems.
-# Copyright (C) 2011-2016 The HORTON Development Team
+# Copyright (C) 2011-2017 The HORTON Development Team
 #
 # This file is part of HORTON.
 #
@@ -113,7 +113,7 @@ def main():
     ]
 
     f = open('HEADER')
-    header_lines = f.readlines()
+    header_lines = f.readlines() + ['']
     f.close()
 
     for sdir in source_dirs:

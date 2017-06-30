@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # HORTON: Helpful Open-source Research TOol for N-fermion systems.
-# Copyright (C) 2011-2016 The HORTON Development Team
+# Copyright (C) 2011-2017 The HORTON Development Team
 #
 # This file is part of HORTON.
 #
@@ -21,7 +21,7 @@
 '''The main HORTON Package'''
 
 
-__version__ = '2.1.0b2'
+__version__ = '2.1.0b3'
 
 
 # Extensions are imported first to call fpufix as early as possible

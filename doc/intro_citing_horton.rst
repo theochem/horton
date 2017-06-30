@@ -1,6 +1,6 @@
 ..
     : HORTON: Helpful Open-source Research TOol for N-fermion systems.
-    : Copyright (C) 2011-2016 The HORTON Development Team
+    : Copyright (C) 2011-2017 The HORTON Development Team
     :
     : This file is part of HORTON.
     :
@@ -25,9 +25,10 @@ Citing HORTON
 In anticipation of the first announcement of HORTON in a scientific journal,
 please refer to HORTON as follows:
 
-    Toon Verstraelen, Pawel Tecmer, Farnaz Heidar-Zadeh, Katharina Boguslawski, Matthew
-    Chan, Yilin Zhao, Taewon D. Kim, Steven Vandenbrande, Derrick Yang, Cristina E.
-    González-Espinoza, Stijn Fias, Peter A. Limacher, Diego Berrocal, Ali Malek, Paul W.
-    Ayers
+    Toon Verstraelen, Pawel Tecmer, Farnaz Heidar-Zadeh, Cristina E. González-Espinoza,
+    Matthew Chan, Taewon D. Kim, Katharina Boguslawski, Stijn Fias, Steven Vandenbrande,
+    Diego Berrocal, and Paul W. Ayers
     HORTON |version|, http://theochem.github.com/horton/,
-    **2015**
+    **2017**
+
+(The sorted list of authors is derived with ``git summary --line``.)
