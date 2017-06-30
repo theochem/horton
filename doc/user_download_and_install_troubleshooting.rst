@@ -48,12 +48,12 @@ However, when you try to install HORTON, i.e.
 or when you run ``nosetests``, you get an unexpected error message. The problem
 is most likely related to finding and using the dependencies. You have to make
 sure ``setup.py`` and the HORTON modules can find the right dependencies and are
-able to use them. We have seen problems with three types of dependencies: Python
-modules, executables, and failing tests.
+able to use them. We have seen problems with several types of dependencies: missing Python
+packages, executables, libraries and failing tests.
 
 
-Python modules
-==============
+Python packages
+===============
 
 If you have installed a python package (e.g. NumPy, SciPy, Cython, H5Py,
 SymPy, MatPlotLib, Nosetests, Sphinx, Breathe, Docutils) and you get an error
@@ -207,6 +207,34 @@ location of the ``sphinx-build`` executable:
     find / | grep sphinx-build
 
 
+Libraries
+=========
+
+* LibXC-3
+
+  When you get the following error message upon running ``./setup.py``, you are trying
+  to compile HORTON with LibXC-3:
+
+  .. code-block:: bash
+
+      gcc -pthread -fno-strict-aliasing -O2 -g -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -m64 -mtune=generic -D_GNU_SOURCE -fPIC -fwrapv -DNDEBUG -O2 -g -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -m64 -mtune=generic -D_GNU_SOURCE -fPIC -fwrapv -fPIC -I/usr/lib64/python2.7/site-packages/numpy/core/include -I. -I/usr/include/python2.7 -c horton/meanfield/cext.cpp -o build/temp.linux-x86_64-2.7/horton/meanfield/cext.o -std=c++11
+      In file included from /usr/lib64/python2.7/site-packages/numpy/core/include/numpy/ndarraytypes.h:1777:0,
+                       from /usr/lib64/python2.7/site-packages/numpy/core/include/numpy/ndarrayobject.h:18,
+                       from /usr/lib64/python2.7/site-packages/numpy/core/include/numpy/arrayobject.h:4,
+                       from horton/meanfield/cext.cpp:449:
+      /usr/lib64/python2.7/site-packages/numpy/core/include/numpy/npy_1_7_deprecated_api.h:15:2: warning: #warning "Using deprecated NumPy API, disable it by " "#defining NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION" [-Wcpp]
+       #warning "Using deprecated NumPy API, disable it by " \
+        ^~~~~~~
+      horton/meanfield/cext.cpp: In function ‘PyObject* __pyx_pf_6horton_9meanfield_4cext_12LibXCWrapper_4refs___get__(__pyx_obj_6horton_9meanfield_4cext_LibXCWrapper*)’:
+      horton/meanfield/cext.cpp:2110:74: error: cannot convert ‘func_reference_type* const*’ to ‘const char*’ for argument ‘1’ to ‘PyObject* PyString_FromString(const char*)’
+         __pyx_t_1 = __Pyx_PyBytes_FromString((__pyx_v_self->_func.info[0]).refs); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 117, __pyx_L1_error)
+                                                                                ^
+      error: command 'gcc' failed with exit status 1
+
+  The solution is to install LibXC-2.2.2. This can always be done by running
+  ``./tools/qa/install_libxc-2.2.2.sh`` before running ``./setup.py``.
+
+
 Failing tests
 =============
 
@@ -214,5 +242,5 @@ The following failing tests are symptoms of specific problems:
 
 * ``horton.meanfield.test.test_libxc.test_dot_hessian_o3lyp_cs_polynomial``. This is most
   likely caused by linking against a LibXC that has been compiled with too aggressive
-  optimization flags. Use the script ``/toos/qa/install_libxc-*.sh`` to build a more
+  optimization flags. Use the script ``/toos/qa/install_libxc-2.2.2.sh`` to build a more
   modest version of LibXC, which can then be used to compile HORTON.
