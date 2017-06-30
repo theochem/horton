@@ -225,12 +225,12 @@ Other chain rules are also implemented:
 
   .. math::
 
-    \frac{\partial E[\nabla\rho]}{\partial D_{\nu\mu}} & =
+    \frac{\partial E[\nabla\rho]}{\partial D_{\nu\mu}} =
         \int \frac{\delta E[\nabla\rho]}{\delta \nabla\rho(\mathbf{r})}
         \cdot \left(
             \nabla b_\nu^*(\mathbf{r}) b_\mu(\mathbf{r}) +
             b_\nu^*(\mathbf{r}) \nabla b_\mu(\mathbf{r})
-        \right) d\mathbf{r} \\
+        \right) d\mathbf{r}
 
 * :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_gradient_fock` just
   combines the density and gradient chain rules. This is more efficient than
@@ -240,7 +240,7 @@ Other chain rules are also implemented:
 
   .. math::
 
-    \frac{\partial E[\tau]}{\partial D_{\nu\mu}} & =
+    \frac{\partial E[\tau]}{\partial D_{\nu\mu}} =
         \frac{1}{2}\int \frac{\delta E[\tau]}{\delta \tau(\mathbf{r})}
         \nabla b_\nu^*(\mathbf{r}) \nabla b_\mu(\mathbf{r}) d\mathbf{r}
 
@@ -261,13 +261,13 @@ Other chain rules are also implemented:
 
   .. math::
 
-    \frac{\partial E[\nabla\nabla\rho]}{\partial D_{\nu\mu}} & =
+    \frac{\partial E[\nabla\nabla\rho]}{\partial D_{\nu\mu}} =
         \int \frac{\delta E[\nabla\nabla\rho]}{\delta \nabla\nabla\rho(\mathbf{r})}
         \colon \left(
             \nabla \nabla b_\nu^*(\mathbf{r}) b_\mu(\mathbf{r}) +
             2 \nabla b_\nu^*(\mathbf{r}) \nabla b_\mu(\mathbf{r}) +
             b_\nu^*(\mathbf{r}) \nabla \nabla b_\mu(\mathbf{r})
-        \right) d\mathbf{r} \\
+        \right) d\mathbf{r}
 
 * :py:meth:`~horton.gbasis.cext.GOBasis.compute_grid_mgga_fock` just combines
   several of the previous chain rules: density, gradient, laplacian (trace of
