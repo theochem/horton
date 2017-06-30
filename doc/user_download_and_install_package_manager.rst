@@ -68,9 +68,3 @@ https://github.com/hpcugent/easybuild-easyconfigs/tree/master/easybuild/easyconf
 You can change the toolchain and the version of HORTON with the ``--try-*`` options
 discussed here:
 http://easybuild.readthedocs.io/en/latest/Using_the_EasyBuild_command_line.html#tweaking-existing-easyconfig-files-using-try
-
-
-Conda
-=====
-
-TODO
