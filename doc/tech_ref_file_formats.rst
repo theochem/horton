@@ -204,9 +204,9 @@ Load                     Yes
 Dump                     No
 Recognized by            File extension ``.fchk``
 Interoperation           `Gaussian <http://www.gaussian.com/>`_
-Always **loading**       ``title`` ``coordinates`` ``numbers`` ``obasis`` ``exp_alpha`` ``permutation`` |br|
+Always **loading**       ``title`` ``coordinates`` ``numbers`` ``obasis`` ``orb_alpha`` ``permutation`` |br|
                          ``energy`` ``pseudo_numbers`` ``mulliken_charges``
-**loading** if present   ``npa_charges`` ``esp_charges`` ``exp_beta`` ``dm_full_mp2`` ``dm_spin_mp2`` |br|
+**loading** if present   ``npa_charges`` ``esp_charges`` ``orb_beta`` ``dm_full_mp2`` ``dm_spin_mp2`` |br|
                          ``dm_full_mp3`` ``dm_spin_mp3`` ``dm_full_cc`` ``dm_spin_cc`` ``dm_full_ci`` |br|
                          ``dm_spin_ci`` ``dm_full_scf`` ``dm_spin_scf`` ``polar`` ``dipole_moment`` |br|
                          ``quadrupole_moment``
@@ -226,12 +226,12 @@ Interoperation           `Molpro <https://www.molpro.net/>`_,
                          `PSI4 <http://www.psicode.org/>`_,
                          `Molden <http://www.cmbi.ru.nl/molden/>`_,
                          `Turbomole <http://www.turbomole.com/>`_
-Always **loading**       ``coordinates`` ``numbers`` ``obasis`` ``exp_alpha``
+Always **loading**       ``coordinates`` ``numbers`` ``obasis`` ``orb_alpha``
                          ``pseudo_numbers`` ``signs``
-**loading** if present   ``title`` ``exp_beta``
+**loading** if present   ``title`` ``orb_beta``
 Derived when **loading** ``natom``
-Required for **dumping** ``coordinates`` ``numbers`` ``obasis`` ``exp_alpha``
-Optional for **dumping** ``title`` ``exp_beta`` ``pseudo_numbers``
+Required for **dumping** ``coordinates`` ``numbers`` ``obasis`` ``orb_alpha``
+Optional for **dumping** ``title`` ``orb_beta`` ``pseudo_numbers``
 ======================== =======================================================
 
 
@@ -244,8 +244,8 @@ Dump                     No
 Recognized by            File extension ``.mkl``
 Interoperation           `Molekel <http://ugovaretto.github.io/molekel/wiki/pmwiki.php/Main/HomePage.html>`_,
                          `Orca <https://orcaforum.cec.mpg.de/>`_,
-Always **loading**       ``coordinates`` ``numbers`` ``obasis`` ``exp_alpha``
-**loading** if present   ``exp_beta`` ``signs``
+Always **loading**       ``coordinates`` ``numbers`` ``obasis`` ``orb_alpha``
+**loading** if present   ``orb_beta`` ``signs``
 Derived when **loading** ``natom``
 ======================== =======================================================
 
@@ -259,8 +259,8 @@ Dump                     No
 Recognized by            File extension ``.wfn``
 Interoperation           `GAMESS <http://www.msg.ameslab.gov/gamess/>`_,
                          `Gaussian <http://www.gaussian.com/>`_,
-Always **loading**       ``title`` ``coordinates`` ``numbers`` ``obasis`` ``exp_alpha`` ``energy``
-**loading** if present   ``exp_beta``
+Always **loading**       ``title`` ``coordinates`` ``numbers`` ``obasis`` ``orb_alpha`` ``energy``
+**loading** if present   ``orb_beta``
 Derived when **loading** ``natom``
 ======================== =======================================================
 
@@ -288,7 +288,7 @@ Dump                     Yes
 Recognized by            File name contains ``FCIDUMP``
 Interoperation           `Molpro <https://www.molpro.net/>`_,
                          `PSI4 <http://www.psicode.org/>`_
-Always **loading**       ``lf`` ``nelec`` ``ms2`` ``one_mo`` ``two_mo`` ``core_energy``
+Always **loading**       ``nelec`` ``ms2`` ``one_mo`` ``two_mo`` ``core_energy``
 Required for **dumping** ``one_mo`` ``two_mo``
 Optional for **dumping** ``core_energy`` ``nelec`` ``ms``
 ======================== =======================================================
@@ -339,7 +339,7 @@ dumped into the internal format:
 * Classes in the HORTON library that have a ``to_hdf5`` and ``from_hdf5``
   method. For example: ``AtomicGridSpec``, ``BeckeMolGrid``, ``Cell``,
   ``CubicSpline``, ``ESPCost``, ``GBasis``, ``GOBasis``, ``Symmetry``,
-  ``UniformGrid`` and all classes in the package ``horton.matrix``
+  ``UniformGrid``.
 
 * A dictionary with strings as keys and any mixture of the above data types as
   values.

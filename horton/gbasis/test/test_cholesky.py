@@ -53,45 +53,37 @@ def pcholesky4(A, thresh=1e-8):
     return Ls
 
 
-def test_cholesky_coulomb_array():
+def test_cholesky_coulomb():
     obasis = get_h2o_obasis()
-    ref = obasis.compute_electron_repulsion(DenseLinalgFactory(obasis.nbasis))._array
-    vecs = compute_cholesky(obasis, GB4ElectronRepulsionIntegralLibInt(obasis.max_shell_type))
+    ref = obasis.compute_electron_repulsion()
+    vecs = obasis.compute_electron_repulsion_cholesky()
     chol = np.einsum('kac,kbd->abcd', vecs, vecs)
     np.testing.assert_allclose(ref, chol, rtol=1e-5, atol=1e-8)
 
 
-def test_cholesky_coulomb_from_gbasis():
-    obasis = get_h2o_obasis()
-    ref = obasis.compute_electron_repulsion(DenseLinalgFactory(obasis.nbasis))._array
-    vecs = obasis.compute_electron_repulsion(CholeskyLinalgFactory(obasis.nbasis))._array
-    chol = np.einsum('kac,kbd->abcd', vecs, vecs)
-    np.testing.assert_allclose(ref, chol, rtol=1e-5, atol=1e-8)
-
-
-def test_cholesky_erf_from_gbasis():
+def test_cholesky_erf():
     obasis = get_h2o_obasis()
     mu = 1e4
-    ref = obasis.compute_erf_repulsion(DenseLinalgFactory(obasis.nbasis), mu)._array
-    vecs = obasis.compute_erf_repulsion(CholeskyLinalgFactory(obasis.nbasis), mu)._array
+    ref = obasis.compute_erf_repulsion(mu)
+    vecs = obasis.compute_erf_repulsion_cholesky(mu)
     chol = np.einsum('kac,kbd->abcd', vecs, vecs)
     np.testing.assert_allclose(ref, chol, rtol=1e-5, atol=1e-8)
 
 
-def test_cholesky_gauss_from_gbasis():
+def test_cholesky_gauss():
     obasis = get_h2o_obasis()
     c = 1.2
     alpha = 0.5
-    ref = obasis.compute_gauss_repulsion(DenseLinalgFactory(obasis.nbasis), c, alpha)._array
-    vecs = obasis.compute_gauss_repulsion(CholeskyLinalgFactory(obasis.nbasis), c, alpha)._array
+    ref = obasis.compute_gauss_repulsion(c, alpha)
+    vecs = obasis.compute_gauss_repulsion_cholesky(c, alpha)
     chol = np.einsum('kac,kbd->abcd', vecs, vecs)
     np.testing.assert_allclose(ref, chol, rtol=1e-5, atol=1e-8)
 
 
-def test_cholesky_ralpha_from_gbasis():
+def test_cholesky_ralpha():
     obasis = get_h2o_obasis()
     alpha = -2.0
-    ref = obasis.compute_ralpha_repulsion(DenseLinalgFactory(obasis.nbasis), alpha)._array
-    vecs = obasis.compute_ralpha_repulsion(CholeskyLinalgFactory(obasis.nbasis), alpha)._array
+    ref = obasis.compute_ralpha_repulsion(alpha)
+    vecs = obasis.compute_ralpha_repulsion_cholesky(alpha)
     chol = np.einsum('kac,kbd->abcd', vecs, vecs)
     np.testing.assert_allclose(ref, chol, rtol=1e-5, atol=1e-8)

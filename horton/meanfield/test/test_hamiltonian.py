@@ -27,9 +27,9 @@ from horton.meanfield.test.common import check_interpolation, helper_compute
 def test_energy_hydrogen():
     fn_fchk = context.get_fn('test/h_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)
-    kin = mol.obasis.compute_kinetic(mol.lf)
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    kin = mol.obasis.compute_kinetic()
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    er = mol.obasis.compute_electron_repulsion()
     terms = [
         UTwoIndexTerm(kin, 'kin'),
         UDirectTerm(er, 'hartree'),
@@ -38,7 +38,7 @@ def test_energy_hydrogen():
     ]
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     ham = UEffHam(terms, external)
-    helper_compute(ham, mol.lf, mol.exp_alpha, mol.exp_beta)
+    helper_compute(ham, mol.orb_alpha, mol.orb_beta)
     assert abs(ham.cache['energy'] - -4.665818503844346E-01) < 1e-8
 
 
@@ -47,10 +47,10 @@ def test_cubic_interpolation_hfs_cs():
     mol = IOData.from_file(fn_fchk)
 
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
-    olp = mol.obasis.compute_overlap(mol.lf)
-    kin = mol.obasis.compute_kinetic(mol.lf)
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    olp = mol.obasis.compute_overlap()
+    kin = mol.obasis.compute_kinetic()
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    er = mol.obasis.compute_electron_repulsion()
     terms = [
         RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
@@ -61,7 +61,7 @@ def test_cubic_interpolation_hfs_cs():
     ]
     ham = REffHam(terms)
 
-    check_interpolation(ham, mol.lf, olp, kin, na, [mol.exp_alpha])
+    check_interpolation(ham, olp, kin, na, [mol.orb_alpha])
 
 
 def test_perturbation():
@@ -70,10 +70,10 @@ def test_perturbation():
     scf_solver = PlainSCFSolver(maxiter=1024)
 
     # Without perturbation
-    olp = mol.obasis.compute_overlap(mol.lf)
-    kin = mol.obasis.compute_kinetic(mol.lf)
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    olp = mol.obasis.compute_overlap()
+    kin = mol.obasis.compute_kinetic()
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    er = mol.obasis.compute_electron_repulsion()
     terms = [
         RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
@@ -83,18 +83,18 @@ def test_perturbation():
     ham = REffHam(terms)
     occ_model = AufbauOccModel(7)
 
-    assert convergence_error_eigen(ham, mol.lf, olp, mol.exp_alpha) > 1e-8
-    scf_solver(ham, mol.lf, olp, occ_model, mol.exp_alpha)
-    assert convergence_error_eigen(ham, mol.lf, olp, mol.exp_alpha) < 1e-8
+    assert convergence_error_eigen(ham, olp, mol.orb_alpha) > 1e-8
+    scf_solver(ham, olp, occ_model, mol.orb_alpha)
+    assert convergence_error_eigen(ham, olp, mol.orb_alpha) < 1e-8
     energy0 = ham.compute_energy()
 
     # Construct a perturbation based on the Mulliken AIM operator
     assert mol.obasis.nbasis % 2 == 0
     nfirst = mol.obasis.nbasis / 2
-    operator = mol.obasis.compute_overlap(mol.lf).copy()
-    operator._array[:nfirst,nfirst:] *= 0.5
-    operator._array[nfirst:,:nfirst] *= 0.5
-    operator._array[nfirst:,nfirst:] = 0.0
+    operator = mol.obasis.compute_overlap().copy()
+    operator[:nfirst,nfirst:] *= 0.5
+    operator[nfirst:,:nfirst] *= 0.5
+    operator[nfirst:,nfirst:] = 0.0
 
     # Apply the perturbation with oposite signs and check that, because of
     # symmetry, the energy of the perturbed wavefunction is the same in both
@@ -102,8 +102,7 @@ def test_perturbation():
     energy1_old = None
     for scale in 0.1, -0.1:
         # Perturbation
-        tmp = operator.copy()
-        tmp.iscale(scale)
+        tmp = scale*operator
         perturbation = RTwoIndexTerm(tmp, 'pert')
         # Hamiltonian
         terms = [
@@ -114,9 +113,9 @@ def test_perturbation():
             perturbation,
         ]
         ham = REffHam(terms)
-        assert convergence_error_eigen(ham, mol.lf, olp, mol.exp_alpha) > 1e-8
-        scf_solver(ham, mol.lf, olp, occ_model, mol.exp_alpha)
-        assert convergence_error_eigen(ham, mol.lf, olp, mol.exp_alpha) < 1e-8
+        assert convergence_error_eigen(ham, olp, mol.orb_alpha) > 1e-8
+        scf_solver(ham, olp, occ_model, mol.orb_alpha)
+        assert convergence_error_eigen(ham, olp, mol.orb_alpha) < 1e-8
         energy1 = ham.compute_energy()
         energy1 -= ham.cache['energy_pert']
 
@@ -130,10 +129,10 @@ def test_perturbation():
 def test_ghost_hf():
     fn_fchk = context.get_fn('test/water_dimer_ghost.fchk')
     mol = IOData.from_file(fn_fchk)
-    olp = mol.obasis.compute_overlap(mol.lf)
-    kin = mol.obasis.compute_kinetic(mol.lf)
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    olp = mol.obasis.compute_overlap()
+    kin = mol.obasis.compute_kinetic()
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, )
+    er = mol.obasis.compute_electron_repulsion()
     terms = [
         RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
@@ -143,4 +142,4 @@ def test_ghost_hf():
     ham = REffHam(terms)
     # The convergence should be reasonable, not perfect because of limited
     # precision in Gaussian fchk file:
-    assert convergence_error_eigen(ham, mol.lf, olp, mol.exp_alpha) < 1e-5
+    assert convergence_error_eigen(ham, olp, mol.orb_alpha) < 1e-5

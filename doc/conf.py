@@ -245,10 +245,6 @@ man_pages = [
 breathe_projects = { "horton": "doxyxml" }
 breathe_default_project = "horton"
 
-pngmath_latex_preamble = r"\usepackage{color,amsmath}"
-pngmath_use_preview = True
-pngmath_dvipng_args = ['-gamma 1.6', '-D 120']
-
 sys.path.append('../')
 os.environ['HORTONDATA'] = '../data'
 autoclass_content = "init"

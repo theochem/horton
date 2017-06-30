@@ -27,12 +27,12 @@ from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 def check_response(fn):
     mol = IOData.from_file(fn)
-    operators = get_mulliken_operators(mol.obasis, mol.lf)
-    exps = [mol.exp_alpha]
-    if hasattr(mol, 'exp_beta'):
-        exps.append(mol.exp_beta)
-    for exp in exps:
-        response = compute_noninteracting_response(exp, operators)
+    operators = get_mulliken_operators(mol.obasis)
+    orbs = [mol.orb_alpha]
+    if hasattr(mol, 'orb_beta'):
+        orbs.append(mol.orb_beta)
+    for orb in orbs:
+        response = compute_noninteracting_response(orb, operators)
         assert np.isfinite(response).all()
         assert abs(response.sum(axis=0)).max() < 1e-3
         evals = np.linalg.eigvalsh(response)

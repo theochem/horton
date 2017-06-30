@@ -38,13 +38,13 @@ __all__ = [
 class OccModel(object):
     '''Base class for the occupation models'''
 
-    def assign(self, *exps):
-        '''Assign occupation numbers to the expansion objects
+    def assign(self, *orbs):
+        '''Assign occupation numbers to the Orbitals objects
 
            **Arguments:**
 
-           exp_alpha, exp_beta, ...
-                Expansion objects
+           orb_alpha, orb_beta, ...
+                Orbitals objects
         '''
         raise NotImplementedError
 
@@ -72,12 +72,12 @@ class FixedOccModel(OccModel):
         self.occ_arrays = occ_arrays
 
     @doc_inherit(OccModel)
-    def assign(self, *exps):
-        if len(exps) != len(self.occ_arrays):
-            raise TypeError('Expected %i expansion objects, got %i.' % (len(self.nocc), len(exps)))
-        for exp, occ_array in zip(exps, self.occ_arrays):
-            exp.occupations[:len(occ_array)] = occ_array
-            exp.occupations[len(occ_array):] = 0.0
+    def assign(self, *orbs):
+        if len(orbs) != len(self.occ_arrays):
+            raise TypeError('Expected %i Orbitals objects, got %i.' % (len(self.nocc), len(orbs)))
+        for orb, occ_array in zip(orbs, self.occ_arrays):
+            orb.occupations[:len(occ_array)] = occ_array
+            orb.occupations[len(occ_array):] = 0.0
 
     @doc_inherit(OccModel)
     def check_dms(self, overlap, *dms, **kwargs):
@@ -87,7 +87,7 @@ class FixedOccModel(OccModel):
         if len(dms) != len(self.occ_arrays):
             raise TypeError('The number of density matrices is incorrect.')
         for dm, occ_array in zip(dms, self.occ_arrays):
-            assert abs(overlap.contract_two('ab,ba', dm) - occ_array.sum()) < eps
+            assert abs(np.einsum('ab,ba', overlap, dm) - occ_array.sum()) < eps
 
 
 class AufbauOccModel(OccModel):
@@ -113,20 +113,20 @@ class AufbauOccModel(OccModel):
         self.noccs = noccs
 
     @doc_inherit(OccModel)
-    def assign(self, *exps):
-        if len(exps) != len(self.noccs):
-            raise TypeError('Expected %i expansion objects, got %i.' % (len(self.nocc), len(exps)))
-        for exp, nocc in zip(exps, self.noccs):
-            if exp.nfn < nocc:
+    def assign(self, *orbs):
+        if len(orbs) != len(self.noccs):
+            raise TypeError('Expected %i Orbitals objects, got %i.' % (len(self.nocc), len(orbs)))
+        for orb, nocc in zip(orbs, self.noccs):
+            if orb.nfn < nocc:
                 raise ElectronCountError('The number of orbitals must not be lower than the number of alpha or beta electrons.')
             # It is assumed that the orbitals are sorted from low to high energy.
             if nocc == int(nocc):
-                exp.occupations[:nocc] = 1.0
-                exp.occupations[nocc:] = 0.0
+                orb.occupations[:nocc] = 1.0
+                orb.occupations[nocc:] = 0.0
             else:
-                exp.occupations[:int(np.floor(nocc))] = 1.0
-                exp.occupations[int(np.floor(nocc))] = nocc - np.floor(nocc)
-                exp.occupations[int(np.ceil(nocc)):] = 0.0
+                orb.occupations[:int(np.floor(nocc))] = 1.0
+                orb.occupations[int(np.floor(nocc))] = nocc - np.floor(nocc)
+                orb.occupations[int(np.ceil(nocc)):] = 0.0
 
     @doc_inherit(OccModel)
     def check_dms(self, overlap, *dms, **kwargs):
@@ -136,7 +136,7 @@ class AufbauOccModel(OccModel):
         if len(dms) != len(self.noccs):
             raise TypeError('The number of density matrices is incorrect.')
         for dm, nocc in zip(dms, self.noccs):
-            assert abs(overlap.contract_two('ab,ba', dm) - nocc) < eps
+            assert abs(np.einsum('ab,ba', overlap, dm) - nocc) < eps
 
 
 class AufbauSpinOccModel(OccModel):
@@ -153,16 +153,16 @@ class AufbauSpinOccModel(OccModel):
         self.nel = nel
 
     @doc_inherit(OccModel)
-    def assign(self, exp_alpha, exp_beta):
+    def assign(self, orb_alpha, orb_beta):
         nel = self.nel
         ialpha = 0
         ibeta = 0
         while nel > 0:
-            if exp_alpha.energies[ialpha] <= exp_beta.energies[ibeta]:
-                exp_alpha.occupations[ialpha] = min(1.0, nel)
+            if orb_alpha.energies[ialpha] <= orb_beta.energies[ibeta]:
+                orb_alpha.occupations[ialpha] = min(1.0, nel)
                 ialpha += 1
             else:
-                exp_beta.occupations[ibeta] = min(1.0, nel)
+                orb_beta.occupations[ibeta] = min(1.0, nel)
                 ibeta += 1
             nel -= 1
 
@@ -171,7 +171,7 @@ class AufbauSpinOccModel(OccModel):
         eps = kwargs.pop('eps', 1e-4)
         if len(kwargs) > 0:
             raise TypeError('Unexpected keyword arguments: %s' % kwargs.keys())
-        assert abs(sum(overlap.contract_two('ab,ba', dm) for dm in dms) - self.nel) < eps
+        assert abs(sum(np.einsum('ab,ba', overlap, dm) for dm in dms) - self.nel) < eps
 
 
 class FermiOccModel(AufbauOccModel):
@@ -224,23 +224,23 @@ class FermiOccModel(AufbauOccModel):
         biblio.cite('rabuck1999', 'the Fermi broading method to assign orbital occupations')
 
     @doc_inherit(OccModel)
-    def assign(self, *exps):
+    def assign(self, *orbs):
         beta = 1.0/self.temperature/boltzmann
-        for exp, nocc in zip(exps, self.noccs):
+        for orb, nocc in zip(orbs, self.noccs):
             def get_occ(mu):
-                occ = np.zeros(exp.nfn)
-                mask = exp.energies < mu
-                e = np.exp(beta*(exp.energies[mask] - mu))
+                occ = np.zeros(orb.nfn)
+                mask = orb.energies < mu
+                e = np.exp(beta*(orb.energies[mask] - mu))
                 occ[mask] = 1.0/(e + 1.0)
                 mask = ~mask
-                e = np.exp(-beta*(exp.energies[mask] - mu))
+                e = np.exp(-beta*(orb.energies[mask] - mu))
                 occ[mask] = e/(1.0 + e)
                 return occ
 
             def error(mu):
                 return nocc - get_occ(mu).sum()
 
-            mu0 = exp.energies[exp.nfn/2]
+            mu0 = orb.energies[orb.nfn/2]
             error0 = error(mu0)
             delta = 0.1*(1 - 2*(error0 < 0))
             for i in xrange(100):
@@ -251,7 +251,7 @@ class FermiOccModel(AufbauOccModel):
                 delta *= 2
 
             if error1 == 0:
-                exp.occupations[:] = get_occ(mu1)
+                orb.occupations[:] = get_occ(mu1)
             else:
                 mu, error = find_1d_root(error, (mu0, error0), (mu1, error1), eps=self.eps)
-                exp.occupations[:] = get_occ(mu)
+                orb.occupations[:] = get_occ(mu)

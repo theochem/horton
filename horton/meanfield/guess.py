@@ -22,62 +22,37 @@
 
 
 from horton.log import log, timer
-from horton.matrix.base import TwoIndex, Expansion
 
 
 __all__ = ['guess_core_hamiltonian']
 
 
 @timer.with_section('Initial Guess')
-def guess_core_hamiltonian(overlap, *args, **kwargs):
-    '''Guess the orbitals by diagonalizing a core Hamiltonian
+def guess_core_hamiltonian(overlap, core, *orbs):
+    '''Guess the orbitals by diagonalizing a core Hamiltonian.
 
-       **Arguments:**
+    Parameters
+    ----------
+    overlap : np.ndarray, shape=(nbasis, nbasis), dtype=float
+        The overlap operator.
+    core : np.ndarray, shape=(nbasis, nbasis), dtype=float
+        The core Hamiltonian. operator that resembles a Fock operator is fine. Usually,
+        one adds the kinetic energy and nuclear attraction integrals.
+    orb1, orb2, ... : Orbitals
+        A list of Orbitals objects (output arguments)
 
-       overlap
-            The overlap operator.
-
-       core1, core2, ...
-            A number of operators that add up to the core Hamiltonian. Any set
-            of operators whose sum resembles a Fock operator is fine. Usually,
-            one passes the kinetic energy and nuclear attraction integrals.
-
-       exp1, exp2, ...
-            A list of wavefunction expansion objects (output arguments)
-
-       This method only modifies the expansion coefficients and the orbital
-       energies.
+    This method only modifies the expansion coefficients and the orbital energies.
     '''
-    if len(kwargs) != 0:
-        raise TypeError('Unknown keyword arguments: %s' % kwargs.keys())
-
     if log.do_medium:
         log('Performing a core Hamiltonian guess.')
         log.blank()
 
-    core = []
-    exps = []
-    for arg in args:
-        if isinstance(arg, TwoIndex):
-            core.append(arg)
-        elif isinstance(arg, Expansion):
-            exps.append(arg)
-        else:
-            raise TypeError('argument of unsupported type: %s' % arg)
-
-    if len(core) == 0:
-        raise TypeError('At least one term is needed for the core Hamiltonian.')
-    if len(exps) == 0:
-        raise TypeError('At least one wavefunction expansion is needed.')
-
-    # Take sum of operators for core hamiltonian
-    hamcore = core[0].copy()
-    for term in core[1:]:
-        hamcore.iadd(term)
+    if len(orbs) == 0:
+        raise TypeError('At least one set of orbitals.')
 
     # Compute orbitals.
-    exps[0].from_fock(hamcore, overlap)
-    # Copy to other expansions.
-    for i in xrange(1, len(exps)):
-        exps[i].coeffs[:] = exps[0].coeffs
-        exps[i].energies[:] = exps[0].energies
+    orbs[0].from_fock(core, overlap)
+    # Copy to other Orbitals objects.
+    for i in xrange(1, len(orbs)):
+        orbs[i].coeffs[:] = orbs[0].coeffs
+        orbs[i].energies[:] = orbs[0].energies

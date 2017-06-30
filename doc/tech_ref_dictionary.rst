@@ -67,9 +67,9 @@ Variable names and prefixes
 :index:`fock`
     A Fock matrix.
 
-:index:`exp`
+:index:`orb`
     An expansion of orbitals in a basis set, with orbital energies and
-    occupation numbers. (``exp_alpha`` and ``exp_beta`` are typically used for
+    occupation numbers. (``orb_alpha`` and ``orb_beta`` are typically used for
     alpha and beta orbitals, respectively.)
 
 :index:`grid`

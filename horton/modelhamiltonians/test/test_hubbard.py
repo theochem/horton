@@ -27,17 +27,16 @@ def test_1d_hubbard_hamiltonian():
     # Test the half-filled 1-D Hubbard model Hamiltonian
     # with 10 sites for U=2 and using PBC
 
-    lf = DenseLinalgFactory(10)
     occ_model = AufbauOccModel(5)
-    modelham = Hubbard(pbc=True)
-    exp_alpha = lf.create_expansion(10)
-    olp = modelham.compute_overlap(lf)
+    modelham = Hubbard(10, pbc=True)
+    orb_alpha = Orbitals(10)
+    olp = modelham.compute_overlap()
     # t-param, t = -1
-    kin = modelham.compute_kinetic(lf, -1)
+    kin = modelham.compute_kinetic(-1)
     # U-param, U = 2
-    er = modelham.compute_er(lf, 2)
+    er = modelham.compute_er(2)
     # Guess
-    guess_core_hamiltonian(olp, kin, exp_alpha)
+    guess_core_hamiltonian(olp, kin, orb_alpha)
     terms = [
         RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
@@ -45,7 +44,7 @@ def test_1d_hubbard_hamiltonian():
     ]
     ham = REffHam(terms)
     scf_solver = PlainSCFSolver()
-    scf_solver(ham, lf, olp, occ_model, exp_alpha)
+    scf_solver(ham, olp, occ_model, orb_alpha)
     energy = ham.compute_energy()
 
     assert (abs(energy --7.94427) < 1e-4)
@@ -55,17 +54,16 @@ def test_1d_hubbard_hamiltonian_no_pbc():
     # Test the half-filled 1-D Hubbard model Hamiltonian
     # with 10 sites for U=2 without PBC
 
-    lf = DenseLinalgFactory(10)
     occ_model = AufbauOccModel(5)
-    modelham = Hubbard(pbc=False)
-    exp_alpha = lf.create_expansion(10)
-    olp = modelham.compute_overlap(lf)
+    modelham = Hubbard(10, pbc=False)
+    orb_alpha = Orbitals(10)
+    olp = modelham.compute_overlap()
     # t-param, t = -1
-    kin = modelham.compute_kinetic(lf, -1)
+    kin = modelham.compute_kinetic(-1)
     # U-param, U = 2
-    er = modelham.compute_er(lf, 2)
+    er = modelham.compute_er(2)
     # Guess
-    guess_core_hamiltonian(olp, kin, exp_alpha)
+    guess_core_hamiltonian(olp, kin, orb_alpha)
     terms = [
         RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
@@ -73,7 +71,7 @@ def test_1d_hubbard_hamiltonian_no_pbc():
     ]
     ham = REffHam(terms)
     scf_solver = PlainSCFSolver()
-    scf_solver(ham, lf, olp, occ_model, exp_alpha)
+    scf_solver(ham, olp, occ_model, orb_alpha)
     energy = ham.compute_energy()
 
     assert (abs(energy --7.0533) < 1e-4)

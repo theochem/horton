@@ -152,7 +152,7 @@ class EffHam(object):
             A list of output Fock operators. Old content is discarded.
         """
         for fock in focks:
-            fock.clear()
+            fock[:] = 0.0
         # Loop over all terms and add contributions to the Fock matrix.
         for term in self.terms:
             term.add_fock(self.cache, *focks)
@@ -175,7 +175,7 @@ class EffHam(object):
         related to the definition of the Fock matrix.
         """
         for output in outputs:
-            output.clear()
+            output[:] = 0.0
         # Loop over all terms and add contributions to the output two-index
         # objects.
         for term in self.terms:
@@ -192,15 +192,15 @@ class REffHam(EffHam):
     def reset(self, in_dm_alpha):
         self.cache.clear()
         # Take a copy of the input alpha density matrix in the cache.
-        dm_alpha = self.cache.load('dm_alpha', alloc=in_dm_alpha.new)[0]
-        dm_alpha.assign(in_dm_alpha)
+        dm_alpha = self.cache.load('dm_alpha', alloc=in_dm_alpha.shape)[0]
+        dm_alpha[:] = in_dm_alpha
 
     @doc_inherit(EffHam)
     def reset_delta(self, in_delta_dm_alpha):
         self.cache.clear(tags='d')
         # Take a copy of the input alpha delta density matrix in the cache.
-        delta_dm_alpha = self.cache.load('delta_dm_alpha', alloc=in_delta_dm_alpha.new, tags='d')[0]
-        delta_dm_alpha.assign(in_delta_dm_alpha)
+        delta_dm_alpha = self.cache.load('delta_dm_alpha', alloc=in_delta_dm_alpha.shape, tags='d')[0]
+        delta_dm_alpha[:] = in_delta_dm_alpha
 
     @doc_inherit(EffHam)
     def compute_fock(self, fock_alpha):
@@ -220,19 +220,19 @@ class UEffHam(EffHam):
     def reset(self, in_dm_alpha, in_dm_beta):
         self.cache.clear()
         # Take copies of the input alpha and beta density matrices in the cache.
-        dm_alpha = self.cache.load('dm_alpha', alloc=in_dm_alpha.new)[0]
-        dm_alpha.assign(in_dm_alpha)
-        dm_beta = self.cache.load('dm_beta', alloc=in_dm_beta.new)[0]
-        dm_beta.assign(in_dm_beta)
+        dm_alpha = self.cache.load('dm_alpha', alloc=in_dm_alpha.shape)[0]
+        dm_alpha[:] = in_dm_alpha
+        dm_beta = self.cache.load('dm_beta', alloc=in_dm_beta.shape)[0]
+        dm_beta[:] = in_dm_beta
 
     @doc_inherit(EffHam)
     def reset_delta(self, in_delta_dm_alpha, in_delta_dm_beta):
         self.cache.clear(tags='d')
         # Take a copy of the input alpha and beta delta density matrix in the cache.
-        delta_dm_alpha = self.cache.load('delta_dm_alpha', alloc=in_delta_dm_alpha.new, tags='d')[0]
-        delta_dm_alpha.assign(in_delta_dm_alpha)
-        delta_dm_beta = self.cache.load('delta_dm_beta', alloc=in_delta_dm_beta.new, tags='d')[0]
-        delta_dm_beta.assign(in_delta_dm_beta)
+        delta_dm_alpha = self.cache.load('delta_dm_alpha', alloc=in_delta_dm_alpha.shape, tags='d')[0]
+        delta_dm_alpha[:] = in_delta_dm_alpha
+        delta_dm_beta = self.cache.load('delta_dm_beta', alloc=in_delta_dm_beta.shape, tags='d')[0]
+        delta_dm_beta[:] = in_delta_dm_beta
 
     @doc_inherit(EffHam)
     def compute_fock(self, fock_alpha, fock_beta):

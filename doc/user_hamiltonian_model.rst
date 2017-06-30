@@ -50,21 +50,6 @@ hopping, while the second term is the repulsive on-site interaction. The :math:`
 and :math:`U` are user specified parameters and :math:`\sigma` is the electron spin.
 
 
-Preliminaries
--------------
-
-In contrast to the molecular Hamiltonian, the Hubbard Hamiltonian does not require
-a molecule and :py:class:`~horton.gbasis.cext.GOBasis` instance. Instead, a
-:py:class:`~horton.matrix.dense.DenseLinalgFactory` instance can
-be immediately created,
-
-.. code-block:: python
-
-   lf = DenseLinalgFactory(n)
-
-Note that ``CholeskyLinalgFactory`` is not supported.
-
-
 Defining the Hamiltonian and boundary conditions (open or periodic)
 -------------------------------------------------------------------
 
@@ -87,14 +72,14 @@ using the method :py:meth:`~horton.modelhamiltonians.physmodham.Hubbard.compute_
 
 .. code-block:: python
 
-   hopping = modelham.compute_kinetic(lf, t)
+   hopping = modelham.compute_kinetic(t)
 
 The the on-site repulsion :math:`U` is calculated using the method
 :py:meth:`~horton.modelhamiltonians.physmodham.Hubbard.compute_er`:
 
 .. code-block:: python
 
-    onsite = modelham.compute_er(lf, U)
+    onsite = modelham.compute_er(U)
 
 Finally, all terms of the 1-dimensional Hubbard Hamiltonian are combined together
 and passed to the effective Hamiltonian class, :py:class:`~horton.meanfield.hamiltonian.REffHam`,
@@ -129,13 +114,12 @@ must be restricted.
 Generate initial guess orbitals and overlap matrix
 --------------------------------------------------
 
-The instance of class :py:class:`~horton.matrix.dense.DenseExpansion` by using
-the method :py:meth:`~horton.matrix.dense.DenseLinalgFactory.create_expansion`
-is used to initiate the orbitals:
+The instance of class :py:class:`~horton.meanfield.orbitals.Orbitals` must be created
+first:
 
 .. code-block:: python
 
-    orb = lf.create_expansion(n)
+    orb = Orbitals(n)
 
 An initial guess can be obtained with
 :py:func:`~horton.meanfield.guess.guess_core_hamiltonian`:
@@ -149,7 +133,7 @@ The overlap matrix of the Hubbard model can be computed using the method
 
 .. code-block:: python
 
-    olp = modelham.compute_overlap(lf)
+    olp = modelham.compute_overlap()
 
 
 Example Python script
@@ -165,4 +149,4 @@ boundary conditions are used.
 
 .. literalinclude:: ../data/examples/hamiltonian/hubbard.py
     :caption: data/examples/hamiltonian/hubbard.py
-    :lines: 3-38
+    :lines: 3-37

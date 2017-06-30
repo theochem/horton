@@ -31,7 +31,6 @@ import numpy as np
 
 from horton.cext import Cell
 from horton.moments import get_cartesian_powers
-from horton.matrix.dense import DenseTwoIndex, DenseFourIndex
 from horton.meanfield.occ import AufbauOccModel
 
 
@@ -39,8 +38,7 @@ __all__ = [
     'in_horton_source_root',
     'check_script', 'check_script_in_tmp', 'check_delta',
     'get_random_cell', 'get_pentagon_moments',
-    'compare_expansions', 'compare_all_expansions', 'compare_dms',
-    'compare_all_dms', 'compare_operators', 'compare_occ_model', 'compare_exps',
+    'compare_occ_model', 'compare_orbs',
     'compare_mols', 'compare_symmetries',
     'tmpdir', 'numpy_seed', 'truncated_file',
 ]
@@ -265,52 +263,6 @@ def get_point_moments(coordinates, rmat=None, lmax=4):
     return result
 
 
-def compare_expansions(wfn1, wfn2, spin):
-    if 'exp_%s' % spin in wfn1._cache:
-        assert 'exp_%s' % spin in wfn2._cache
-        e1 = wfn1.get_exp(spin)
-        e2 = wfn2.get_exp(spin)
-        assert e1.nbasis == e2.nbasis
-        assert e1.nfn == e2.nfn
-        assert (e1.coeffs == e2.coeffs).all()
-        assert (e1.energies == e2.energies).all()
-        assert (e1.occupations == e2.occupations).all()
-    else:
-        assert 'exp_%s' % spin not in wfn2._cache
-
-
-def compare_all_expansions(wfn1, wfn2):
-    compare_expansions(wfn1, wfn2, 'alpha')
-    compare_expansions(wfn1, wfn2, 'beta')
-
-
-def compare_dms(wfn1, wfn2, select):
-    if 'dm_%s' % select in wfn1._cache:
-        assert 'dm_%s' % select in wfn2._cache
-        dm1 = wfn1.get_dm(select)
-        dm2 = wfn2.get_dm(select)
-        assert dm1.nbasis == dm2.nbasis
-        assert (dm1._array == dm2._array).all()
-    else:
-        assert 'dm_%s' % select not in wfn2._cache
-
-
-def compare_all_dms(wfn1, wfn2):
-    compare_dms(wfn1, wfn2, 'alpha')
-    compare_dms(wfn1, wfn2, 'beta')
-    compare_dms(wfn1, wfn2, 'full')
-    compare_dms(wfn1, wfn2, 'spin')
-
-
-def compare_operators(op1, op2):
-    if isinstance(op1, DenseTwoIndex) or isinstance(op1, DenseFourIndex):
-        assert isinstance(op2, op1.__class__)
-        assert op1.nbasis == op2.nbasis
-        assert (op1._array == op2._array).all()
-    else:
-        raise NotImplementedError
-
-
 def compare_occ_model(occ_model1, occ_model2):
     assert occ_model1.__class__ == occ_model2.__class__
     if occ_model1 is None:
@@ -322,12 +274,12 @@ def compare_occ_model(occ_model1, occ_model2):
         raise NotImplementedError
 
 
-def compare_exps(exp1, exp2):
-    assert exp1.nbasis == exp2.nbasis
-    assert exp1.nfn == exp2.nfn
-    assert (exp1.coeffs == exp2.coeffs).all()
-    assert (exp1.energies == exp2.energies).all()
-    assert (exp1.occupations == exp2.occupations).all()
+def compare_orbs(orb1, orb2):
+    assert orb1.nbasis == orb2.nbasis
+    assert orb1.nfn == orb2.nfn
+    assert (orb1.coeffs == orb2.coeffs).all()
+    assert (orb1.energies == orb2.energies).all()
+    assert (orb1.occupations == orb2.occupations).all()
 
 
 def compare_mols(mol1, mol2):
@@ -345,10 +297,10 @@ def compare_mols(mol1, mol2):
     else:
         assert mol2.obasis is None
     # wfn
-    for key in 'exp_alpha', 'exp_beta':
+    for key in 'orb_alpha', 'orb_beta':
         if hasattr(mol1, key):
             assert hasattr(mol2, key)
-            compare_exps(getattr(mol1, key), getattr(mol2, key))
+            compare_orbs(getattr(mol1, key), getattr(mol2, key))
         else:
             assert not hasattr(mol2, key)
     # operators
@@ -357,7 +309,7 @@ def compare_mols(mol1, mol2):
                'dm_full_cc', 'dm_spin_cc', 'dm_full_scf', 'dm_spin_scf':
         if hasattr(mol1, key):
             assert hasattr(mol2, key)
-            compare_operators(getattr(mol1, key), getattr(mol2, key))
+            np.testing.assert_equal(getattr(mol1, key), getattr(mol2, key))
         else:
             assert not hasattr(mol2, key)
 

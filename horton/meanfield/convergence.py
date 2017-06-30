@@ -25,6 +25,8 @@
 '''
 
 
+import numpy as np
+
 from horton.meanfield.utils import compute_commutator
 
 
@@ -33,69 +35,63 @@ __all__ = [
 ]
 
 
-def convergence_error_eigen(ham, lf, overlap, *exps):
+def convergence_error_eigen(ham, overlap, *orbs):
     '''Compute the self-consistency error
 
-       **Arguments:**
+    Parameters
+    ----------
+    ham
+        A Hamiltonian instance.
+    overlap
+        The overlap operator.
+    orb1, orb2, ...
+        A list of wavefunction expansion objects. (The number must match
+        ham.ndm.)
 
-       ham
-            A Hamiltonian instance.
-
-       lf
-            The linalg factory to be used.
-
-       overlap
-            The overlap operator.
-
-       exp1, exp2, ...
-            A list of wavefunction expansion objects. (The number must match
-            ham.ndm.)
-
-       **Returns:** The SCF error. This measure (not this function) is also used
-       in some SCF algorithms to check for convergence.
+    Returns
+    -------
+    error: float
+        The SCF error. This measure (not this function) is also used in some SCF
+        algorithms to check for convergence.
     '''
-    if len(exps) != ham.ndm:
-        raise TypeError('Expecting %i expansions, got %i.' % (ham.ndm, len(exps)))
-    dms = [exp.to_dm() for exp in exps]
+    if len(orbs) != ham.ndm:
+        raise TypeError('Expecting %i sets of orbitals, got %i.' % (ham.ndm, len(orbs)))
+    dms = [orb.to_dm() for orb in orbs]
     ham.reset(*dms)
-    focks = [lf.create_two_index() for i in xrange(ham.ndm)]
+    focks = [np.zeros(dms[0].shape) for i in xrange(ham.ndm)]
     ham.compute_fock(*focks)
     error = 0.0
     for i in xrange(ham.ndm):
-        error += exps[i].error_eigen(focks[i], overlap)
+        error += orbs[i].error_eigen(focks[i], overlap)
     return error
 
 
-def convergence_error_commutator(ham, lf, overlap, *dms):
+def convergence_error_commutator(ham, overlap, *dms):
     '''Compute the commutator error
 
-       **Arguments:**
+    Parameters
+    ----------
+    ham
+        A Hamiltonian instance.
+    overlap
+        The overlap operator.
+    dm1, dm2, ...
+        A list of density matrices. The numbers of dms must match ham.ndm.
 
-       ham
-            A Hamiltonian instance.
-
-       lf
-            The linalg factory to be used.
-
-       overlap
-            The overlap operator.
-
-       dm1, dm2, ...
-            A list of density matrices. The numbers of dms must match ham.ndm.
-
-       **Returns:** The commutator error. This measure (not this function) is
-       also used in some SCF algorithms to check for convergence.
+    Returns
+    -------
+    error: float
+        The commutator error. This measure (not this function) is also used in some SCF
+        algorithms to check for convergence.
     '''
     if len(dms) != ham.ndm:
         raise TypeError('Expecting %i density matrices, got %i.' % (ham.ndm, len(dms)))
     ham.reset(*dms)
-    focks = [lf.create_two_index() for i in xrange(ham.ndm)]
+    focks = [np.zeros(dms[0].shape) for i in xrange(ham.ndm)]
     ham.compute_fock(*focks)
     error = 0.0
-    work = lf.create_two_index()
-    commutator = lf.create_two_index()
     errorsq = 0.0
     for i in xrange(ham.ndm):
-        compute_commutator(dms[i], focks[i], overlap, work, commutator)
-        errorsq += commutator.contract_two('ab,ab', commutator)
+        commutator = compute_commutator(dms[i], focks[i], overlap)
+        errorsq += np.einsum('ab,ab', commutator, commutator)
     return errorsq**0.5

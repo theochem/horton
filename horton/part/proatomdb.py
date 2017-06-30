@@ -107,9 +107,8 @@ class ProAtomRecord(object):
         rho, deriv = atgrid.get_spherical_average(rho_all, grads=[grad_all])
 
         # Derive the number of electrions and the charge
-        overlap = dm_full.new()
-        obasis.compute_overlap(overlap)
-        nel = overlap.contract_two('ab,ba', dm_full)
+        overlap = obasis.compute_overlap()
+        nel = np.einsum('ab,ba', overlap, dm_full)
         assert abs(nel - int(np.round(nel))) < 1e-4 # only integer nel are supported
         nel = int(np.round(nel))
         charge = pseudo_number - nel

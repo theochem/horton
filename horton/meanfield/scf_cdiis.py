@@ -69,12 +69,9 @@ class CDIISHistory(DIISHistory):
     name = 'CDIIS'
     need_energy = False
 
-    def __init__(self, lf, nvector, ndm, deriv_scale, overlap):
+    def __init__(self, nvector, ndm, deriv_scale, overlap):
         '''
            **Arguments:**
-
-           lf
-                The LinalgFactor used to create the two-index operators.
 
            nvector
                 The maximum size of the history.
@@ -91,7 +88,7 @@ class CDIISHistory(DIISHistory):
         '''
         self.cdots = np.empty((nvector, nvector))
         self.cdots.fill(np.nan)
-        DIISHistory.__init__(self, lf, nvector, ndm, deriv_scale, overlap, [self.cdots])
+        DIISHistory.__init__(self, nvector, ndm, deriv_scale, overlap, [self.cdots])
 
     def _complete_cdots_matrix(self):
         '''Complete the matrix of dot products between commutators
@@ -109,7 +106,7 @@ class CDIISHistory(DIISHistory):
                 state1 = self.stack[i1]
                 cdot = 0.0
                 for j in xrange(self.ndm):
-                    cdot += state0.commutators[j].contract_two('ab,ab', state1.commutators[j])
+                    cdot += np.einsum('ab,ab', state0.commutators[j], state1.commutators[j])
                 self.cdots[i0,i1] = cdot
                 self.cdots[i1,i0] = cdot
 
@@ -122,7 +119,8 @@ class CDIISHistory(DIISHistory):
         coeffs = solve_cdiis(self.cdots[:self.nused,:self.nused])
         # get a condition number
         absevals = abs(np.linalg.eigvalsh(self.cdots[:self.nused,:self.nused]))
-        cn = absevals.max()/absevals.min()
+        with np.errstate(divide='ignore'):
+            cn = absevals.max()/absevals.min()
         # assign extrapolated fock
         error = self._build_combinations(coeffs, dms_output, focks_output)
         return None, coeffs, cn, 'C', error

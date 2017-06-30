@@ -29,13 +29,13 @@ __all__ = ['compute_noninteracting_response']
 
 
 @timer.with_section('KS Response')
-def compute_noninteracting_response(exp, operators, work=None):
+def compute_noninteracting_response(orb, operators, work=None):
     '''Compute the non-interacting response matrix for a given orbital expansion
 
        **Arguments:**
 
-       exp
-            An instance of DenseExpansion.
+       orb
+            orbitals.
 
        operators
             A list of one-body operators.
@@ -53,18 +53,18 @@ def compute_noninteracting_response(exp, operators, work=None):
        non-interacting response matrix.
     '''
     # Convert the operators to the orbital basis
-    coeffs = exp.coeffs
-    norb = exp.nfn
+    coeffs = orb.coeffs
+    norb = orb.nfn
     nop = len(operators)
 
     if work is None:
         work = np.zeros((nop, norb, norb))
     for iop in xrange(nop):
-        work[iop] = np.dot(coeffs.T, np.dot(operators[iop]._array, coeffs))
+        work[iop] = np.dot(coeffs.T, np.dot(operators[iop], coeffs))
 
     # Put the orbital energies and the occupations in a convenient array
-    energies = exp.energies
-    occupations = exp.occupations
+    energies = orb.energies
+    occupations = orb.occupations
     with np.errstate(invalid='ignore'):
         prefacs = np.subtract.outer(occupations, occupations)/np.subtract.outer(energies, energies)
     # Purge divisions by zero. If degeneracies occur at the fermi level, this

@@ -21,64 +21,72 @@
 '''Physical Model Hamiltonian'''
 
 
+import numpy as np
+
+
 __all__ = [
     'PhysModHam', 'Hubbard'
 ]
 
 
 class PhysModHam(object):
-    '''Base class for the Physical Model Hamiltonians: 1-D Hubbard,
-    PPP, Ising, etc '''
-    def __init__(self, pbc=True):
+    '''Base class for the Physical Model Hamiltonians: 1-D Hubbard, PPP, Ising, etc '''
+    def __init__(self, nbasis, pbc=True):
+        '''Initialize a PhysModHam object.
 
+        Parameters
+        ----------
+        nbasis : int
+            The number of sites.
+        pdb : bool
+            Periodic boundary conditions. Default, pdb=true
         '''
-           **Attributes:**
-
-            pdb
-                Periodic boundary conditions. Default, pdb=true
-
-        '''
+        self._nbasis = nbasis
         self._pbc = pbc
 
-    def _get_pbc(self):
-        '''The periodic boundary conditions'''
+    @property
+    def pbc(self):
+        '''The periodic boundary condition.'''
         return self._pbc
 
-    pbc = property(_get_pbc)
+    @property
+    def nbasis(self):
+        '''The number of sites.'''
+        return self._nbasis
 
-    def compute_kinetic(self, lf, tparam):
+    def compute_kinetic(self, tparam):
         '''Calculate the one-body term of the 1D Hubbard Hamiltonian'''
         raise NotImplementedError
 
-    def compute_er(self, lf, uparam):
+    def compute_er(self, uparam):
         '''Calculate the the-body term of the 1D Hubbard Hamiltonian'''
         raise NotImplementedError
 
-    def compute_overlap(self, lf):
+    def compute_overlap(self):
         '''Calculate overlap of the 1D Hubbard Hamiltonian, (identity matrix)'''
         raise NotImplementedError
 
 
 class Hubbard(PhysModHam):
     '''The 1-D Hubbard class Hamiltonian'''
-    def compute_kinetic(self, lf, tparam):
+    def compute_kinetic(self, tparam):
         '''Calculate the one-body term of the 1D Hubbard Hamiltonian'''
-        result = lf.create_two_index(lf.default_nbasis)
-        for i in range (lf.default_nbasis-1):
-            result.set_element(i, i+1, tparam)
+        result = np.zeros((self.nbasis, self.nbasis))
+        for i in xrange(self.nbasis - 1):
+            result[i, i + 1] = tparam
+            result[i + 1, i] = tparam
         if  self.pbc == True:
-            result.set_element(lf.default_nbasis-1, 0, tparam)
+            result[self.nbasis - 1, 0] = tparam
+            result[0, self.nbasis - 1] = tparam
         return result
 
-    def compute_er(self, lf, uparam):
+    def compute_er(self, uparam):
         '''Calculate the the-body term of the 1D Hubbard Hamiltonian'''
-        result = lf.create_four_index(lf.default_nbasis)
-        for i in range (lf.default_nbasis):
-            result.set_element(i, i, i, i, uparam)
+        result = np.zeros((self.nbasis, self.nbasis, self.nbasis, self.nbasis))
+        for i in xrange(self.nbasis):
+            result[i, i, i, i] = uparam
         return result
 
-    def compute_overlap(self, lf):
+    def compute_overlap(self):
         '''Calculate overlap of the 1D Hubbard Hamiltonian, (identity matrix)'''
-        result = lf.create_two_index(lf.default_nbasis)
-        result.assign_diagonal(1.0)
-        return result
+        return np.identity(self.nbasis)

@@ -29,49 +29,48 @@ from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 @attr('slow')
 def test_rotation_energy():
     mol = IOData.from_file(context.get_fn('test/he_spdf_orbital.fchk'))
-    kin = mol.obasis.compute_kinetic(mol.lf)
-    e0 = kin.contract_two('ab,ba', mol.exp_alpha.to_dm())
+    kin = mol.obasis.compute_kinetic()
+    e0 = np.einsum('ab,ba', kin, mol.orb_alpha.to_dm())
     for irep in xrange(100):
         rmat = get_random_rotation()
-        mol.exp_alpha.coeffs[:] = rotate_coeffs(mol.exp_alpha.coeffs, mol.obasis, rmat)
-        e1 = kin.contract_two('ab,ba', mol.exp_alpha.to_dm())
+        mol.orb_alpha.coeffs[:] = rotate_coeffs(mol.orb_alpha.coeffs, mol.obasis, rmat)
+        e1 = np.einsum('ab,ba', kin, mol.orb_alpha.to_dm())
         assert abs(e0 - e1) < 1e-10
 
 
 def test_rotation_sp():
     mol = IOData.from_file(context.get_fn('test/he_sp_orbital.fchk'))
     rmat = np.array([[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]])
-    assert (mol.exp_alpha.coeffs[5:7,3:5] == [[0, 1], [1, 0]]).all()
-    mol.exp_alpha.coeffs[:] = rotate_coeffs(mol.exp_alpha.coeffs, mol.obasis, rmat)
-    assert (mol.exp_alpha.coeffs[5:7,3:5] == [[-1, 0], [0, 1]]).all()
+    assert (mol.orb_alpha.coeffs[5:7,3:5] == [[0, 1], [1, 0]]).all()
+    mol.orb_alpha.coeffs[:] = rotate_coeffs(mol.orb_alpha.coeffs, mol.obasis, rmat)
+    assert (mol.orb_alpha.coeffs[5:7,3:5] == [[-1, 0], [0, 1]]).all()
 
 
 def test_rotation_orhonormal():
     obasis = get_gobasis(np.zeros((1, 3)), np.array([10]), 'cc-pvtz', pure=False)
-    lf = DenseLinalgFactory(obasis.nbasis)
-    overlap = obasis.compute_overlap(lf)
+    overlap = obasis.compute_overlap()
 
     def helper(begin, end):
         # prepare random orbitals in selected range
         norb = end - begin
         assert norb > 0
-        exp = lf.create_expansion()
-        exp.occupations[:norb] = 1
+        orb = Orbitals(obasis.nbasis)
+        orb.occupations[:norb] = 1
         # fill with random orbitals and lowdin orthogonalize
-        #exp.coeffs[begin:end,:norb] = np.random.normal(0, 1, (norb, norb))
-        exp.coeffs[begin:end,:norb] = np.identity(norb)
-        grammian = np.dot(exp.coeffs[:,:norb].T, np.dot(overlap._array, exp.coeffs[:,:norb]))
+        #orb.coeffs[begin:end,:norb] = np.random.normal(0, 1, (norb, norb))
+        orb.coeffs[begin:end,:norb] = np.identity(norb)
+        grammian = np.dot(orb.coeffs[:,:norb].T, np.dot(overlap, orb.coeffs[:,:norb]))
         evals, evecs = np.linalg.eigh(grammian)
-        exp.coeffs[:,:norb] = np.dot(exp.coeffs[:,:norb], evecs)/evals**0.5
-        assert (exp.coeffs[:begin,:norb] == 0.0).all()
-        assert (exp.coeffs[end:,:norb] == 0.0).all()
-        exp.check_normalization(overlap)
+        orb.coeffs[:,:norb] = np.dot(orb.coeffs[:,:norb], evecs)/evals**0.5
+        assert (orb.coeffs[:begin,:norb] == 0.0).all()
+        assert (orb.coeffs[end:,:norb] == 0.0).all()
+        orb.check_normalization(overlap)
         # apply rotation and check normalization again
         rmat = get_random_rotation()
         #rmat = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]])
         #rmat = get_rotation_matrix(np.array([0, 0, 1]), np.pi/4)
-        exp.coeffs[:,:norb] = rotate_coeffs(exp.coeffs[:,:norb], obasis, rmat)
-        exp.check_normalization(overlap)
+        orb.coeffs[:,:norb] = rotate_coeffs(orb.coeffs[:,:norb], obasis, rmat)
+        orb.check_normalization(overlap)
 
     helper( 0,  4) # all s-type basis functions
     helper( 4, 13) # all p-type basis functions

@@ -35,7 +35,7 @@ def test_gridgroup_density_cutoff():
     # make and populate a fake cache object (normally done by the effective
     # hamiltonian)
     cache = Cache()
-    cache['dm_alpha'] = mol.exp_alpha.to_dm()
+    cache['dm_alpha'] = mol.orb_alpha.to_dm()
 
     # normal use case
     rgg = RGridGroup(mol.obasis, grid, [RLibXCMGGA('c_tpss')])

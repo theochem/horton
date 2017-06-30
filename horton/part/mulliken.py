@@ -30,23 +30,20 @@ __all__ = ['partition_mulliken', 'get_mulliken_operators']
 
 
 def partition_mulliken(operator, obasis, index):
-    '''Fill in the mulliken operator in the first argument
+    '''Fill in the mulliken operator in the first argument.
 
-       **Arguments:**
+    Parameters
+    ----------
+    operator : np.ndarray, shape=(nbasis, nbasis), dtype=float
+        A Two index operator to which the Mulliken mask is applied.
+    obasis : GOBasis
+        The localized orbital basis for which the Mulliken operator is to be constructed.
+    index : int
+        The index of the atom (center) for which the Mulliken operator needs to be
+        constructed.
 
-       operator
-            A Two index operator to which the Mulliken mask is applied
-
-       obasis
-            The localized orbital basis for which the Mulliken operator is to be
-            constructed
-
-       index
-            The index of the atom (center) for which the Mulliken operator
-            needs to be constructed
-
-       This routine implies that the first ``natom`` centers in the obasis
-       corresponds to the atoms in the system.
+    This routine implies that the first ``natom`` centers in the obasis corresponds to the
+    atoms in the system.
     '''
     mask = np.zeros(obasis.nbasis, dtype=bool)
     begin = 0
@@ -55,14 +52,14 @@ def partition_mulliken(operator, obasis, index):
         if obasis.shell_map[ishell] != index:
             mask[begin:end] = True
         begin = end
-    operator._array[mask] = 0.0
-    operator._array[:] = 0.5*(operator._array + operator._array.T)
+    operator[mask] = 0.0
+    operator[:] = 0.5*(operator + operator.T)
 
 
-def get_mulliken_operators(obasis, lf):
+def get_mulliken_operators(obasis):
     '''Return a list of Mulliken operators for the given obasis.'''
     operators = []
-    olp = obasis.compute_overlap(lf)
+    olp = obasis.compute_overlap()
     for icenter in xrange(obasis.ncenter):
         operator = olp.copy()
         partition_mulliken(operator, obasis, icenter)
