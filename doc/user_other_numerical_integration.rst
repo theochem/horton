@@ -157,8 +157,8 @@ of :math:`\vert\mathbf{r}\vert=(x^{2}+y^{2}+z^{2})^{0.5}`
 for a molecular wave-function loaded from a file.
 
 .. literalinclude:: ../data/examples/grid/expectation_r.py
-    :lines: 2-
-    :caption: ../data/examples/grid/expectation_r.py
+    :caption: data/examples/grid/expectation_r.py
+    :lines: 3-24
 
 
 Constructing a one-body operator from a real-space potential
