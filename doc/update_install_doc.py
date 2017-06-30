@@ -118,6 +118,7 @@ def collect_fields():
     format_list('rst', formatter_rst, dependencies, result)
 
     # dependencies_* and doc_dependencies_*
+    format_packages('fedora_25_rpm', dependencies, result)
     format_packages('fedora_24_rpm', dependencies, result)
     format_packages('fedora_24_pip', dependencies, result)
     format_packages('fedora_22_rpm', dependencies, result)
@@ -166,6 +167,7 @@ def main():
     fields = collect_fields()
     substitute_file(fields, 'user_download_and_install_linux.rst.template')
     substitute_file(fields, 'user_download_and_install_mac.rst.template')
+    substitute_file(fields, 'user_download_and_install_windows.rst.template')
 
 
 if __name__ == '__main__':
