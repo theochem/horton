@@ -28,6 +28,7 @@ Download and Installation
 .. toctree::
    :maxdepth: 3
 
+   user_download_and_install_package_manager
    user_download_and_install_linux
    user_download_and_install_mac
    user_download_and_install_windows

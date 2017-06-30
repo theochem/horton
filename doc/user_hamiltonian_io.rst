@@ -49,7 +49,7 @@ you can store the core energy and all the integrals in the Cholesky decomposed f
 
 .. literalinclude :: ../data/examples/hamiltonian/dump_internal_ao.py
     :caption: data/examples/hamiltonian/dump_internal_ao.py
-    :lines: 2-
+    :lines: 3-23
 
 The internal format will store all attributes of the
 :py:class:`~horton.io.iodata.IOData` instance. Note that the attributes
@@ -90,7 +90,7 @@ attributes. For example,
 
 .. literalinclude::  ../data/examples/hamiltonian/dump_internal_ao_fcidump.py
     :caption: data/examples/hamiltonian/dump_internal_ao_fcidump.py
-    :lines: 2-
+    :lines: 3-32
 
 will results in the following HDF5 layout:
 
@@ -122,10 +122,11 @@ You can load integrals from the HORTON's internal format, as follows:
 
 .. literalinclude :: ../data/examples/hamiltonian/load_internal_ao.py
     :caption: data/examples/hamiltonian/load_internal_ao.py
-    :lines: 2-
+    :lines: 3-11
 
 
 .. _hamiltonian_io_fcidump:
+
 
 FCIDUMP format
 ==============
@@ -150,7 +151,7 @@ in the MO basis. The storage of integrals in AO basis in FCIDUMP format is as fo
 
 .. literalinclude :: ../data/examples/hamiltonian/dump_fcidump_ao.py
     :caption: data/examples/hamiltonian/dump_fcidump_ao.py
-    :lines: 2-
+    :lines: 3-28
 
 In this example, we set the :py:class:`~horton.io.iodata.IOData` attributes by
 using keyword arguments in the constructor. The file ``hamiltonian_ao.FCIDUMP``
@@ -216,4 +217,4 @@ You can load integrals, stored in an FCIDUMP file, as follows:
 
 .. literalinclude :: ../data/examples/hamiltonian/load_fcidump_ao.py
     :caption: data/examples/hamiltonian/load_fcidump_ao.py
-    :lines: 2-
+    :lines: 3-12

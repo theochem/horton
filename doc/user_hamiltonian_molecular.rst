@@ -60,7 +60,7 @@ following example constructs a ring of Hydrogen atoms and writes it to an
 XYZ file
 
 .. literalinclude:: ../data/examples/hamiltonian/hydrogen_ring.py
-    :lines: 2-
+    :lines: 3-23
     :caption: data/examples/hamiltonian/hydrogen_ring.py
 
 
@@ -155,7 +155,7 @@ Python code. For example, the following code generates an even tempered basis
 for Lithium (without polarization functions):
 
 .. literalinclude:: ../data/examples/hamiltonian/even_tempered_li.py
-    :lines: 2-
+    :lines: 3-25
     :caption: data/examples/hamiltonian/even_tempered_li.py
 
 All basis functions in this example are just single s-type primitives, i.e. no

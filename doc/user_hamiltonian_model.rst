@@ -165,4 +165,4 @@ boundary conditions are used.
 
 .. literalinclude:: ../data/examples/hamiltonian/hubbard.py
     :caption: data/examples/hamiltonian/hubbard.py
-    :lines: 2-
+    :lines: 3-38

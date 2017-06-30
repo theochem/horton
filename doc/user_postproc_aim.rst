@@ -455,6 +455,8 @@ example that runs a Becke partitioning to compute charges and that writes the ch
 a simple text file.
 
 .. literalinclude:: ../data/examples/wpart/becke.py
+    :caption: data/examples/wpart/becke.py
+    :lines: 3-20
 
 The unit tests in the source code contain many small examples that can be used
 as a starting point for similar scripts. These unit tests can be found in

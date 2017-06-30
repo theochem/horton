@@ -107,8 +107,8 @@ The guess for a restricted wavefunction is done as follows:
 For an unrestricted wavefunction, the procedure is very similar:
 
 .. literalinclude:: ../data/examples/hf_dft/uhf_methyl_dense.py
-    :lines: 27-32
-    :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 27--32
+    :lines: 28-33
+    :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 28--33
 
 The arguments ``exp_alpha`` and ``exp_beta`` are treated as output arguments.
 Instead of ``kin`` and ``na``, you may provide just any set of one-body
@@ -349,48 +349,48 @@ repulsion energy to the total energy reported by the effective Hamiltonian.
 * Unrestricted Hartree-Fock:
 
   .. literalinclude:: ../data/examples/hf_dft/uhf_methyl_dense.py
-      :lines: 35-42
-      :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 35--42
+      :lines: 35-43
+      :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 35--43
 
 * Restricted Kohn-Sham DFT with the Dirac exchange and the VWN correlation
   functionals:
 
   .. literalinclude:: ../data/examples/hf_dft/rks_water_lda.py
-      :lines: 37-47
-      :caption: data/examples/hf_dft/rks_water_lda.py, lines 37--47
+      :lines: 37-48
+      :caption: data/examples/hf_dft/rks_water_lda.py, lines 37--48
 
 * Unrestricted Kohn-Sham DFT with the PBE GGA exchange and correlation
   functionals:
 
   .. literalinclude:: ../data/examples/hf_dft/uks_methyl_gga.py
-      :lines: 38-48
-      :caption: data/examples/hf_dft/uks_methyl_gga.py, lines 38--48
+      :lines: 38-49
+      :caption: data/examples/hf_dft/uks_methyl_gga.py, lines 38--49
 
 * Restricted Kohn-Sham DFT with the Hybrid GGA functional B3LYP:
 
   .. literalinclude:: ../data/examples/hf_dft/rks_water_hybgga.py
-      :lines: 37-46
-      :caption: data/examples/hf_dft/rks_water_hybgga.py, lines 37--46
+      :lines: 37-47
+      :caption: data/examples/hf_dft/rks_water_hybgga.py, lines 37--47
 
 * Unrestricted Kohn-Sham DFT with the TPSS MGGA exchange and correlation
   functionals:
 
   .. literalinclude:: ../data/examples/hf_dft/uks_methyl_mgga.py
-      :lines: 39-47
-      :caption: data/examples/hf_dft/uks_methyl_mgga.py, lines 39--47
+      :lines: 38-49
+      :caption: data/examples/hf_dft/uks_methyl_mgga.py, lines 38--49
 
 * Restricted Kohn-Sham DFT with the Hybrid MGGA functional M05:
 
   .. literalinclude:: ../data/examples/hf_dft/rks_water_hybmgga.py
-      :lines: 38-45
-      :caption: data/examples/hf_dft/rks_water_hybgga.py, lines 38--45
+      :lines: 37-47
+      :caption: data/examples/hf_dft/rks_water_hybgga.py, lines 37--47
 
 * Unrestricted Kohn-Sham DFT with LDA exchange and correlation
   functionals and with a numerical integration of the Hartree term:
 
   .. literalinclude:: ../data/examples/hf_dft/uks_methyl_numlda.py
-      :lines: 38-48
-      :caption: data/examples/hf_dft/uks_methyl_numlda.py, lines 38--48
+      :lines: 38-49
+      :caption: data/examples/hf_dft/uks_methyl_numlda.py, lines 38--49
 
 
 .. _user_hf_dft_occupation:
@@ -481,8 +481,8 @@ these in-place.
 * Usage in the unrestricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/uhf_methyl_dense.py
-      :lines: 47-49
-      :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 47--49
+      :lines: 48-50
+      :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 48--50
 
 All other solvers start from an initial guess of the density matrix and update
 that quantity in-place. The usage pattern is as follow:
@@ -490,14 +490,14 @@ that quantity in-place. The usage pattern is as follow:
 * Usage in the restricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/rks_water_lda.py
-      :lines: 52-58
-      :caption: data/examples/hf_dft/rks_water_lda.py, lines 52--58
+      :lines: 53-59
+      :caption: data/examples/hf_dft/rks_water_lda.py, lines 53--59
 
 * Usage in the unrestricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/uks_methyl_lda.py
-      :lines: 53-60
-      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 53--60
+      :lines: 54-61
+      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 54--61
 
 All SCF solvers support the following two options:
 
@@ -537,14 +537,14 @@ convergence.
 * Usage in the restricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/rks_water_lda.py
-      :lines: 60-66
-      :caption: data/examples/hf_dft/rks_water_lda.py, lines 60--67
+      :lines: 61-67
+      :caption: data/examples/hf_dft/rks_water_lda.py, lines 61--67
 
 * Usage in the unrestricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/uks_methyl_lda.py
-      :lines: 62-70
-      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 62--71
+      :lines: 63-71
+      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 63--71
 
 
 .. _user_hf_dft_to_file:
@@ -576,14 +576,14 @@ of the object ``mol`` are already set as required for the ``.molden`` format.
 * Usage in the restricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/rks_water_lda.py
-      :lines: 68-80
-      :caption: data/examples/hf_dft/rks_water_lda.py, lines 68--80
+      :lines: 69-81
+      :caption: data/examples/hf_dft/rks_water_lda.py, lines 69--81
 
 * Usage in the unrestricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/uks_methyl_lda.py
-      :lines: 72-86
-      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 72--86
+      :lines: 73-87
+      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 73--87
 
 
 .. _user_hf_dft_preparing_posthf:
@@ -675,7 +675,7 @@ water. It contains all the steps discussed in the previous sections.
 
 .. literalinclude:: ../data/examples/hf_dft/rhf_n2_dense.py
     :caption: data/examples/hf_dft/rhf_n2_dense.py
-    :lines: 7-
+    :lines: 8-103
 
 The directory ``data/examples/hf_dft`` contains many more examples that use the
 different options discussed above. The following table shows which features are

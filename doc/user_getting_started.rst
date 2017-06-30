@@ -225,6 +225,7 @@ internal data format.
 
 .. literalinclude:: ../data/examples/getting_started/first.py
     :caption: data/examples/getting_started/first.py
+    :lines: 1-23
 
 Note that the ``context.get_fn('test/water.xyz')`` expression is used to look up a data
 file from the HORTON data directory. If you want to use your own file, load the

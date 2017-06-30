@@ -76,7 +76,7 @@ with ``pip``.
     sudo apt-get install ${dev_dependencies_ubuntu_15_deb}
     pip install --user --upgrade ${dev_dependencies_ubuntu_15_pip}
 
-**Fedora Linux 24**
+**Fedora Linux 24 and up**
 
 .. code-block:: bash
 
