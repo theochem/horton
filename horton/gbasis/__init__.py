@@ -21,6 +21,6 @@
 '''Gaussian basis sets'''
 
 
-from horton.gbasis.cext import *
-from horton.gbasis.gobasis import *
-from horton.gbasis.iobas import *
+from cext import *
+from gobasis import *
+from iobas import *
