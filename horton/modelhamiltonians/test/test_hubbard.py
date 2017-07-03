@@ -20,6 +20,7 @@
 # --
 
 
+import numpy as np
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
@@ -47,7 +48,7 @@ def test_1d_hubbard_hamiltonian():
     scf_solver(ham, olp, occ_model, orb_alpha)
     energy = ham.compute_energy()
 
-    assert (abs(energy --7.94427) < 1e-4)
+    np.testing.assert_almost_equal(energy, -7.94427, decimal=4)
 
 
 def test_1d_hubbard_hamiltonian_no_pbc():
@@ -74,4 +75,4 @@ def test_1d_hubbard_hamiltonian_no_pbc():
     scf_solver(ham, olp, occ_model, orb_alpha)
     energy = ham.compute_energy()
 
-    assert (abs(energy --7.0533) < 1e-4)
+    np.testing.assert_almost_equal(energy, -7.0533, decimal=4)
