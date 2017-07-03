@@ -69,7 +69,7 @@ def check_core_active(mol, basis_str, ncore, nactive):
     two = obasis.compute_electron_repulsion()
 
     # Decide how to occupy the orbitals
-    assert mol.numbers.sum()%2 == 0
+    assert mol.numbers.sum() % 2 == 0
     nocc = mol.numbers.sum()/2
     assert ncore + nactive > nocc
 
@@ -155,7 +155,7 @@ def check_core_active_cholesky(mol, basis_str, ncore, nactive):
     two_vecs = obasis.compute_electron_repulsion_cholesky()
 
     # Decide how to occupy the orbitals
-    assert mol.numbers.sum()%2 == 0
+    assert mol.numbers.sum() % 2 == 0
     nocc = mol.numbers.sum()/2
     assert ncore + nactive > nocc
 

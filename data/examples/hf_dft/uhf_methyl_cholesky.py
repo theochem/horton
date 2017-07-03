@@ -24,7 +24,7 @@ er_vecs = obasis.compute_electron_repulsion_cholesky()
 
 # Create alpha orbitals
 orb_alpha = Orbitals(obasis.nbasis)
-orb_beta =  Orbitals(obasis.nbasis)
+orb_beta = Orbitals(obasis.nbasis)
 
 # Initial guess
 guess_core_hamiltonian(olp, kin + na, orb_alpha, orb_beta)

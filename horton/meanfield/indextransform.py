@@ -24,7 +24,6 @@
 import numpy as np
 
 from horton.log import timer
-from horton.utils import check_type, check_options
 
 
 __all__ = ['four_index_transform', 'transform_integrals', 'split_core_active',

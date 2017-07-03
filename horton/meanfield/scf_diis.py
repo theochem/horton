@@ -70,6 +70,12 @@ class DIISSCFSolver(object):
         self.nvector = nvector
         self.skip_energy = skip_energy
         self.prune_old_states = prune_old_states
+        # Attributs where local variables of the __call__ method are stored:
+        self._history = None
+        self._focks = []
+        self._orbs = []
+        self.commutator = None
+
 
     @timer.with_section('SCF')
     def __call__(self, ham, overlap, occ_model, *dms):

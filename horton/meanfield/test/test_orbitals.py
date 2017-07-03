@@ -22,7 +22,6 @@
 
 import numpy as np
 import h5py as h5
-from nose.tools import assert_raises
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.test.common import numpy_seed
@@ -204,11 +203,11 @@ def test_orbitals_from_fock_and_dm():
     olp = np.zeros((natom, natom))
     for i in xrange(natom):
         fock[i, i] = 0.6
-        fock[i, (i+1)%natom] = -0.2
-        fock[(i+1)%natom, i] = -0.2
+        fock[i, (i+1) % natom] = -0.2
+        fock[(i+1) % natom, i] = -0.2
         olp[i, i] = 1.0
-        olp[i, (i+1)%natom] = 0.2
-        olp[(i+1)%natom, i] = 0.2
+        olp[i, (i+1) % natom] = 0.2
+        olp[(i+1) % natom, i] = 0.2
 
     # Create orbitals that will be used to construct various density matrices
     orb = Orbitals(natom)

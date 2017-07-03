@@ -31,7 +31,7 @@ from horton.log import log
 __all__ = ['Orbitals']
 
 
-class Orbitals():
+class Orbitals(object):
     """Orbital coefficient, energies and occupation numbers (single spin channel)."""
 
     #

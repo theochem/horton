@@ -176,7 +176,7 @@ class ODASCFSolver(object):
         dm1s = [np.zeros(overlap.shape) for i in xrange(ham.ndm)]
         orbs = [Orbitals(overlap.shape[0]) for i in xrange(ham.ndm)]
         work = np.zeros(dm0s[0].shape)
-        commutator =  np.zeros(dm0s[0].shape)
+        commutator = np.zeros(dm0s[0].shape)
         converged = False
         counter = 0
         mixing = None
