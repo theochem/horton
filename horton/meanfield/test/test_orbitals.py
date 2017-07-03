@@ -22,6 +22,7 @@
 
 import numpy as np
 import h5py as h5
+from nose.tools import assert_raises
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.test.common import numpy_seed
@@ -94,6 +95,9 @@ def test_orbitals_hdf5():
             a.to_hdf5(f)
             b = Orbitals.from_hdf5(f)
             assert a == b
+            f.attrs['class'] = 'bork'
+            with assert_raises(TypeError):
+                Orbitals.from_hdf5(f)
 
 
 def test_orbitals_copy_new_randomize_clear_assign():
@@ -167,6 +171,8 @@ def test_orbitals_check_normalization():
 
 def test_orbitals_check_orthonormality():
     orb, olp = get_random_orbitals(5)
+    orb.occupations[0] = 0.0
+    orb.occupations[-1] = 1.0
     orb.check_orthonormality(olp)
 
 
@@ -279,6 +285,10 @@ def test_orbitals_homo_lumo_ch3_hf():
     assert abs(mol.orb_alpha.lumo_energy - 6.48361367E-01) < 1e-8
     assert abs(mol.orb_beta.homo_energy - -5.18988806E-01) < 1e-8
     assert abs(mol.orb_beta.lumo_energy - 3.28562907E-01) < 1e-8
+    with assert_raises(ValueError):
+        mol.orb_alpha.get_homo_index(-1)
+    with assert_raises(ValueError):
+        mol.orb_alpha.get_lumo_index(-1)
 
 
 def test_orbitals_to_dm1():
@@ -344,3 +354,5 @@ def test_orbitals_swap_orbitals():
     check[2,3] = 1.0
     check[3,2] = 1.0
     np.testing.assert_almost_equal(dots, check)
+    with assert_raises(TypeError):
+        orb1.swap_orbitals(np.zeros((3, 3), dtype=int))

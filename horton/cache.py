@@ -111,36 +111,17 @@ class CacheItem(object):
     @classmethod
     def from_alloc(cls, alloc, tags):
         alloc = _normalize_alloc(alloc)
-        if all(isinstance(i, int) for i in alloc):
-            # initialize a floating point array
-            array = np.zeros(alloc, float)
-            return cls(array, tags=tags)
-        else:
-            # initialize a new object
-            return cls(alloc[0](*alloc[1:]), tags=tags)
+        # initialize a floating point array
+        array = np.zeros(alloc, float)
+        return cls(array, tags=tags)
 
     def check_alloc(self, alloc):
         alloc = _normalize_alloc(alloc)
-        if all(isinstance(i, int) for i in alloc):
-            # check if the array has the correct shape and dtype
-            if not (isinstance(self._value, np.ndarray) and
-                    self._value.shape == tuple(alloc) and
-                    issubclass(self._value.dtype.type, float)):
-                raise TypeError('The stored item does not match the given alloc.')
-        else:
-            # check if the object was initialized with compatible arguments
-            try:
-                if isinstance(alloc[0], type):
-                    # first argument is a class
-                    alloc[0].__check_init_args__(self._value, *alloc[1:])
-                elif isinstance(alloc[0], types.MethodType):
-                    # first argument is something else, assuming a method of a factory class
-                    factory = alloc[0].__self__
-                    alloc[0].__check_init_args__(factory, self._value, *alloc[1:])
-                else:
-                    raise NotImplementedError
-            except AssertionError:
-                raise TypeError('The stored item does not match the given alloc.')
+        # check if the array has the correct shape and dtype
+        if not (isinstance(self._value, np.ndarray) and
+                self._value.shape == tuple(alloc) and
+                issubclass(self._value.dtype.type, float)):
+            raise TypeError('The stored item does not match the given alloc.')
 
     def check_tags(self, tags):
         tags = _normalize_tags(tags)
