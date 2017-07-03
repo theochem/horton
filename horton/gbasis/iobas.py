@@ -53,7 +53,7 @@ def fortran_float(s):
 
 def load_basis_atom_map_nwchem(filename):
     '''Load the basis set family from an NWChem file.'''
-    from horton.gbasis.gobasis import GOBasisAtom, GOBasisContraction
+    from gobasis import GOBasisAtom, GOBasisContraction
 
     f = open(filename)
     basis_atom_map = {}
@@ -90,7 +90,7 @@ def load_basis_atom_map_nwchem(filename):
 
 def load_basis_atom_map_gbs(filename):
     """Load the basis set family from a GBS file."""
-    from horton.gbasis.gobasis import GOBasisAtom, GOBasisContraction
+    from gobasis import GOBasisAtom, GOBasisContraction
 
     basis_atom_map = {}
     bc = None  # The current contraction being loaded
