@@ -24,8 +24,8 @@
 import numpy as np
 
 from horton.context import context
-from horton.gbasis.cext import GOBasis
-from horton.gbasis.iobas import load_basis_atom_map_nwchem, load_basis_atom_map_gbs, \
+from cext import GOBasis
+from iobas import load_basis_atom_map_nwchem, load_basis_atom_map_gbs, \
     dump_basis_atom_map_gbs
 from horton.log import log
 from periodic import sym2num
