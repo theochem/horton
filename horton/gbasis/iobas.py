@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from horton.periodic import periodic
+from periodic import num2sym, sym2num
 
 
 __all__ = [
@@ -68,7 +68,7 @@ def load_basis_atom_map_nwchem(filename):
         words = line.split()
         if words[0].isalpha():
             # A new contraction begins, maybe even a new atom.
-            n = periodic[words[0]].number
+            n = sym2num[words[0]]
             ba = basis_atom_map.get(n)
             shell_types = str_to_shell_types(words[1])
             bcs = [GOBasisContraction(shell_type, [], []) for shell_type in shell_types]
@@ -109,7 +109,7 @@ def load_basis_atom_map_gbs(filename):
             # if first word is the angular momentum
             elif words[0].isalpha() and len(words) == 3:
                 # A new contraction begins, maybe even a new atom.
-                n = periodic[cur_atom].number
+                n = sym2num[cur_atom]
                 cur_shell_types = str_to_shell_types(words[0])
                 empty_contr = [GOBasisContraction(shell_type, [], [])
                                for shell_type in cur_shell_types]
@@ -145,7 +145,7 @@ def dump_basis_atom_map_gbs(filename, name, basis_atom_map):
         f.write('!Basis set, {0}, generated using HORTON\n\n'.format(name))
         f.write('****\n')
         for atom, gobatom in sorted(basis_atom_map.iteritems()):
-            f.write('{0:<6}0\n'.format(periodic[atom].symbol))
+            f.write('{0:<6}0\n'.format(num2sym[atom]))
             contractions = gobatom.bcs
             for contraction in contractions:
                 exponents = contraction.alphas.reshape(-1, 1)

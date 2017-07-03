@@ -28,7 +28,7 @@ from horton.gbasis.cext import GOBasis
 from horton.gbasis.iobas import load_basis_atom_map_nwchem, load_basis_atom_map_gbs, \
     dump_basis_atom_map_gbs
 from horton.log import log
-from horton.periodic import periodic
+from periodic import sym2num
 from horton.utils import typecheck_geo
 
 
@@ -120,7 +120,7 @@ class GOBasisDesc(object):
         # Update the element map such that it only contains numbers as keys.
         for key in self.element_map.keys():
             if isinstance(key, basestring):
-                number = periodic[key].number
+                number = sym2num[key]
                 self.element_map[number] = element_map[key]
                 del element_map[key]
 
