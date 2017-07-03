@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Utility functions for orbital modifications'''
+"""Utility functions for orbital modifications."""
 
 
 import numpy as np
@@ -31,7 +31,7 @@ __all__ = ['four_index_transform', 'transform_integrals', 'split_core_active',
 
 
 def _parse_four_index_transform_orbs(orb0, orb1, orb2, orb3):
-    '''Parse the optional arguments exp1, exp2 and exp3.
+    """Parse the optional arguments exp1, exp2 and exp3.
 
     Parameters
     ----------
@@ -47,7 +47,7 @@ def _parse_four_index_transform_orbs(orb0, orb1, orb2, orb3):
     Returns
     -------
     orb0, orb1, orb2, orb3. (All not None)
-    '''
+    """
     # Four supported situations
     if orb1 is None and orb2 is None and orb3 is None:
         # maintains eight-fold symmetry
@@ -69,7 +69,7 @@ def _parse_four_index_transform_orbs(orb0, orb1, orb2, orb3):
 
 
 def four_index_transform(ao_integrals, orb0, orb1=None, orb2=None, orb3=None, method='tensordot'):
-    '''Perform four index transformation.
+    """Perform four index transformation.
 
     Parameters
     ----------
@@ -86,7 +86,7 @@ def four_index_transform(ao_integrals, orb0, orb1=None, orb2=None, orb3=None, me
     -------
     mo_integrals
         A four-index array with the integrals in the MO basis.
-    '''
+    """
     # parse arguments
     orb0, orb1, orb2, orb3 = _parse_four_index_transform_orbs(orb0, orb1, orb2, orb3)
     # actual transform
@@ -117,7 +117,7 @@ def four_index_transform(ao_integrals, orb0, orb1=None, orb2=None, orb3=None, me
 
 @timer.with_section('Index Trans')
 def transform_integrals(one, two, method='tensordot', *orbs):
-    '''Transform integrals to MO basis.
+    """Transform integrals to MO basis.
 
     Parameters
     ----------
@@ -148,7 +148,7 @@ def transform_integrals(one, two, method='tensordot', *orbs):
 
       Note that order of alpha and beta is determined by the order of the Orbitals
       instances.
-    '''
+    """
     two_mo = []
     one_mo = []
     for i0, orb0 in enumerate(orbs):
@@ -161,7 +161,7 @@ def transform_integrals(one, two, method='tensordot', *orbs):
 
 
 def split_core_active(one, two, ecore, orb, ncore, nactive, indextrans='tensordot'):
-    '''Reduce a Hamiltonian to an active space.
+    """Reduce a Hamiltonian to an active space.
 
     Works only for restricted wavefunctions.
 
@@ -192,7 +192,7 @@ def split_core_active(one, two, ecore, orb, ncore, nactive, indextrans='tensordo
     ecore
         The core energy, i.e. the sum of the given core energy and HF
         contributions from the core orbitals.
-    '''
+    """
     # Check type/option of arguments
     if ncore <= 0 or nactive <= 0:
         raise ValueError('ncore and nactive must be strictly positive.')
@@ -229,7 +229,7 @@ def split_core_active(one, two, ecore, orb, ncore, nactive, indextrans='tensordo
 
 
 def four_index_transform_cholesky(ao_integrals, orb0, orb1=None, method='tensordot'):
-    '''Perform four index transformation on a Cholesky-decomposed four-index object.
+    """Perform four index transformation on a Cholesky-decomposed four-index object.
 
     Parameters
     ----------
@@ -241,7 +241,7 @@ def four_index_transform_cholesky(ao_integrals, orb0, orb1=None, method='tensord
         Can be provided to transform the second index differently.
     method
         Either ``einsum`` or ``tensordot`` (default).
-    '''
+    """
     if orb1 is None:
         orb1 = orb0
     result = np.zeros(ao_integrals.shape)
@@ -258,7 +258,7 @@ def four_index_transform_cholesky(ao_integrals, orb0, orb1=None, method='tensord
 
 @timer.with_section('Index Trans')
 def transform_integrals_cholesky(one, two, method='tensordot', *orbs):
-    '''Transform integrals to MO basis
+    """Transform integrals to MO basis
 
     Parameters
     ----------
@@ -280,7 +280,7 @@ def transform_integrals_cholesky(one, two, method='tensordot', *orbs):
       one set of 1- and 2-body integrals
     * unrestricted orbitals: two expansion instances (alpha, beta), returns
       two sets of 1-body, and two sets of 2-body integrals.
-    '''
+    """
     two_mo = []
     one_mo = []
     for orb0 in orbs:
@@ -290,7 +290,7 @@ def transform_integrals_cholesky(one, two, method='tensordot', *orbs):
 
 
 def split_core_active_cholesky(one, two, ecore, orb, ncore, nactive, indextrans='tensordot'):
-    '''Reduce a Hamiltonian to an active space.
+    """Reduce a Hamiltonian to an active space.
 
     Works only for restricted wavefunctions.
 
@@ -322,7 +322,7 @@ def split_core_active_cholesky(one, two, ecore, orb, ncore, nactive, indextrans=
     ecore
         The core energy, i.e. the sum of the given core energy and HF
         contributions from the core orbitals.
-    '''
+    """
     # Check type/option of arguments
     if ncore <= 0 or nactive <= 0:
         raise ValueError('ncore and nactive must be strictly positive.')

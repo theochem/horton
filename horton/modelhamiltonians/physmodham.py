@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Physical Model Hamiltonian'''
+"""Physical Model Hamiltonian."""
 
 
 import numpy as np
@@ -30,9 +30,10 @@ __all__ = [
 
 
 class PhysModHam(object):
-    '''Base class for the Physical Model Hamiltonians: 1-D Hubbard, PPP, Ising, etc '''
+    """Base class for the Physical Model Hamiltonians: 1-D Hubbard, PPP, Ising, etc."""
+
     def __init__(self, nbasis, pbc=True):
-        '''Initialize a PhysModHam object.
+        """Initialize a PhysModHam object.
 
         Parameters
         ----------
@@ -40,37 +41,38 @@ class PhysModHam(object):
             The number of sites.
         pdb : bool
             Periodic boundary conditions. Default, pdb=true
-        '''
+        """
         self._nbasis = nbasis
         self._pbc = pbc
 
     @property
     def pbc(self):
-        '''The periodic boundary condition.'''
+        """The periodic boundary condition."""
         return self._pbc
 
     @property
     def nbasis(self):
-        '''The number of sites.'''
+        """The number of sites."""
         return self._nbasis
 
     def compute_kinetic(self, tparam):
-        '''Calculate the one-body term of the 1D Hubbard Hamiltonian'''
+        """Calculate the one-body term of the 1D Hubbard Hamiltonian."""
         raise NotImplementedError
 
     def compute_er(self, uparam):
-        '''Calculate the the-body term of the 1D Hubbard Hamiltonian'''
+        """Calculate the the-body term of the 1D Hubbard Hamiltonian."""
         raise NotImplementedError
 
     def compute_overlap(self):
-        '''Calculate overlap of the 1D Hubbard Hamiltonian, (identity matrix)'''
+        """Calculate overlap of the 1D Hubbard Hamiltonian, (identity matrix)."""
         raise NotImplementedError
 
 
 class Hubbard(PhysModHam):
-    '''The 1-D Hubbard class Hamiltonian'''
+    """The 1-D Hubbard class Hamiltonian."""
+
     def compute_kinetic(self, tparam):
-        '''Calculate the one-body term of the 1D Hubbard Hamiltonian'''
+        """Calculate the one-body term of the 1D Hubbard Hamiltonian."""
         result = np.zeros((self.nbasis, self.nbasis))
         for i in xrange(self.nbasis - 1):
             result[i, i + 1] = tparam
@@ -81,12 +83,12 @@ class Hubbard(PhysModHam):
         return result
 
     def compute_er(self, uparam):
-        '''Calculate the the-body term of the 1D Hubbard Hamiltonian'''
+        """Calculate the the-body term of the 1D Hubbard Hamiltonian."""
         result = np.zeros((self.nbasis, self.nbasis, self.nbasis, self.nbasis))
         for i in xrange(self.nbasis):
             result[i, i, i, i] = uparam
         return result
 
     def compute_overlap(self):
-        '''Calculate overlap of the 1D Hubbard Hamiltonian, (identity matrix)'''
+        """Calculate overlap of the 1D Hubbard Hamiltonian, (identity matrix)."""
         return np.identity(self.nbasis)

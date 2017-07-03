@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-"""Orbital class"""
+"""Orbital class."""
 
 
 import numpy as np
@@ -59,31 +59,31 @@ class Orbitals(object):
     #
 
     def _get_nbasis(self):
-        '''The number of basis functions.'''
+        """The number of basis functions."""
         return self._coeffs.shape[0]
 
     nbasis = property(_get_nbasis)
 
     def _get_nfn(self):
-        '''The number of orbitals (or functions in general).'''
+        """The number of orbitals (or functions in general)."""
         return self._coeffs.shape[1]
 
     nfn = property(_get_nfn)
 
     def _get_coeffs(self):
-        '''The matrix with the expansion coefficients.'''
+        """The matrix with the expansion coefficients."""
         return self._coeffs.view()
 
     coeffs = property(_get_coeffs)
 
     def _get_energies(self):
-        '''The orbital energies.'''
+        """The orbital energies."""
         return self._energies.view()
 
     energies = property(_get_energies)
 
     def _get_occupations(self):
-        '''The orbital occupations.'''
+        """The orbital occupations."""
         return self._occupations.view()
 
     occupations = property(_get_occupations)
@@ -93,7 +93,7 @@ class Orbitals(object):
     #
 
     def __eq__(self, other):
-        '''Compare self with other'''
+        """Compare self with other."""
         return isinstance(other, Orbitals) and \
             other.nbasis == self.nbasis and \
             other.nfn == self.nfn and \
@@ -103,13 +103,13 @@ class Orbitals(object):
 
     @classmethod
     def from_hdf5(cls, grp):
-        '''Construct an instance from data previously stored in an h5py.Group.
+        """Construct an instance from data previously stored in an h5py.Group.
 
         Parameters
         ----------
         grp : h5py.Group
             Group used to take all data to initialize an Orbitals object
-        '''
+        """
         if grp.attrs['class'] != cls.__name__:
             raise TypeError('The class of the expansion in the HDF5 file does not match.')
         nbasis, nfn = grp['coeffs'].shape
@@ -120,26 +120,26 @@ class Orbitals(object):
         return result
 
     def to_hdf5(self, grp):
-        '''Dump this object in an h5py.Group.
+        """Dump this object in an h5py.Group.
 
         Parameters
         ----------
         grp : h5py.Group
             Destination where the data are stored.
-        '''
+        """
         grp.attrs['class'] = self.__class__.__name__
         grp['coeffs'] = self._coeffs
         grp['energies'] = self._energies
         grp['occupations'] = self._occupations
 
     def clear(self):
-        '''Reset all elements to zero.'''
+        """Reset all elements to zero."""
         self._coeffs[:] = 0.0
         self._energies[:] = 0.0
         self._occupations[:] = 0.0
 
     def copy(self):
-        '''Return a copy of the object.'''
+        """Return a copy of the object."""
         result = Orbitals(self.nbasis, self.nfn)
         result._coeffs[:] = self._coeffs
         result._energies[:] = self._energies
@@ -147,56 +147,56 @@ class Orbitals(object):
         return result
 
     def assign(self, other):
-        '''Assign with the contents of another object.
+        """Assign with the contents of another object.
 
         Parameters
         ----------
         other : Orbitals
             Another Orbitals object
-        '''
+        """
         check_type('other', other, Orbitals)
         self._coeffs[:] = other._coeffs
         self._energies[:] = other._energies
         self._occupations[:] = other._occupations
 
     def randomize(self):
-        '''Fill with random normal data.'''
+        """Fill with random normal data."""
         self._coeffs[:] = np.random.normal(0, 1, self._coeffs.shape)
         self._energies[:] = np.random.normal(0, 1, self._energies.shape)
         self._occupations[:] = np.random.normal(0, 1, self._occupations.shape)
 
     def permute_basis(self, permutation):
-        '''Reorder the coefficients for a given permutation of basis functions (rows).
+        """Reorder the coefficients for a given permutation of basis functions (rows).
 
         Parameters
         ----------
         permutation : np.ndarray, dtype=int, shape=(nbasis,)
             An array that defines the new order of the basis functions.
-        '''
+        """
         self._coeffs[:] = self.coeffs[permutation]
 
     def permute_orbitals(self, permutation):
-        '''Reorder the coefficients for a given permutation of orbitals (columns).
+        """Reorder the coefficients for a given permutation of orbitals (columns).
 
         Parameters
         ----------
         permutation : np.ndarray, dtype=int, shape=(nbasis,)
             An array that defines the new order of the orbitals.
-        '''
+        """
         self._coeffs[:] = self.coeffs[:,permutation]
 
     def change_basis_signs(self, signs):
-        '''Correct for different sign conventions of the basis functions.
+        """Correct for different sign conventions of the basis functions.
 
         Parameters
         ----------
         signs : np.ndarray, dtype=int, shape=(nbasis,)
             An array with sign changes indicated by +1 and -1.
-        '''
+        """
         self._coeffs *= signs.reshape(-1,1)
 
     def check_normalization(self, overlap, eps=1e-4):
-        '''Check that the occupied orbitals are normalized.
+        """Check that the occupied orbitals are normalized.
 
         When the orbitals are not normalized, an AssertionError is raised.
 
@@ -206,7 +206,7 @@ class Orbitals(object):
             The overlap matrix.
         eps : float
             The allowed deviation from unity, very loose by default.
-        '''
+        """
         for i in xrange(self.nfn):
             if self.occupations[i] == 0:
                 continue
@@ -215,7 +215,7 @@ class Orbitals(object):
             assert abs(norm-1) < eps, 'The orbitals are not normalized!'
 
     def check_orthonormality(self, overlap, eps=1e-4):
-        '''Check that the occupied orbitals are orthogonal and normalized.
+        """Check that the occupied orbitals are orthogonal and normalized.
 
         When the orbitals are not orthonormal, an AssertionError is raised.
 
@@ -225,7 +225,7 @@ class Orbitals(object):
             The overlap matrix.
         eps : float
             The allowed deviation from unity, very loose by default.
-        '''
+        """
         for i0 in xrange(self.nfn):
             if self.occupations[i0] == 0:
                 continue
@@ -258,7 +258,7 @@ class Orbitals(object):
         return np.sqrt((abs(errors)**2).mean())
 
     def from_fock(self, fock, overlap):
-        '''Diagonalize a Fock matrix to obtain orbitals and energies.
+        """Diagonalize a Fock matrix to obtain orbitals and energies.
 
         This method updated the attributes ``coeffs`` and ``energies`` in-place.
 
@@ -268,13 +268,13 @@ class Orbitals(object):
             The fock matrix.
         overlap : np.ndarray, shape=(nbasis, nbasis)
             The overlap matrix.
-        '''
+        """
         evals, evecs = eigh(fock, overlap)
         self._energies[:] = evals[:self.nfn]
         self._coeffs[:] = evecs[:,:self.nfn]
 
     def from_fock_and_dm(self, fock, dm, overlap, epstol=1e-8):
-        '''Combined diagonalization of a Fock and a density matrix.
+        """Combined diagonalization of a Fock and a density matrix.
 
         This routine first diagonalizes the Fock matrix to obtain orbitals and orbital
         energies. Then, using first order (degenerate) perturbation theory, the occupation
@@ -298,7 +298,7 @@ class Orbitals(object):
             ``epstol``, they are all considered to be part of the same degenerate group.
             For every degenerate set of orbitals, the density matrix is used to (try to)
             lift the degeneracy.
-        '''
+        """
         # Diagonalize the Fock Matrix
         self.from_fock(fock, overlap)
 
@@ -334,7 +334,7 @@ class Orbitals(object):
                     self.energies[begin+i0] = np.dot(self.coeffs[:,begin+i0], np.dot(fock, self.coeffs[:,begin+i0]))
 
     def derive_naturals(self, dm, overlap):
-        '''Derive natural orbitals from a given density matrix and assign the result to self.
+        """Derive natural orbitals from a given density matrix and assign the result to self.
 
         Parameters
         ----------
@@ -342,7 +342,7 @@ class Orbitals(object):
             The density matrix.
         overlap : np.ndarray, shape=(nbasis, nbasis)
             The overlap matrix
-        '''
+        """
         # Transform density matrix to Fock-like form
         sds = np.dot(overlap.T, np.dot(dm, overlap))
         # Diagonalize and compute eigenvalues
@@ -352,14 +352,14 @@ class Orbitals(object):
         self._energies[:] = 0.0
 
     def get_homo_index(self, offset=0):
-        '''Return the index of a HOMO orbital.
+        """Return the index of a HOMO orbital.
 
         Parameters
         ----------
         offset : int
             By default, the (highest) homo energy is returned. When this index is above
             zero, the corresponding lower homo energy is returned.
-        '''
+        """
         if offset < 0:
             raise ValueError('Offset must be zero or positive.')
         homo_indexes = self.occupations.nonzero()[0]
@@ -369,14 +369,14 @@ class Orbitals(object):
     homo_index = property(get_homo_index)
 
     def get_homo_energy(self, offset=0):
-        '''Return a homo energy.
+        """Return a homo energy.
 
         Parameters
         ----------
         offset : int
             By default, the (highest) homo energy is returned. When this index is above
             zero, the corresponding lower homo energy is returned.
-        '''
+        """
         index = self.get_homo_index(offset)
         if index is not None:
             return self.energies[index]
@@ -384,14 +384,14 @@ class Orbitals(object):
     homo_energy = property(get_homo_energy)
 
     def get_lumo_index(self, offset=0):
-        '''Return the index of a LUMO orbital.
+        """Return the index of a LUMO orbital.
 
         Parameters
         ----------
         offset : int
             By default, the (lowest) lumo energy is returned. When this index is above
             zero, the corresponding higher homo energy is returned.
-        '''
+        """
         if offset < 0:
             raise ValueError('Offset must be zero or positive.')
         lumo_indexes = (self.occupations==0.0).nonzero()[0]
@@ -401,14 +401,14 @@ class Orbitals(object):
     lumo_index = property(get_lumo_index)
 
     def get_lumo_energy(self, offset=0):
-        '''Return a lumo energy.
+        """Return a lumo energy.
 
         Parameters
         ----------
         offset : int
             By default, the (lowest) lumo energy is returned. When this index is above
             zero, the corresponding higher homo energy is returned.
-        '''
+        """
         index = self.get_lumo_index(offset)
         if index is not None:
             return self.energies[index]
@@ -416,7 +416,7 @@ class Orbitals(object):
     lumo_energy = property(get_lumo_energy)
 
     def to_dm(self, other=None):
-        """Compute the density matrix
+        """Compute the density matrix.
 
         Parameters
         ----------
@@ -434,16 +434,16 @@ class Orbitals(object):
             return np.dot(self._coeffs*(self.occupations*other.occupations)**0.5, other._coeffs.T)
 
     def rotate_random(self):
-        '''Apply random unitary transformation distributed with Haar measure
+        """Apply random unitary transformation distributed with Haar measure.
 
-           The attributes ``energies`` and ``occupations`` are not altered.
-        '''
+        The attributes ``energies`` and ``occupations`` are not altered.
+        """
         z = np.random.normal(0, 1, (self.nfn, self.nfn))
         q, r = np.linalg.qr(z)
         self.coeffs[:] = np.dot(self.coeffs, q)
 
     def rotate_2orbitals(self, angle=0.7853981633974483, index0=None, index1=None):
-        '''Rotate two orbitals
+        """Rotate two orbitals.
 
         Parameters
         ----------
@@ -453,7 +453,7 @@ class Orbitals(object):
             The orbitals to rotate, defaults to HOMO and LUMO,
 
         The attributes ``energies`` and ``occupations`` are not altered.
-        '''
+        """
         if index0 == None:
             index0 = self.homo_index
         if index1 == None:
@@ -464,7 +464,7 @@ class Orbitals(object):
         self.coeffs[:,index1] = np.sin(angle)*old0 + np.cos(angle)*old1
 
     def swap_orbitals(self, swaps):
-        '''Change the order of the orbitals using pair-exchange
+        """Change the order of the orbitals using pair-exchange.
 
         Parameters
         ----------
@@ -473,7 +473,7 @@ class Orbitals(object):
             swap.
 
         The attributes ``energies`` and ``occupations`` are also reordered.
-        '''
+        """
         if not (swaps.shape[1] == 2 and swaps.ndim == 2 and issubclass(swaps.dtype.type, int)):
             raise TypeError('The argument swaps has the wrong shape/type.')
         for iswap in range(len(swaps)):

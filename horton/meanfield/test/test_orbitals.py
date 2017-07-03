@@ -33,7 +33,7 @@ from horton.test.common import numpy_seed
 
 
 def get_forth_back(n):
-    '''Returns matching pair of forth and back permutation.
+    """Return matching pair of forth and back permutation.
 
     Parameters
     ----------
@@ -41,7 +41,7 @@ def get_forth_back(n):
         The length of the permutation.
 
     It is guaranteed that the identity permutation is never returned.
-    '''
+    """
     while True:
         forth = np.random.uniform(0, 1, 5).argsort()
         if (forth != np.arange(5)).all():
@@ -53,7 +53,7 @@ def get_forth_back(n):
 
 
 def get_signs(n):
-    '''Returns an array with signs (all elements are just +1 or -1).
+    """Return an array with signs (all elements are just +1 or -1).
 
     Parameters
     ----------
@@ -61,7 +61,7 @@ def get_signs(n):
         The length of the permutation.
 
     It is guaranteed that not all signs are positive.
-    '''
+    """
     while True:
         signs = np.random.randint(0, 1, n)*2 -1
         if (signs < 0).any():
@@ -69,7 +69,7 @@ def get_signs(n):
 
 
 def get_random_orbitals(nbasis):
-    '''Return a random expansion and an identity overlap matrix.'''
+    """Return a random expansion and an identity overlap matrix."""
     orb = Orbitals(nbasis)
     a = np.random.normal(0, 1, (nbasis, nbasis))
     a = a + a.T
