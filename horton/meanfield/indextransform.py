@@ -258,7 +258,7 @@ def four_index_transform_cholesky(ao_integrals, orb0, orb1=None, method='tensord
 
 @timer.with_section('Index Trans')
 def transform_integrals_cholesky(one, two, method='tensordot', *orbs):
-    """Transform integrals to MO basis
+    """Transform integrals to MO basis.
 
     Parameters
     ----------

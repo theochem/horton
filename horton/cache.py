@@ -26,7 +26,7 @@
 '''
 
 
-import numpy as np, types
+import numpy as np
 
 
 __all__ = ['JustOnceClass', 'just_once', 'Cache']

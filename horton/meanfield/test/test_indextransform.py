@@ -21,8 +21,31 @@
 
 
 import numpy as np
+from nose.tools import assert_raises
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from horton.meanfield.indextransform import _parse_four_index_transform_orbs
+
+def test_parse_index_transform_orbs():
+    assert _parse_four_index_transform_orbs(0, 1, 2, 3) == (0, 1, 2, 3)
+    assert _parse_four_index_transform_orbs(0, None, None, None) == (0, 0, 0, 0)
+    assert _parse_four_index_transform_orbs(0, 1, None, None) == (0, 1, 0, 1)
+    assert _parse_four_index_transform_orbs(0, None, 2, None) == (0, 0, 2, 2)
+    with assert_raises(TypeError):
+        _parse_four_index_transform_orbs(0, None, None, 2)
+
+
+def test_exceptions():
+    with assert_raises(ValueError):
+        four_index_transform(np.zeros((4, 4, 4, 4)), 0, method='foo')
+    with assert_raises(ValueError):
+        four_index_transform_cholesky(np.zeros((2, 4, 4)), 0, method='foo')
+    with assert_raises(ValueError):
+        split_core_active(np.zeros((5, 5)), None, 0.0, None, -1, 3)
+    with assert_raises(ValueError):
+        split_core_active(np.zeros((5, 5)), None, 0.0, None, 3, -1)
+    with assert_raises(ValueError):
+        split_core_active(np.zeros((5, 5)), None, 0.0, None, 3, 7)
 
 
 def helper_hf(olp, ecore, one, two, nocc):
