@@ -42,7 +42,6 @@ cimport gbw
 
 import atexit
 
-from horton.log import biblio
 from horton.cext import compute_grid_nucpot
 
 
@@ -392,6 +391,7 @@ cdef class GBasis:
         if self.__class__ == GBasis:
             raise NotImplementedError('GBasis is an abstract base class')
         self._log_init()
+        self.biblio = []
 
     def __dealloc__(self):
         del self._this
@@ -645,6 +645,8 @@ cdef class GBasis:
 
 
 cdef class GOBasis(GBasis):
+    cdef public list biblio
+
     def __cinit__(self, centers, shell_map, nprims, shell_types, alphas, con_coeffs):
         self._this = <gbasis.GBasis*> new gbasis.GOBasis(
             <double*>self._centers.data, <long*>self._shell_map.data,
@@ -857,8 +859,8 @@ cdef class GOBasis(GBasis):
 
         Keywords: :index:`ERI`, :index:`four-center integrals`
         '''
-        biblio.cite('valeev2014',
-                    'the efficient implementation of four-center electron repulsion integrals')
+        self.biblio.append(('valeev2014',
+                    'the efficient implementation of four-center electron repulsion integrals'))
         output = prepare_array(output, (self.nbasis, self.nbasis, self.nbasis, self.nbasis), 'output')
         (<gbasis.GOBasis*>self._this).compute_electron_repulsion(&output[0, 0, 0, 0])
         return np.asarray(output)
@@ -884,10 +886,10 @@ cdef class GOBasis(GBasis):
 
         Keywords: :index:`ERI`, :index:`four-center integrals`
         """
-        biblio.cite('valeev2014',
-                 'the efficient implementation of four-center electron repulsion integrals')
-        biblio.cite('ahlrichs2006',
-                 'the methodology to implement various types of four-center integrals.')
+        self.biblio.append(('valeev2014',
+                 'the efficient implementation of four-center electron repulsion integrals'))
+        self.biblio.append(('ahlrichs2006',
+                 'the methodology to implement various types of four-center integrals.'))
         output = prepare_array(output, (self.nbasis, self.nbasis, self.nbasis, self.nbasis), 'output')
         (<gbasis.GOBasis*>self._this).compute_erf_repulsion(&output[0, 0, 0, 0], mu)
         return np.asarray(output)
@@ -916,14 +918,14 @@ cdef class GOBasis(GBasis):
 
         Keywords: :index:`ERI`, :index:`four-center integrals`
         """
-        biblio.cite('valeev2014',
-                 'the efficient implementation of four-center electron repulsion integrals')
-        biblio.cite('ahlrichs2006',
-                 'the methodology to implement various types of four-center integrals.')
-        biblio.cite('gill1996',
-                 'four-center integrals with a Gaussian interaction potential.')
-        biblio.cite('toulouse2004',
-                 'four-center integrals with a Gaussian interaction potential.')
+        self.biblio.append(('valeev2014',
+                 'the efficient implementation of four-center electron repulsion integrals'))
+        self.biblio.append(('ahlrichs2006',
+                 'the methodology to implement various types of four-center integrals.'))
+        self.biblio.append(('gill1996',
+                 'four-center integrals with a Gaussian interaction potential.'))
+        self.biblio.append(('toulouse2004',
+                 'four-center integrals with a Gaussian interaction potential.'))
         output = prepare_array(output, (self.nbasis, self.nbasis, self.nbasis, self.nbasis), 'output')
         (<gbasis.GOBasis*>self._this).compute_gauss_repulsion(&output[0, 0, 0, 0], c, alpha)
         return np.asarray(output)
@@ -951,10 +953,10 @@ cdef class GOBasis(GBasis):
 
         Keywords: :index:`ERI`, :index:`four-center integrals`
         """
-        biblio.cite('valeev2014',
-                 'the efficient implementation of four-center electron repulsion integrals')
-        biblio.cite('ahlrichs2006',
-                 'the methodology to implement various types of four-center integrals.')
+        self.biblio.append(('valeev2014',
+                 'the efficient implementation of four-center electron repulsion integrals'))
+        self.biblio.append(('ahlrichs2006',
+                 'the methodology to implement various types of four-center integrals.'))
         output = prepare_array(output, (self.nbasis, self.nbasis, self.nbasis, self.nbasis), 'output')
         (<gbasis.GOBasis*>self._this).compute_ralpha_repulsion(&output[0, 0, 0, 0], alpha)
         return np.asarray(output)
