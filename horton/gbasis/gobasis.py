@@ -25,11 +25,10 @@ import numpy as np
 
 from horton.context import context
 from cext import GOBasis
-from iobas import load_basis_atom_map_nwchem, load_basis_atom_map_gbs, \
-    dump_basis_atom_map_gbs
+from iobas import load_basis_atom_map_nwchem, load_basis_atom_map_gbs, dump_basis_atom_map_gbs
 from horton.log import log
 from periodic import sym2num
-from horton.utils import typecheck_geo
+from utils import typecheck_geo
 
 
 __all__ = [
