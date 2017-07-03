@@ -194,8 +194,10 @@ def split_core_active(one, two, ecore, orb, ncore, nactive, indextrans='tensordo
         contributions from the core orbitals.
     """
     # Check type/option of arguments
-    if ncore <= 0 or nactive <= 0:
-        raise ValueError('ncore and nactive must be strictly positive.')
+    if ncore < 0:
+        raise ValueError('ncore must be positive.')
+    if nactive <= 0:
+        raise ValueError('ncore must be strictly positive.')
     if nactive + ncore > one.shape[0]:
         raise ValueError('More active orbitals than basis functions.')
 
@@ -324,8 +326,10 @@ def split_core_active_cholesky(one, two, ecore, orb, ncore, nactive, indextrans=
         contributions from the core orbitals.
     """
     # Check type/option of arguments
-    if ncore <= 0 or nactive <= 0:
-        raise ValueError('ncore and nactive must be strictly positive.')
+    if ncore < 0:
+        raise ValueError('ncore must be positive.')
+    if nactive <= 0:
+        raise ValueError('ncore must be strictly positive.')
     if nactive + ncore > one.shape[0]:
         raise ValueError('More active orbitals than basis functions.')
 

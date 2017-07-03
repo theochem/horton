@@ -43,9 +43,15 @@ def test_exceptions():
     with assert_raises(ValueError):
         split_core_active(np.zeros((5, 5)), None, 0.0, None, -1, 3)
     with assert_raises(ValueError):
-        split_core_active(np.zeros((5, 5)), None, 0.0, None, 3, -1)
+        split_core_active(np.zeros((5, 5)), None, 0.0, None, 3, 0)
     with assert_raises(ValueError):
         split_core_active(np.zeros((5, 5)), None, 0.0, None, 3, 7)
+    with assert_raises(ValueError):
+        split_core_active_cholesky(np.zeros((5, 5)), None, 0.0, None, -1, 3)
+    with assert_raises(ValueError):
+        split_core_active_cholesky(np.zeros((5, 5)), None, 0.0, None, 3, 0)
+    with assert_raises(ValueError):
+        split_core_active_cholesky(np.zeros((5, 5)), None, 0.0, None, 3, 7)
 
 
 def helper_hf(olp, ecore, one, two, nocc):
@@ -78,9 +84,7 @@ def helper_hf(olp, ecore, one, two, nocc):
     return ham.cache['energy'], orb_alpha
 
 
-def check_core_active(mol, basis_str, ncore, nactive):
-    # A) Run a simple HF calculation on the given IOData in the given basis
-
+def prepare_hf(mol, basis_str):
     # Input structure
     obasis = get_gobasis(mol.coordinates, mol.numbers, basis_str)
 
@@ -90,6 +94,25 @@ def check_core_active(mol, basis_str, ncore, nactive):
     na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
     one = kin + na
     two = obasis.compute_electron_repulsion()
+
+    enucnuc = compute_nucnuc(mol.coordinates, mol.pseudo_numbers)
+    return obasis, olp, kin, na, one, two, enucnuc
+
+
+def check_core_active_blank(mol, basis_str):
+    obasis, olp, kin, na, one, two, enucnuc = prepare_hf(mol, basis_str)
+    ncore = 0
+    nactive = obasis.nbasis
+    one_small, two_small, ecore = \
+        split_core_active(one, two, enucnuc, None, ncore, nactive)
+    np.testing.assert_allclose(two, two_small)
+    np.testing.assert_allclose(enucnuc, ecore)
+    np.testing.assert_allclose(one, one_small)
+
+
+def check_core_active(mol, basis_str, ncore, nactive):
+    # A) Run a simple HF calculation on the given IOData in the given basis
+    obasis, olp, kin, na, one, two, enucnuc = prepare_hf(mol, basis_str)
 
     # Decide how to occupy the orbitals
     assert mol.numbers.sum() % 2 == 0
@@ -121,16 +144,19 @@ def test_core_active_neon():
         coordinates=np.zeros((1, 3), float),
         numbers=np.array([10], int)
     )
+    check_core_active_blank(mol, '6-31+g(d)')
     check_core_active(mol, '6-31+g(d)', 2, 6)
 
 
 def test_core_active_water():
     mol = IOData.from_file(context.get_fn('test/water.xyz'))
+    check_core_active_blank(mol, '6-31+g(d)')
     check_core_active(mol, '6-31+g(d)', 1, 6)
 
 
 def test_core_active_2h_azirine():
     mol = IOData.from_file(context.get_fn('test/2h-azirine.xyz'))
+    check_core_active_blank(mol, '3-21g')
     check_core_active(mol, '3-21g', 3, 15)
 
 
@@ -164,9 +190,7 @@ def helper_hf_cholesky(olp, ecore, one, two_vecs, nocc):
     return ham.cache['energy'], orb_alpha
 
 
-def check_core_active_cholesky(mol, basis_str, ncore, nactive):
-    # A) Run a simple HF calculation on the given IOData in the given basis
-
+def prepare_hf_cholesky(mol, basis_str):
     # Input structure
     obasis = get_gobasis(mol.coordinates, mol.numbers, basis_str)
 
@@ -177,12 +201,30 @@ def check_core_active_cholesky(mol, basis_str, ncore, nactive):
     one = kin + na
     two_vecs = obasis.compute_electron_repulsion_cholesky()
 
+    enucnuc = compute_nucnuc(mol.coordinates, mol.pseudo_numbers)
+    return obasis, olp, kin, na, one, two_vecs, enucnuc
+
+
+def check_core_active_cholesky_blank(mol, basis_str):
+    obasis, olp, kin, na, one, two_vecs, enucnuc = prepare_hf_cholesky(mol, basis_str)
+    ncore = 0
+    nactive = obasis.nbasis
+    one_small, two_vecs_small, ecore = \
+        split_core_active_cholesky(one, two_vecs, enucnuc, None, ncore, nactive)
+    np.testing.assert_allclose(two_vecs, two_vecs_small)
+    np.testing.assert_allclose(enucnuc, ecore)
+    np.testing.assert_allclose(one, one_small)
+
+
+def check_core_active_cholesky(mol, basis_str, ncore, nactive):
+    # A) Run a simple HF calculation on the given IOData in the given basis
+    obasis, olp, kin, na, one, two_vecs, enucnuc = prepare_hf_cholesky(mol, basis_str)
+
     # Decide how to occupy the orbitals
     assert mol.numbers.sum() % 2 == 0
     nocc = mol.numbers.sum()/2
     assert ncore + nactive > nocc
 
-    enucnuc = compute_nucnuc(mol.coordinates, mol.pseudo_numbers)
     energy1, orb_alpha1 = helper_hf_cholesky(olp, enucnuc, one, two_vecs, nocc)
 
     # B1) Get integrals for the active space, using tensordot transformation
@@ -207,14 +249,17 @@ def test_core_active_neon_cholesky():
         coordinates=np.zeros((1, 3), float),
         numbers=np.array([10], int)
     )
+    check_core_active_cholesky_blank(mol, '6-31+g(d)')
     check_core_active_cholesky(mol, '6-31+g(d)', 2, 6)
 
 
 def test_core_active_water_cholesky():
     mol = IOData.from_file(context.get_fn('test/water.xyz'))
+    check_core_active_cholesky_blank(mol, '6-31+g(d)')
     check_core_active_cholesky(mol, '6-31+g(d)', 1, 6)
 
 
 def test_core_active_2h_azirine_cholesky():
     mol = IOData.from_file(context.get_fn('test/2h-azirine.xyz'))
+    check_core_active_cholesky_blank(mol, '3-21g')
     check_core_active_cholesky(mol, '3-21g', 3, 15)
