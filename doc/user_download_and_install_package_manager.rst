@@ -39,7 +39,7 @@ MacPorts is specific for OSX. When you have MacPorts installed, see
 https://www.macports.org/install.php, you can install HORTON as follows:
 
 .. code-block:: bash
-  
+
     sudo port install gcc49; sudo port select --set gcc mp-gcc49
     sudo port install python27; sudo port select --set python python27
     sudo port install horton
@@ -57,7 +57,7 @@ you have EasyBuild installed and configured, see http://hpcugent.github.io/easyb
 can install HORTON e.g. as follows:
 
 .. code-block:: bash
-  
+
    eb horton-2.0.0-intel-2015b-Python-2.7.10-HDF5-1.8.15-patch1-serial.eb --robot
 
 The ``--robot`` option will instruct EasyBuild to install all dependencies as well.

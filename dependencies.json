@@ -119,7 +119,7 @@
     "macports_name": "py27-sympy",
     "macports_url": "https://trac.macports.org/browser/trunk/dports/python/py-sympy/Portfile",
     "macports_command": "sudo port install py27-sympy; sudo port select --set py-sympy py27-sympy",
-    "purpose": "test"
+    "purpose": "dev"
 }, {
     "name": "matplotlib",
     "title": "Matplotlib",
