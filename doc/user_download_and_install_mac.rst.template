@@ -91,20 +91,13 @@ Here are some basic MacPorts commands:
       sudo port select --set python python27
 
 
-Dependencies for building, installing and testing HORTON
-========================================================
+Packaged dependencies for building, installing and testing HORTON
+=================================================================
 
 In order to compile and test HORTON, you need to install relatively recent
 versions of the following programs/libraries:
 
 ${dependencies_rst}
-
-
-.. _mac_compile_install:
-
-
-Installing the dependencies with MacPorts
------------------------------------------
 
 All dependencies can be installed with MacPorts. We recommend the following ports:
 
@@ -118,11 +111,31 @@ space, the ``sudo`` can be omitted.):
 ${dependencies_macports_command}
 
 
+Download HORTON
+===============
+
+The latest stable source code release of HORTON can be downloaded here:
+
+    https://github.com/theochem/horton/releases/download/2.1.0b3/horton-2.1.0b3.tar.gz
+
+Choose a suitable directory, e.g. ``~/build``, download and unpack the archive:
+
+.. code-block:: bash
+
+    mkdir -p ~/build
+    cd ~/build
+    curl -kLO https://github.com/theochem/horton/releases/download/2.1.0b3/horton-2.1.0b3.tar.gz
+    tar -xvzf horton-2.1.0b3.tar.gz
+    cd horton-2.1.0b3
+
+
 .. _mac_manual_dependency_install:
 
+From-source dependencies for building, installing and testing HORTON
+====================================================================
 
-Installing dependencies manually
---------------------------------
+Normally, the following are not needed, but may be useful in case of difficulties with the
+installation of LibXC and LibInt through MacPorts.
 
 **LibXC**
 
@@ -153,31 +166,8 @@ compiling HORTON. If this fails, consult your local Mac guru to build LibInt2. F
 info about LibInt2, check the website: https://github.com/evaleev/libint
 
 
-Download the code
-=================
-
-The latest stable source code release of HORTON can be downloaded here:
-
-    https://github.com/theochem/horton/releases/download/2.1.0b3/horton-2.1.0b3.tar.gz
-
-Choose a suitable directory, e.g. ``~/build``, download and unpack the archive:
-
-.. code-block:: bash
-
-    mkdir -p ~/build
-    cd ~/build
-    curl -kLO https://github.com/theochem/horton/releases/download/2.1.0b3/horton-2.1.0b3.tar.gz
-    tar -xvzf horton-2.1.0b3.tar.gz
-    cd horton-2.1.0b3
-
-Alternatively, you could use MacPorts to install HORTON:
-
-
-Compilation and installation
-============================
-
-Build and install
------------------
+Build and Install HORTON
+========================
 
 The regular build and install is done as follows:
 
@@ -188,19 +178,11 @@ The regular build and install is done as follows:
 The ``setup.py`` script makes a reasonable attempt configuring the compiler and
 linker settings for the LibXC and LibInt2 libraries. However, this does not work in all
 environments. In case of a failure, or if a configuration other than the default is
-desired, read the following section.
-
-
-Overriding default compiler/linker settings for LibXC and LibInt2
------------------------------------------------------------------
-
-The manual configuration of the compiler and linker settings is described here:
-:ref:`setup_cfg`. You should read this section if the default build and install
-failed or if you would like to specify which libraries to use.
+desired, read :ref:`setup_cfg`.
 
 
 Runtime configuration
----------------------
+=====================
 
 You need to set some environment variables to use HORTON. Add the following to
 ``~/.bash_profile`` if it exists, otherwise add them to ``~/.profile``:
@@ -223,8 +205,8 @@ This file is located either in ``${HOME}/.matplotlib`` or
 ``${HOME}/.config/matplotlib``.
 
 
-Running the tests
-=================
+Test HORTON
+===========
 
 To test that HORTON was installed properly and that you can can access it from
 other directories, you should change to a directory outside of the source tree
