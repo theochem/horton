@@ -119,9 +119,9 @@
 #ifndef HORTON_GBASIS_FNS_H_
 #define HORTON_GBASIS_FNS_H_
 
-#include "horton/gbasis/calc.h"
-#include "horton/gbasis/common.h"
-#include "horton/gbasis/iter_pow.h"
+#include "calc.h"
+#include "common.h"
+#include "iter_pow.h"
 
 /** @brief
       Base class for grid calculators that require only a single loop over all basis

@@ -21,8 +21,8 @@
 
 #include <cstdlib>
 #include <cstring>
-#include "horton/gbasis/common.h"
-#include "horton/gbasis/iter_gb.h"
+#include "common.h"
+#include "iter_gb.h"
 using namespace std;
 
 

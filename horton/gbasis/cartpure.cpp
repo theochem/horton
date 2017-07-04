@@ -26,8 +26,8 @@
 #endif
 #include <cstring>
 #include <stdexcept>
-#include "horton/gbasis/common.h"
-#include "horton/gbasis/cartpure.h"
+#include "common.h"
+#include "cartpure.h"
 
 
 typedef struct {

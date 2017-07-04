@@ -24,7 +24,7 @@
 #define CHOLESKY_H
 
 #include <vector>
-#include "horton/gbasis/gbw.h"
+#include "gbw.h"
 
 /**
     @brief

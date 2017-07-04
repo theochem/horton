@@ -23,7 +23,7 @@
 #ifndef HORTON_GBASIS_BOYS_H_
 #define HORTON_GBASIS_BOYS_H_
 
-#include "horton/gbasis/common.h"
+#include "common.h"
 #define BOYS_MAX_M 4*MAX_SHELL_TYPE
 
 /** @brief

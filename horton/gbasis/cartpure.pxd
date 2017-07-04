@@ -20,6 +20,6 @@
 # --
 
 
-cdef extern from "horton/gbasis/cartpure.h":
+cdef extern from "cartpure.h":
     void cart_to_pure_low(double *work_cart, double* work_pure, long shell_type,
     long nant, long npost) except +

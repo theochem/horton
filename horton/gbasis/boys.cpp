@@ -21,13 +21,13 @@
 
 #include <cmath>
 #include <stdexcept>
-#include "horton/gbasis/boys.h"
+#include "boys.h"
 
 
 // The static arrays in boys_inc.cpp are pre-computed to full precision with
 // sympy and mpmath. (See tools/boys.py.)
 
-#include "horton/gbasis/boys_inc.cpp"
+#include "boys_inc.cpp"
 #if BOYS_MAX_M + 6!= BOYS_MAX_DATA
 #error The file boys_inc.cpp is not consistent with the limits in horton/gbasis
 #endif

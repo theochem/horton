@@ -19,8 +19,8 @@
 //--
 
 
-#include "horton/gbasis/common.h"
-#include "horton/gbasis/iter_pow.h"
+#include "common.h"
+#include "iter_pow.h"
 
 
 int iter_pow1_inc(long* n) {

@@ -20,7 +20,7 @@
 # --
 
 
-cdef extern from "horton/gbasis/fns.h":
+cdef extern from "fns.h":
     cdef cppclass GB1DMGridFn:
         long get_nwork()
         long get_max_shell_type()

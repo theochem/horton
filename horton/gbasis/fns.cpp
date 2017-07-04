@@ -28,9 +28,9 @@
 #include <cstring>
 #include <stdexcept>
 #include "horton/moments.h"
-#include "horton/gbasis/boys.h"
-#include "horton/gbasis/cartpure.h"
-#include "horton/gbasis/fns.h"
+#include "boys.h"
+#include "cartpure.h"
+#include "fns.h"
 
 
 /*
