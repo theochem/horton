@@ -20,7 +20,6 @@
 # --
 
 import numpy as np
-from nose.tools import assert_raises
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -33,20 +32,19 @@ def get_h2o_obasis():
 
 
 def pcholesky4(A, thresh=1e-8):
-    for i in A.shape: #assumes square matrix
+    for i in A.shape:  # assumes square matrix
         assert i == A.shape[0]
     Ls = []
-    d = np.inf
-    counter=1
+    counter = 1
     while True:
-        d = np.einsum('iijj->ij',A) - sum([i*i for i in Ls],np.zeros(A.shape[0:2]))
-        idx_d = np.unravel_index(np.argmax(d),A.shape[0:2])
-        print "Iteration " , counter, " selected d: ", d[idx_d]
+        d = np.einsum('iijj->ij', A) - sum([i * i for i in Ls], np.zeros(A.shape[0:2]))
+        idx_d = np.unravel_index(np.argmax(d), A.shape[0:2])
+        print "Iteration ", counter, " selected d: ", d[idx_d]
         if d[idx_d] < thresh:
             print "Condition met. Exiting loop"
             break
-        past_L = sum([i*i[idx_d] for i in Ls], np.zeros(A.shape[0:2]))
-        Ls.append((d[idx_d]**-0.5)*(A[:, idx_d[0], :,idx_d[1]] - past_L)) #ugly
+        past_L = sum([i * i[idx_d] for i in Ls], np.zeros(A.shape[0:2]))
+        Ls.append((d[idx_d] ** -0.5) * (A[:, idx_d[0], :, idx_d[1]] - past_L))  # ugly
 
         counter += 1
         print ""

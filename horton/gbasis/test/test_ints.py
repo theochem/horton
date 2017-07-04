@@ -3390,7 +3390,7 @@ def test_erf_repulsion_h2_sto3g():
     orb_alpha = Orbitals(obasis.nbasis)
 
     # Initial guess
-    core = kin+na
+    core = kin + na
     guess_core_hamiltonian(olp, core, orb_alpha)
     mol.orb_alpha = orb_alpha
 

@@ -31,10 +31,10 @@ from horton import *  # pylint: disable=wildcard-import, unused-wildcard-import
 def test_shell_nbasis():
     assert get_shell_nbasis(-3) == 7
     assert get_shell_nbasis(-2) == 5
-    assert get_shell_nbasis( 0) == 1
-    assert get_shell_nbasis( 1) == 3
-    assert get_shell_nbasis( 2) == 6
-    assert get_shell_nbasis( 3) == 10
+    assert get_shell_nbasis(0) == 1
+    assert get_shell_nbasis(1) == 3
+    assert get_shell_nbasis(2) == 6
+    assert get_shell_nbasis(3) == 10
     with assert_raises(ValueError):
         get_shell_nbasis(-1)
 
@@ -47,67 +47,67 @@ def test_gobasis_consistency():
     alphas = np.random.uniform(0, 1, nprims.sum())
     con_coeffs = np.random.uniform(-1, 1, nprims.sum())
 
-    gobasis = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
-    assert gobasis.nbasis == 29
-    assert gobasis.max_shell_type == 3
-    scales = gobasis.get_scales()
+    gb = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+    assert gb.nbasis == 29
+    assert gb.max_shell_type == 3
+    scales = gb.get_scales()
     assert abs(scales[0] - gob_cart_normalization(alphas[0], np.array([2, 0, 0]))) < 1e-10
-    assert (gobasis.basis_offsets == np.array([0, 6, 9, 10, 15, 25, 26])).all()
-    assert (gobasis.shell_lookup == np.array([0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 3,
-                                              3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4,
-                                              4, 4, 4, 5, 6, 6, 6])).all()
+    assert (gb.basis_offsets == np.array([0, 6, 9, 10, 15, 25, 26])).all()
+    assert (gb.shell_lookup == np.array([0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 3,
+                                         3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4,
+                                         4, 4, 4, 5, 6, 6, 6])).all()
 
     shell_types = np.array([1, 1, 0, -2, -2, 0, 1])
-    gobasis = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
-    assert gobasis.nbasis == 21
-    assert gobasis.max_shell_type == 2
+    gb = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+    assert gb.nbasis == 21
+    assert gb.max_shell_type == 2
 
     # The center indexes in the shell_map are out of range.
     shell_map[0] = 2
     with assert_raises(ValueError):
-        i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+        GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     shell_map[0] = 0
 
     # The size of the array shell_types does not match the sum of nprims.
     shell_types = np.array([1, 1])
     with assert_raises(TypeError):
-        i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+        GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     shell_types = np.array([1, 1, 0, -2, -2, 0, 1])
 
     # The elements of nprims should be at least 1.
     nprims[1] = 0
     with assert_raises(ValueError):
-        i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+        GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     nprims[1] = 3
 
     # The size of the array alphas does not match the sum of nprims.
     alphas = np.random.uniform(-1, 1, 2)
     with assert_raises(TypeError):
-        i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+        GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     alphas = np.random.uniform(-1, 1, nprims.sum())
 
     # Encountered the nonexistent shell_type -1.
     shell_types[1] = -1
     with assert_raises(ValueError):
-        i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+        GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     shell_types[1] = 1
 
     # The size of con_coeffs does not match nprims.
     con_coeffs = np.random.uniform(-1, 1, 3)
     with assert_raises(TypeError):
-        i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+        GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     con_coeffs = np.random.uniform(-1, 1, nprims.sum())
 
     # Exceeding the maximym shell type (above):
-    shell_types[0] = get_max_shell_type()+1
+    shell_types[0] = get_max_shell_type() + 1
     with assert_raises(ValueError):
-        i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+        GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     shell_types[0] = 2
 
     # Exceeding the maximym shell type (below):
-    shell_types[0] = -get_max_shell_type()-1
+    shell_types[0] = -get_max_shell_type() - 1
     with assert_raises(ValueError):
-        i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+        GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     shell_types[0] = 2
 
 
@@ -125,12 +125,12 @@ def test_grid_lih_321g_hf_density_some_points():
         [0.0, 0.0, 1.0, 0.186234028507],
         [0.4, 0.2, 0.1, 0.018503681370],
     ])
-    ref[:,:3] *= angstrom
+    ref[:, :3] *= angstrom
     mol = IOData.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
 
     # check for one point the compute_grid_point1 method
     output = np.zeros(mol.obasis.nbasis, float)
-    point = np.array([0.0, 0.0, 1.0])*angstrom
+    point = np.array([0.0, 0.0, 1.0]) * angstrom
     grid_fn = GB1DMGridDensityFn(mol.obasis.max_shell_type)
     mol.obasis.compute_grid_point1(output, point, grid_fn)
     # first basis function is contraction of three s-type gaussians
@@ -145,73 +145,73 @@ def test_grid_lih_321g_hf_density_some_points():
         assert abs(scales[i] - nrml) < 1e-10
         # check that we are on the first atom
         assert mol.obasis.shell_map[i] == 0
-        dsq = np.linalg.norm(point - mol.coordinates[0])**2
-        gauss = nrml*np.exp(-alpha*dsq)
-        total += coeff*gauss
+        dsq = np.linalg.norm(point - mol.coordinates[0]) ** 2
+        gauss = nrml * np.exp(-alpha * dsq)
+        total += coeff * gauss
     assert abs(total - output[0]) < 1e-10
 
     # check density matrix value
     dm_full = mol.get_dm_full()
-    assert abs(dm_full[0,0] - 1.96589709) < 1e-7
+    assert abs(dm_full[0, 0] - 1.96589709) < 1e-7
 
-    points = ref[:,:3].copy()
+    points = ref[:, :3].copy()
     rhos = mol.obasis.compute_grid_density_dm(dm_full, points)
-    assert abs(rhos - ref[:,3]).max() < 1e-5
+    assert abs(rhos - ref[:, 3]).max() < 1e-5
 
 
 def check_grid_rho(fn, ref, eps):
     mol = IOData.from_file(context.get_fn(fn))
-    points = ref[:,:3].copy()
+    points = ref[:, :3].copy()
     dm_full = mol.get_dm_full()
     rhos = mol.obasis.compute_grid_density_dm(dm_full, points)
-    assert abs(rhos - ref[:,3]).max() < eps
+    assert abs(rhos - ref[:, 3]).max() < eps
 
 
 def test_grid_co_ccpv5z_cart_hf_density_some_points():
     ref = np.array([  # from cubegen
-        [ 0.0,  0.0,  0.0,   4.54392441417],
-        [ 0.1,  0.0,  0.0,   2.87874696902],
-        [ 0.0,  0.1,  0.0,   2.90909931711],
-        [ 0.0,  0.0,  1.0,   0.00563354926],
-        [ 0.4,  0.2,  0.1,   0.15257439924],
-        [-0.4,  0.2,  0.1,   0.14408104500],
-        [ 0.4, -0.2,  0.1,   0.14627065655],
-        [ 0.4,  0.2, -0.1,   0.11912840380],
+        [0.0, 0.0, 0.0, 4.54392441417],
+        [0.1, 0.0, 0.0, 2.87874696902],
+        [0.0, 0.1, 0.0, 2.90909931711],
+        [0.0, 0.0, 1.0, 0.00563354926],
+        [0.4, 0.2, 0.1, 0.15257439924],
+        [-0.4, 0.2, 0.1, 0.14408104500],
+        [0.4, -0.2, 0.1, 0.14627065655],
+        [0.4, 0.2, -0.1, 0.11912840380],
     ])
-    ref[:,:3] *= angstrom
+    ref[:, :3] *= angstrom
     check_grid_rho('test/co_ccpv5z_cart_hf_g03.fchk', ref, 3e-3)
 
 
 def test_grid_co_ccpv5z_pure_hf_density_some_points():
     ref = np.array([  # from cubegen
-        [ 0.0,  0.0,  0.0,   4.54338939220],
-        [ 0.1,  0.0,  0.0,   2.87742753163],
-        [ 0.0,  0.1,  0.0,   2.90860415538],
-        [ 0.0,  0.0,  1.0,   0.00285462032],
-        [ 0.4,  0.2,  0.1,   0.15399703660],
-        [-0.4,  0.2,  0.1,   0.14425254494],
-        [ 0.4, -0.2,  0.1,   0.14409038614],
-        [ 0.4,  0.2, -0.1,   0.11750780363],
+        [0.0, 0.0, 0.0, 4.54338939220],
+        [0.1, 0.0, 0.0, 2.87742753163],
+        [0.0, 0.1, 0.0, 2.90860415538],
+        [0.0, 0.0, 1.0, 0.00285462032],
+        [0.4, 0.2, 0.1, 0.15399703660],
+        [-0.4, 0.2, 0.1, 0.14425254494],
+        [0.4, -0.2, 0.1, 0.14409038614],
+        [0.4, 0.2, -0.1, 0.11750780363],
     ])
-    ref[:,:3] *= angstrom
+    ref[:, :3] *= angstrom
     check_grid_rho('test/co_ccpv5z_pure_hf_g03.fchk', ref, 3e-3)
 
 
 def check_grid_gradient(fn, ref, eps):
     mol = IOData.from_file(context.get_fn(fn))
-    points = ref[:,:3].copy()
+    points = ref[:, :3].copy()
     dm_full = mol.get_dm_full()
     gradients = mol.obasis.compute_grid_gradient_dm(dm_full, points)
-    assert abs(gradients - ref[:,3:]).max() < eps
+    assert abs(gradients - ref[:, 3:]).max() < eps
 
 
 def test_grid_lih_321g_hf_gradient_some_points():
     ref = np.array([  # from cubegen
-        [0.0, 0.0, 0.0,  0.000000000000,  0.000000000000,  0.179349665782],
-        [0.1, 0.0, 0.0, -0.028292898754,  0.000000000000,  0.164582727812],
-        [0.0, 0.1, 0.0,  0.000000000000, -0.028292898754,  0.164582727812],
-        [0.0, 0.0, 1.0,  0.000000000000,  0.000000000000, -0.929962409854],
-        [0.4, 0.2, 0.1, -0.057943497876, -0.028971748938,  0.069569174116],
+        [0.0, 0.0, 0.0, 0.000000000000, 0.000000000000, 0.179349665782],
+        [0.1, 0.0, 0.0, -0.028292898754, 0.000000000000, 0.164582727812],
+        [0.0, 0.1, 0.0, 0.000000000000, -0.028292898754, 0.164582727812],
+        [0.0, 0.0, 1.0, 0.000000000000, 0.000000000000, -0.929962409854],
+        [0.4, 0.2, 0.1, -0.057943497876, -0.028971748938, 0.069569174116],
     ])
     ref[:, :3] *= angstrom
     check_grid_gradient('test/li_h_3-21G_hf_g09.fchk', ref, 1e-6)
@@ -226,60 +226,60 @@ def test_grid_lih_321g_hf_orbital_gradient_some_points():
         [0.4, 0.2, 0.1]
     ])
     ref = np.array([  # calculated using finite difference
-        [[ 0.000000000000,  0.000000000000,  0.335358022388],
-         [ 0.000000000000,  0.000000000000, -0.039601719339],
-         [ 0.000000000000,  0.000000000000, -0.065908783181],
-         [ 0.066778303100,  0.000000000000,  0.000000000000],
-         [ 0.000000000000,  0.066778303100,  0.000000000000],
-         [ 0.000000000000,  0.000000000000,  0.035174712603],
-         [ 0.000000000000,  0.000000000000, -0.086099568163],
-         [ 0.121755587880,  0.000000000000,  0.000000000000],
-         [ 0.000000000000,  0.121755587880,  0.000000000000],
-         [ 0.000000000000,  0.000000000000, -0.068136399228],
-         [ 0.000000000000,  0.000000000000, -0.027336484452]],
-        [[-0.029716570085,  0.000000000000,  0.331085502737],
-         [ 0.000124168300,  0.000000000000, -0.039374354768],
-         [ 0.008077765337,  0.000000000000, -0.064966718776],
-         [ 0.066265798547,  0.000000000000,  0.003804006584],
-         [ 0.000000000000,  0.066607211612,  0.000000000000],
-         [ 0.000377488384,  0.000000000000,  0.034880919059],
-         [-0.000705284103,  0.000000000000, -0.085471067710],
-         [ 0.120527897959,  0.000000000000,  0.009112195828],
-         [ 0.000000000000,  0.121345725857,  0.000000000000],
-         [ 0.013285776833,  0.000000000000, -0.067340615153],
-         [-0.000503096838,  0.000000000000, -0.027343807139]],
-        [[ 0.000000000000, -0.029716570085,  0.331085502737],
-         [ 0.000000000000,  0.000124168300, -0.039374354768],
-         [ 0.000000000000,  0.008077765337, -0.064966718776],
-         [ 0.066607211612,  0.000000000000,  0.000000000000],
-         [ 0.000000000000,  0.066265798547,  0.003804006584],
-         [ 0.000000000000,  0.000377488384,  0.034880919059],
-         [ 0.000000000000, -0.000705284103, -0.085471067710],
-         [ 0.121345725857,  0.000000000000,  0.000000000000],
-         [ 0.000000000000,  0.120527897959,  0.009112195828],
-         [ 0.000000000000,  0.013285776833, -0.067340615153],
-         [ 0.000000000000, -0.000503096838, -0.027343807139]],
-        [[ 0.000000000000,  0.000000000000,  5.083843181919],
-         [ 0.000000000000,  0.000000000000, -0.220159704611],
-         [ 0.000000000000,  0.000000000000, -0.941775028074],
-         [ 0.095151155766,  0.000000000000,  0.000000000000],
-         [ 0.000000000000,  0.095151155766,  0.000000000000],
-         [ 0.000000000000,  0.000000000000,  0.427204143785],
-         [ 0.000000000000,  0.000000000000, -0.520952693280],
-         [ 0.190225965755,  0.000000000000,  0.000000000000],
-         [ 0.000000000000,  0.190225965755,  0.000000000000],
-         [ 0.000000000000,  0.000000000000, -0.259089767114],
-         [ 0.000000000000,  0.000000000000,  0.108036467562]],
-        [[-0.122409907465, -0.061204953733,  0.310330235810],
-         [ 0.001247852781,  0.000623926390, -0.037125981310],
-         [ 0.032675748998,  0.016337874499, -0.058852274411],
-         [ 0.061479984281, -0.002759557877,  0.013993646107],
-         [-0.002759557877,  0.065619321096,  0.006996823053],
-         [ 0.000434364406,  0.000217182203,  0.042093481225],
+        [[0.000000000000, 0.000000000000, 0.335358022388],
+         [0.000000000000, 0.000000000000, -0.039601719339],
+         [0.000000000000, 0.000000000000, -0.065908783181],
+         [0.066778303100, 0.000000000000, 0.000000000000],
+         [0.000000000000, 0.066778303100, 0.000000000000],
+         [0.000000000000, 0.000000000000, 0.035174712603],
+         [0.000000000000, 0.000000000000, -0.086099568163],
+         [0.121755587880, 0.000000000000, 0.000000000000],
+         [0.000000000000, 0.121755587880, 0.000000000000],
+         [0.000000000000, 0.000000000000, -0.068136399228],
+         [0.000000000000, 0.000000000000, -0.027336484452]],
+        [[-0.029716570085, 0.000000000000, 0.331085502737],
+         [0.000124168300, 0.000000000000, -0.039374354768],
+         [0.008077765337, 0.000000000000, -0.064966718776],
+         [0.066265798547, 0.000000000000, 0.003804006584],
+         [0.000000000000, 0.066607211612, 0.000000000000],
+         [0.000377488384, 0.000000000000, 0.034880919059],
+         [-0.000705284103, 0.000000000000, -0.085471067710],
+         [0.120527897959, 0.000000000000, 0.009112195828],
+         [0.000000000000, 0.121345725857, 0.000000000000],
+         [0.013285776833, 0.000000000000, -0.067340615153],
+         [-0.000503096838, 0.000000000000, -0.027343807139]],
+        [[0.000000000000, -0.029716570085, 0.331085502737],
+         [0.000000000000, 0.000124168300, -0.039374354768],
+         [0.000000000000, 0.008077765337, -0.064966718776],
+         [0.066607211612, 0.000000000000, 0.000000000000],
+         [0.000000000000, 0.066265798547, 0.003804006584],
+         [0.000000000000, 0.000377488384, 0.034880919059],
+         [0.000000000000, -0.000705284103, -0.085471067710],
+         [0.121345725857, 0.000000000000, 0.000000000000],
+         [0.000000000000, 0.120527897959, 0.009112195828],
+         [0.000000000000, 0.013285776833, -0.067340615153],
+         [0.000000000000, -0.000503096838, -0.027343807139]],
+        [[0.000000000000, 0.000000000000, 5.083843181919],
+         [0.000000000000, 0.000000000000, -0.220159704611],
+         [0.000000000000, 0.000000000000, -0.941775028074],
+         [0.095151155766, 0.000000000000, 0.000000000000],
+         [0.000000000000, 0.095151155766, 0.000000000000],
+         [0.000000000000, 0.000000000000, 0.427204143785],
+         [0.000000000000, 0.000000000000, -0.520952693280],
+         [0.190225965755, 0.000000000000, 0.000000000000],
+         [0.000000000000, 0.190225965755, 0.000000000000],
+         [0.000000000000, 0.000000000000, -0.259089767114],
+         [0.000000000000, 0.000000000000, 0.108036467562]],
+        [[-0.122409907465, -0.061204953733, 0.310330235810],
+         [0.001247852781, 0.000623926390, -0.037125981310],
+         [0.032675748998, 0.016337874499, -0.058852274411],
+         [0.061479984281, -0.002759557877, 0.013993646107],
+         [-0.002759557877, 0.065619321096, 0.006996823053],
+         [0.000434364406, 0.000217182203, 0.042093481225],
          [-0.000016445047, -0.000008222524, -0.094292047809],
-         [ 0.109060186207, -0.006612206455,  0.033530326679],
-         [-0.006612206454,  0.118978495887,  0.016765163340],
-         [ 0.051799568647,  0.025899784323, -0.049145171706],
+         [0.109060186207, -0.006612206455, 0.033530326679],
+         [-0.006612206454, 0.118978495887, 0.016765163340],
+         [0.051799568647, 0.025899784323, -0.049145171706],
          [-0.001806896115, -0.000903448057, -0.019856823712]]
     ])
     mol = IOData.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
@@ -291,41 +291,41 @@ def test_grid_lih_321g_hf_orbital_gradient_some_points():
 
 def test_grid_co_ccpv5z_cart_hf_gradient_some_points():
     ref = np.array([  # from cubegen
-        [ 0.0,  0.0,  0.0,  -0.26805895992,  -0.03725931097,  26.06939895580],
-        [ 0.1,  0.0,  0.0, -11.66097634913,  -0.02427222636,  11.49946087301],
-        [ 0.0,  0.1,  0.0,  -0.18730587145, -11.60371334591,  11.60046471817],
-        [ 0.0,  0.0,  1.0,   0.00350647376,  -0.00151630329,  -0.00944412097],
-        [ 0.4,  0.2,  0.1,  -0.46814335442,  -0.28380627268,  -0.02592227656],
-        [-0.4,  0.2,  0.1,   0.63742782898,  -0.32989678808,   0.00444361306],
-        [ 0.4, -0.2,  0.1,  -0.50464249640,   0.29978538874,  -0.01244489023],
-        [ 0.4,  0.2, -0.1,  -0.21837773815,  -0.16855926400,   0.15518115326],
+        [0.0, 0.0, 0.0, -0.26805895992, -0.03725931097, 26.06939895580],
+        [0.1, 0.0, 0.0, -11.66097634913, -0.02427222636, 11.49946087301],
+        [0.0, 0.1, 0.0, -0.18730587145, -11.60371334591, 11.60046471817],
+        [0.0, 0.0, 1.0, 0.00350647376, -0.00151630329, -0.00944412097],
+        [0.4, 0.2, 0.1, -0.46814335442, -0.28380627268, -0.02592227656],
+        [-0.4, 0.2, 0.1, 0.63742782898, -0.32989678808, 0.00444361306],
+        [0.4, -0.2, 0.1, -0.50464249640, 0.29978538874, -0.01244489023],
+        [0.4, 0.2, -0.1, -0.21837773815, -0.16855926400, 0.15518115326],
     ])
-    ref[:,:3] *= angstrom
+    ref[:, :3] *= angstrom
     # cubegen output somehow not reliable?
     check_grid_gradient('test/co_ccpv5z_cart_hf_g03.fchk', ref, 1e-2)
 
 
 def test_grid_co_ccpv5z_pure_hf_gradient_some_points():
     ref = np.array([  # from cubegen
-        [ 0.0,  0.0,  0.0,  -0.27796827654,  -0.03971005800,  26.06788123216],
-        [ 0.1,  0.0,  0.0, -11.65999871789,  -0.02706024561,  11.49763108605],
-        [ 0.0,  0.1,  0.0,  -0.19499030621, -11.60235682832,  11.60235521243],
-        [ 0.0,  0.0,  1.0,   0.00184843964,   0.00026806115,  -0.01003272687],
-        [ 0.4,  0.2,  0.1,  -0.46500454519,  -0.27516942731,  -0.01707049479],
-        [-0.4,  0.2,  0.1,   0.63911725484,  -0.32989616481,   0.00229353087],
-        [ 0.4, -0.2,  0.1,  -0.51099806603,   0.29961935521,  -0.00979594206],
-        [ 0.4,  0.2, -0.1,  -0.21849813344,  -0.16098019809,   0.16093849962],
+        [0.0, 0.0, 0.0, -0.27796827654, -0.03971005800, 26.06788123216],
+        [0.1, 0.0, 0.0, -11.65999871789, -0.02706024561, 11.49763108605],
+        [0.0, 0.1, 0.0, -0.19499030621, -11.60235682832, 11.60235521243],
+        [0.0, 0.0, 1.0, 0.00184843964, 0.00026806115, -0.01003272687],
+        [0.4, 0.2, 0.1, -0.46500454519, -0.27516942731, -0.01707049479],
+        [-0.4, 0.2, 0.1, 0.63911725484, -0.32989616481, 0.00229353087],
+        [0.4, -0.2, 0.1, -0.51099806603, 0.29961935521, -0.00979594206],
+        [0.4, 0.2, -0.1, -0.21849813344, -0.16098019809, 0.16093849962],
     ])
-    ref[:,:3] *= angstrom
+    ref[:, :3] *= angstrom
     check_grid_gradient('test/co_ccpv5z_pure_hf_g03.fchk', ref, 1e-4)
 
 
 def check_grid_esp(fn, ref, eps):
     mol = IOData.from_file(context.get_fn(fn))
-    points = ref[:,:3].copy()
+    points = ref[:, :3].copy()
     dm_full = mol.get_dm_full()
     esps = mol.obasis.compute_grid_esp_dm(dm_full, mol.coordinates, mol.pseudo_numbers, points)
-    assert abs(esps - ref[:,3]).max() < eps
+    assert abs(esps - ref[:, 3]).max() < eps
 
 
 def test_grid_lih_321g_hf_esp_some_points():
@@ -336,23 +336,23 @@ def test_grid_lih_321g_hf_esp_some_points():
         [0.0, 0.0, 1.0, 1.422294470114],
         [0.4, 0.2, 0.1, 0.796490099689],
     ])
-    ref[:,:3] *= angstrom
+    ref[:, :3] *= angstrom
     check_grid_esp('test/li_h_3-21G_hf_g09.fchk', ref, 1e-8)
 
 
 @attr('slow')
 def test_grid_co_ccpv5z_cart_hf_esp_some_points():
     ref = np.array([  # from cubegen
-        [ 0.0,  0.0,  0.0,  10.69443507172],
-        [ 0.1,  0.0,  0.0,   6.43122889229],
-        [ 0.0,  0.1,  0.0,   6.43406765938],
-        [ 0.0,  0.0,  1.0,   0.27023448629],
-        [ 0.4,  0.2,  0.1,   0.82646540602],
-        [-0.4,  0.2,  0.1,   0.93595072191],
-        [ 0.4, -0.2,  0.1,   0.83432301119],
-        [ 0.4,  0.2, -0.1,   0.68524674809],
+        [0.0, 0.0, 0.0, 10.69443507172],
+        [0.1, 0.0, 0.0, 6.43122889229],
+        [0.0, 0.1, 0.0, 6.43406765938],
+        [0.0, 0.0, 1.0, 0.27023448629],
+        [0.4, 0.2, 0.1, 0.82646540602],
+        [-0.4, 0.2, 0.1, 0.93595072191],
+        [0.4, -0.2, 0.1, 0.83432301119],
+        [0.4, 0.2, -0.1, 0.68524674809],
     ])
-    ref[:,:3] *= angstrom
+    ref[:, :3] *= angstrom
     # cubegen output somehow not reliable?
     check_grid_esp('test/co_ccpv5z_cart_hf_g03.fchk', ref, 1e-3)
 
@@ -360,16 +360,16 @@ def test_grid_co_ccpv5z_cart_hf_esp_some_points():
 @attr('slow')
 def test_grid_co_ccpv5z_pure_hf_esp_some_points():
     ref = np.array([  # from cubegen
-        [ 0.0,  0.0,  0.0,  10.69443507172],
-        [ 0.1,  0.0,  0.0,   6.43122889229],
-        [ 0.0,  0.1,  0.0,   6.43406765938],
-        [ 0.0,  0.0,  1.0,   0.27023448629],
-        [ 0.4,  0.2,  0.1,   0.82646540602],
-        [-0.4,  0.2,  0.1,   0.93595072191],
-        [ 0.4, -0.2,  0.1,   0.83432301119],
-        [ 0.4,  0.2, -0.1,   0.68524674809],
+        [0.0, 0.0, 0.0, 10.69443507172],
+        [0.1, 0.0, 0.0, 6.43122889229],
+        [0.0, 0.1, 0.0, 6.43406765938],
+        [0.0, 0.0, 1.0, 0.27023448629],
+        [0.4, 0.2, 0.1, 0.82646540602],
+        [-0.4, 0.2, 0.1, 0.93595072191],
+        [0.4, -0.2, 0.1, 0.83432301119],
+        [0.4, 0.2, -0.1, 0.68524674809],
     ])
-    ref[:,:3] *= angstrom
+    ref[:, :3] *= angstrom
     check_grid_esp('test/co_ccpv5z_pure_hf_g03.fchk', ref, 1e-5)
 
 
@@ -377,12 +377,12 @@ def test_grid_two_index_ne():
     mol = IOData.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
     rtf = ExpRTransform(1e-3, 2e1, 100)
     rgrid = RadialGrid(rtf)
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False)
-    dist0 = np.sqrt(((grid.points - mol.coordinates[0])**2).sum(axis=1))
-    dist1 = np.sqrt(((grid.points - mol.coordinates[1])**2).sum(axis=1))
-    pot = -mol.numbers[0]/dist0 - mol.numbers[1]/dist1
+    grd = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False)
+    dist0 = np.sqrt(((grd.points - mol.coordinates[0]) ** 2).sum(axis=1))
+    dist1 = np.sqrt(((grd.points - mol.coordinates[1]) ** 2).sum(axis=1))
+    pot = -mol.numbers[0] / dist0 - mol.numbers[1] / dist1
     na_ana = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
-    na_grid = mol.obasis.compute_grid_density_fock(grid.points, grid.weights, pot)
+    na_grid = mol.obasis.compute_grid_density_fock(grd.points, grd.weights, pot)
     # compare grid-based operator with analytical result
     assert abs(na_grid).max() > 8.0
     assert abs(na_ana - na_grid).max() < 2e-3
@@ -393,9 +393,9 @@ def test_grid_two_index_ne():
 def test_gob_normalization():
     assert abs(gob_pure_normalization(0.09515, 0) - 0.122100288) < 1e-5
     assert abs(gob_pure_normalization(0.1687144, 1) - 0.154127551) < 1e-5
-    assert abs(gob_cart_normalization(0.344, np.array([1,1,0])) - 0.440501466) < 1e-8
-    assert abs(gob_cart_normalization(0.246, np.array([1,1,1])) - 0.242998767) < 1e-8
-    assert abs(gob_cart_normalization(0.238, np.array([2,1,1])) - 0.127073818) < 1e-8
+    assert abs(gob_cart_normalization(0.344, np.array([1, 1, 0])) - 0.440501466) < 1e-8
+    assert abs(gob_cart_normalization(0.246, np.array([1, 1, 1])) - 0.242998767) < 1e-8
+    assert abs(gob_cart_normalization(0.238, np.array([2, 1, 1])) - 0.127073818) < 1e-8
     assert abs(gob_pure_normalization(0.3, 0) - gob_cart_normalization(0.3, np.array([0, 0, 0]))) < 1e-10
     assert abs(gob_pure_normalization(0.7, 0) - gob_cart_normalization(0.7, np.array([0, 0, 0]))) < 1e-10
     assert abs(gob_pure_normalization(1.9, 0) - gob_cart_normalization(1.9, np.array([0, 0, 0]))) < 1e-10
@@ -416,12 +416,12 @@ def test_concatenate1():
     mol = IOData.from_file(context.get_fn('test/water.xyz'))
     obtmp = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
     ob = GOBasis.concatenate(obtmp, obtmp)
-    assert ob.ncenter == 3*2
-    assert ob.nbasis == 13*2
+    assert ob.ncenter == 3 * 2
+    assert ob.nbasis == 13 * 2
     a = ob.compute_overlap()
-    assert abs(a[:13,:13] - a[:13,13:]).max() < 1e-15
-    assert (a[:13,:13] == a[13:,13:]).all()
-    assert abs(a[:13,:13] - a[13:,:13]).max() < 1e-15
+    assert abs(a[:13, :13] - a[:13, 13:]).max() < 1e-15
+    assert (a[:13, :13] == a[13:, 13:]).all()
+    assert abs(a[:13, :13] - a[13:, :13]).max() < 1e-15
 
 
 def test_concatenate2():
@@ -429,27 +429,27 @@ def test_concatenate2():
     obasis1 = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
     obasis2 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
     obasis = GOBasis.concatenate(obasis1, obasis2)
-    assert obasis.ncenter == 3*2
+    assert obasis.ncenter == 3 * 2
     assert obasis.nbasis == obasis1.nbasis + obasis2.nbasis
 
     a = obasis.compute_overlap()
     a11 = obasis1.compute_overlap()
     a22 = obasis2.compute_overlap()
     N = obasis1.nbasis
-    assert (a[:N,:N] == a11).all()
-    assert (a[N:,N:] == a22).all()
+    assert (a[:N, :N] == a11).all()
+    assert (a[N:, N:] == a22).all()
 
 
 def test_abstract():
     with assert_raises(NotImplementedError):
-        centers = np.zeros((1,3), float)
+        centers = np.zeros((1, 3), float)
         shell_map = np.zeros(2, int)
         nprims = np.array([1, 2])
         shell_types = np.array([0, 1])
         alphas = np.array([1.0, 1.1, 1.2])
         con_coeffs = np.array([0.1, 0.2, 0.3])
         from horton.gbasis.cext import GBasis
-        gb = GBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+        GBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
 
 
 def test_gobasis_desc_element_map():
@@ -529,7 +529,7 @@ def test_gobasis_output_args_grid_hartree_dm():
 def test_subset_simple():
     mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
     # select a basis set for the first hydrogen atom
-    sub_obasis, ibasis_list = mol.obasis.get_subset([0,1])
+    sub_obasis, ibasis_list = mol.obasis.get_subset([0, 1])
     assert sub_obasis.ncenter == 1
     assert sub_obasis.nshell == 2
     assert (sub_obasis.centers[0] == mol.obasis.centers[0]).all()
@@ -545,7 +545,7 @@ def test_subset_simple():
 def test_subset_simple_reverse():
     mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
     # select a basis set for the first hydrogen atom
-    sub_obasis, ibasis_list = mol.obasis.get_subset([1,0])
+    sub_obasis, ibasis_list = mol.obasis.get_subset([1, 0])
     assert sub_obasis.ncenter == 1
     assert sub_obasis.nshell == 2
     assert (sub_obasis.centers[0] == mol.obasis.centers[0]).all()
@@ -568,7 +568,7 @@ def test_subset():
     assert sub_obasis.nshell == 4
     assert (sub_obasis.centers[0] == mol.obasis.centers[1]).all()
     assert (sub_obasis.centers[1] == mol.obasis.centers[2]).all()
-    assert (sub_obasis.shell_map == mol.obasis.shell_map[[7, 3, 4, 8]]-1).all()
+    assert (sub_obasis.shell_map == mol.obasis.shell_map[[7, 3, 4, 8]] - 1).all()
     assert (sub_obasis.nprims == mol.obasis.nprims[[7, 3, 4, 8]]).all()
     assert (sub_obasis.shell_types == mol.obasis.shell_types[[7, 3, 4, 8]]).all()
     assert sub_obasis.nprim_total == 7
@@ -615,5 +615,5 @@ def check_normalization(number, basis):
 
 
 def test_normalization_ccpvdz():
-    for number in xrange(1, 18+1):
+    for number in xrange(1, 18 + 1):
         check_normalization(number, 'cc-pvdz')

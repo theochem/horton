@@ -61,7 +61,7 @@ def check_functional_deriv(fn, comp, dm_method, fock_method):
         dm_full[:] = x.reshape(obasis.nbasis, -1)
         f = dm_method(obasis, dm_full, grid.points)
         f = f.reshape((grid.size, -1))
-        return 0.5*grid.integrate(f[:, comp], f[:, comp])
+        return 0.5 * grid.integrate(f[:, comp], f[:, comp])
 
     def fun_deriv(x):
         """Compute a Fock matrix from potential data on a grid."""
@@ -69,7 +69,7 @@ def check_functional_deriv(fn, comp, dm_method, fock_method):
         tmp = dm_method(obasis, dm_full, grid.points)
         if tmp.ndim > 1:
             tmp[:, :comp] = 0.0
-            tmp[:, comp+1:] = 0.0
+            tmp[:, comp + 1:] = 0.0
         fock = fock_method(obasis, grid.points, grid.weights, tmp)
         return fock.ravel()
 
@@ -77,7 +77,7 @@ def check_functional_deriv(fn, comp, dm_method, fock_method):
     x = dm_full.copy().ravel()
     dxs = []
     for _irep in xrange(100):
-        tmp = np.random.uniform(-eps, +eps, x.shape)*x
+        tmp = np.random.uniform(-eps, +eps, x.shape) * x
         dxs.append(tmp)
 
     check_delta(fun, fun_deriv, x, dxs)
@@ -85,7 +85,7 @@ def check_functional_deriv(fn, comp, dm_method, fock_method):
 
 def test_exceptions():
     with assert_raises(ValueError):
-        grid_fn = GB1DMGridDensityFn(-1)
+        GB1DMGridDensityFn(-1)
 
     center = np.array([-0.1, 0.6, -0.3])
     point = np.array([0.5, -0.2, 0.7])
@@ -116,10 +116,10 @@ def test_grid_fn_s():
     scale0 = 0.7
     grid_fn.add(coeff, alpha, np.array([scale0]))
     work = grid_fn.get_work(1)
-    assert work.shape == (1, )
+    assert work.shape == (1,)
 
-    dsq = np.linalg.norm(center - point)**2
-    assert abs(work[0] - scale0*coeff*np.exp(-alpha*dsq)) < 1e-10
+    dsq = np.linalg.norm(center - point) ** 2
+    assert abs(work[0] - scale0 * coeff * np.exp(-alpha * dsq)) < 1e-10
 
 
 def test_grid_fn_p():
@@ -140,12 +140,12 @@ def test_grid_fn_p():
     scales0 = np.array([0.1, 0.2, 0.7])
     grid_fn.add(coeff, alpha, scales0)
     work = grid_fn.get_work(3)
-    assert work.shape == (3, )
+    assert work.shape == (3,)
 
     d = point - center
-    dsq = np.linalg.norm(d)**2
+    dsq = np.linalg.norm(d) ** 2
     for i in xrange(3):
-        assert abs(work[i] - scales0[i]*coeff*np.exp(-alpha*dsq)*d[i]) < 1e-10
+        assert abs(work[i] - scales0[i] * coeff * np.exp(-alpha * dsq) * d[i]) < 1e-10
 
 
 def test_grid_fn_p_contraction():
@@ -170,13 +170,13 @@ def test_grid_fn_p_contraction():
     grid_fn.add(coeff1, alpha1, scales0)
 
     work = grid_fn.get_work(3)
-    assert work.shape == (3, )
+    assert work.shape == (3,)
 
     d = point - center
-    dsq = np.linalg.norm(d)**2
+    dsq = np.linalg.norm(d) ** 2
     for i in xrange(3):
-        expected = scales0[i]*coeff0*np.exp(-alpha0*dsq)*d[i] + \
-                   scales0[i]*coeff1*np.exp(-alpha1*dsq)*d[i]
+        expected = scales0[i] * coeff0 * np.exp(-alpha0 * dsq) * d[i] + \
+                   scales0[i] * coeff1 * np.exp(-alpha1 * dsq) * d[i]
         assert abs(work[i] - expected) < 1e-10
 
 
@@ -202,26 +202,26 @@ def test_grid_fn_d_contraction():
     grid_fn.add(coeff1, alpha1, scales0)
 
     work_cart = grid_fn.get_work(6)
-    assert work_cart.shape == (6, )
+    assert work_cart.shape == (6,)
 
     d = point - center
-    dsq = np.linalg.norm(d)**2
+    dsq = np.linalg.norm(d) ** 2
 
-    expected = scales0[0]*coeff0*np.exp(-alpha0*dsq)*d[0]*d[0] + \
-               scales0[0]*coeff1*np.exp(-alpha1*dsq)*d[0]*d[0]
+    expected = scales0[0] * coeff0 * np.exp(-alpha0 * dsq) * d[0] * d[0] + \
+               scales0[0] * coeff1 * np.exp(-alpha1 * dsq) * d[0] * d[0]
     assert abs(work_cart[0] - expected) < 1e-10  # xx
 
-    expected = scales0[3]*coeff0*np.exp(-alpha0*dsq)*d[1]*d[1] + \
-               scales0[3]*coeff1*np.exp(-alpha1*dsq)*d[1]*d[1]
+    expected = scales0[3] * coeff0 * np.exp(-alpha0 * dsq) * d[1] * d[1] + \
+               scales0[3] * coeff1 * np.exp(-alpha1 * dsq) * d[1] * d[1]
     assert abs(work_cart[3] - expected) < 1e-10  # yy
 
-    expected = scales0[4]*coeff0*np.exp(-alpha0*dsq)*d[1]*d[2] + \
-               scales0[4]*coeff1*np.exp(-alpha1*dsq)*d[1]*d[2]
+    expected = scales0[4] * coeff0 * np.exp(-alpha0 * dsq) * d[1] * d[2] + \
+               scales0[4] * coeff1 * np.exp(-alpha1 * dsq) * d[1] * d[2]
     assert abs(work_cart[4] - expected) < 1e-10  # yz
 
     grid_fn.cart_to_pure()
     work_pure = grid_fn.get_work(5)
-    assert work_pure.shape == (5, )
+    assert work_pure.shape == (5,)
 
     from horton.gbasis.test.test_cartpure import tfs
     assert abs(work_pure - np.dot(tfs[2], work_cart)).max() < 1e-10
@@ -236,8 +236,8 @@ def test_density_epsilon():
     for epsilon in 1e-10, 1e-5, 1e-3, 1e-1:
         rho2 = mol.obasis.compute_grid_density_dm(dm_full, grid.points, epsilon=epsilon)
         mask = (rho1 != rho2)
-        assert ((rho1[mask] < epsilon) | (abs(rho1[mask]-rho2[mask]) < epsilon)).all()
-        assert ((rho2[mask] == 0.0) | (abs(rho1[mask]-rho2[mask]) < epsilon)).all()
+        assert ((rho1[mask] < epsilon) | (abs(rho1[mask] - rho2[mask]) < epsilon)).all()
+        assert ((rho2[mask] == 0.0) | (abs(rho1[mask] - rho2[mask]) < epsilon)).all()
 
 
 def test_density_functional_deriv():
@@ -259,6 +259,7 @@ def check_density_gradient(obasis, dm_full, point, eps):
     eps : float
         The magnitude of the displacements.
     """
+
     def fun(p):
         """Evaluate the density at point p."""
         return obasis.compute_grid_density_dm(dm_full, np.array([p]))[0]
@@ -351,8 +352,8 @@ def check_dm_gradient(obasis, dm_full, p0, p1):
 
     for i in xrange(len(work0)):
         d1 = work0[i, 0] - work1[i, 0]
-        d2 = np.dot(p0-p1, work0[i, 1:]+work1[i, 1:])/2
-        assert abs(d1-d2) < abs(d1)*1e-3
+        d2 = np.dot(p0 - p1, work0[i, 1:] + work1[i, 1:]) / 2
+        assert abs(d1 - d2) < abs(d1) * 1e-3
 
 
 def test_dm_gradient_n2_sto3g():
@@ -362,11 +363,11 @@ def test_dm_gradient_n2_sto3g():
     dm_full = mol.get_dm_full()
     eps = 1e-4
     check_dm_gradient(obasis, dm_full, np.array([[-0.1, 0.4, 1.2]]),
-                      np.array([[-0.1+eps, 0.4, 1.2]]))
+                      np.array([[-0.1 + eps, 0.4, 1.2]]))
     check_dm_gradient(obasis, dm_full, np.array([[-0.1, 0.4, 1.2]]),
-                      np.array([[-0.1, 0.4+eps, 1.2]]))
+                      np.array([[-0.1, 0.4 + eps, 1.2]]))
     check_dm_gradient(obasis, dm_full, np.array([[-0.1, 0.4, 1.2]]),
-                      np.array([[-0.1, 0.4, 1.2+eps]]))
+                      np.array([[-0.1, 0.4, 1.2 + eps]]))
 
 
 def test_dm_gradient_h3_321g():
@@ -376,11 +377,11 @@ def test_dm_gradient_h3_321g():
     dm_full = mol.get_dm_full()
     eps = 1e-4
     check_dm_gradient(obasis, dm_full, np.array([[-0.1, 0.4, 1.2]]),
-                      np.array([[-0.1+eps, 0.4, 1.2]]))
+                      np.array([[-0.1 + eps, 0.4, 1.2]]))
     check_dm_gradient(obasis, dm_full, np.array([[-0.1, 0.4, 1.2]]),
-                      np.array([[-0.1, 0.4+eps, 1.2]]))
+                      np.array([[-0.1, 0.4 + eps, 1.2]]))
     check_dm_gradient(obasis, dm_full, np.array([[-0.1, 0.4, 1.2]]),
-                      np.array([[-0.1, 0.4, 1.2+eps]]))
+                      np.array([[-0.1, 0.4, 1.2 + eps]]))
 
 
 def check_gradient_functional_deriv(fn, comp):
@@ -412,45 +413,42 @@ def check_orbitals(mol):
 
     # just the standard usage (alpha)
     aiorbs = (mol.orb_alpha.occupations > 0).nonzero()[0]
-    nalpha = len(aiorbs)
     dm_alpha = mol.orb_alpha.to_dm()
     ad = mol.obasis.compute_grid_density_dm(dm_alpha, points)
     aos = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha, points, aiorbs)
-    ad_check = (aos**2).sum(axis=1)
-    assert (abs(ad - ad_check)/abs(ad) < 1e-3).all()
+    ad_check = (aos ** 2).sum(axis=1)
+    assert (abs(ad - ad_check) / abs(ad) < 1e-3).all()
 
     if hasattr(mol, 'orb_beta'):
         # just the standard usage (beta)
         biorbs = (mol.orb_beta.occupations > 0).nonzero()[0]
-        nbeta = len(biorbs)
         dm_beta = mol.orb_beta.to_dm()
         bd = mol.obasis.compute_grid_density_dm(dm_beta, points)
         bos = mol.obasis.compute_grid_orbitals_exp(mol.orb_beta, points, biorbs)
-        bd_check = (bos**2).sum(axis=1)
-        assert (abs(bd - bd_check)/abs(bd) < 1e-3).all()
+        bd_check = (bos ** 2).sum(axis=1)
+        assert (abs(bd - bd_check) / abs(bd) < 1e-3).all()
     else:
-        bos = aos
         bd_check = ad_check
 
     # compare with full density
     dm_full = mol.get_dm_full()
     fd = mol.obasis.compute_grid_density_dm(dm_full, points)
     fd_check = ad_check + bd_check
-    assert (abs(fd - fd_check)/abs(fd) < 1e-3).all()
+    assert (abs(fd - fd_check) / abs(fd) < 1e-3).all()
 
     # more detailed usage
     assert aos.shape[1] == (mol.orb_alpha.occupations > 0).sum()
     iorbs_alpha = (mol.orb_alpha.occupations > 0).nonzero()[0]
     import random
-    iorbs_alpha1 = np.array(random.sample(iorbs_alpha, len(iorbs_alpha)/2))
+    iorbs_alpha1 = np.array(random.sample(iorbs_alpha, len(iorbs_alpha) / 2))
     iorbs_alpha2 = np.array([i for i in iorbs_alpha if i not in iorbs_alpha1])
     aos1 = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha, points, iorbs_alpha1)
     aos2 = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha, points, iorbs_alpha2)
     assert aos1.shape[1] == len(iorbs_alpha1)
     assert aos2.shape[1] == len(iorbs_alpha2)
-    ad_check1 = (aos1**2).sum(axis=1)
-    ad_check2 = (aos2**2).sum(axis=1)
-    assert (abs(ad - ad_check1 - ad_check2)/abs(ad) < 1e-3).all()
+    ad_check1 = (aos1 ** 2).sum(axis=1)
+    ad_check2 = (aos2 ** 2).sum(axis=1)
+    assert (abs(ad - ad_check1 - ad_check2) / abs(ad) < 1e-3).all()
 
 
 def test_orbitals_n2_sto3g():
@@ -529,7 +527,7 @@ def test_concept_gradient():
     for l in xrange(2, 8):
         curmoms = []
         for alpha in 'xyz':
-            for oldmom in moms[l-1]:
+            for oldmom in moms[l - 1]:
                 if alpha <= oldmom[0]:
                     curmoms.append(alpha + oldmom)
         moms.append(curmoms)
@@ -540,17 +538,17 @@ def test_concept_gradient():
         # rule for x
         for i in xrange(len(moms[l])):
             s = 'x' + moms[l][i]
-            assert s == moms[l+1][i]
+            assert s == moms[l + 1][i]
         # rule for y
         for i in xrange(len(moms[l])):
             s = ''.join(sorted('y' + moms[l][i]))
             nnotx = sum([alpha != 'x' for alpha in moms[l][i]])
-            assert s == moms[l+1][i+1+nnotx]
+            assert s == moms[l + 1][i + 1 + nnotx]
         # rule for z
         for i in xrange(len(moms[l])):
             s = moms[l][i] + 'z'
             nnotx = sum([alpha != 'x' for alpha in moms[l][i]])
-            assert s == moms[l+1][i+2+nnotx]
+            assert s == moms[l + 1][i + 2 + nnotx]
 
 
 def check_gradient_systematic(pure):
@@ -566,7 +564,7 @@ def check_gradient_systematic(pure):
     bcs = []
     for shell_type in xrange(2):
         # not properly normalized. So what.
-        bcs.append(GOBasisContraction(shell_type, np.array([alpha, alpha/2]),
+        bcs.append(GOBasisContraction(shell_type, np.array([alpha, alpha / 2]),
                                       np.array([0.5, 0.5])))
     goba = GOBasisAtom(bcs)
     obasis = get_gobasis(np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]), np.array([1, 1]),
@@ -578,7 +576,7 @@ def check_gradient_systematic(pure):
     # Run derivative tests for each DM matrix element.
     eps = 1e-4
     for ibasis0 in xrange(obasis.nbasis):
-        for ibasis1 in xrange(ibasis0+1):
+        for ibasis1 in xrange(ibasis0 + 1):
             dm[ibasis0, ibasis1] = 1.2
             dm[ibasis1, ibasis0] = 1.2
             for _irep in xrange(5):
@@ -610,6 +608,7 @@ def check_density_hessian(obasis, dm_full, point, eps):
     eps : float
         The magnitude of the displacements.
     """
+
     def fun(p):
         """Evaluate the density gradient at point p."""
         return obasis.compute_grid_gradient_dm(dm_full, np.array([p]))[0]
@@ -646,7 +645,7 @@ def check_hessian_systematic(pure):
     bcs = []
     for shell_type in xrange(2):
         # not properly normalized. So what.
-        bcs.append(GOBasisContraction(shell_type, np.array([alpha, alpha/2]),
+        bcs.append(GOBasisContraction(shell_type, np.array([alpha, alpha / 2]),
                                       np.array([0.5, 0.5])))
     goba = GOBasisAtom(bcs)
     obasis = get_gobasis(np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]), np.array([1, 1]),
@@ -658,7 +657,7 @@ def check_hessian_systematic(pure):
     # Run derivative tests for each DM matrix element.
     eps = 1e-4
     for ibasis0 in xrange(obasis.nbasis):
-        for ibasis1 in xrange(ibasis0+1):
+        for ibasis1 in xrange(ibasis0 + 1):
             dm[ibasis0, ibasis1] = 1.2
             dm[ibasis1, ibasis0] = 1.2
             for _irep in xrange(5):
@@ -666,6 +665,7 @@ def check_hessian_systematic(pure):
                 check_density_hessian(obasis, dm, point, eps)
             dm[ibasis0, ibasis1] = 0.0
             dm[ibasis1, ibasis0] = 0.0
+
 
 def test_hessian_systematic_cart():
     check_hessian_systematic(False)
@@ -730,7 +730,7 @@ def check_gga_evaluation(fn):
 
         # fill the density matrix with random numbers, symmetrize
         dm_full = np.random.normal(0, 1, dm_full.shape)
-        dm_full = (dm_full + dm_full.T)/2
+        dm_full = (dm_full + dm_full.T) / 2
 
 
 def test_gga_evaluation_co_ccpv5z_cart():
@@ -834,7 +834,7 @@ def check_mgga_evaluation(fn):
 
         # fill the density matrix with random numbers, symmetrize
         dm_full = np.random.normal(0, 1, dm_full.shape)
-        dm_full = (dm_full + dm_full.T)/2
+        dm_full = (dm_full + dm_full.T) / 2
 
 
 def test_mgga_evaluation_co_ccpv5z_cart():
