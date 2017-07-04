@@ -24,7 +24,11 @@ import numpy as np
 from nose.plugins.attrib import attr
 from nose.tools import assert_raises
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from horton.context import context
+from horton.io import IOData
+from horton.grid import BeckeMolGrid
+from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 from horton.test.common import check_delta
 
 

@@ -20,7 +20,7 @@
 # --
 
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 def test_fac():

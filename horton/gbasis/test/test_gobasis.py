@@ -25,7 +25,14 @@ import os
 from nose.tools import assert_raises
 from nose.plugins.attrib import attr
 
-from horton import *  # pylint: disable=wildcard-import, unused-wildcard-import
+from horton.context import context
+from horton.io import IOData
+from horton.units import angstrom
+from horton.grid import RadialGrid
+from horton.grid import BeckeMolGrid
+from horton.grid.cext import ExpRTransform
+
+from .. import *  # pylint: disable=wildcard-import, unused-wildcard-import
 
 
 def test_shell_nbasis():

@@ -24,7 +24,10 @@ import numpy as np
 from nose.tools import assert_raises
 from nose.plugins.attrib import attr
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from horton.context import context
+from horton.io import IOData
+from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
 
 tfs = {
     2: np.array([

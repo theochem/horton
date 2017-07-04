@@ -21,7 +21,10 @@
 
 import numpy as np
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from horton.context import context
+from horton.io import IOData
+
+from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 def get_h2o_er():

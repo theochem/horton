@@ -23,7 +23,9 @@
 import numpy as np
 from nose.tools import assert_raises
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from horton.context import context
+from horton.io import IOData
+from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 from horton.test.common import tmpdir
 

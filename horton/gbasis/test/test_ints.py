@@ -23,7 +23,13 @@
 import json
 import numpy as np
 from nose.tools import assert_raises
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from horton.context import context
+from horton.io import IOData
+from horton.meanfield import Orbitals
+from horton.meanfield.guess import guess_core_hamiltonian
+from horton.meanfield.indextransform import transform_integrals
+from horton.grid import BeckeMolGrid
+from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 def test_gpt_coeff():
