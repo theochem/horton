@@ -510,12 +510,11 @@ cdef class GBasis:
 
     def _log_init(self):
         '''Write a summary of the basis to the screen logger'''
-        print('5: Initialized: %s' % self)
-        print([
-            ('5: Number of basis functions', self.nbasis),
-            ('5: Number of normalization constants', self.nscales),
-            ('5: Maximum shell type', self.max_shell_type),
-        ])
+        # TODO: Re-enable log output
+        # print('9: Initialized: %s' % self)
+        # print(('9: Number of basis functions', self.nbasis))
+        # print(('9: Number of normalization constants', self.nscales))
+        # print(('9: Maximum shell type', self.max_shell_type))
         shell_type_names = {
             0: 'S', 1: 'P', 2: 'Dc', 3: 'Fc', 4:'Gc', 5: 'Hc', 6: 'Ic',
             -2: 'Dp', -3: 'Fp', -4:'Gp', -5: 'Hp', -6: 'Ip',
@@ -528,10 +527,10 @@ cdef class GBasis:
             s += ' %s%i' % (name, self.nprims[i])
             descs[icenter] = s
         deflist = []
-        for i in xrange(self.ncenter):
-            deflist.append(('5: Center % 5i' % i, descs[i]))
-        print(deflist)
-        print()
+        # for i in xrange(self.ncenter):
+        #     deflist.append(('9: Center % 5i' % i, descs[i]))
+        # print(deflist)
+        # print()
 
     def get_scales(self):
         # A **copy** of the scales is returned.
