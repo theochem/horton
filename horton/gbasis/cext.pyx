@@ -1093,7 +1093,7 @@ cdef class GOBasis(GBasis):
         """
         return self._compute_cholesky(GB4RAlphaIntegralLibInt(self.max_shell_type, alpha))
 
-    def compute_grid_orbitals_exp(self, orb, double[:, ::1] points not None,
+    def compute_grid_orbitals_exp(self, double[:, ::1] coeffs, double[:, ::1] points not None,
                                   long[::1] iorbs not None, double[:, ::1] output=None):
         r"""Compute the orbitals on a grid for a given set of expansion coefficients.
 
@@ -1101,8 +1101,8 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-        orb : Orbitals
-            The orbitals.
+        coeffs : np.ndarray, shape=(nbasis, nfn), dtype=float
+            The orbitals coefficients
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
         iorbs : np.ndarray, shape=(n,), dtype=int
@@ -1118,7 +1118,6 @@ cdef class GOBasis(GBasis):
             the output array. (It is allocated when not given.)
         """
         # Do some type checking
-        cdef double[:, :] coeffs = orb.coeffs
         self.check_coeffs(coeffs)
         nfn = coeffs.shape[1]
         check_shape(points, (-1, 3), 'points')
@@ -1131,7 +1130,7 @@ cdef class GOBasis(GBasis):
             norb, &iorbs[0], &output[0, 0])
         return np.asarray(output)
 
-    def compute_grid_orb_gradient_exp(self, orb, double[:, ::1] points not None,
+    def compute_grid_orb_gradient_exp(self, double[:, ::1] coeffs, double[:, ::1] points not None,
                                       long[::1] iorbs not None, double[:, :, ::1] output=None):
         r"""Compute the orbital gradient on a grid for a given set of expansion coefficients.
 
@@ -1139,8 +1138,8 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-        orb : Orbitals
-            Orbitals.
+        coeffs : np.ndarray, shape=(nbasis, nfn), dtype=float
+            Orbital coefficients
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
         iorbs : np.ndarray, shape=(n,), dtype=int
@@ -1155,7 +1154,6 @@ cdef class GOBasis(GBasis):
             the output array. (It is allocated when not given.)
         """
         # Do some type checking
-        cdef double[:, :] coeffs = orb.coeffs
         self.check_coeffs(coeffs)
         nfn = coeffs.shape[1]
         check_shape(points, (-1, 3), 'points')

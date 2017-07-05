@@ -419,7 +419,7 @@ def check_orbitals(mol):
     aiorbs = (mol.orb_alpha.occupations > 0).nonzero()[0]
     dm_alpha = mol.orb_alpha.to_dm()
     ad = mol.obasis.compute_grid_density_dm(dm_alpha, points)
-    aos = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha, points, aiorbs)
+    aos = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha.coeffs, points, aiorbs)
     ad_check = (aos ** 2).sum(axis=1)
     assert (abs(ad - ad_check) / abs(ad) < 1e-3).all()
 
@@ -428,7 +428,7 @@ def check_orbitals(mol):
         biorbs = (mol.orb_beta.occupations > 0).nonzero()[0]
         dm_beta = mol.orb_beta.to_dm()
         bd = mol.obasis.compute_grid_density_dm(dm_beta, points)
-        bos = mol.obasis.compute_grid_orbitals_exp(mol.orb_beta, points, biorbs)
+        bos = mol.obasis.compute_grid_orbitals_exp(mol.orb_beta.coeffs, points, biorbs)
         bd_check = (bos ** 2).sum(axis=1)
         assert (abs(bd - bd_check) / abs(bd) < 1e-3).all()
     else:
@@ -446,8 +446,8 @@ def check_orbitals(mol):
     import random
     iorbs_alpha1 = np.array(random.sample(iorbs_alpha, len(iorbs_alpha) / 2))
     iorbs_alpha2 = np.array([i for i in iorbs_alpha if i not in iorbs_alpha1])
-    aos1 = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha, points, iorbs_alpha1)
-    aos2 = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha, points, iorbs_alpha2)
+    aos1 = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha.coeffs, points, iorbs_alpha1)
+    aos2 = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha.coeffs, points, iorbs_alpha2)
     assert aos1.shape[1] == len(iorbs_alpha1)
     assert aos2.shape[1] == len(iorbs_alpha2)
     ad_check1 = (aos1 ** 2).sum(axis=1)

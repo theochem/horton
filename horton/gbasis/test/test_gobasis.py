@@ -291,7 +291,7 @@ def test_grid_lih_321g_hf_orbital_gradient_some_points():
     ])
     mol = IOData.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
     orbs = np.arange(mol.obasis.nbasis)
-    test = np.array(mol.obasis.compute_grid_orb_gradient_exp(mol.orb_alpha, points, orbs))
+    test = np.array(mol.obasis.compute_grid_orb_gradient_exp(mol.orb_alpha.coeffs, points, orbs))
 
     np.testing.assert_almost_equal(test, ref, decimal=7)
 
@@ -498,8 +498,8 @@ def test_gobasis_output_args_grid_orbitals_exp():
     points = np.random.uniform(-5, 5, (100, 3))
     iorbs = np.array([2, 3])
     orbs1 = np.zeros((100, 2), float)
-    mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha, points, iorbs, orbs1)
-    orbs2 = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha, points, iorbs)
+    mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha.coeffs, points, iorbs, orbs1)
+    orbs2 = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha.coeffs, points, iorbs)
     assert (orbs1 == orbs2).all()
 
 
