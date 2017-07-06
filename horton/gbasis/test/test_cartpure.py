@@ -23,7 +23,6 @@
 import numpy as np
 from nose.tools import assert_raises
 from nose.plugins.attrib import attr
-from os import path
 
 from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
 

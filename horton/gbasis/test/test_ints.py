@@ -176,7 +176,8 @@ def test_nuclear_attraction_helper():
             else:
                 raise ValueError
         elif n0 + n1 == 1:
-            if index == 0: return f[0]
+            if index == 0:
+                return f[0]
             if index == 1:
                 return -cp
             else:

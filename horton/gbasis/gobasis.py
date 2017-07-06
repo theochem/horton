@@ -37,7 +37,7 @@ __all__ = [
 
 
 def get_gobasis(coordinates, numbers, default, element_map=None, index_map=None, pure=True):
-    '''Return GOBasis for a given molecule
+    """Return GOBasis for a given molecule
 
        **Arguments:**
 
@@ -72,7 +72,7 @@ def get_gobasis(coordinates, numbers, default, element_map=None, index_map=None,
 
        Note that the geometry specified by the arguments can also contain ghost
        atoms.
-    '''
+    """
     gobasis_desc = GOBasisDesc(default, element_map, index_map, pure)
     return gobasis_desc.apply_to(coordinates, numbers)
 
@@ -267,7 +267,7 @@ class GOBasisFamily(object):
                 bc.to_arrays()
 
     def _to_segmented(self):
-        '''Convert all contractions from generalized to segmented'''
+        """Convert all contractions from generalized to segmented"""
         new_basis_atom_map = {}
         for n, ba in self.basis_atom_map.iteritems():
             new_bcs = []
@@ -393,7 +393,7 @@ class GOBasisContraction(object):
         self.con_coeffs = con_coeffs
 
     def to_arrays(self):
-        '''Convert the alphas and con_coeffs attributes to numpy arrays.'''
+        """Convert the alphas and con_coeffs attributes to numpy arrays."""
         self.alphas = np.array(self.alphas)
         self.con_coeffs = np.array(self.con_coeffs)
 

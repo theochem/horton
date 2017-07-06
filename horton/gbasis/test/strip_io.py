@@ -32,7 +32,7 @@ def grep_file():
             try:
                 mol = IOData.from_file(context.get_fn(fn), context.get_fn(flog))
                 save_ints(mol, san_fn)
-            except (IOError):
+            except IOError:
                 pass
 
     for i in (save_gobasis_params, save_dms, save_exps, save_moldata, save_quads, save_dipoles):
@@ -72,7 +72,7 @@ def save_ints(mol, san_fn):
 def save_gobasis_params(mol, san_fn):
     obasis = mol.obasis
     print san_fn + " = ",
-    print((obasis.centers, obasis.shell_map, obasis.nprims, obasis.shell_types, obasis.alphas, obasis.con_coeffs))
+    print(obasis.centers, obasis.shell_map, obasis.nprims, obasis.shell_types, obasis.alphas, obasis.con_coeffs)
 
 
 def save_dms(mol, san_fn):

@@ -61,9 +61,8 @@ def test_fortran_float():
 
 
 def test_go_basis_desc_neon_sto3g():
-    gobasis_set = []
-    gobasis_set.append(GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.nwchem')))
-    gobasis_set.append(GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.gbs')))
+    gobasis_set = [GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.nwchem')),
+                   GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.gbs'))]
     for gobasis in gobasis_set:
         obasis = get_gobasis(np.array([[0.0, 0.0, 0.0]]), np.array([2]), gobasis)
         assert (obasis.shell_map == np.array([0])).all()
@@ -75,9 +74,8 @@ def test_go_basis_desc_neon_sto3g():
 
 
 def test_go_basis_desc_hydrogen_321g():
-    gobasis_set = []
-    gobasis_set.append(GOBasisFamily('3-21G', filename=to_basis_path('3-21g.nwchem')))
-    gobasis_set.append(GOBasisFamily('3-21G', filename=to_basis_path('3-21g.gbs')))
+    gobasis_set = [GOBasisFamily('3-21G', filename=to_basis_path('3-21g.nwchem')),
+                   GOBasisFamily('3-21G', filename=to_basis_path('3-21g.gbs'))]
     for gobasis in gobasis_set:
         obasis = get_gobasis(np.array([[0.0, 0.0, 0.0]]), np.array([1]), gobasis)
         assert (obasis.shell_map == np.array([0, 0])).all()
@@ -95,9 +93,8 @@ def test_go_basis_family_lithium_321g():
 
 
 def test_go_basis_desc_lithium_321g():
-    gobasis_set = []
-    gobasis_set.append(GOBasisFamily('3-21G', filename=to_basis_path('3-21g.nwchem')))
-    gobasis_set.append(GOBasisFamily('3-21G', filename=to_basis_path('3-21g.gbs')))
+    gobasis_set = [GOBasisFamily('3-21G', filename=to_basis_path('3-21g.nwchem')),
+                   GOBasisFamily('3-21G', filename=to_basis_path('3-21g.gbs'))]
     for gobasis in gobasis_set:
         obasis = get_gobasis(np.array([[0.0, 0.0, 0.0]]), np.array([3]), gobasis)
         assert (obasis.shell_map == np.array([0, 0, 0, 0, 0])).all()
@@ -119,9 +116,8 @@ def test_go_basis_desc_lithium_321g():
 
 def test_go_basis_desc_water_sto3g():
     mol = load_mdata('water_element_xyz')
-    gobasis_set = []
-    gobasis_set.append(GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.nwchem')))
-    gobasis_set.append(GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.gbs')))
+    gobasis_set = [GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.nwchem')),
+                   GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.gbs'))]
     for gobasis in gobasis_set:
         obasis = get_gobasis(mol['coordinates'], mol['numbers'], gobasis)
         assert (obasis.shell_map == np.array([0, 1, 1, 1, 2])).all()

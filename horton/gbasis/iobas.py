@@ -18,12 +18,11 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Input/Output routines for gaussian basis sets'''
+"""Input/Output routines for gaussian basis sets"""
 
 import numpy as np
 
 from periodic import num2sym, sym2num
-
 
 __all__ = [
     'str_to_shell_types', 'shell_type_to_str', 'fortran_float',
@@ -47,17 +46,17 @@ def shell_type_to_str(shell_type):
 
 
 def fortran_float(s):
-    '''Convert a string to a float. Works also with D before the mantissa'''
+    """Convert a string to a float. Works also with D before the mantissa"""
     return float(s.replace('D', 'E').replace('d', 'e'))
 
 
 def load_basis_atom_map_nwchem(filename):
-    '''Load the basis set family from an NWChem file.'''
+    """Load the basis set family from an NWChem file."""
     from gobasis import GOBasisAtom, GOBasisContraction
 
     f = open(filename)
     basis_atom_map = {}
-    bc = None # The current contraction being loaded
+    bc = None  # The current contraction being loaded
     for line in f:
         # Strip off comments and white space.
         line = line[:line.find('#')].strip()
@@ -123,7 +122,7 @@ def load_basis_atom_map_gbs(filename):
                 # An extra primitive for the current contraction(s).
                 exponent = fortran_float(words[0])
                 coeffs = [fortran_float(w) for w in words[1:]]
-                for i, bc in enumerate(empty_contr):
+                for i, bc in enumerate(empty_contr):  #FIXME: empty_contr ref before assignment
                     bc.alphas.append(exponent)
                     bc.con_coeffs.append(coeffs[i::len(cur_shell_types)])
     return basis_atom_map
@@ -156,6 +155,6 @@ def dump_basis_atom_map_gbs(filename, name, basis_atom_map):
                 f.write('{0:<4}{1:<4}1.00\n'.format(
                     shell_type_to_str(contraction.shell_type).upper(), exponents.size))
                 for con_row in con_numbers:
-                    f.write(('{:>17}'*con_row.size).format(*con_row))
+                    f.write(('{:>17}' * con_row.size).format(*con_row))
                     f.write('\n')
             f.write('****\n')

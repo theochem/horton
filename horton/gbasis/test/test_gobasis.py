@@ -32,7 +32,8 @@ from horton.grid.cext import ExpRTransform
 
 from .. import *  # pylint: disable=wildcard-import, unused-wildcard-import
 
-from . common import *
+from .common import *
+
 
 def test_shell_nbasis():
     assert get_shell_nbasis(-3) == 7
@@ -630,8 +631,8 @@ def check_normalization(number, basis):
             The basis set, e.g. cc-pvdz.
     """
     # Run test on a Helium atom
-    coordinates=np.array([[0.0, 0.0, 0.0]])
-    numbers=np.array([number])
+    coordinates = np.array([[0.0, 0.0, 0.0]])
+    numbers = np.array([number])
 
     # Create a Gaussian basis set
     obasis = get_gobasis(coordinates, numbers, basis)
