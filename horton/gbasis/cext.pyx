@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''C++ extensions'''
+"""C++ extensions"""
 
 
 import numpy as np
@@ -102,7 +102,7 @@ cdef check_shape(array, shape, name):
         raise TypeError('Array \'{}\' has ndim={}. Expexting ndim={}.'.format(
             name, array.ndim, len(shape)))
     for i, si in enumerate(shape):
-        if si >= 0 and array.shape[i] != si:
+        if 0 <= si != array.shape[i]:
             raise TypeError('Array \'{}\' has shape[{}]={}. Expexting shape[{}]={}.'.format(
             name, i, array.shape[i], i, si))
 
@@ -145,7 +145,7 @@ def boys_function(long m, double t):
 
 
 def boys_function_array(long mmax, double t):
-    cdef np.ndarray[double] output = np.zeros(mmax+1)
+    cdef double[::1] output = np.zeros(mmax+1)
     boys.boys_function_array(mmax, t, &output[0])
     return output
 
@@ -155,11 +155,9 @@ def boys_function_array(long mmax, double t):
 #
 
 
-def cart_to_pure_low(np.ndarray[double] work_cart not None,
-                     np.ndarray[double] work_pure not None,
+def cart_to_pure_low(double[::1] work_cart not None,
+                     double[::1] work_pure not None,
                      long shell_type, long nant, long npost):
-    assert work_cart.flags['C_CONTIGUOUS']
-    assert work_pure.flags['C_CONTIGUOUS']
     cartpure.cart_to_pure_low(
         &work_cart[0], &work_pure[0], shell_type, nant,
         npost
@@ -202,10 +200,9 @@ def gb_overlap_int1d(long n0, long n1, double pa, double pb, double inv_gamma):
     return common.gb_overlap_int1d(n0, n1, pa, pb, inv_gamma)
 
 
-def nuclear_attraction_helper(np.ndarray[double, ndim=1] work_g not None,
+def nuclear_attraction_helper(double[::1] work_g not None,
                               long n0, long n1, double pa, double pb, double cp,
                               double gamma_inv):
-    assert work_g.flags['C_CONTIGUOUS']
     assert work_g.shape[0] == n0+n1+1
     common.nuclear_attraction_helper(&work_g[0], n0, n1, pa, pb, cp, gamma_inv)
 
@@ -224,8 +221,7 @@ def dtaylor(int n, double alpha, double t, double tfactor):
 #
 
 
-def gob_cart_normalization(double alpha, np.ndarray[long, ndim=1] n not None):
-    assert n.flags['C_CONTIGUOUS']
+def gob_cart_normalization(double alpha, long[::1] n not None):
     assert n.shape[0] == 3
     return gbasis.gob_cart_normalization(alpha, &n[0])
 
@@ -384,7 +380,7 @@ cdef class GBasis:
         if (self._shell_types == -1).any():
             raise ValueError('The shell_type -1 is not supported.')
         cdef long nprim_total = self._nprims.sum()
-        if (self._alphas.shape[0] != nprim_total):
+        if self._alphas.shape[0] != nprim_total:
             raise TypeError('The length of alphas must equal the total number of primitives.')
 
     def __init__(self, centers, shell_map, nprims, shell_types, alphas, con_coeffs):
@@ -398,11 +394,11 @@ cdef class GBasis:
 
     @classmethod
     def concatenate(cls, *gbs):
-        '''Concatenate multiple basis objects into a new one.
+        """Concatenate multiple basis objects into a new one.
 
            **Arguments:** each argument is an instance of the same subclass of
            GBasis.
-        '''
+        """
         # check if the classes match
         for gb in gbs:
             assert isinstance(gb, cls)
@@ -509,7 +505,7 @@ cdef class GBasis:
             return self._this.get_max_shell_type()
 
     def _log_init(self):
-        '''Write a summary of the basis to the screen logger'''
+        """Write a summary of the basis to the screen logger"""
         # TODO: Re-enable log output
         # print('9: Initialized: %s' % self)
         # print(('9: Number of basis functions', self.nbasis))
@@ -540,17 +536,15 @@ cdef class GBasis:
         return tmp.copy()
 
     # low-level compute routines, for debugging only
-    def compute_grid_point1(self, np.ndarray[double, ndim=1] output not None,
-                            np.ndarray[double, ndim=1] point not None,
+    def compute_grid_point1(self, double[::1] output not None,
+                            double[::1] point not None,
                             GB1DMGridFn grid_fn not None):
-        assert output.flags['C_CONTIGUOUS']
         assert output.shape[0] == self.nbasis
-        assert point.flags['C_CONTIGUOUS']
         assert point.shape[0] == 3
         self._this.compute_grid_point1(&output[0], &point[0], grid_fn._this)
 
     def get_subset(self, ishells):
-        '''Construct a sub basis set for a selection of shells
+        """Construct a sub basis set for a selection of shells
 
            **Argument:**
 
@@ -560,7 +554,7 @@ cdef class GBasis:
            **Returns:** An instance of the same class as self containing only
            the basis functions of self that correspond to the select shells in
            the ``ishells`` list.
-        '''
+        """
         # find the centers corresponding to ishells
         icenters = set([])
         for ishell in ishells:
@@ -604,7 +598,7 @@ cdef class GBasis:
         return basis, ibasis_list
 
     def get_basis_atoms(self, coordinates):
-        '''Return a list of atomic basis sets for a given geometry
+        """Return a list of atomic basis sets for a given geometry
 
            **Arguments:**
 
@@ -622,7 +616,7 @@ cdef class GBasis:
            matrix, one can do the following::
 
                mol_dm._array[ibasis_list,ibasis_list.reshape(-1,1)] = atom_dm._array
-        '''
+        """
         result = []
         for c in coordinates:
             # find the corresponding center(s).
@@ -840,7 +834,7 @@ cdef class GOBasis(GBasis):
         return np.asarray(output)
 
     def compute_electron_repulsion(self, double[:, :, :, ::1] output=None):
-        r'''Compute electron-electron repulsion integrals.
+        r"""Compute electron-electron repulsion integrals.
 
         The potential has the following form:
 
@@ -857,7 +851,7 @@ cdef class GOBasis(GBasis):
         output
 
         Keywords: :index:`ERI`, :index:`four-center integrals`
-        '''
+        """
         self.biblio.append(('valeev2014',
                     'the efficient implementation of four-center electron repulsion integrals'))
         output = prepare_array(output, (self.nbasis, self.nbasis, self.nbasis, self.nbasis), 'output')
@@ -1663,8 +1657,8 @@ cdef class GOBasis(GBasis):
 #
 
 def select_2index(GOBasis gobasis, long index0, long index2):
-    assert index0 >= 0 and index0 < gobasis.nbasis
-    assert index2 >= 0 and index2 < gobasis.nbasis
+    assert 0 <= index0 < gobasis.nbasis
+    assert 0 <= index2 < gobasis.nbasis
 
     cdef ints.GB4ElectronRepulsionIntegralLibInt* gb4int = NULL
     cdef gbw.GB4IntegralWrapper* gb4w = NULL
@@ -1688,11 +1682,11 @@ def select_2index(GOBasis gobasis, long index0, long index2):
     return pbegin0, pend0, pbegin2, pend2
 
 
-def compute_diagonal(GOBasis gobasis, np.ndarray[double, ndim=2] diagonal not
+def compute_diagonal(GOBasis gobasis, double[:, ::1] diagonal not
         None):
     cdef ints.GB4ElectronRepulsionIntegralLibInt* gb4int = NULL
     cdef gbw.GB4IntegralWrapper* gb4w = NULL
-    cdef np.ndarray[double, ndim=2] output
+    cdef double[:, ::1] output
     output = diagonal
 
     try:
@@ -1709,12 +1703,11 @@ def compute_diagonal(GOBasis gobasis, np.ndarray[double, ndim=2] diagonal not
             del gb4w
 
 def get_2index_slice(GOBasis gobasis, long index0, long index2,
-                        np.ndarray[double, ndim=2] slice not None):
+                     double[:, ::1] index_slice not None):
     cdef ints.GB4ElectronRepulsionIntegralLibInt* gb4int = NULL
     cdef gbw.GB4IntegralWrapper* gb4w = NULL
-    assert slice.flags['C_CONTIGUOUS']
-    assert slice.shape[0] == gobasis.nbasis
-    assert slice.shape[1] == gobasis.nbasis
+    assert index_slice.shape[0] == gobasis.nbasis
+    assert index_slice.shape[1] == gobasis.nbasis
 
     cdef long pbegin0
     cdef long pend0
@@ -1731,9 +1724,9 @@ def get_2index_slice(GOBasis gobasis, long index0, long index2,
         output = gb4w.get_2index_slice(index0, index2)
         print output[0]
         print sizeof(double)*gobasis.nbasis*gobasis.nbasis
-        libc.string.memcpy(&slice[0,0], output,
-                sizeof(double)*gobasis.nbasis*gobasis.nbasis)
-        print slice[0,0]
+        libc.string.memcpy(&index_slice[0, 0], output,
+                           sizeof(double) * gobasis.nbasis * gobasis.nbasis)
+        print index_slice[0, 0]
 
     finally:
         if gb4int is not NULL:
@@ -1748,7 +1741,7 @@ def get_2index_slice(GOBasis gobasis, long index0, long index2,
 
 
 cdef class GB2Integral:
-    '''Wrapper for ints.GB2Integral, for testing only'''
+    """Wrapper for ints.GB2Integral, for testing only"""
     cdef ints.GB2Integral* _this
 
     def __dealloc__(self):
@@ -1767,34 +1760,30 @@ cdef class GB2Integral:
             return self._this.get_max_nbasis()
 
     def reset(self, long shell_type0, long shell_type1,
-              np.ndarray[double, ndim=1] r0 not None,
-              np.ndarray[double, ndim=1] r1 not None):
-        assert r0.flags['C_CONTIGUOUS']
+              double[::1] r0 not None,
+              double[::1] r1 not None):
         assert r0.shape[0] == 3
-        assert r1.flags['C_CONTIGUOUS']
         assert r1.shape[0] == 3
-        self._this.reset(shell_type0, shell_type1, <double*>r0.data, <double*>r1.data)
+        self._this.reset(shell_type0, shell_type1, &r0[0], &r1[0])
 
     def add(self, double coeff, double alpha0, double alpha1,
-            np.ndarray[double, ndim=1] scales0 not None,
-            np.ndarray[double, ndim=1] scales1 not None):
-        assert scales0.flags['C_CONTIGUOUS']
+            double[::1] scales0 not None,
+            double[::1] scales1 not None):
         assert scales0.shape[0] == get_shell_nbasis(abs(self._this.get_shell_type0()))
-        assert scales1.flags['C_CONTIGUOUS']
         assert scales1.shape[0] == get_shell_nbasis(abs(self._this.get_shell_type1()))
-        self._this.add(coeff, alpha0, alpha1, <double*>scales0.data, <double*>scales1.data)
+        self._this.add(coeff, alpha0, alpha1, &scales0[0], &scales1[0])
 
     def cart_to_pure(self):
         self._this.cart_to_pure()
 
     def get_work(self, shape0, shape1):
-        '''This returns a **copy** of the c++ work array.
+        """This returns a **copy** of the c++ work array.
 
            Returning a numpy array with a buffer created in c++ is dangerous.
            If the c++ array becomes deallocated, the numpy array may still
            point to the deallocated memory. For that reason, a copy is returned.
            Speed is not an issue as this class is only used for testing.
-        '''
+        """
         cdef np.npy_intp shape[2]
         assert shape0 > 0
         assert shape1 > 0
@@ -1807,31 +1796,29 @@ cdef class GB2Integral:
 
 
 cdef class GB2OverlapIntegral(GB2Integral):
-    '''Wrapper for ints.GB2OverlapIntegral, for testing only'''
+    """Wrapper for ints.GB2OverlapIntegral, for testing only"""
 
     def __cinit__(self, long max_nbasis):
         self._this = <ints.GB2Integral*>(new ints.GB2OverlapIntegral(max_nbasis))
 
 
 cdef class GB2KineticIntegral(GB2Integral):
-    '''Wrapper for ints.GB2KineticIntegral, for testing only'''
+    """Wrapper for ints.GB2KineticIntegral, for testing only"""
 
     def __cinit__(self, long max_nbasis):
         self._this = <ints.GB2Integral*>(new ints.GB2KineticIntegral(max_nbasis))
 
 
 cdef class GB2NuclearAttractionIntegral(GB2Integral):
-    '''Wrapper for ints.GB2NuclearAttractionIntegral, for testing only'''
+    """Wrapper for ints.GB2NuclearAttractionIntegral, for testing only"""
     # make an additional reference to these arguments to avoid deallocation
-    cdef np.ndarray _charges
-    cdef np.ndarray _centers
+    cdef double[::1] _charges
+    cdef double[:, ::1] _centers
 
     def __cinit__(self, long max_nbasis,
-                  np.ndarray[double, ndim=1] charges not None,
-                  np.ndarray[double, ndim=2] centers not None):
-        assert charges.flags['C_CONTIGUOUS']
+                  double[::1] charges not None,
+                  double[:, ::1] centers not None):
         cdef long ncharge = charges.shape[0]
-        assert centers.flags['C_CONTIGUOUS']
         assert centers.shape[0] == ncharge
         self._charges = charges
         self._centers = centers
@@ -1841,17 +1828,15 @@ cdef class GB2NuclearAttractionIntegral(GB2Integral):
 
 
 cdef class GB2ErfAttractionIntegral(GB2Integral):
-    '''Wrapper for ints.GB2ErfAttractionIntegral, for testing only'''
+    """Wrapper for ints.GB2ErfAttractionIntegral, for testing only"""
     # make an additional reference to these arguments to avoid deallocation
-    cdef np.ndarray _charges
-    cdef np.ndarray _centers
+    cdef double[::1] _charges
+    cdef double[:, ::1] _centers
 
     def __cinit__(self, long max_nbasis,
-                  np.ndarray[double, ndim=1] charges not None,
-                  np.ndarray[double, ndim=2] centers not None, double mu):
-        assert charges.flags['C_CONTIGUOUS']
+                  double[::1] charges not None,
+                  double[:, ::1] centers not None, double mu):
         cdef long ncharge = charges.shape[0]
-        assert centers.flags['C_CONTIGUOUS']
         assert centers.shape[0] == ncharge
         self._charges = charges
         self._centers = centers
@@ -1865,18 +1850,16 @@ cdef class GB2ErfAttractionIntegral(GB2Integral):
 
 
 cdef class GB2GaussAttractionIntegral(GB2Integral):
-    '''Wrapper for ints.GB2GaussAttractionIntegral, for testing only'''
+    """Wrapper for ints.GB2GaussAttractionIntegral, for testing only"""
     # make an additional reference to these arguments to avoid deallocation
-    cdef np.ndarray _charges
-    cdef np.ndarray _centers
+    cdef double[::1] _charges
+    cdef double[:, ::1] _centers
 
     def __cinit__(self, long max_nbasis,
-                  np.ndarray[double, ndim=1] charges not None,
-                  np.ndarray[double, ndim=2] centers not None, double c,
+                  double[::1] charges not None,
+                  double[:, ::1] centers not None, double c,
                   double alpha):
-        assert charges.flags['C_CONTIGUOUS']
         cdef long ncharge = charges.shape[0]
-        assert centers.flags['C_CONTIGUOUS']
         assert centers.shape[0] == ncharge
         self._charges = charges
         self._centers = centers
@@ -1900,7 +1883,7 @@ atexit.register(libint2_static_cleanup)
 
 
 cdef class GB4Integral:
-    '''Wrapper for ints.GB4Integral'''
+    """Wrapper for ints.GB4Integral"""
     cdef ints.GB4Integral* _this
 
     def __dealloc__(self):
@@ -1919,45 +1902,37 @@ cdef class GB4Integral:
             return self._this.get_max_nbasis()
 
     def reset(self, long shell_type0, long shell_type1, long shell_type2, long shell_type3,
-              np.ndarray[double, ndim=1] r0 not None, np.ndarray[double, ndim=1] r1 not None,
-              np.ndarray[double, ndim=1] r2 not None, np.ndarray[double, ndim=1] r3 not None):
-        assert r0.flags['C_CONTIGUOUS']
+              double[::1] r0 not None, double[::1] r1 not None,
+              double[::1] r2 not None, double[::1] r3 not None):
         assert r0.shape[0] == 3
-        assert r1.flags['C_CONTIGUOUS']
         assert r1.shape[0] == 3
-        assert r2.flags['C_CONTIGUOUS']
         assert r2.shape[0] == 3
-        assert r3.flags['C_CONTIGUOUS']
         assert r3.shape[0] == 3
         self._this.reset(shell_type0, shell_type1, shell_type2, shell_type3,
-                         <double*>r0.data, <double*>r1.data, <double*>r2.data, <double*>r3.data)
+                         &r0[0], &r1[0], &r2[0], &r3[0])
 
     def add(self, double coeff, double alpha0, double alpha1, double alpha2, double alpha3,
-            np.ndarray[double, ndim=1] scales0 not None, np.ndarray[double, ndim=1] scales1 not None,
-            np.ndarray[double, ndim=1] scales2 not None, np.ndarray[double, ndim=1] scales3 not None):
-        assert scales0.flags['C_CONTIGUOUS']
+            double[::1] scales0 not None, double[::1] scales1 not None,
+            double[::1] scales2 not None, double[::1] scales3 not None):
         assert scales0.shape[0] == get_shell_nbasis(abs(self._this.get_shell_type0()))
-        assert scales1.flags['C_CONTIGUOUS']
         assert scales1.shape[0] == get_shell_nbasis(abs(self._this.get_shell_type1()))
-        assert scales2.flags['C_CONTIGUOUS']
         assert scales2.shape[0] == get_shell_nbasis(abs(self._this.get_shell_type2()))
-        assert scales3.flags['C_CONTIGUOUS']
         assert scales3.shape[0] == get_shell_nbasis(abs(self._this.get_shell_type3()))
         self._this.add(coeff, alpha0, alpha1, alpha2, alpha3,
-                       <double*>scales0.data, <double*>scales1.data,
-                       <double*>scales2.data, <double*>scales3.data)
+                       &scales0[0], &scales1[0],
+                       &scales2[0], &scales3[0])
 
     def cart_to_pure(self):
         self._this.cart_to_pure()
 
     def get_work(self, shape0, shape1, shape2, shape3):
-        '''This returns a **copy** of the c++ work array.
+        """This returns a **copy** of the c++ work array.
 
            Returning a numpy array with a buffer created in c++ is dangerous.
            If the c++ array becomes deallocated, the numpy array may still
            point to the deallocated memory. For that reason, a copy is returned.
            Speed is not an issue as this class is only used for testing.
-        '''
+        """
         cdef np.npy_intp shape[4]
         assert shape0 > 0
         assert shape1 > 0
@@ -1976,14 +1951,14 @@ cdef class GB4Integral:
 
 
 cdef class GB4ElectronRepulsionIntegralLibInt(GB4Integral):
-    '''Wrapper for ints.GB4ElectronRepulsionIntegralLibInt, for testing only'''
+    """Wrapper for ints.GB4ElectronRepulsionIntegralLibInt, for testing only"""
 
     def __cinit__(self, long max_nbasis):
         self._this = <ints.GB4Integral*>(new ints.GB4ElectronRepulsionIntegralLibInt(max_nbasis))
 
 
 cdef class GB4ErfIntegralLibInt(GB4Integral):
-    '''Wrapper for ints.GB4ElectronRepulsionIntegralLibInt, for testing only'''
+    """Wrapper for ints.GB4ElectronRepulsionIntegralLibInt, for testing only"""
 
     def __cinit__(self, long max_nbasis, double mu):
         self._this = <ints.GB4Integral*>(new ints.GB4ErfIntegralLibInt(max_nbasis, mu))
@@ -1994,7 +1969,7 @@ cdef class GB4ErfIntegralLibInt(GB4Integral):
 
 
 cdef class GB4GaussIntegralLibInt(GB4Integral):
-    '''Wrapper for ints.GB4GaussIntegralLibInt, for testing only'''
+    """Wrapper for ints.GB4GaussIntegralLibInt, for testing only"""
 
     def __cinit__(self, long max_nbasis, double c, double alpha):
         self._this = <ints.GB4Integral*>(new ints.GB4GaussIntegralLibInt(max_nbasis, c, alpha))
@@ -2009,7 +1984,7 @@ cdef class GB4GaussIntegralLibInt(GB4Integral):
 
 
 cdef class GB4RAlphaIntegralLibInt(GB4Integral):
-    '''Wrapper for ints.GB4RAlphaIntegralLibInt, for testing only'''
+    """Wrapper for ints.GB4RAlphaIntegralLibInt, for testing only"""
 
     def __cinit__(self, long max_nbasis, double alpha):
         self._this = <ints.GB4Integral*>(new ints.GB4RAlphaIntegralLibInt(max_nbasis, alpha))
@@ -2025,7 +2000,7 @@ cdef class GB4RAlphaIntegralLibInt(GB4Integral):
 
 
 cdef class GB1DMGridFn:
-    '''Wrapper for fns.GB1DMGridFn, for testing only'''
+    """Wrapper for fns.GB1DMGridFn, for testing only"""
     cdef fns.GB1DMGridFn* _this
 
     def __dealloc__(self):
@@ -2055,30 +2030,27 @@ cdef class GB1DMGridFn:
         def __get__(self):
             return self._this.get_dim_output()
 
-    def reset(self, long shell_type0, np.ndarray[double, ndim=1] r0 not None, np.ndarray[double, ndim=1] point not None):
-        assert r0.flags['C_CONTIGUOUS']
+    def reset(self, long shell_type0, double[::1] r0 not None, double[::1] point not None):
         assert r0.shape[0] == 3
-        assert point.flags['C_CONTIGUOUS']
         assert point.shape[0] == 3
-        self._this.reset(shell_type0, <double*>r0.data, &point[0])
+        self._this.reset(shell_type0, &r0[0], &point[0])
 
     def add(self, double coeff, double alpha0,
-            np.ndarray[double, ndim=1] scales0 not None):
-        assert scales0.flags['C_CONTIGUOUS']
+            double[::1] scales0 not None):
         assert scales0.shape[0] == get_shell_nbasis(abs(self._this.get_shell_type0()))
-        self._this.add(coeff, alpha0, <double*>scales0.data)
+        self._this.add(coeff, alpha0, &scales0[0])
 
     def cart_to_pure(self):
         self._this.cart_to_pure()
 
     def get_work(self, shape0):
-        '''This returns a **copy** of the c++ work array.
+        """This returns a **copy** of the c++ work array.
 
            Returning a numpy array with a buffer created in c++ is dangerous.
            If the c++ array becomes deallocated, the numpy array may still
            point to the deallocated memory. For that reason, a copy is returned.
            Speed is not an issue as this class is only used for testing.
-        '''
+        """
         cdef np.npy_intp shape[2]
         assert shape0 > 0
         assert shape0 <= self.max_nbasis
@@ -2150,13 +2122,11 @@ cdef class IterGB1:
     def update_prim(self):
         self._this.update_prim()
 
-    def store(self, np.ndarray[double, ndim=1] work not None,
-              np.ndarray[double, ndim=1] output not None, long dim=1):
+    def store(self, double[::1] work not None,
+              double[::1] output not None, long dim=1):
         max_shell_nbasis = get_shell_nbasis(self._gbasis.max_shell_type)
         assert work.shape[0] == get_shell_nbasis(self._this.shell_type0)
-        assert work.flags['C_CONTIGUOUS']
         assert output.shape[0] == self._gbasis.nbasis
-        assert output.flags['C_CONTIGUOUS']
         self._this.store(&work[0], &output[0], dim)
 
     property public_fields:
@@ -2203,15 +2173,13 @@ cdef class IterGB2:
     def update_prim(self):
         self._this.update_prim()
 
-    def store(self, np.ndarray[double, ndim=2] work not None,
-              np.ndarray[double, ndim=2] output not None):
+    def store(self, double[:, ::1] work not None,
+              double[:, ::1] output not None):
         max_shell_nbasis = get_shell_nbasis(self._gbasis.max_shell_type)
         assert work.shape[0] == get_shell_nbasis(self._this.shell_type0)
         assert work.shape[1] == get_shell_nbasis(self._this.shell_type1)
-        assert work.flags['C_CONTIGUOUS']
         assert output.shape[0] == self._gbasis.nbasis
         assert output.shape[1] == self._gbasis.nbasis
-        assert output.flags['C_CONTIGUOUS']
         self._this.store(&work[0, 0], &output[0, 0])
 
     property public_fields:
@@ -2259,19 +2227,17 @@ cdef class IterGB4:
     def update_prim(self):
         self._this.update_prim()
 
-    def store(self, np.ndarray[double, ndim=4] work not None,
-              np.ndarray[double, ndim=4] output not None):
+    def store(self, double[:, :, :, ::1] work not None,
+              double[:, :, :, ::1] output not None):
         max_shell_nbasis = get_shell_nbasis(self._gbasis.max_shell_type)
         assert work.shape[0] == get_shell_nbasis(self._this.shell_type0)
         assert work.shape[1] == get_shell_nbasis(self._this.shell_type1)
         assert work.shape[2] == get_shell_nbasis(self._this.shell_type2)
         assert work.shape[3] == get_shell_nbasis(self._this.shell_type3)
-        assert work.flags['C_CONTIGUOUS']
         assert output.shape[0] == self._gbasis.nbasis
         assert output.shape[1] == self._gbasis.nbasis
         assert output.shape[2] == self._gbasis.nbasis
         assert output.shape[3] == self._gbasis.nbasis
-        assert output.flags['C_CONTIGUOUS']
         self._this.store(&work[0, 0, 0, 0], &output[0, 0, 0, 0])
 
     property public_fields:
@@ -2302,8 +2268,7 @@ cdef class IterGB4:
 #
 
 
-def iter_pow1_inc(np.ndarray[long, ndim=1] n not None):
-    assert n.flags['C_CONTIGUOUS']
+def iter_pow1_inc(long[::1] n not None):
     assert n.shape[0] == 3
     return iter_pow.iter_pow1_inc(&n[0])
 
