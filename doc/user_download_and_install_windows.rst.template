@@ -102,7 +102,7 @@ Choose a suitable directory, e.g. ``~/build``, download and unpack the archive
     cd ~/build
     curl -kfLO https://github.com/theochem/horton/releases/download/2.1.0/horton-2.1.0.tar.gz
     curl -kfLO https://github.com/theochem/horton/releases/download/2.1.0/horton-2.1.0.tar.gz.md5
-    md5sum horton-2.1.0.tar.gz | diff - horton-2.1.0.tar.gz.md5 -q || rm -f horton-2.1.0.tar.gz
+    md5sum horton-2.1.0.tar.gz | diff - horton-2.1.0.tar.gz.md5 -q || rm -fv horton-2.1.0.tar.gz
     tar -xvzf horton-2.1.0.tar.gz
     cd horton-2.1.0
 
