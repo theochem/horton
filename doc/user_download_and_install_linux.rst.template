@@ -94,7 +94,7 @@ Download HORTON
 
 The latest stable source code release of HORTON can be downloaded here:
 
-    https://github.com/theochem/horton/releases/download/2.1.0b3/horton-2.1.0b3.tar.gz
+    https://github.com/theochem/horton/releases/download/2.1.0/horton-2.1.0.tar.gz
 
 Choose a suitable directory, e.g. ``~/build``, download and unpack the archive
 
@@ -102,9 +102,15 @@ Choose a suitable directory, e.g. ``~/build``, download and unpack the archive
 
     mkdir -p ~/build
     cd ~/build
-    curl -kLO https://github.com/theochem/horton/releases/download/2.1.0b3/horton-2.1.0b3.tar.gz
-    tar -xvzf horton-2.1.0b3.tar.gz
-    cd horton-2.1.0b3
+    curl -kfLO https://github.com/theochem/horton/releases/download/2.1.0/horton-2.1.0.tar.gz
+    curl -kfLO https://github.com/theochem/horton/releases/download/2.1.0/horton-2.1.0.tar.gz.md5
+    md5sum horton-2.1.0.tar.gz | diff - horton-2.1.0.tar.gz.md5 -q || rm -fv horton-2.1.0.tar.gz
+    tar -xvzf horton-2.1.0.tar.gz
+    cd horton-2.1.0
+
+The commands above will also check the integrity of the downloaded file. If the download
+failed, the partial or broken download will be removed. In case of faillure, it is usually
+sufficient just to retry.
 
 
 .. _linux_manual_dependency_install:

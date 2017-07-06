@@ -25,7 +25,7 @@ Troubleshooting
 On a fresh Linux or Mac machine, the instructions given in the "Download and
 Install" guides should result in a working installation of HORTON, without using
 any of the suggestions below. In reality, however, the Unix system of an average
-researcher isn't pristine but rahter ranges from *cleverly customized* to
+researcher isn't pristine but rather ranges from *cleverly customized* to
 *completely borked*. Such customizations may interfere with the installation of
 HORTON. This section provides some guidance for the novice Unix user on how to
 get HORTON working on a not-so-well-maintained Unix system.
@@ -244,3 +244,8 @@ The following failing tests are symptoms of specific problems:
   likely caused by linking against a LibXC that has been compiled with too aggressive
   optimization flags. Use the script ``/toos/qa/install_libxc-2.2.2.sh`` to build a more
   modest version of LibXC, which can then be used to compile HORTON.
+
+* When tests fail due to missing files, you may have installed HORTON from an incomplete
+  source tar.gz file, e.g. due to a failed download. In that case, it is best to remove
+  your old installation, to make sure no broken files remain, and to reinstall from
+  scratch.

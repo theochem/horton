@@ -20,42 +20,51 @@
 #
 # --
 
-import re, sys
-
+import re
+import sys
 
 
 rules = [
-    ('setup.py', '^    version=\'(...+)\',$'),
-    ('horton/__init__.py', '^__version__ = \'(...+)\'$'),
-    ('doc/releaseinfo.py', '    version = \'(...+)\'$'),
-    ('doc/user_download_and_install_linux.rst.template', '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_linux.rst.template', '^    curl -kLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_linux.rst.template', '^    tar -xvzf horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_linux.rst.template', '^    cd horton-(...+)$'),
-    ('doc/user_download_and_install_mac.rst.template', '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_mac.rst.template', '^    curl -kLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_mac.rst.template', '^    tar -xvzf horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_mac.rst.template', '^    cd horton-(...+)$'),
-    ('doc/user_download_and_install_windows.rst.template', '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_windows.rst.template', '^    curl -kLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_windows.rst.template', '^    tar -xvzf horton-(...+).tar.gz$'),
-    ('doc/user_download_and_install_windows.rst.template', '^    cd horton-(...+)$'),
+    ('setup.py', ['^    version=\'(...+)\',$']),
+    ('horton/__init__.py', ['^__version__ = \'(...+)\'$']),
+    ('doc/releaseinfo.py', ['    version = \'(...+)\'$']),
+    ('doc/user_download_and_install_linux.rst.template', [
+        '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$',
+        '^    curl -kfLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$',
+        '^    curl -kfLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz.md5$',
+        '^    md5sum horton-(...+).tar.gz \| diff - horton-(...+).tar.gz.md5 -q \|\| rm -fv horton-(...+).tar.gz$',
+        '^    tar -xvzf horton-(...+).tar.gz$',
+        '^    cd horton-(...+)$']),
+    ('doc/user_download_and_install_mac.rst.template', [
+        '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$',
+        '^    curl -kfLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$',
+        '^    curl -kfLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz.md5$',
+        '^    md5 -r horton-(...+).tar.gz \| diff - horton-(...+).tar.gz.md5 -q \|\| rm -fv horton-(...+).tar.gz$',
+        '^    tar -xvzf horton-(...+).tar.gz$',
+        'cd horton-(...+)$']),
+    ('doc/user_download_and_install_windows.rst.template', [
+        '^    https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$',
+        '^    curl -kfLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz$',
+        '^    curl -kfLO https://github.com/theochem/horton/releases/download/(...+)/horton-(...+).tar.gz.md5$',
+        '^    md5sum horton-(...+).tar.gz \| diff - horton-(...+).tar.gz.md5 -q \|\| rm -fv horton-(...+).tar.gz$',
+        '^    tar -xvzf horton-(...+).tar.gz$',
+        '^    cd horton-(...+)$']),
 ]
 
 
 if __name__ == '__main__':
     newversion = sys.argv[1]
 
-    for fn, regex in rules:
-        r = re.compile(regex)
+    for fn, regexes in rules:
         with open(fn) as f:
             lines = f.readlines()
-        for iline in xrange(len(lines)):
-            line = lines[iline]
-            m = r.match(line)
-            if m is not None:
-                for igroup in xrange(m.lastindex, 0, -1):
-                    line = line[:m.start(igroup)] + newversion + line[m.end(igroup):]
-                lines[iline] = line
+        for regex in regexes:
+            r = re.compile(regex)
+            for iline, line in enumerate(lines):
+                m = r.match(line)
+                if m is not None:
+                    for igroup in xrange(m.lastindex, 0, -1):
+                        line = line[:m.start(igroup)] + newversion + line[m.end(igroup):]
+                    lines[iline] = line
         with open(fn, 'w') as f:
             f.writelines(lines)

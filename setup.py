@@ -105,7 +105,7 @@ class my_install_data(install_data):
         # Create the file datadir.txt. It's exact content is only known
         # at installation time. By default, it is the installation prefix
         # passed to setup.py, but one can override it using the env var
-        # INSTALL_DATA, which may be useful for packaging, or any other
+        # INSTALL_DIR, which may be useful for packaging, or any other
         # situation where the installed files are moved to a new location
         # afterwards.
         my_install_dir = os.getenv("INSTALL_DIR", self.install_dir)
@@ -118,7 +118,8 @@ class my_install_data(install_data):
             # the file data_dir.txt.
             if '.' not in name:
                 destination = os.path.join(libdir, name, "data_dir.txt")
-                print "Creating %s" % destination
+                print "install_dir={}".format(my_install_dir)
+                print "Creating {}".format(destination)
                 if not self.dry_run:
                     with open(destination, "w") as f:
                         print >> f, my_install_dir
@@ -435,7 +436,7 @@ for e in ext_modules:
 
 setup(
     name='horton',
-    version='2.1.0b3',
+    version='2.1.0',
     description='HORTON: Helpful Open-source Research TOol for N-fermion systems.',
     author='Toon Verstraelen',
     author_email='Toon.Verstraelen@UGent.be',
