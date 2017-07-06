@@ -30,4 +30,3 @@ from horton.part.mbis import *
 from horton.part.mulliken import *
 from horton.part.proatomdb import *
 from horton.part.stockholder import *
-from horton.part.symmetry import *

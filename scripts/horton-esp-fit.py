@@ -23,7 +23,7 @@
 
 import sys, argparse, os, numpy as np
 
-from horton import IOData, log, symmetry_analysis, __version__
+from horton import IOData, log, __version__
 from horton.scripts.common import parse_h5, write_script_output, \
     check_output
 from horton.scripts.espfit import load_cost
@@ -55,12 +55,6 @@ def parse_args():
     parser.add_argument('--ridge', default=0.0, type=float,
         help='The thikonov regularization strength used when solving the '
              'charges. [default=%(default)s]')
-    parser.add_argument('--symmetry', default=None, type=str, nargs=2,
-        help='Perform a symmetry analysis on the charges. This option '
-             'requires two arguments argument in the following order: the cube '
-             'file used to construct the ESP cost function and a CIF file with '
-             'the generators of the symmetry of this system and a primitive '
-             'unit cell.')
 
     # TODO: more constraint and restraint options
 
@@ -105,16 +99,6 @@ def main():
         log('RMSD ESP:                      %10.5e' % results['rmsd'])
         log('Worst RMSD ESP:                %10.5e' % results['rmsd_worst'])
         log.hline()
-
-    # Perform a symmetry analysis if requested
-    if args.symmetry is not None:
-        mol_pot = IOData.from_file(args.symmetry[0])
-        mol_sym = IOData.from_file(args.symmetry[1])
-        if not hasattr(mol_sym, 'symmetry'):
-            raise ValueError('No symmetry information found in %s.' % args.symmetry[1])
-        aim_results = {'charges': results['charges']}
-        sym_results = symmetry_analysis(mol_pot.coordinates, mol_pot.cell, mol_sym.symmetry, aim_results)
-        results['symmetry'] = sym_results
 
     # Store the results in an HDF5 file
     write_script_output(fn_h5, grp_name, results, args)
