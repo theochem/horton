@@ -25,7 +25,7 @@ from nose.tools import assert_raises
 from horton.grid import BeckeMolGrid
 from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
-from . common import *
+from .common import *
 
 
 def test_gpt_coeff():
@@ -182,8 +182,10 @@ def test_nuclear_attraction_helper():
             else:
                 raise ValueError
         elif n0 + n1 == 2:
-            if index == 0: return f[0] + 0.5 * f[2] * gamma_inv
-            if index == 1: return -f[1] * cp - f[2] * 0.5 * gamma_inv
+            if index == 0:
+                return f[0] + 0.5 * f[2] * gamma_inv
+            if index == 1:
+                return -f[1] * cp - f[2] * 0.5 * gamma_inv
             if index == 2:
                 return cp ** 2
             else:
@@ -1427,7 +1429,7 @@ def get_erf_attraction(alphas0, alphas1, r0, r1, scales0, scales1, charges, cent
         Exponents of the four primitive shells.
     r0, r1 : np.ndarray, shape=(3,), dtype=float
         Cartesian coordinates of the centers of the four primitive shells.
-    scales0, scales1 : float
+    scales0, scales1 : np.ndarray, dtype=float
         Normalization prefactors for the Gaussian shells.
     charges : np.darray, shape=(natoms,) dtype=float
         The charges of the nuclei.
@@ -1464,7 +1466,7 @@ def check_erf_attraction(alphas0, alphas1, r0, r1, scales0, scales1, charges, ce
         Exponents of the four primitive shells.
     r0, r1 : np.ndarray, shape=(3,), dtype=float
         Cartesian coordinates of the centers of the four primitive shells.
-    scales0, scales1 : float
+    scales0, scales1 : np.ndarray, dtype=float
         Normalization prefactors for the Gaussian shells.
     charges : np.darray, shape=(natoms,) dtype=float
         The charges of the nuclei.
@@ -1988,7 +1990,7 @@ def check_gauss_attraction(alphas0, alphas1, r0, r1, scales0, scales1, charges, 
         Exponents of the four primitive shells.
     r0, r1 : np.ndarray, shape=(3,), dtype=float
         Cartesian coordinates of the centers of the four primitive shells.
-    scales0, scales1 : float
+    scales0, scales1 : np.ndarray, dtype=float
         Normalization prefactors for the Gaussian shells.
     charges : np.darray, shape=(natoms,) dtype=float
         The charges of the nuclei.
@@ -3023,7 +3025,7 @@ def get_erf_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3,
         Exponents of the four primitive shells.
     r0, r1, r2, r3 : np.ndarray, shape=(3,), dtype=float
         Cartesian coordinates of the centers of the four primitive shells.
-    scales0, scales1, scales2, scales3 : float
+    scales0, scales1, scales2, scales3 : np.ndarray, dtype=float
         Normalization prefactors for the Gaussian shells.
     shell_type0, shell_type1, shell_type2, shell_type3 : int
         Shell types of the four primitive shells.
@@ -3059,7 +3061,7 @@ def check_erf_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, scal
         Exponents of the four primitive shells.
     r0, r1, r2, r3 : np.ndarray, shape=(3,), dtype=float
         Cartesian coordinates of the centers of the four primitive shells.
-    scales0, scales1, scales2, scales3 : float
+    scales0, scales1, scales2, scales3 : np.ndarray, dtype=float
         Normalization prefactors for the Gaussian shells.
     shell_type0, shell_type1, shell_type2, shell_type3 : int
         Shell types of the four primitive shells.
@@ -3416,7 +3418,7 @@ def check_gauss_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, sc
         Exponents of the four primitive shells.
     r0, r1, r2, r3 : np.ndarray, shape=(3,), dtype=float
         Cartesian coordinates of the centers of the four primitive shells.
-    scales0, scales1, scales2, scales3 : float
+    scales0, scales1, scales2, scales3 : np.ndarray, dtype=float
         Normalization prefactors for the Gaussian shells.
     shell_type0, shell_type1, shell_type2, shell_type3 : int
         Shell types of the four primitive shells.
@@ -3941,7 +3943,7 @@ def check_ralpha_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, s
         Exponents of the four primitive shells.
     r0, r1, r2, r3 : np.ndarray, shape=(3,), dtype=float
         Cartesian coordinates of the centers of the four primitive shells.
-    scales0, scales1, scales2, scales3 : float
+    scales0, scales1, scales2, scales3 : np.ndarray, dtype=float
         Normalization prefactors for the Gaussian shells.
     shell_type0, shell_type1, shell_type2, shell_type3 : int
         Shell types of the four primitive shells.
@@ -4397,8 +4399,8 @@ def check_g09_dipole(fn):
 
     Parameters
     ----------
-    fn_fchk : str
-        The FCHK filename.
+    fn : str
+        The sanitized FCHK filename with '.' and '-' substituted with '_'.
     """
     obasis = load_obasis(fn)
     mol = load_mdata(fn)
@@ -4442,8 +4444,8 @@ def check_g09_quadrupole(fn):
 
     Parameters
     ----------
-    fn_fchk : str
-        The FCHK filename.
+    fn : str
+        The sanitized FCHK filename with '.' and '-' substituted with '_'.
     """
     obasis = load_obasis(fn)
     mol = load_mdata(fn)
