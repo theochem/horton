@@ -35,12 +35,9 @@ from horton.meanfield.occ import AufbauOccModel
 
 
 __all__ = [
-    'in_horton_source_root',
-    'check_script', 'check_script_in_tmp', 'check_delta',
-    'get_random_cell', 'get_pentagon_moments',
-    'compare_occ_model', 'compare_orbs',
-    'compare_mols', 'compare_symmetries',
-    'tmpdir', 'numpy_seed', 'truncated_file',
+    'in_horton_source_root', 'check_script', 'check_script_in_tmp', 'check_delta',
+    'get_random_cell', 'get_pentagon_moments', 'compare_occ_model', 'compare_orbs',
+    'compare_mols', 'tmpdir', 'numpy_seed', 'truncated_file',
 ]
 
 
