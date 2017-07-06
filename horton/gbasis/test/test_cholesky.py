@@ -21,15 +21,12 @@
 
 import numpy as np
 
-from horton.context import context
-from horton.io import IOData
+from . mol_data import water_xyz as mdata
 from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 def get_h2o_obasis():
-    fn = context.get_fn('test/water.xyz')
-    mol = IOData.from_file(fn)
-    obasis = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
+    obasis = get_gobasis(mdata['coordinates'], mdata['numbers'], 'sto-3g')
     return obasis
 
 

@@ -25,8 +25,6 @@ import os
 from nose.tools import assert_raises
 from nose.plugins.attrib import attr
 
-from horton.context import context
-from horton.io import IOData
 from horton.units import angstrom
 from horton.grid import RadialGrid
 from horton.grid import BeckeMolGrid
@@ -34,6 +32,7 @@ from horton.grid.cext import ExpRTransform
 
 from .. import *  # pylint: disable=wildcard-import, unused-wildcard-import
 
+from . common import *
 
 def test_shell_nbasis():
     assert get_shell_nbasis(-3) == 7
@@ -133,44 +132,46 @@ def test_grid_lih_321g_hf_density_some_points():
         [0.4, 0.2, 0.1, 0.018503681370],
     ])
     ref[:, :3] *= angstrom
-    mol = IOData.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+    fn = 'li_h_3_21G_hf_g09_fchk'
+    obasis = load_obasis(fn)
+    mol = load_mdata(fn)
 
     # check for one point the compute_grid_point1 method
-    output = np.zeros(mol.obasis.nbasis, float)
+    output = np.zeros(obasis.nbasis, float)
     point = np.array([0.0, 0.0, 1.0]) * angstrom
-    grid_fn = GB1DMGridDensityFn(mol.obasis.max_shell_type)
-    mol.obasis.compute_grid_point1(output, point, grid_fn)
+    grid_fn = GB1DMGridDensityFn(obasis.max_shell_type)
+    obasis.compute_grid_point1(output, point, grid_fn)
     # first basis function is contraction of three s-type gaussians
-    assert mol.obasis.nprims[0] == 3
-    scales = mol.obasis.get_scales()
+    assert obasis.nprims[0] == 3
+    scales = obasis.get_scales()
     total = 0.0
     for i in xrange(3):
-        alpha = mol.obasis.alphas[i]
-        coeff = mol.obasis.con_coeffs[i]
+        alpha = obasis.alphas[i]
+        coeff = obasis.con_coeffs[i]
         nrml = gob_cart_normalization(alpha, np.zeros(3, int))
         # check scale
         assert abs(scales[i] - nrml) < 1e-10
         # check that we are on the first atom
-        assert mol.obasis.shell_map[i] == 0
-        dsq = np.linalg.norm(point - mol.coordinates[0]) ** 2
+        assert obasis.shell_map[i] == 0
+        dsq = np.linalg.norm(point - mol['coordinates'][0]) ** 2
         gauss = nrml * np.exp(-alpha * dsq)
         total += coeff * gauss
     assert abs(total - output[0]) < 1e-10
 
     # check density matrix value
-    dm_full = mol.get_dm_full()
+    dm_full = load_dm(fn)
     assert abs(dm_full[0, 0] - 1.96589709) < 1e-7
 
     points = ref[:, :3].copy()
-    rhos = mol.obasis.compute_grid_density_dm(dm_full, points)
+    rhos = obasis.compute_grid_density_dm(dm_full, points)
     assert abs(rhos - ref[:, 3]).max() < 1e-5
 
 
 def check_grid_rho(fn, ref, eps):
-    mol = IOData.from_file(context.get_fn(fn))
     points = ref[:, :3].copy()
-    dm_full = mol.get_dm_full()
-    rhos = mol.obasis.compute_grid_density_dm(dm_full, points)
+    dm_full = load_dm(fn)
+    obasis = load_obasis(fn)
+    rhos = obasis.compute_grid_density_dm(dm_full, points)
     assert abs(rhos - ref[:, 3]).max() < eps
 
 
@@ -186,7 +187,7 @@ def test_grid_co_ccpv5z_cart_hf_density_some_points():
         [0.4, 0.2, -0.1, 0.11912840380],
     ])
     ref[:, :3] *= angstrom
-    check_grid_rho('test/co_ccpv5z_cart_hf_g03.fchk', ref, 3e-3)
+    check_grid_rho('co_ccpv5z_cart_hf_g03_fchk', ref, 3e-3)
 
 
 def test_grid_co_ccpv5z_pure_hf_density_some_points():
@@ -201,14 +202,14 @@ def test_grid_co_ccpv5z_pure_hf_density_some_points():
         [0.4, 0.2, -0.1, 0.11750780363],
     ])
     ref[:, :3] *= angstrom
-    check_grid_rho('test/co_ccpv5z_pure_hf_g03.fchk', ref, 3e-3)
+    check_grid_rho('co_ccpv5z_pure_hf_g03_fchk', ref, 3e-3)
 
 
 def check_grid_gradient(fn, ref, eps):
-    mol = IOData.from_file(context.get_fn(fn))
     points = ref[:, :3].copy()
-    dm_full = mol.get_dm_full()
-    gradients = mol.obasis.compute_grid_gradient_dm(dm_full, points)
+    obasis = load_obasis(fn)
+    dm_full = load_dm(fn)
+    gradients = obasis.compute_grid_gradient_dm(dm_full, points)
     assert abs(gradients - ref[:, 3:]).max() < eps
 
 
@@ -221,7 +222,7 @@ def test_grid_lih_321g_hf_gradient_some_points():
         [0.4, 0.2, 0.1, -0.057943497876, -0.028971748938, 0.069569174116],
     ])
     ref[:, :3] *= angstrom
-    check_grid_gradient('test/li_h_3-21G_hf_g09.fchk', ref, 1e-6)
+    check_grid_gradient('li_h_3_21G_hf_g09_fchk', ref, 1e-6)
 
 
 def test_grid_lih_321g_hf_orbital_gradient_some_points():
@@ -289,9 +290,11 @@ def test_grid_lih_321g_hf_orbital_gradient_some_points():
          [0.051799568647, 0.025899784323, -0.049145171706],
          [-0.001806896115, -0.000903448057, -0.019856823712]]
     ])
-    mol = IOData.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
-    orbs = np.arange(mol.obasis.nbasis)
-    test = np.array(mol.obasis.compute_grid_orb_gradient_exp(mol.orb_alpha.coeffs, points, orbs))
+    fn = 'li_h_3_21G_hf_g09_fchk'
+    obasis = load_obasis(fn)
+    orb_alpha = load_orbsa_coeffs(fn)
+    orbs = np.arange(obasis.nbasis)
+    test = np.array(obasis.compute_grid_orb_gradient_exp(orb_alpha, points, orbs))
 
     np.testing.assert_almost_equal(test, ref, decimal=7)
 
@@ -309,7 +312,7 @@ def test_grid_co_ccpv5z_cart_hf_gradient_some_points():
     ])
     ref[:, :3] *= angstrom
     # cubegen output somehow not reliable?
-    check_grid_gradient('test/co_ccpv5z_cart_hf_g03.fchk', ref, 1e-2)
+    check_grid_gradient('co_ccpv5z_cart_hf_g03_fchk', ref, 1e-2)
 
 
 def test_grid_co_ccpv5z_pure_hf_gradient_some_points():
@@ -324,14 +327,15 @@ def test_grid_co_ccpv5z_pure_hf_gradient_some_points():
         [0.4, 0.2, -0.1, -0.21849813344, -0.16098019809, 0.16093849962],
     ])
     ref[:, :3] *= angstrom
-    check_grid_gradient('test/co_ccpv5z_pure_hf_g03.fchk', ref, 1e-4)
+    check_grid_gradient('co_ccpv5z_pure_hf_g03_fchk', ref, 1e-4)
 
 
 def check_grid_esp(fn, ref, eps):
-    mol = IOData.from_file(context.get_fn(fn))
     points = ref[:, :3].copy()
-    dm_full = mol.get_dm_full()
-    esps = mol.obasis.compute_grid_esp_dm(dm_full, mol.coordinates, mol.pseudo_numbers, points)
+    obasis = load_obasis(fn)
+    mol = load_mdata(fn)
+    dm_full = load_dm(fn)
+    esps = obasis.compute_grid_esp_dm(dm_full, mol['coordinates'], mol['pseudo_numbers'], points)
     assert abs(esps - ref[:, 3]).max() < eps
 
 
@@ -344,7 +348,7 @@ def test_grid_lih_321g_hf_esp_some_points():
         [0.4, 0.2, 0.1, 0.796490099689],
     ])
     ref[:, :3] *= angstrom
-    check_grid_esp('test/li_h_3-21G_hf_g09.fchk', ref, 1e-8)
+    check_grid_esp('li_h_3_21G_hf_g09_fchk', ref, 1e-8)
 
 
 @attr('slow')
@@ -361,7 +365,7 @@ def test_grid_co_ccpv5z_cart_hf_esp_some_points():
     ])
     ref[:, :3] *= angstrom
     # cubegen output somehow not reliable?
-    check_grid_esp('test/co_ccpv5z_cart_hf_g03.fchk', ref, 1e-3)
+    check_grid_esp('co_ccpv5z_cart_hf_g03_fchk', ref, 1e-3)
 
 
 @attr('slow')
@@ -377,19 +381,21 @@ def test_grid_co_ccpv5z_pure_hf_esp_some_points():
         [0.4, 0.2, -0.1, 0.68524674809],
     ])
     ref[:, :3] *= angstrom
-    check_grid_esp('test/co_ccpv5z_pure_hf_g03.fchk', ref, 1e-5)
+    check_grid_esp('co_ccpv5z_pure_hf_g03_fchk', ref, 1e-5)
 
 
 def test_grid_two_index_ne():
-    mol = IOData.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+    fn = 'li_h_3_21G_hf_g09_fchk'
+    obasis = load_obasis(fn)
+    mol = load_mdata(fn)
     rtf = ExpRTransform(1e-3, 2e1, 100)
     rgrid = RadialGrid(rtf)
-    grd = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False)
-    dist0 = np.sqrt(((grd.points - mol.coordinates[0]) ** 2).sum(axis=1))
-    dist1 = np.sqrt(((grd.points - mol.coordinates[1]) ** 2).sum(axis=1))
-    pot = -mol.numbers[0] / dist0 - mol.numbers[1] / dist1
-    na_ana = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
-    na_grid = mol.obasis.compute_grid_density_fock(grd.points, grd.weights, pot)
+    grd = BeckeMolGrid(mol['coordinates'], mol['numbers'], mol['pseudo_numbers'], (rgrid, 110), random_rotate=False)
+    dist0 = np.sqrt(((grd.points - mol['coordinates'][0]) ** 2).sum(axis=1))
+    dist1 = np.sqrt(((grd.points - mol['coordinates'][1]) ** 2).sum(axis=1))
+    pot = -mol['numbers'][0] / dist0 - mol['numbers'][1] / dist1
+    na_ana = obasis.compute_nuclear_attraction(mol['coordinates'], mol['pseudo_numbers'])
+    na_grid = obasis.compute_grid_density_fock(grd.points, grd.weights, pot)
     # compare grid-based operator with analytical result
     assert abs(na_grid).max() > 8.0
     assert abs(na_ana - na_grid).max() < 2e-3
@@ -412,16 +418,18 @@ def test_gob_normalization():
 
 
 def test_cart_pure_switch():
-    mol = IOData.from_file(context.get_fn('test/water.xyz'))
-    obasis = get_gobasis(mol.coordinates, mol.numbers, 'aug-cc-pvdz')
+    fn = 'water_xyz'
+    mol = load_mdata(fn)
+    obasis = get_gobasis(mol['coordinates'], mol['numbers'], 'aug-cc-pvdz')
     assert obasis.nbasis == 41
-    obasis = get_gobasis(mol.coordinates, mol.numbers, 'aug-cc-pvdz', pure=False)
+    obasis = get_gobasis(mol['coordinates'], mol['numbers'], 'aug-cc-pvdz', pure=False)
     assert obasis.nbasis == 43
 
 
 def test_concatenate1():
-    mol = IOData.from_file(context.get_fn('test/water.xyz'))
-    obtmp = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
+    fn = 'water_xyz'
+    mol = load_mdata(fn)
+    obtmp = get_gobasis(mol['coordinates'], mol['numbers'], '3-21G')
     ob = GOBasis.concatenate(obtmp, obtmp)
     assert ob.ncenter == 3 * 2
     assert ob.nbasis == 13 * 2
@@ -432,9 +440,10 @@ def test_concatenate1():
 
 
 def test_concatenate2():
-    mol = IOData.from_file(context.get_fn('test/water.xyz'))
-    obasis1 = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
-    obasis2 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
+    fn = 'water_xyz'
+    mol = load_mdata(fn)
+    obasis1 = get_gobasis(mol['coordinates'], mol['numbers'], '3-21G')
+    obasis2 = get_gobasis(mol['coordinates'], mol['numbers'], 'sto-3g')
     obasis = GOBasis.concatenate(obasis1, obasis2)
     assert obasis.ncenter == 3 * 2
     assert obasis.nbasis == obasis1.nbasis + obasis2.nbasis
@@ -494,109 +503,119 @@ def test_gobasis_desc_index_map():
 
 
 def test_gobasis_output_args_grid_orbitals_exp():
-    mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    fn = 'water_hfs_321g_fchk'
+    obasis = load_obasis(fn)
+    orb_alpha = load_orbsa_coeffs(fn)
     points = np.random.uniform(-5, 5, (100, 3))
     iorbs = np.array([2, 3])
     orbs1 = np.zeros((100, 2), float)
-    mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha.coeffs, points, iorbs, orbs1)
-    orbs2 = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha.coeffs, points, iorbs)
+    obasis.compute_grid_orbitals_exp(orb_alpha, points, iorbs, orbs1)
+    orbs2 = obasis.compute_grid_orbitals_exp(orb_alpha, points, iorbs)
     assert (orbs1 == orbs2).all()
 
 
 def test_gobasis_output_args_grid_density_dm():
-    mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    fn = 'water_hfs_321g_fchk'
+    obasis = load_obasis(fn)
     points = np.random.uniform(-5, 5, (100, 3))
     rhos1 = np.zeros(100, float)
-    dm_full = mol.get_dm_full()
-    mol.obasis.compute_grid_density_dm(dm_full, points, rhos1)
-    rhos2 = mol.obasis.compute_grid_density_dm(dm_full, points)
+    dm_full = load_dm(fn)
+    obasis.compute_grid_density_dm(dm_full, points, rhos1)
+    rhos2 = obasis.compute_grid_density_dm(dm_full, points)
     assert (rhos1 == rhos2).all()
 
 
 def test_gobasis_output_args_grid_gradient_dm():
-    mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    fn = 'water_hfs_321g_fchk'
+    obasis = load_obasis(fn)
     points = np.random.uniform(-5, 5, (100, 3))
     gradrhos1 = np.zeros((100, 3), float)
-    dm_full = mol.get_dm_full()
-    mol.obasis.compute_grid_gradient_dm(dm_full, points, gradrhos1)
-    gradrhos2 = mol.obasis.compute_grid_gradient_dm(dm_full, points)
+    dm_full = load_dm(fn)
+    obasis.compute_grid_gradient_dm(dm_full, points, gradrhos1)
+    gradrhos2 = obasis.compute_grid_gradient_dm(dm_full, points)
     assert (gradrhos1 == gradrhos2).all()
 
 
 def test_gobasis_output_args_grid_hartree_dm():
-    mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    fn = 'water_hfs_321g_fchk'
+    obasis = load_obasis(fn)
     points = np.random.uniform(-5, 5, (100, 3))
     pots1 = np.zeros(100, float)
-    dm_full = mol.get_dm_full()
-    mol.obasis.compute_grid_hartree_dm(dm_full, points, pots1)
-    pots2 = mol.obasis.compute_grid_hartree_dm(dm_full, points)
+    dm_full = load_dm(fn)
+    obasis.compute_grid_hartree_dm(dm_full, points, pots1)
+    pots2 = obasis.compute_grid_hartree_dm(dm_full, points)
     assert (pots1 == pots2).all()
 
 
 def test_subset_simple():
-    mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    fn = 'water_hfs_321g_fchk'
+    obasis = load_obasis(fn)
     # select a basis set for the first hydrogen atom
-    sub_obasis, ibasis_list = mol.obasis.get_subset([0, 1])
+    sub_obasis, ibasis_list = obasis.get_subset([0, 1])
     assert sub_obasis.ncenter == 1
     assert sub_obasis.nshell == 2
-    assert (sub_obasis.centers[0] == mol.obasis.centers[0]).all()
-    assert (sub_obasis.shell_map == mol.obasis.shell_map[:2]).all()
-    assert (sub_obasis.nprims == mol.obasis.nprims[:2]).all()
-    assert (sub_obasis.shell_types == mol.obasis.shell_types[:2]).all()
+    assert (sub_obasis.centers[0] == obasis.centers[0]).all()
+    assert (sub_obasis.shell_map == obasis.shell_map[:2]).all()
+    assert (sub_obasis.nprims == obasis.nprims[:2]).all()
+    assert (sub_obasis.shell_types == obasis.shell_types[:2]).all()
     assert sub_obasis.nprim_total == 3
-    assert (sub_obasis.alphas == mol.obasis.alphas[:3]).all()
-    assert (sub_obasis.con_coeffs == mol.obasis.con_coeffs[:3]).all()
+    assert (sub_obasis.alphas == obasis.alphas[:3]).all()
+    assert (sub_obasis.con_coeffs == obasis.con_coeffs[:3]).all()
     assert (ibasis_list == [0, 1]).all()
 
 
 def test_subset_simple_reverse():
-    mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    fn = 'water_hfs_321g_fchk'
+    obasis = load_obasis(fn)
     # select a basis set for the first hydrogen atom
-    sub_obasis, ibasis_list = mol.obasis.get_subset([1, 0])
+    sub_obasis, ibasis_list = obasis.get_subset([1, 0])
     assert sub_obasis.ncenter == 1
     assert sub_obasis.nshell == 2
-    assert (sub_obasis.centers[0] == mol.obasis.centers[0]).all()
-    assert (sub_obasis.shell_map == mol.obasis.shell_map[1::-1]).all()
-    assert (sub_obasis.nprims == mol.obasis.nprims[1::-1]).all()
-    assert (sub_obasis.shell_types == mol.obasis.shell_types[1::-1]).all()
+    assert (sub_obasis.centers[0] == obasis.centers[0]).all()
+    assert (sub_obasis.shell_map == obasis.shell_map[1::-1]).all()
+    assert (sub_obasis.nprims == obasis.nprims[1::-1]).all()
+    assert (sub_obasis.shell_types == obasis.shell_types[1::-1]).all()
     assert sub_obasis.nprim_total == 3
-    assert (sub_obasis.alphas[:1] == mol.obasis.alphas[2:3]).all()
-    assert (sub_obasis.alphas[1:] == mol.obasis.alphas[:2]).all()
-    assert (sub_obasis.con_coeffs[:1] == mol.obasis.con_coeffs[2:3]).all()
-    assert (sub_obasis.con_coeffs[1:] == mol.obasis.con_coeffs[:2]).all()
+    assert (sub_obasis.alphas[:1] == obasis.alphas[2:3]).all()
+    assert (sub_obasis.alphas[1:] == obasis.alphas[:2]).all()
+    assert (sub_obasis.con_coeffs[:1] == obasis.con_coeffs[2:3]).all()
+    assert (sub_obasis.con_coeffs[1:] == obasis.con_coeffs[:2]).all()
     assert (ibasis_list == [1, 0]).all()
 
 
 def test_subset():
-    mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
+    fn = 'water_hfs_321g_fchk'
+    obasis = load_obasis(fn)
     # select a basis set for the first hydrogen atom
-    sub_obasis, ibasis_list = mol.obasis.get_subset([7, 3, 4, 8])
+    sub_obasis, ibasis_list = obasis.get_subset([7, 3, 4, 8])
     assert sub_obasis.ncenter == 2
     assert sub_obasis.nshell == 4
-    assert (sub_obasis.centers[0] == mol.obasis.centers[1]).all()
-    assert (sub_obasis.centers[1] == mol.obasis.centers[2]).all()
-    assert (sub_obasis.shell_map == mol.obasis.shell_map[[7, 3, 4, 8]] - 1).all()
-    assert (sub_obasis.nprims == mol.obasis.nprims[[7, 3, 4, 8]]).all()
-    assert (sub_obasis.shell_types == mol.obasis.shell_types[[7, 3, 4, 8]]).all()
+    assert (sub_obasis.centers[0] == obasis.centers[1]).all()
+    assert (sub_obasis.centers[1] == obasis.centers[2]).all()
+    assert (sub_obasis.shell_map == obasis.shell_map[[7, 3, 4, 8]] - 1).all()
+    assert (sub_obasis.nprims == obasis.nprims[[7, 3, 4, 8]]).all()
+    assert (sub_obasis.shell_types == obasis.shell_types[[7, 3, 4, 8]]).all()
     assert sub_obasis.nprim_total == 7
     for b0, e0, b1, e1 in (12, 14, 0, 2), (6, 8, 2, 4), (8, 10, 4, 6), (14, 15, 6, 7):
-        assert (sub_obasis.alphas[b1:e1] == mol.obasis.alphas[b0:e0]).all()
-        assert (sub_obasis.con_coeffs[b1:e1] == mol.obasis.con_coeffs[b0:e0]).all()
+        assert (sub_obasis.alphas[b1:e1] == obasis.alphas[b0:e0]).all()
+        assert (sub_obasis.con_coeffs[b1:e1] == obasis.con_coeffs[b0:e0]).all()
     assert (ibasis_list == [11, 3, 4, 5, 6, 12]).all()
 
 
 def test_basis_atoms():
-    mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
-    basis_atoms = mol.obasis.get_basis_atoms(mol.coordinates)
+    fn = 'water_hfs_321g_fchk'
+    obasis = load_obasis(fn)
+    mol = load_mdata(fn)
+    basis_atoms = obasis.get_basis_atoms(mol['coordinates'])
     assert len(basis_atoms) == 3
     icenter = 0
     ibasis_all = []
     for sub_obasis, ibasis_list in basis_atoms:
         assert sub_obasis.ncenter == 1
-        assert (sub_obasis.centers[0] == mol.obasis.centers[icenter]).all()
+        assert (sub_obasis.centers[0] == obasis.centers[icenter]).all()
         icenter += 1
         ibasis_all.extend(ibasis_list)
-    assert ibasis_all == range(mol.obasis.nbasis)
+    assert ibasis_all == range(obasis.nbasis)
 
 
 def check_normalization(number, basis):
@@ -611,10 +630,11 @@ def check_normalization(number, basis):
             The basis set, e.g. cc-pvdz.
     """
     # Run test on a Helium atom
-    mol = IOData(coordinates=np.array([[0.0, 0.0, 0.0]]), numbers=np.array([number]))
+    coordinates=np.array([[0.0, 0.0, 0.0]])
+    numbers=np.array([number])
 
     # Create a Gaussian basis set
-    obasis = get_gobasis(mol.coordinates, mol.numbers, basis)
+    obasis = get_gobasis(coordinates, numbers, basis)
 
     # Compute Gaussian integrals
     olp = obasis.compute_overlap()

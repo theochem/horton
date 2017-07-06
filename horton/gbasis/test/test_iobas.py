@@ -20,14 +20,13 @@
 # --
 
 
-import numpy as np
 from nose.tools import assert_raises
 
-from horton.context import context
-from horton.io import IOData
 from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 from horton.test.common import tmpdir
+
+from . common import *
 
 
 def test_str_to_shell_types_cart():
@@ -63,8 +62,8 @@ def test_fortran_float():
 
 def test_go_basis_desc_neon_sto3g():
     gobasis_set = []
-    gobasis_set.append(GOBasisFamily('STO-3G', filename=context.get_fn('basis/sto-3g.nwchem')))
-    gobasis_set.append(GOBasisFamily('STO-3G', filename=context.get_fn('basis/sto-3g.gbs')))
+    gobasis_set.append(GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.nwchem')))
+    gobasis_set.append(GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.gbs')))
     for gobasis in gobasis_set:
         obasis = get_gobasis(np.array([[0.0, 0.0, 0.0]]), np.array([2]), gobasis)
         assert (obasis.shell_map == np.array([0])).all()
@@ -77,8 +76,8 @@ def test_go_basis_desc_neon_sto3g():
 
 def test_go_basis_desc_hydrogen_321g():
     gobasis_set = []
-    gobasis_set.append(GOBasisFamily('3-21G', filename=context.get_fn('basis/3-21g.nwchem')))
-    gobasis_set.append(GOBasisFamily('3-21G', filename=context.get_fn('basis/3-21g.gbs')))
+    gobasis_set.append(GOBasisFamily('3-21G', filename=to_basis_path('3-21g.nwchem')))
+    gobasis_set.append(GOBasisFamily('3-21G', filename=to_basis_path('3-21g.gbs')))
     for gobasis in gobasis_set:
         obasis = get_gobasis(np.array([[0.0, 0.0, 0.0]]), np.array([1]), gobasis)
         assert (obasis.shell_map == np.array([0, 0])).all()
@@ -97,8 +96,8 @@ def test_go_basis_family_lithium_321g():
 
 def test_go_basis_desc_lithium_321g():
     gobasis_set = []
-    gobasis_set.append(GOBasisFamily('3-21G', filename=context.get_fn('basis/3-21g.nwchem')))
-    gobasis_set.append(GOBasisFamily('3-21G', filename=context.get_fn('basis/3-21g.gbs')))
+    gobasis_set.append(GOBasisFamily('3-21G', filename=to_basis_path('3-21g.nwchem')))
+    gobasis_set.append(GOBasisFamily('3-21G', filename=to_basis_path('3-21g.gbs')))
     for gobasis in gobasis_set:
         obasis = get_gobasis(np.array([[0.0, 0.0, 0.0]]), np.array([3]), gobasis)
         assert (obasis.shell_map == np.array([0, 0, 0, 0, 0])).all()
@@ -119,13 +118,12 @@ def test_go_basis_desc_lithium_321g():
 
 
 def test_go_basis_desc_water_sto3g():
-    fn = context.get_fn('test/water_element.xyz')
-    mol = IOData.from_file(fn)
+    mol = load_mdata('water_element_xyz')
     gobasis_set = []
-    gobasis_set.append(GOBasisFamily('STO-3G', filename=context.get_fn('basis/sto-3g.nwchem')))
-    gobasis_set.append(GOBasisFamily('STO-3G', filename=context.get_fn('basis/sto-3g.gbs')))
+    gobasis_set.append(GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.nwchem')))
+    gobasis_set.append(GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.gbs')))
     for gobasis in gobasis_set:
-        obasis = get_gobasis(mol.coordinates, mol.numbers, gobasis)
+        obasis = get_gobasis(mol['coordinates'], mol['numbers'], gobasis)
         assert (obasis.shell_map == np.array([0, 1, 1, 1, 2])).all()
         assert (obasis.nprims == np.array([3, 3, 3, 3, 3])).all()
         assert (obasis.shell_types == np.array([0, 0, 0, 1, 0])).all()
@@ -165,7 +163,7 @@ def test_gobasis_contraction():
 
 
 def test_dump_basis_atom_map_gbs():
-    sto3g = GOBasisFamily('original STO-3G', filename=context.get_fn('basis/sto-3g.gbs'))
+    sto3g = GOBasisFamily('original STO-3G', filename=to_basis_path('sto-3g.gbs'))
     sto3g.load()
     with tmpdir('horton.gbasis.test.test_iobas.test_dump_basis_atom_map_gbs') as tmp:
         tmp_gbs = '{0}/test.gbs'.format(tmp)

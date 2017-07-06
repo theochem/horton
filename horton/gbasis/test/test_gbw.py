@@ -21,16 +21,14 @@
 
 import numpy as np
 
-from horton.context import context
-from horton.io import IOData
-
 from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
+from . common import *
 
 def get_h2o_er():
-    fn = context.get_fn('test/water.xyz')
-    mol = IOData.from_file(fn)
-    obasis = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
+    fn = "water_xyz"
+    mol = load_mdata(fn)
+    obasis = get_gobasis(mol["coordinates"], mol["numbers"], 'sto-3g')
     return obasis, obasis.compute_electron_repulsion()
 
 

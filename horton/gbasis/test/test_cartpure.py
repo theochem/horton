@@ -23,10 +23,11 @@
 import numpy as np
 from nose.tools import assert_raises
 from nose.plugins.attrib import attr
+from os import path
 
-from horton.context import context
-from horton.io import IOData
 from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
+from . common import *
 
 
 tfs = {
@@ -174,22 +175,17 @@ def test_cart_pure_domain():
 
 @attr('slow')
 def test_cart_pure_water_ccpvdz_hf():
-    fn_fchk_pure = context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk')
-    fn_log_pure = fn_fchk_pure[:-5] + '.log'
-    fn_fchk_cart = context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk')
-    fn_log_cart = fn_fchk_cart[:-5] + '.log'
+    pth = path.split(__file__)[0]
     # Also load fchk file to get reordering of matrix elements.
-    mol_pure = IOData.from_file(fn_fchk_pure, fn_log_pure)
-    mol_cart = IOData.from_file(fn_fchk_cart, fn_log_cart)
-    for key in 'olp', 'kin', 'na':
-        block_pure = getattr(mol_pure, key)[9:14, 9:14]
-        block_cart = getattr(mol_cart, key)[9:15, 9:15]
+    for fn in load_olp, load_kin, load_na:
+        block_pure = fn("water_ccpvdz_pure_hf_g03_fchk")[9:14, 9:14]
+        block_cart = fn("water_ccpvdz_cart_hf_g03_fchk")[9:15, 9:15]
         check_pure = np.dot(np.dot(tfs[2], block_cart), tfs[2].T)
         error = abs(block_pure - check_pure).max()
         assert error < 2e-5
 
-        block_pure = getattr(mol_pure, key)[0, 9:14]
-        block_cart = getattr(mol_cart, key)[0, 9:15]
+        block_pure = fn("water_ccpvdz_pure_hf_g03_fchk")[0, 9:14]
+        block_cart = fn("water_ccpvdz_cart_hf_g03_fchk")[0, 9:15]
         check_pure = np.dot(block_cart, tfs[2].T)
         error = abs(block_pure - check_pure).max()
         assert error < 1e-5
