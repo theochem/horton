@@ -20,13 +20,14 @@
 # --
 
 
-import os, h5py as h5, numpy as np
+import numpy as np
+import os
 from nose.plugins.attrib import attr
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.test.common import check_script, tmpdir
-from horton.scripts.test.common import copy_files, check_files
-from horton.scripts.espfit import *
+from horton.scripts.test.common import check_files
+from horton.scripts.espfit import parse_wdens, parse_wnear, parse_wfar, max_at_edge
 
 
 def test_wdens():

@@ -20,11 +20,10 @@
 # --
 
 
-import shutil, os, numpy as np
+import os
+import shutil
 
 from horton import context
-from horton.grid.cext import UniformGrid
-from horton.io.iodata import IOData
 
 
 __all__ = ['copy_files', 'check_files']

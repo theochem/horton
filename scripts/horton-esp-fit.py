@@ -21,9 +21,10 @@
 # --
 
 
-import sys, argparse, os, numpy as np
+import argparse
+import numpy as np
 
-from horton import IOData, log, __version__
+from horton import log, __version__
 from horton.scripts.common import parse_h5, write_script_output, \
     check_output
 from horton.scripts.espfit import load_cost

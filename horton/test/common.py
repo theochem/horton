@@ -314,16 +314,6 @@ def compare_mols(mol1, mol2):
             assert not hasattr(mol2, key)
 
 
-def compare_symmetries(s0, s1):
-    assert s0.name == s1.name
-    assert (s0.generators == s1.generators).all()
-    assert (s0.fracs == s1.fracs).all()
-    assert (s0.numbers == s1.numbers).all()
-    assert s0.cell.nvec == s1.cell.nvec
-    assert (s0.cell.rvecs == s1.cell.rvecs).all()
-    assert (s0.labels == s1.labels).all()
-
-
 @contextmanager
 def tmpdir(name):
     dn = tempfile.mkdtemp(name)
