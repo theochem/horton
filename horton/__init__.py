@@ -21,7 +21,7 @@
 '''The main HORTON Package'''
 
 
-__version__ = '2.1.0b3'
+__version__ = '2.1.0'
 
 
 # Extensions are imported first to call fpufix as early as possible
