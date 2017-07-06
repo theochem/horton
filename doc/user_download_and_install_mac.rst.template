@@ -99,7 +99,7 @@ versions of the following programs/libraries:
 
 ${dependencies_rst}
 
-All dependencies can be installed with MacPorts. We recommend the following ports:
+Nearly all dependencies can be installed with MacPorts. We recommend the following ports:
 
 ${dependencies_macports_rst}
 
@@ -109,6 +109,10 @@ space, the ``sudo`` can be omitted.):
 .. code-block:: bash
 
 ${dependencies_macports_command}
+
+At the time of writing, there is still a small glitch in the MacPorts installation of the
+LibXC dependency. To get around this, you will have to install LibXC manually, as
+explained further below.
 
 
 Download HORTON

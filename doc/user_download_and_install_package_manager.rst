@@ -31,19 +31,31 @@ Installing HORTON with any of these methods requires less technical skills but i
 disadvantages too: (i) less control over the compilation process and (ii) older versions
 of HORTON and its dependencies.
 
+After installation with one of the package managers, you should be able to run the tests
+as follows:
+
+.. code-block:: bash
+
+    nosetests -v horton
+
 
 MacPorts
 ========
 
-MacPorts is specific for OSX. When you have MacPorts installed, see
+MacPorts is a package manager specific for OSX. After you have installed MacPorts, see
 https://www.macports.org/install.php, you can install HORTON as follows:
 
 .. code-block:: bash
 
     sudo port install gcc49; sudo port select --set gcc mp-gcc49
-    sudo port install python27; sudo port select --set python python27
+    sudo port install python27 +readline; sudo port select --set python python27
     sudo port install horton
     sudo port install py27-pip; sudo port select --set pip pip27
+
+This will also install all the dependencies required for HORTON.
+
+At the time of writing, there is still a small glitch in the MacPorts installation of the
+LibXC dependency, which may cause some tests to fail.
 
 There seems to be no official way to use MacPorts without ``sudo``, while this may
 potentially break your system. You've been warned.
