@@ -25,21 +25,16 @@ from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 def check_bond_orders(fn):
     mol = IOData.from_file(fn)
-    operators = get_mulliken_operators(mol.obasis, mol.lf)
+    operators = get_mulliken_operators(mol.obasis)
     dm_full = mol.get_dm_full()
     if dm_full is not None:
         dm_spin = mol.get_dm_spin()
         if dm_spin is not None:
-            dm_alpha = dm_full.copy()
-            dm_alpha.iadd(dm_spin)
-            dm_alpha.iscale(0.5)
-            dm_beta = dm_full.copy()
-            dm_beta.iadd(dm_spin, -1)
-            dm_beta.iscale(0.5)
+            dm_alpha = 0.5*(dm_full + dm_spin)
+            dm_beta = 0.5*(dm_full - dm_spin)
             bond_orders, valences, free_valences = compute_bond_orders_os(dm_alpha, dm_beta, operators)
         else:
-            dm_alpha = dm_full.copy()
-            dm_alpha.iscale(0.5)
+            dm_alpha = 0.5*dm_full
             bond_orders, valences, free_valences = compute_bond_orders_cs(dm_alpha, operators)
     else:
         raise NotImplementedError

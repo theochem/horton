@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #JSON {"lot": "RHF/cc-pVDZ",
 #JSON  "scf": "PlainSCFSolver",
-#JSON  "linalg": "CholeskyLinalgFactory",
+#JSON  "er": "cholesky",
 #JSON  "difficulty": 2,
 #JSON  "description": "Basic RHF example with Cholesky decomposition of the ERI"}
 
@@ -16,27 +16,24 @@ mol = IOData.from_file(fn_xyz)
 # Create a Gaussian basis set
 obasis = get_gobasis(mol.coordinates, mol.numbers, 'cc-pVDZ')
 
-# Create a linalg factory
-lf = CholeskyLinalgFactory(obasis.nbasis)
-
 # Compute Gaussian integrals
-olp = obasis.compute_overlap(lf)
-kin = obasis.compute_kinetic(lf)
-na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-er = obasis.compute_electron_repulsion(lf)
+olp = obasis.compute_overlap()
+kin = obasis.compute_kinetic()
+na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+er_vecs = obasis.compute_electron_repulsion_cholesky()
 
 # Create alpha orbitals
-exp_alpha = lf.create_expansion()
+orb_alpha = Orbitals(obasis.nbasis)
 
 # Initial guess
-guess_core_hamiltonian(olp, kin, na, exp_alpha)
+guess_core_hamiltonian(olp, kin + na, orb_alpha)
 
 # Construct the restricted HF effective Hamiltonian
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 terms = [
     RTwoIndexTerm(kin, 'kin'),
-    RDirectTerm(er, 'hartree'),
-    RExchangeTerm(er, 'x_hf'),
+    RDirectTerm(er_vecs, 'hartree'),
+    RExchangeTerm(er_vecs, 'x_hf'),
     RTwoIndexTerm(na, 'ne'),
 ]
 ham = REffHam(terms, external)
@@ -46,14 +43,14 @@ occ_model = AufbauOccModel(5)
 
 # Converge WFN with plain SCF
 scf_solver = PlainSCFSolver(1e-6)
-scf_solver(ham, lf, olp, occ_model, exp_alpha)
+scf_solver(ham, olp, occ_model, orb_alpha)
 
 # Assign results to the molecule object and write it to a file, e.g. for
 # later analysis
 mol.title = 'RHF computation on water'
 mol.energy = ham.cache['energy']
 mol.obasis = obasis
-mol.exp_alpha = exp_alpha
+mol.orb_alpha = orb_alpha
 
 # useful for visualization:
 mol.to_file('water.molden')
@@ -64,7 +61,7 @@ mol.to_file('water.h5')
 # CODE BELOW IS FOR horton-regression-test.py ONLY. IT IS NOT PART OF THE EXAMPLE.
 rt_results = {
     'energy': ham.cache['energy'],
-    'exp_alpha': exp_alpha.energies,
+    'orb_alpha': orb_alpha.energies,
     'nn': ham.cache["energy_nn"],
     'kin': ham.cache["energy_kin"],
     'ne': ham.cache["energy_ne"],
@@ -75,7 +72,7 @@ rt_results = {
 import numpy as np  # pylint: disable=wrong-import-position
 rt_previous = {
     'energy': -76.025896285286194,
-    'exp_alpha': np.array([
+    'orb_alpha': np.array([
         -20.548047280389707, -1.3313877663726761, -0.70683717499898535,
         -0.55595762656724068, -0.49108019506479106, 0.18591763000506215,
         0.25527900850832308, 0.8054303226321432, 0.82856232585934586, 1.1614308644623972,

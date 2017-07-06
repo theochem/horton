@@ -25,8 +25,9 @@ import numpy as np
 
 from horton.log import log, timer
 from horton.exceptions import NoSCFConvergence
-from horton.meanfield.utils import check_dm, compute_commutator
 from horton.meanfield.convergence import convergence_error_commutator
+from horton.meanfield.orbitals import Orbitals
+from horton.meanfield.utils import check_dm, compute_commutator
 
 
 __all__ = ['ODASCFSolver', 'check_cubic']
@@ -137,16 +138,13 @@ class ODASCFSolver(object):
         self.debug = debug
 
     @timer.with_section('SCF')
-    def __call__(self, ham, lf, overlap, occ_model, *dm0s):
+    def __call__(self, ham, overlap, occ_model, *dm0s):
         '''Find a self-consistent set of density matrices.
 
            **Arguments:**
 
            ham
                 An effective Hamiltonian.
-
-           lf
-                The linalg factory to be used.
 
            overlap
                 The overlap operator.
@@ -164,7 +162,7 @@ class ODASCFSolver(object):
 
         # Check input density matrices.
         for i in xrange(ham.ndm):
-            check_dm(dm0s[i], overlap, lf)
+            check_dm(dm0s[i], overlap)
         occ_model.check_dms(overlap, *dm0s)
 
         if log.do_medium:
@@ -173,12 +171,12 @@ class ODASCFSolver(object):
             log(' Iter               Energy         Error      Mixing')
             log.hline()
 
-        fock0s = [lf.create_two_index() for i in xrange(ham.ndm)]
-        fock1s = [lf.create_two_index() for i in xrange(ham.ndm)]
-        dm1s = [lf.create_two_index() for i in xrange(ham.ndm)]
-        exps = [lf.create_expansion() for i in xrange(ham.ndm)]
-        work = dm0s[0].new()
-        commutator = dm0s[0].new()
+        fock0s = [np.zeros(overlap.shape) for i in xrange(ham.ndm)]
+        fock1s = [np.zeros(overlap.shape) for i in xrange(ham.ndm)]
+        dm1s = [np.zeros(overlap.shape) for i in xrange(ham.ndm)]
+        orbs = [Orbitals(overlap.shape[0]) for i in xrange(ham.ndm)]
+        work = np.zeros(dm0s[0].shape)
+        commutator = np.zeros(dm0s[0].shape)
         converged = False
         counter = 0
         mixing = None
@@ -199,12 +197,12 @@ class ODASCFSolver(object):
 
             # go to point 1 by diagonalizing the fock matrices
             for i in xrange(ham.ndm):
-                exps[i].from_fock(fock0s[i], overlap)
+                orbs[i].from_fock(fock0s[i], overlap)
             # Assign new occupation numbers.
-            occ_model.assign(*exps)
+            occ_model.assign(*orbs)
             # Construct the density matrices
             for i in xrange(ham.ndm):
-                exps[i].to_dm(dm1s[i])
+                dm1s[i][:] = orbs[i].to_dm()
 
             # feed the latest density matrices in the hamiltonian
             ham.reset(*dm1s)
@@ -218,10 +216,10 @@ class ODASCFSolver(object):
             deriv0 = 0.0
             deriv1 = 0.0
             for i in xrange(ham.ndm):
-                deriv0 += fock0s[i].contract_two('ab,ab', dm1s[i])
-                deriv0 -= fock0s[i].contract_two('ab,ab', dm0s[i])
-                deriv1 += fock1s[i].contract_two('ab,ab', dm1s[i])
-                deriv1 -= fock1s[i].contract_two('ab,ab', dm0s[i])
+                deriv0 += np.einsum('ab,ab', fock0s[i], dm1s[i])
+                deriv0 -= np.einsum('ab,ab', fock0s[i], dm0s[i])
+                deriv1 += np.einsum('ab,ab', fock1s[i], dm1s[i])
+                deriv1 -= np.einsum('ab,ab', fock1s[i], dm0s[i])
             deriv0 *= ham.deriv_scale
             deriv1 *= ham.deriv_scale
 
@@ -236,16 +234,16 @@ class ODASCFSolver(object):
 
             # compute the mixed density and fock matrices (in-place in dm0s and fock0s)
             for i in xrange(ham.ndm):
-                dm0s[i].iscale(1-mixing)
-                dm0s[i].iadd(dm1s[i], mixing)
-                fock0s[i].iscale(1-mixing)
-                fock0s[i].iadd(fock1s[i], mixing)
+                dm0s[i][:] *= 1 - mixing
+                dm0s[i][:] += dm1s[i]*mixing
+                fock0s[i][:] *= 1 - mixing
+                fock0s[i][:] += fock1s[i]*mixing
 
             # Compute the convergence criterion.
             errorsq = 0.0
             for i in xrange(ham.ndm):
-                compute_commutator(dm0s[i], fock0s[i], overlap, work, commutator)
-                errorsq += commutator.contract_two('ab,ab', commutator)
+                commutator = compute_commutator(dm0s[i], fock0s[i], overlap)
+                errorsq += np.einsum('ab,ab', commutator, commutator)
             error = errorsq**0.5
             if error < self.threshold:
                 converged = True
@@ -317,14 +315,12 @@ def check_cubic(ham, dm0s, dm1s, e0, e1, g0, g1, do_plot=True):
 
     ndm = len(dm0s)
     assert ndm == len(dm1s)
-    dm2s = [dm1.new() for dm1 in dm1s]
+    dm2s = [np.zeros(dm1.shape) for dm1 in dm1s]
     xs = np.array([0.001, 0.002, 0.003, 0.004, 0.005, 0.995, 0.996, 0.997, 0.998, 0.999])
     energies = []
     for x in xs:
         for i in xrange(ndm):
-            dm2s[i].assign(dm0s[i])
-            dm2s[i].iscale(1-x)
-            dm2s[i].iadd(dm1s[i], x)
+            dm2s[i][:] = dm0s[i]*(1-x) + dm1s[i]*x
         ham.reset(*dm2s)
         e2 = ham.compute_energy()
         energies.append(e2)

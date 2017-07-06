@@ -61,13 +61,12 @@ def test_hf_water_321g_mistake():
     fn_xyz = context.get_fn('test/water.xyz')
     mol = IOData.from_file(fn_xyz)
     obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21G')
-    lf = DenseLinalgFactory(obasis.nbasis)
     occ_model = AufbauOccModel(5)
-    exp_alpha = lf.create_expansion(obasis.nbasis)
-    olp = obasis.compute_overlap(lf)
-    kin = obasis.compute_kinetic(lf)
-    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-    er = obasis.compute_electron_repulsion(lf)
+    orb_alpha = Orbitals(obasis.nbasis)
+    olp = obasis.compute_overlap()
+    kin = obasis.compute_kinetic()
+    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    er = obasis.compute_electron_repulsion()
     terms = [
         RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
@@ -77,4 +76,4 @@ def test_hf_water_321g_mistake():
     ham = REffHam(terms)
     scf_solver = PlainSCFSolver()
     with assert_raises(AssertionError):
-        scf_solver(ham, lf, olp, occ_model, exp_alpha)
+        scf_solver(ham, olp, occ_model, orb_alpha)

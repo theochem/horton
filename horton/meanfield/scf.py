@@ -21,9 +21,12 @@
 """Basic Self-Consistent Field (SCF) algorithm."""
 
 
+import numpy as np
+
 from horton.log import log, timer
 from horton.exceptions import NoSCFConvergence
 from horton.meanfield.convergence import convergence_error_eigen
+from horton.meanfield.utils import get_level_shift
 
 
 __all__ = ['PlainSCFSolver']
@@ -32,7 +35,7 @@ __all__ = ['PlainSCFSolver']
 class PlainSCFSolver(object):
     """A bare-bones SCF solver without mixing."""
 
-    kind = 'exp'  # input/output variable is the wfn expansion
+    kind = 'orb'  # input/output variable is the Orbitals object
 
     def __init__(self, threshold=1e-8, maxiter=128, skip_energy=False, level_shift=0.0):
         """Initialize a PlainSCFSolver.
@@ -60,31 +63,29 @@ class PlainSCFSolver(object):
         self.level_shift = level_shift
 
     @timer.with_section('SCF')
-    def __call__(self, ham, lf, overlap, occ_model, *exps):
+    def __call__(self, ham, overlap, occ_model, *orbs):
         """Find a self-consistent set of orbitals.
 
         Parameters
         ----------
 
         ham : EffHam
-              An effective Hamiltonian.
-        lf : LinalgFactor
-             The linalg factory to be used.
-        overlap : TwoIndex
-                  The overlap operator.
+            An effective Hamiltonian.
+        overlap : np.ndarray, shape=(nbasis, nbasis)
+            The overlap operator.
         occ_model : OccModel
-                    Model for the orbital occupations.
-        exp1, exp2, ... : Expansion
-                          The initial orbitals. The number of dms must match ham.ndm.
+            Model for the orbital occupations.
+        orb1, orb2, ... : Orbitals
+            The initial orbitals. The number of dms must match ham.ndm.
         """
         # Some type checking
-        if ham.ndm != len(exps):
+        if ham.ndm != len(orbs):
             raise TypeError('The number of initial orbital expansions does not match the Hamiltonian.')
         # Impose the requested occupation numbers
-        occ_model.assign(*exps)
+        occ_model.assign(*orbs)
         # Check the orthogonality of the orbitals
-        for exp in exps:
-            exp.check_normalization(overlap)
+        for orb in orbs:
+            orb.check_normalization(overlap)
 
         if log.do_medium:
             log('Starting plain SCF solver. ndm=%i' % ham.ndm)
@@ -92,14 +93,14 @@ class PlainSCFSolver(object):
             log('Iter         Error')
             log.hline()
 
-        focks = [lf.create_two_index() for i in xrange(ham.ndm)]
-        dms = [lf.create_two_index() for i in xrange(ham.ndm)]
+        focks = [np.zeros(overlap.shape) for i in xrange(ham.ndm)]
+        dms = [None] * ham.ndm
         converged = False
         counter = 0
         while self.maxiter is None or counter < self.maxiter:
             # convert the orbital expansions to density matrices
             for i in xrange(ham.ndm):
-                exps[i].to_dm(dms[i])
+                dms[i] = orbs[i].to_dm()
             # feed the latest density matrices in the hamiltonian
             ham.reset(*dms)
             # Construct the Fock operator
@@ -107,7 +108,7 @@ class PlainSCFSolver(object):
             # Check for convergence
             error = 0.0
             for i in xrange(ham.ndm):
-                error += exps[i].error_eigen(focks[i], overlap)
+                error += orbs[i].error_eigen(focks[i], overlap)
             if log.do_medium:
                 log('%4i  %12.5e' % (counter, error))
             if error < self.threshold:
@@ -116,21 +117,17 @@ class PlainSCFSolver(object):
             # If requested, add the level shift to the Fock operator
             if self.level_shift > 0:
                 for i in xrange(ham.ndm):
-                    lshift = overlap.copy()
-                    lshift.idot(dms[i])
-                    lshift.idot(overlap)
                     # The normal behavior is to shift down the occupied levels.
-                    lshift.iscale(-self.level_shift)
-                    focks[i].iadd(lshift)
+                    focks[i] += -self.level_shift*get_level_shift(dms[i], overlap)
             # Diagonalize the fock operators to obtain new orbitals and
             for i in xrange(ham.ndm):
-                exps[i].from_fock(focks[i], overlap)
+                orbs[i].from_fock(focks[i], overlap)
                 # If requested, compensate for level-shift. This compensation
                 # is only correct when the SCF has converged.
                 if self.level_shift > 0:
-                    exps[i].energies[:] += self.level_shift*exps[i].occupations
+                    orbs[i].energies[:] += self.level_shift*orbs[i].occupations
             # Assign new occupation numbers.
-            occ_model.assign(*exps)
+            occ_model.assign(*orbs)
             # counter
             counter += 1
 
@@ -147,6 +144,6 @@ class PlainSCFSolver(object):
 
         return counter
 
-    def error(self, ham, lf, overlap, *exps):
+    def error(self, ham, overlap, *orbs):
         '''See :py:func:`horton.meanfield.convergence.convergence_error_eigen`.'''
-        return convergence_error_eigen(ham, lf, overlap, *exps)
+        return convergence_error_eigen(ham, overlap, *orbs)

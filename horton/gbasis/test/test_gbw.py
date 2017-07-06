@@ -29,8 +29,7 @@ def get_h2o_er():
     fn = context.get_fn('test/water.xyz')
     mol = IOData.from_file(fn)
     obasis = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
-    lf = DenseLinalgFactory(obasis.nbasis)
-    return obasis, obasis.compute_electron_repulsion(lf)._array
+    return obasis, obasis.compute_electron_repulsion()
 
 
 def test_select_2index():
@@ -58,6 +57,7 @@ def test_select_2index():
             if shell2+1 < obasis.nshell:
                 assert pend2 == obasis.basis_offsets[shell2+1], pend2
 
+
 def test_compute_diagonal():
     obasis, er = get_h2o_er()
 
@@ -66,6 +66,7 @@ def test_compute_diagonal():
     compute_diagonal(obasis, test_diag)
 
     assert np.allclose(ref_diag, test_diag)
+
 
 def test_get_2index_slice():
     obasis, er = get_h2o_er()

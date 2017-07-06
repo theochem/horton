@@ -61,7 +61,7 @@ following are defined by setting up the Hamiltonian:
 
 The following names are also used systematically:
 
-* ``exp_alpha``, ``exp_beta``: the expansion coefficient of the alpha and beta
+* ``orb_alpha``, ``orb_beta``: the expansion coefficient of the alpha and beta
   orbitals in a (local) basis.
 
 
@@ -101,16 +101,16 @@ spins.
 The guess for a restricted wavefunction is done as follows:
 
 .. literalinclude:: ../data/examples/hf_dft/rhf_water_dense.py
-    :lines: 31-35
-    :caption: data/examples/hf_dft/rhf_water_dense.py, lines 31--35
+    :lines: 28-33
+    :caption: data/examples/hf_dft/rhf_water_dense.py, lines 28--33
 
 For an unrestricted wavefunction, the procedure is very similar:
 
 .. literalinclude:: ../data/examples/hf_dft/uhf_methyl_dense.py
-    :lines: 28-33
-    :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 28--33
+    :lines: 25-30
+    :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 25--30
 
-The arguments ``exp_alpha`` and ``exp_beta`` are treated as output arguments.
+The arguments ``orb_alpha`` and ``orb_beta`` are treated as output arguments.
 Instead of ``kin`` and ``na``, you may provide just any set of one-body
 operators to construct different types of guesses.
 
@@ -118,7 +118,7 @@ operators to construct different types of guesses.
 Randomizing an initial guess
 ----------------------------
 
-The method :py:meth:`~horton.matrix.dense.DenseExpansion.rotate_random` can be
+The method :py:meth:`~horton.meanfield.orbitals.Orbitals.rotate_random` can be
 used to apply a random unitary rotation to all the orbitals (occupied and virtual).
 The orbital energies and occupation numbers are not affected. For example, after
 constructing a :ref:`user_hf_dft_core_guess`, the following line randomizes the
@@ -127,7 +127,7 @@ orbitals:
 .. code-block:: python
 
     # randomly rotate the orbitals (irrespective of occupied or virtual)
-    exp_alpha.rotate_random()
+    orb_alpha.rotate_random()
 
 
 Modifying the initial guess
@@ -137,23 +137,23 @@ If needed, you may fine-tune the initial guess by making fine-grained
 modifications to the orbitals. (These may also be useful for fixing the orbitals
 that come out of a failed SCF.)
 
-* The method :py:meth:`~horton.matrix.dense.DenseExpansion.rotate_2orbitals`
+* The method :py:meth:`~horton.meanfield.orbitals.Orbitals.rotate_2orbitals`
   allows you to mix two orbitals. By default, it rotates the HOMO and LUMO
   orbitals by 45 degrees:
 
   .. code-block:: python
 
       # Mix HOMO and LUMO orbitals
-      exp_alpha.rotate_2orbitals()
+      orb_alpha.rotate_2orbitals()
 
       # Rotate 1st and 6th orbital by 30 deg
-      exp._alpha.rotate_2orbitals(30*deg, 0, 5)
+      orb_alpha.rotate_2orbitals(30*deg, 0, 5)
 
   Note that HORTON uses radians as unit for angles, i.e. ``30*deg == np.pi/6``.
   Also, HORTON uses zero-based indices, so the arguments ``0, 5``
   refer to the first and the sixth orbital.
 
-* The method :py:meth:`~horton.matrix.dense.DenseExpansion.swap_orbitals` allows
+* The method :py:meth:`~horton.meanfield.orbitals.Orbitals.swap_orbitals` allows
   you to swap several orbitals. It takes as an argument an array where each row
   is a pair of orbitals to swap. For example, the following swaps 1st and 3rd,
   followed by a swap of 2nd and 4th:
@@ -162,7 +162,7 @@ that come out of a failed SCF.)
 
       # Swap some orbitals
       swaps = np.array([[0, 2], [1, 3]])
-      exp_alpha.swap_orbitals(swaps)
+      orb_alpha.swap_orbitals(swaps)
 
 
 Reading a guess from a file
@@ -179,7 +179,7 @@ checkpoint file, ``*.fchk``, may be loaded as follows:
     mol = IOData.from_file('water.fchk')
 
     # Print the number of alpha orbitals (occupied and virtual)
-    print mol.exp_alpha.nfn
+    print mol.orb_alpha.nfn
 
 Obviously, if you would like to use these orbitals without projecting them onto
 a new basis set (as explained in :ref:`user_hf_dft_project_basis`), you are
@@ -197,7 +197,7 @@ Assuming you have obtained (converged) orbitals in a smaller basis set, you can
 try to use these as initial guess after projecting the orbitals onto the
 larger basis set. This is exactly what the function
 :py:func:`~horton.meanfield.project.project_orbitals_mgs` does. The following
-snippet assumes that the ``obasis0`` and ``exp_alpha0`` are the small basis set
+snippet assumes that the ``obasis0`` and ``orb_alpha0`` are the small basis set
 and a set of orbitals in that basis for the ``IOData`` instance ``mol``.
 
 .. code-block:: python
@@ -205,14 +205,11 @@ and a set of orbitals in that basis for the ``IOData`` instance ``mol``.
     # Definition of the bigger basis set
     obasis1 = get_gobasis(mol.coordinates, mol.numbers, 'aug-cc-pvtz'):
 
-    # Linalg factory for the bigger basis set
-    lf1 = DenseLinalgFactory(obasis1.nbasis)
-
     # Create a expansion object for the alpha orbitals in the large basis
-    exp_alpha1 = lf1.create_expansion()
+    orb_alpha1 = Orbitals(obasis1.nbasis)
 
     # The actual projection
-    project_orbitals_msg(obasis0, obasis1, exp_alpha0, exp_alpha1)
+    project_orbitals_msg(obasis0, obasis1, orb_alpha0, orb_alpha1)
 
 
 .. _user_hf_dft_effective_ham:
@@ -343,54 +340,54 @@ repulsion energy to the total energy reported by the effective Hamiltonian.
 * Restricted Hartree-Fock:
 
   .. literalinclude:: ../data/examples/hf_dft/rhf_water_dense.py
-      :lines: 37-45
-      :caption: data/examples/hf_dft/rhf_water_dense.py, lines 37--45
+      :lines: 35-43
+      :caption: data/examples/hf_dft/rhf_water_dense.py, lines 35--43
 
 * Unrestricted Hartree-Fock:
 
   .. literalinclude:: ../data/examples/hf_dft/uhf_methyl_dense.py
-      :lines: 35-43
-      :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 35--43
+      :lines: 32-40
+      :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 32--40
 
 * Restricted Kohn-Sham DFT with the Dirac exchange and the VWN correlation
   functionals:
 
   .. literalinclude:: ../data/examples/hf_dft/rks_water_lda.py
-      :lines: 37-48
+      :lines: 35-46
       :caption: data/examples/hf_dft/rks_water_lda.py, lines 37--48
 
 * Unrestricted Kohn-Sham DFT with the PBE GGA exchange and correlation
   functionals:
 
   .. literalinclude:: ../data/examples/hf_dft/uks_methyl_gga.py
-      :lines: 38-49
-      :caption: data/examples/hf_dft/uks_methyl_gga.py, lines 38--49
+      :lines: 36-47
+      :caption: data/examples/hf_dft/uks_methyl_gga.py, lines 36--47
 
 * Restricted Kohn-Sham DFT with the Hybrid GGA functional B3LYP:
 
   .. literalinclude:: ../data/examples/hf_dft/rks_water_hybgga.py
-      :lines: 37-47
-      :caption: data/examples/hf_dft/rks_water_hybgga.py, lines 37--47
+      :lines: 35-45
+      :caption: data/examples/hf_dft/rks_water_hybgga.py, lines 35--45
 
 * Unrestricted Kohn-Sham DFT with the TPSS MGGA exchange and correlation
   functionals:
 
   .. literalinclude:: ../data/examples/hf_dft/uks_methyl_mgga.py
-      :lines: 38-49
-      :caption: data/examples/hf_dft/uks_methyl_mgga.py, lines 38--49
+      :lines: 36-47
+      :caption: data/examples/hf_dft/uks_methyl_mgga.py, lines 36--47
 
 * Restricted Kohn-Sham DFT with the Hybrid MGGA functional M05:
 
   .. literalinclude:: ../data/examples/hf_dft/rks_water_hybmgga.py
-      :lines: 37-47
-      :caption: data/examples/hf_dft/rks_water_hybgga.py, lines 37--47
+      :lines: 35-45
+      :caption: data/examples/hf_dft/rks_water_hybgga.py, lines 35--45
 
 * Unrestricted Kohn-Sham DFT with LDA exchange and correlation
   functionals and with a numerical integration of the Hartree term:
 
   .. literalinclude:: ../data/examples/hf_dft/uks_methyl_numlda.py
-      :lines: 38-49
-      :caption: data/examples/hf_dft/uks_methyl_numlda.py, lines 38--49
+      :lines: 36-47
+      :caption: data/examples/hf_dft/uks_methyl_numlda.py, lines 36--47
 
 
 .. _user_hf_dft_occupation:
@@ -475,14 +472,14 @@ these in-place.
 * Usage in the restricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/rhf_water_dense.py
-      :lines: 50-52
-      :caption: data/examples/hf_dft/rhf_water_dense.py, lines 50--52
+      :lines: 48-50
+      :caption: data/examples/hf_dft/rhf_water_dense.py, lines 48--50
 
 * Usage in the unrestricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/uhf_methyl_dense.py
-      :lines: 48-50
-      :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 48--50
+      :lines: 45-47
+      :caption: data/examples/hf_dft/uhf_methyl_dense.py, lines 45--47
 
 All other solvers start from an initial guess of the density matrix and update
 that quantity in-place. The usage pattern is as follow:
@@ -490,14 +487,14 @@ that quantity in-place. The usage pattern is as follow:
 * Usage in the restricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/rks_water_lda.py
-      :lines: 53-59
-      :caption: data/examples/hf_dft/rks_water_lda.py, lines 53--59
+      :lines: 51-57
+      :caption: data/examples/hf_dft/rks_water_lda.py, lines 51--57
 
 * Usage in the unrestricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/uks_methyl_lda.py
-      :lines: 54-61
-      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 54--61
+      :lines: 52-59
+      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 52--59
 
 All SCF solvers support the following two options:
 
@@ -532,19 +529,19 @@ convergence.
     density matrix with fractional occupations for degenerate orbitals at the
     Fermi level. The code snippets below properly handle such cases as well. For
     more details, refer to
-    :py:meth:`~horton.matrix.dense.DenseExpansion.from_fock_and_dm`.
+    :py:meth:`~horton.meanfield.orbitals.Orbitals.from_fock_and_dm`.
 
 * Usage in the restricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/rks_water_lda.py
-      :lines: 61-67
-      :caption: data/examples/hf_dft/rks_water_lda.py, lines 61--67
+      :lines: 59-65
+      :caption: data/examples/hf_dft/rks_water_lda.py, lines 59--65
 
 * Usage in the unrestricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/uks_methyl_lda.py
-      :lines: 63-71
-      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 63--71
+      :lines: 61-69
+      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 61--69
 
 
 .. _user_hf_dft_to_file:
@@ -576,14 +573,14 @@ of the object ``mol`` are already set as required for the ``.molden`` format.
 * Usage in the restricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/rks_water_lda.py
-      :lines: 69-81
-      :caption: data/examples/hf_dft/rks_water_lda.py, lines 69--81
+      :lines: 67-79
+      :caption: data/examples/hf_dft/rks_water_lda.py, lines 67--79
 
 * Usage in the unrestricted case:
 
   .. literalinclude:: ../data/examples/hf_dft/uks_methyl_lda.py
-      :lines: 73-87
-      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 73--87
+      :lines: 71-85
+      :caption: data/examples/hf_dft/uks_methyl_lda.py, lines 71--85
 
 
 .. _user_hf_dft_preparing_posthf:
@@ -623,7 +620,7 @@ this purpose. It works differently for restricted and unrestricted orbitals:
 
    .. code-block:: python
 
-       (one_mo,), (two_mo,) = transform_integrals(one, er, 'tensordot', exp_alpha)
+       (one_mo,), (two_mo,) = transform_integrals(one, er, 'tensordot', orb_alpha)
 
 
 2. In the case of unrestricted (Hartree-Fock) orbitals, there are two
@@ -631,7 +628,7 @@ this purpose. It works differently for restricted and unrestricted orbitals:
 
    .. code-block:: python
 
-       one_mo_ops, two_mo_ops = transform_integrals(one, er, 'tensordot', exp_alpha, exp_beta)
+       one_mo_ops, two_mo_ops = transform_integrals(one, er, 'tensordot', orb_alpha, orb_beta)
        one_mo_alpha, one_mo_beta = one_mo_ops
        two_mo_alpha_alpha, two_mo_alpha_beta, two_mo_beta_beta = two_mo_ops
 
@@ -662,7 +659,7 @@ It is used as follows:
 .. code-block:: python
 
      one_small, two_small, core_energy = split_core_active(one, er,
-        external['nn'], exp_alpha, ncore, nactive)
+        external['nn'], orb_alpha, ncore, nactive)
 
 
 .. _hf_dft_complete_examples:
@@ -675,7 +672,7 @@ water. It contains all the steps discussed in the previous sections.
 
 .. literalinclude:: ../data/examples/hf_dft/rhf_n2_dense.py
     :caption: data/examples/hf_dft/rhf_n2_dense.py
-    :lines: 8-103
+    :lines: 8-98
 
 The directory ``data/examples/hf_dft`` contains many more examples that use the
 different options discussed above. The following table shows which features are

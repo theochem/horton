@@ -107,10 +107,10 @@ def test_aufbau_spin():
     mol = IOData.from_file(fn_fchk)
     occ_model = AufbauSpinOccModel(3)
 
-    olp = mol.obasis.compute_overlap(mol.lf)
-    kin = mol.obasis.compute_kinetic(mol.lf)
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    olp = mol.obasis.compute_overlap()
+    kin = mol.obasis.compute_kinetic()
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    er = mol.obasis.compute_electron_repulsion()
     terms = [
         UTwoIndexTerm(kin, 'kin'),
         UDirectTerm(er, 'hartree'),
@@ -120,17 +120,17 @@ def test_aufbau_spin():
     ham = UEffHam(terms)
 
     # Construct an initial state with instable spin polarization
-    guess_core_hamiltonian(olp, kin, na, mol.exp_alpha, mol.exp_beta)
-    mol.exp_alpha.occupations[:3] = 1
-    mol.exp_beta.occupations[:] = 0
-    dms = [mol.exp_alpha.to_dm(), mol.exp_beta.to_dm()]
+    guess_core_hamiltonian(olp, kin+na, mol.orb_alpha, mol.orb_beta)
+    mol.orb_alpha.occupations[:3] = 1
+    mol.orb_beta.occupations[:] = 0
+    dms = [mol.orb_alpha.to_dm(), mol.orb_beta.to_dm()]
 
     # converge scf and check the spins
     scf_solver = ODASCFSolver(1e-6) # On some machines, 1e-8 does not work.
-    scf_solver(ham, mol.lf, olp, occ_model, *dms)
-    assert scf_solver.error(ham, mol.lf, olp, *dms) < scf_solver.threshold
-    assert abs(olp.contract_two('ab,ba', dms[0]) - 2) < 1e-10
-    assert abs(olp.contract_two('ab,ba', dms[1]) - 1) < 1e-10
+    scf_solver(ham, olp, occ_model, *dms)
+    assert scf_solver.error(ham, olp, *dms) < scf_solver.threshold
+    assert abs(np.einsum('ab,ba', olp, dms[0]) - 2) < 1e-10
+    assert abs(np.einsum('ab,ba', olp, dms[1]) - 1) < 1e-10
 
 
 
@@ -141,19 +141,16 @@ def test_check_dm():
     v2 = np.array([-v1[1], v1[0]])
     v = np.array([v1, v2]).T
 
-    lf = DenseLinalgFactory(2)
-    olp = lf.create_two_index()
-    olp._array = np.identity(2)
+    olp = np.identity(2)
 
-    op1 = lf.create_two_index()
-    op1._array = np.dot(v*[-0.1, 0.5], v.T)
+    op1 = np.dot(v*[-0.1, 0.5], v.T)
     with assert_raises(ValueError):
-        check_dm(op1, olp, lf)
-    op1._array = np.dot(v*[0.1, 1.5], v.T)
+        check_dm(op1, olp)
+    op1 = np.dot(v*[0.1, 1.5], v.T)
     with assert_raises(ValueError):
-        check_dm(op1, olp, lf)
-    op1._array = np.dot(v*[-0.1, 1.5], v.T)
+        check_dm(op1, olp)
+    op1 = np.dot(v*[-0.1, 1.5], v.T)
     with assert_raises(ValueError):
-        check_dm(op1, olp, lf)
-    op1._array = np.dot(v*[0.1, 0.5], v.T)
-    check_dm(op1, olp, lf)
+        check_dm(op1, olp)
+    op1 = np.dot(v*[0.1, 0.5], v.T)
+    check_dm(op1, olp)

@@ -27,8 +27,6 @@ from nose.plugins.attrib import attr
 
 from horton import *  # pylint: disable=wildcard-import, unused-wildcard-import
 
-from horton.test.common import compare_operators
-
 
 def test_shell_nbasis():
     assert get_shell_nbasis(-3) == 7
@@ -154,7 +152,7 @@ def test_grid_lih_321g_hf_density_some_points():
 
     # check density matrix value
     dm_full = mol.get_dm_full()
-    assert abs(dm_full._array[0,0] - 1.96589709) < 1e-7
+    assert abs(dm_full[0,0] - 1.96589709) < 1e-7
 
     points = ref[:,:3].copy()
     rhos = mol.obasis.compute_grid_density_dm(dm_full, points)
@@ -286,7 +284,7 @@ def test_grid_lih_321g_hf_orbital_gradient_some_points():
     ])
     mol = IOData.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
     orbs = np.arange(mol.obasis.nbasis)
-    test = np.array(mol.obasis.compute_grid_orb_gradient_exp(mol.exp_alpha, points, orbs))
+    test = np.array(mol.obasis.compute_grid_orb_gradient_exp(mol.orb_alpha, points, orbs))
 
     np.testing.assert_almost_equal(test, ref, decimal=7)
 
@@ -383,15 +381,13 @@ def test_grid_two_index_ne():
     dist0 = np.sqrt(((grid.points - mol.coordinates[0])**2).sum(axis=1))
     dist1 = np.sqrt(((grid.points - mol.coordinates[1])**2).sum(axis=1))
     pot = -mol.numbers[0]/dist0 - mol.numbers[1]/dist1
-    na_ana = mol.lf.create_two_index()
-    mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, na_ana)
-    na_grid = mol.lf.create_two_index()
-    mol.obasis.compute_grid_density_fock(grid.points, grid.weights, pot, na_grid)
+    na_ana = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    na_grid = mol.obasis.compute_grid_density_fock(grid.points, grid.weights, pot)
     # compare grid-based operator with analytical result
-    assert abs(na_grid._array).max() > 8.0
-    assert abs(na_ana._array-na_grid._array).max() < 2e-3
+    assert abs(na_grid).max() > 8.0
+    assert abs(na_ana - na_grid).max() < 2e-3
     # check symmetry
-    assert na_grid.is_symmetric()
+    np.testing.assert_almost_equal(na_grid, na_grid.T)
 
 
 def test_gob_normalization():
@@ -416,19 +412,13 @@ def test_cart_pure_switch():
     assert obasis.nbasis == 43
 
 
-def get_olp(ob):
-    lf = DenseLinalgFactory(ob.nbasis)
-    olp = lf.create_two_index()
-    ob.compute_overlap(olp)
-    return olp._array
-
 def test_concatenate1():
     mol = IOData.from_file(context.get_fn('test/water.xyz'))
     obtmp = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
     ob = GOBasis.concatenate(obtmp, obtmp)
     assert ob.ncenter == 3*2
     assert ob.nbasis == 13*2
-    a = get_olp(ob)
+    a = ob.compute_overlap()
     assert abs(a[:13,:13] - a[:13,13:]).max() < 1e-15
     assert (a[:13,:13] == a[13:,13:]).all()
     assert abs(a[:13,:13] - a[13:,:13]).max() < 1e-15
@@ -442,9 +432,9 @@ def test_concatenate2():
     assert obasis.ncenter == 3*2
     assert obasis.nbasis == obasis1.nbasis + obasis2.nbasis
 
-    a = get_olp(obasis)
-    a11 = get_olp(obasis1)
-    a22 = get_olp(obasis2)
+    a = obasis.compute_overlap()
+    a11 = obasis1.compute_overlap()
+    a22 = obasis2.compute_overlap()
     N = obasis1.nbasis
     assert (a[:N,:N] == a11).all()
     assert (a[N:,N:] == a22).all()
@@ -496,53 +486,13 @@ def test_gobasis_desc_index_map():
     assert (obasis.nprims[3:] == [3, 1, 1, 1, 1, 1, 1, 1, 1, 1]).all()
 
 
-def test_gobasis_output_args_overlap():
-    mol = IOData.from_file(context.get_fn('test/water.xyz'))
-    obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
-    lf = DenseLinalgFactory(obasis.nbasis)
-    olp1 = lf.create_two_index(obasis.nbasis)
-    obasis.compute_overlap(olp1)
-    olp2 = obasis.compute_overlap(lf)
-    compare_operators(olp1, olp2)
-
-
-def test_gobasis_output_args_kinetic():
-    mol = IOData.from_file(context.get_fn('test/water.xyz'))
-    obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
-    lf = DenseLinalgFactory(obasis.nbasis)
-    kin1 = lf.create_two_index(obasis.nbasis)
-    obasis.compute_kinetic(kin1)
-    kin2 = obasis.compute_kinetic(lf)
-    compare_operators(kin1, kin2)
-
-
-def test_gobasis_output_args_nuclear_attraction():
-    mol = IOData.from_file(context.get_fn('test/water.xyz'))
-    obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
-    lf = DenseLinalgFactory(obasis.nbasis)
-    nai1 = lf.create_two_index(obasis.nbasis)
-    obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, nai1)
-    nai2 = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-    compare_operators(nai1, nai2)
-
-
-def test_gobasis_output_args_electron_repulsion():
-    mol = IOData.from_file(context.get_fn('test/water.xyz'))
-    obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21g')
-    lf = DenseLinalgFactory(obasis.nbasis)
-    er1 = lf.create_four_index(obasis.nbasis)
-    obasis.compute_electron_repulsion(er1)
-    er2 = obasis.compute_electron_repulsion(lf)
-    compare_operators(er1, er2)
-
-
 def test_gobasis_output_args_grid_orbitals_exp():
     mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
     points = np.random.uniform(-5, 5, (100, 3))
     iorbs = np.array([2, 3])
     orbs1 = np.zeros((100, 2), float)
-    mol.obasis.compute_grid_orbitals_exp(mol.exp_alpha, points, iorbs, orbs1)
-    orbs2 = mol.obasis.compute_grid_orbitals_exp(mol.exp_alpha, points, iorbs)
+    mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha, points, iorbs, orbs1)
+    orbs2 = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha, points, iorbs)
     assert (orbs1 == orbs2).all()
 
 
@@ -659,12 +609,9 @@ def check_normalization(number, basis):
     # Create a Gaussian basis set
     obasis = get_gobasis(mol.coordinates, mol.numbers, basis)
 
-    # Create a linalg factory
-    lf = DenseLinalgFactory(obasis.nbasis)
-
     # Compute Gaussian integrals
-    olp = obasis.compute_overlap(lf)
-    np.testing.assert_almost_equal(np.diag(olp._array), 1.0)
+    olp = obasis.compute_overlap()
+    np.testing.assert_almost_equal(np.diag(olp), 1.0)
 
 
 def test_normalization_ccpvdz():

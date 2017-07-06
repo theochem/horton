@@ -25,8 +25,9 @@ import numpy as np
 
 from horton.log import log, timer
 from horton.exceptions import NoSCFConvergence
-from horton.meanfield.utils import compute_commutator, check_dm
 from horton.meanfield.convergence import convergence_error_commutator
+from horton.meanfield.utils import compute_commutator, check_dm
+from horton.meanfield.orbitals import Orbitals
 
 
 __all__ = []
@@ -69,18 +70,21 @@ class DIISSCFSolver(object):
         self.nvector = nvector
         self.skip_energy = skip_energy
         self.prune_old_states = prune_old_states
+        # Attributs where local variables of the __call__ method are stored:
+        self._history = None
+        self._focks = []
+        self._orbs = []
+        self.commutator = None
+
 
     @timer.with_section('SCF')
-    def __call__(self, ham, lf, overlap, occ_model, *dms):
+    def __call__(self, ham, overlap, occ_model, *dms):
         '''Find a self-consistent set of density matrices.
 
            **Arguments:**
 
            ham
                 An effective Hamiltonian.
-
-           lf
-                The linalg factory to be used.
 
            overlap
                 The overlap operator.
@@ -98,13 +102,13 @@ class DIISSCFSolver(object):
 
         # Check input density matrices.
         for i in xrange(ham.ndm):
-            check_dm(dms[i], overlap, lf)
+            check_dm(dms[i], overlap)
         occ_model.check_dms(overlap, *dms)
 
         # keep local variables as attributes for inspection/debugging by caller
-        self._history = self.DIISHistoryClass(lf, self.nvector, ham.ndm, ham.deriv_scale, overlap)
-        self._focks = [lf.create_two_index() for i in xrange(ham.ndm)]
-        self._exps = [lf.create_expansion() for i in xrange(ham.ndm)]
+        self._history = self.DIISHistoryClass(self.nvector, ham.ndm, ham.deriv_scale, overlap)
+        self._focks = [np.zeros(overlap.shape) for i in xrange(ham.ndm)]
+        self._orbs = [Orbitals(overlap.shape[0]) for i in xrange(ham.ndm)]
 
         if log.do_medium:
             log('Starting restricted closed-shell %s-SCF' % self._history.name)
@@ -150,10 +154,10 @@ class DIISSCFSolver(object):
             # Take a regular SCF step using the current fock matrix. Then
             # construct a new density matrix and fock matrix.
             for i in xrange(ham.ndm):
-                self._exps[i].from_fock(self._focks[i], overlap)
-            occ_model.assign(*self._exps)
+                self._orbs[i].from_fock(self._focks[i], overlap)
+            occ_model.assign(*self._orbs)
             for i in xrange(ham.ndm):
-                self._exps[i].to_dm(dms[i])
+                dms[i][:] = self._orbs[i].to_dm()
             ham.reset(*dms)
             energy = ham.compute_energy() if self._history.need_energy else None
             ham.compute_fock(*self._focks)
@@ -279,33 +283,24 @@ class DIISSCFSolver(object):
 class DIISState(object):
     '''A single record (vector) in a DIIS history object.'''
 
-    def __init__(self, lf, ndm, work, overlap):
+    def __init__(self, ndm, overlap):
         '''
            **Arguments:**
-
-           lf
-                The LinalgFactor used to create the two-index operators.
 
            ndm
                 The number of density matrices (and fock matrices) in one
                 state.
-
-           work
-                A two index operator to be used as a temporary variable. This
-                object is allocated by the history object.
-
            overlap
                 The overlap matrix.
         '''
         # Not all of these need to be used.
         self.ndm = ndm
-        self.work = work
         self.overlap = overlap
         self.energy = np.nan
         self.normsq = np.nan
-        self.dms = [lf.create_two_index() for i in xrange(self.ndm)]
-        self.focks = [lf.create_two_index() for i in xrange(self.ndm)]
-        self.commutators = [lf.create_two_index() for i in xrange(self.ndm)]
+        self.dms = [np.zeros(overlap.shape) for i in xrange(self.ndm)]
+        self.focks = [np.zeros(overlap.shape) for i in xrange(self.ndm)]
+        self.commutators = [np.zeros(overlap.shape) for i in xrange(self.ndm)]
         self.identity = None # every state has a different id.
 
     def clear(self):
@@ -313,9 +308,9 @@ class DIISState(object):
         self.energy = np.nan
         self.normsq = np.nan
         for i in xrange(self.ndm):
-            self.dms[i].clear()
-            self.focks[i].clear()
-            self.commutators[i].clear()
+            self.dms[i][:] = 0.0
+            self.focks[i][:] = 0.0
+            self.commutators[i][:] = 0.0
 
     def assign(self, identity, energy, dms, focks):
         '''Assign a new state.
@@ -338,10 +333,10 @@ class DIISState(object):
         self.energy = energy
         self.normsq = 0.0
         for i in xrange(self.ndm):
-            self.dms[i].assign(dms[i])
-            self.focks[i].assign(focks[i])
-            compute_commutator(dms[i], focks[i], self.overlap, self.work, self.commutators[i])
-            self.normsq += self.commutators[i].contract_two('ab,ab', self.commutators[i])
+            self.dms[i][:] = dms[i]
+            self.focks[i][:] = focks[i]
+            self.commutators[i][:] = compute_commutator(dms[i], focks[i], self.overlap)
+            self.normsq += np.einsum('ab,ab', self.commutators[i], self.commutators[i])
 
 
 class DIISHistory(object):
@@ -349,12 +344,9 @@ class DIISHistory(object):
     name = None
     need_energy = None
 
-    def __init__(self, lf, nvector, ndm, deriv_scale, overlap, dots_matrices):
+    def __init__(self, nvector, ndm, deriv_scale, overlap, dots_matrices):
         '''
            **Arguments:**
-
-           lf
-                The LinalgFactor used to create the two-index operators.
 
            nvector
                 The maximum size of the history.
@@ -377,15 +369,13 @@ class DIISHistory(object):
            used
                 The actual number of vectors in the history.
         '''
-        self.work = lf.create_two_index()
-        self.stack = [DIISState(lf, ndm, self.work, overlap) for i in xrange(nvector)]
+        self.stack = [DIISState(ndm, overlap) for i in xrange(nvector)]
         self.ndm = ndm
         self.deriv_scale = deriv_scale
         self.overlap = overlap
         self.dots_matrices = dots_matrices
         self.nused = 0
         self.idcounter = 0
-        self.commutator = lf.create_two_index()
 
     def _get_nvector(self):
         '''The maximum size of the history'''
@@ -498,8 +488,8 @@ class DIISHistory(object):
         if not (dms_output is None or focks_output is None):
             errorsq = 0.0
             for i in xrange(self.ndm):
-                compute_commutator(dms_output[i], focks_output[i], self.overlap, self.work, self.commutator)
-                errorsq += self.commutator.contract_two('ab,ab', self.commutator)
+                self.commutator = compute_commutator(dms_output[i], focks_output[i], self.overlap)
+                errorsq += np.einsum('ab,ab', self.commutator, self.commutator)
             return errorsq**0.5
 
     def _linear_combination(self, coeffs, ops, output):
@@ -516,6 +506,6 @@ class DIISHistory(object):
            output
                 The output operator.
         '''
-        output.clear()
+        output[:] = 0
         for i in xrange(self.nused):
-            output.iadd(ops[i], factor=coeffs[i])
+            output += coeffs[i]*ops[i]

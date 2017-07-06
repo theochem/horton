@@ -20,21 +20,23 @@
 # --
 
 
+import numpy as np
+
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 def check_spin(fn_fchk, sz0, ssq0, eps):
     path_fchk = context.get_fn('test/%s' % fn_fchk)
     mol = IOData.from_file(path_fchk)
-    olp = mol.obasis.compute_overlap(mol.lf)
-    if hasattr(mol, 'exp_beta'):
-        sz, ssq = get_spin(mol.exp_alpha, mol.exp_beta, olp)
+    olp = mol.obasis.compute_overlap()
+    if hasattr(mol, 'orb_beta'):
+        sz, ssq = get_spin(mol.orb_alpha, mol.orb_beta, olp)
         assert abs(sz - sz0) < eps
         assert abs(ssq - ssq0) < eps
-        sz, ssq = get_spin(mol.exp_beta, mol.exp_alpha, olp)
+        sz, ssq = get_spin(mol.orb_beta, mol.orb_alpha, olp)
         assert abs(sz + sz0) < eps
         assert abs(ssq - ssq0) < eps
-    sz, ssq = get_spin(mol.exp_alpha, mol.exp_alpha, olp)
+    sz, ssq = get_spin(mol.orb_alpha, mol.orb_alpha, olp)
     assert abs(sz) < eps
     assert abs(ssq) < eps
 
@@ -61,10 +63,10 @@ def test_spin_water_hf():
 
 def check_homo_lumo(fn_fchk, homo_energy0, lumo_energy0, eps=1e-8):
     mol = IOData.from_file(context.get_fn('test/%s' % fn_fchk))
-    exps = [mol.exp_alpha]
-    if hasattr(mol, 'exp_beta'):
-        exps.append(mol.exp_beta)
-    homo_energy, lumo_energy = get_homo_lumo(*exps)
+    orbs = [mol.orb_alpha]
+    if hasattr(mol, 'orb_beta'):
+        orbs.append(mol.orb_beta)
+    homo_energy, lumo_energy = get_homo_lumo(*orbs)
     assert abs(homo_energy - homo_energy0) < eps
     if lumo_energy0 is None:
         assert lumo_energy is None
@@ -91,9 +93,9 @@ def test_homo_lumo_he():
 def test_level_shift():
     fn_fchk = context.get_fn('test/helium_hf_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)
-    overlap = mol.obasis.compute_overlap(mol.lf)
-    dm_alpha1 = mol.exp_alpha.to_dm()
+    overlap = mol.obasis.compute_overlap()
+    dm_alpha1 = mol.orb_alpha.to_dm()
     ls_alpha = get_level_shift(dm_alpha1, overlap)
-    mol.exp_alpha.from_fock(ls_alpha, overlap)
-    dm_alpha2 = mol.exp_alpha.to_dm()
-    assert abs(dm_alpha1._array - dm_alpha2._array) < 1e-5
+    mol.orb_alpha.from_fock(ls_alpha, overlap)
+    dm_alpha2 = mol.orb_alpha.to_dm()
+    np.testing.assert_allclose(dm_alpha1, dm_alpha2)

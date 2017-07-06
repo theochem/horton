@@ -20,6 +20,9 @@
 # --
 """Base classes for energy terms and other observables of the wavefunction"""
 
+
+import numpy as np
+
 from horton.utils import doc_inherit
 
 
@@ -49,10 +52,10 @@ def compute_dm_full(cache, prefix='', tags=None):
     """
     dm_alpha = cache['%sdm_alpha' % prefix]
     dm_beta = cache['%sdm_beta' % prefix]
-    dm_full, new = cache.load('%sdm_full' % prefix, alloc=dm_alpha.new, tags=tags)
+    dm_full, new = cache.load('%sdm_full' % prefix, alloc=dm_alpha.shape, tags=tags)
     if new:
-        dm_full.assign(dm_alpha)
-        dm_full.iadd(dm_beta)
+        dm_full[:] = dm_alpha
+        dm_full += dm_beta
     return dm_full
 
 
@@ -91,7 +94,7 @@ class Observable(object):
         ----------
         cache : Cache
             Used to store intermediate results that can be reused or inspected later.
-        fock1, fock2, ... : TwoIndex
+        fock1, fock2, ... : np.ndarray, shape=(nbasis, nbasis)
             A list of output Fock operators. The caller is responsible for setting these
             operators initially to zero (if desired).
         """
@@ -110,7 +113,7 @@ class Observable(object):
             A cache object used to store intermediate results that can be reused or
             inspected later. All results specific for the detla_dm are stored with the tag
             'd' in the cache object.
-        output1, output2, ... : TwoIndex
+        output1, output2, ... : np.ndarray, shape=(nbasis, nbasis)
             Output objects, to which contributions from the dot product of the Hessian
             with the delta density matrices is added.
         """
@@ -125,7 +128,7 @@ class RTwoIndexTerm(Observable):
 
         Parameters
         ----------
-        op_alpha : TwoIndex
+        op_alpha : np.ndarray, shape=(nbasis, nbasis)
             Expansion of one-body operator in basis of alpha orbitals. Same is used for
             beta.
         label : str
@@ -136,11 +139,11 @@ class RTwoIndexTerm(Observable):
 
     @doc_inherit(Observable)
     def compute_energy(self, cache):
-        return 2 * self.op_alpha.contract_two('ab,ab', cache['dm_alpha'])
+        return 2 * np.einsum('ab,ba', self.op_alpha, cache['dm_alpha'])
 
     @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha):
-        fock_alpha.iadd(self.op_alpha)
+        fock_alpha += self.op_alpha
 
     @doc_inherit(Observable)
     def add_dot_hessian(self, cache, output_alpha):
@@ -155,11 +158,11 @@ class UTwoIndexTerm(Observable):
 
         Parameters
         ----------
-        op_alpha : TwoIndex
+        op_alpha : np.ndarray, shape=(nbasis, nbasis)
             Expansion of one-body operator in basis of alpha orbitals.
         label : str
             A short string to identify the observable.
-        op_beta : TwoIndex
+        op_beta : np.ndarray, shape=(nbasis, nbasis)
             Expansion of one-body operator in basis of beta orbitals. When not given,
             op_alpha is used.
         """
@@ -173,21 +176,42 @@ class UTwoIndexTerm(Observable):
             # when both operators are references to the same object, take a
             # shortcut
             compute_dm_full(cache)
-            return self.op_alpha.contract_two('ab,ab', cache['dm_full'])
+            return np.einsum('ab,ba', self.op_alpha, cache['dm_full'])
         else:
             # If the operator is different for different spins, do the normal
             # thing.
-            return self.op_alpha.contract_two('ab,ab', cache['dm_alpha']) + \
-                   self.op_beta.contract_two('ab,ab', cache['dm_beta'])
+            return np.einsum('ab,ba', self.op_alpha, cache['dm_alpha']) + \
+                   np.einsum('ab,ba', self.op_beta, cache['dm_beta'])
 
     @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha, fock_beta):
-        fock_alpha.iadd(self.op_alpha)
-        fock_beta.iadd(self.op_beta)
+        fock_alpha += self.op_alpha
+        fock_beta += self.op_beta
 
     @doc_inherit(Observable)
     def add_dot_hessian(self, cache, output_alpha, output_beta):
         pass
+
+
+def contract_direct(op, dm):
+    """Perform an direct-type contraction with a four-index operator.
+
+    Parameters
+    ----------
+    op : np.ndarray, shape=(nvec, nbasis, nbasis) or
+        The four-index operator or its Cholesky decomposition
+    dm : np.ndarray, shape=(nbasis, nbasis)
+        The density matrix
+    """
+    if op.ndim == 3:
+        # Cholesky decomposition
+        tmp = np.tensordot(op, dm, axes=([(1,2),(1,0)]))
+        return np.tensordot(op, tmp, [0,0])
+    elif op.ndim == 4:
+        # Normal case
+        return np.einsum('abcd,bd->ac', op, dm)
+    else:
+        raise NotImplementedError
 
 
 class RDirectTerm(Observable):
@@ -198,9 +222,9 @@ class RDirectTerm(Observable):
 
         Parameters
         ----------
-        op_alpha : FourIndex
+        op_alpha
             Expansion of two-body operator in basis of alpha orbitals. Same is used for
-            beta orbitals.
+            beta orbitals. Also a Cholesky decomposition of the operator is supported.
         label : str
             A short string to identify the observable.
         """
@@ -216,28 +240,27 @@ class RDirectTerm(Observable):
             Used to store intermediate results that can be reused or inspected later.
         """
         dm_alpha = cache['dm_alpha']
-        direct, new = cache.load('op_%s_alpha' % self.label, alloc=dm_alpha.new)
+        direct, new = cache.load('op_%s_alpha' % self.label, alloc=dm_alpha.shape)
         if new:
-            self.op_alpha.contract_two_to_two('abcd,bd->ac', dm_alpha, direct)
-            direct.iscale(2) # contribution from beta electrons is identical
+            direct[:] = contract_direct(self.op_alpha, dm_alpha)
+            direct *= 2  # contribution from beta electrons is identical
 
     @doc_inherit(Observable)
     def compute_energy(self, cache):
         self._update_direct(cache)
         direct = cache.load('op_%s_alpha' % self.label)
-        return direct.contract_two('ab,ab', cache['dm_alpha'])
+        return np.einsum('ab,ba', direct, cache['dm_alpha'])
 
     @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha):
         self._update_direct(cache)
         direct = cache.load('op_%s_alpha' % self.label)
-        fock_alpha.iadd(direct)
+        fock_alpha += direct
 
     @doc_inherit(Observable)
     def add_dot_hessian(self, cache, output_alpha):
         delta_dm_alpha = cache.load('delta_dm_alpha')
-        self.op_alpha.contract_two_to_two('abcd,bd->ac', delta_dm_alpha, output_alpha,
-                                          clear=False)
+        output_alpha += contract_direct(self.op_alpha, delta_dm_alpha)
 
 
 class UDirectTerm(Observable):
@@ -248,13 +271,14 @@ class UDirectTerm(Observable):
 
         Parameters
         ----------
-        op_alpha : FourIndex
-            Expansion of two-body operator in basis of alpha orbitals.
+        op_alpha
+            Expansion of two-body operator in basis of alpha orbitals. Also a Cholesky
+            decomposition of the operator is supported.
         label : str
             A short string to identify the observable.
-        op_beta : FourIndex
+        op_beta
             Expansion of two-body operator in basis of beta orbitals. When not given,
-            op_alpha is used.
+            op_alpha is used. Also a Cholesky decomposition of the operator is supported.
         """
         self.op_alpha = op_alpha
         self.op_beta = op_alpha if op_beta is None else op_beta
@@ -271,9 +295,9 @@ class UDirectTerm(Observable):
         if self.op_alpha is self.op_beta:
             # This branch is nearly always going to be followed in practice.
             dm_full = compute_dm_full(cache)
-            direct, new = cache.load('op_%s' % self.label, alloc=dm_full.new)
+            direct, new = cache.load('op_%s' % self.label, alloc=dm_full.shape)
             if new:
-                self.op_alpha.contract_two_to_two('abcd,bd->ac', dm_full, direct)
+                direct[:] = contract_direct(self.op_alpha, dm_full)
         else:
             # This is probably never going to happen. In case it does, please
             # add the proper code here.
@@ -286,7 +310,7 @@ class UDirectTerm(Observable):
             # This branch is nearly always going to be followed in practice.
             direct = cache['op_%s' % self.label]
             dm_full = cache['dm_full']
-            return 0.5 * direct.contract_two('ab,ab', dm_full)
+            return 0.5 * np.einsum('ab,ab', direct, dm_full)
         else:
             # This is probably never going to happen. In case it does, please
             # add the proper code here.
@@ -298,8 +322,8 @@ class UDirectTerm(Observable):
         if self.op_alpha is self.op_beta:
             # This branch is nearly always going to be followed in practice.
             direct = cache['op_%s' % self.label]
-            fock_alpha.iadd(direct)
-            fock_beta.iadd(direct)
+            fock_alpha += direct
+            fock_beta += direct
         else:
             # This is probably never going to happen. In case it does, please
             # add the proper code here.
@@ -309,14 +333,32 @@ class UDirectTerm(Observable):
     def add_dot_hessian(self, cache, output_alpha, output_beta):
         if self.op_alpha is self.op_beta:
             delta_dm_full = compute_dm_full(cache, prefix='delta_', tags='d')
-            self.op_alpha.contract_two_to_two('abcd,bd->ac', delta_dm_full, output_alpha,
-                                              factor=1.0, clear=False)
-            self.op_alpha.contract_two_to_two('abcd,bd->ac', delta_dm_full, output_beta,
-                                              factor=1.0, clear=False)
+            output_alpha += contract_direct(self.op_alpha, delta_dm_full)
+            output_beta += contract_direct(self.op_alpha, delta_dm_full)
         else:
             # This is probably never going to happen. In case it does, please
             # add the proper code here.
             raise NotImplementedError
+
+
+def contract_exchange(op, dm):
+    """Perform an exchange-type contraction with a four-index operator.
+
+    Parameters
+    ----------
+    op : np.ndarray, shape=(nvec, nbasis, nbasis) or
+        The four-index operator or its Cholesky decomposition
+    dm : np.ndarray, shape=(nbasis, nbasis)
+        The density matrix
+    """
+    if op.ndim == 3:
+        # Cholesky decomposition
+        tmp = np.tensordot(op, dm, axes=([1,1]))
+        return np.tensordot(op, tmp, ([0,2],[0,2]))
+    elif op.ndim == 4:
+        return np.einsum('abcd,cb->ad', op, dm)
+    else:
+        raise NotImplementedError
 
 
 class RExchangeTerm(Observable):
@@ -327,9 +369,9 @@ class RExchangeTerm(Observable):
 
         Parameters
         ----------
-        op_alpha : FourIndex
+        op_alpha
             Expansion of two-body operator in basis of alpha orbitals. Same is used for
-            beta orbitals.
+            beta orbitals. Also a Cholesky decomposition of the operator is supported.
         fraction : float
             Amount of exchange to be included (1.0 corresponds to 100%).
         label : str
@@ -349,28 +391,27 @@ class RExchangeTerm(Observable):
         """
         dm_alpha = cache['dm_alpha']
         exchange_alpha, new = cache.load('op_%s_alpha' % self.label,
-                                         alloc=dm_alpha.new)
+                                         alloc=dm_alpha.shape)
         if new:
-            self.op_alpha.contract_two_to_two('abcd,cb->ad', dm_alpha, exchange_alpha)
+            exchange_alpha[:] = contract_exchange(self.op_alpha, dm_alpha)
 
     @doc_inherit(Observable)
     def compute_energy(self, cache):
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
         dm_alpha = cache['dm_alpha']
-        return -self.fraction * exchange_alpha.contract_two('ab,ab', dm_alpha)
+        return -self.fraction * np.einsum('ab,ba', exchange_alpha, dm_alpha)
 
     @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha):
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
-        fock_alpha.iadd(exchange_alpha, -self.fraction)
+        fock_alpha -= self.fraction*exchange_alpha
 
     @doc_inherit(Observable)
     def add_dot_hessian(self, cache, output_alpha):
         delta_dm_alpha = cache.load('delta_dm_alpha')
-        self.op_alpha.contract_two_to_two('abcd,cb->ad', delta_dm_alpha, output_alpha,
-                                          factor=-0.5*self.fraction, clear=False)
+        output_alpha -= (0.5*self.fraction)*contract_exchange(self.op_alpha, delta_dm_alpha)
 
 
 class UExchangeTerm(Observable):
@@ -381,15 +422,16 @@ class UExchangeTerm(Observable):
 
         Parameters
         ----------
-        op_alpha : FourIndex
-            Expansion of two-body operator in basis of alpha orbitals.
+        op_alpha
+            Expansion of two-body operator in basis of alpha orbitals. Also a Cholesky
+            decomposition of the operator is supported.
         label : str
             A short string to identify the observable.
         fraction : float
             Amount of exchange to be included (1.0 corresponds to 100%).
-        op_beta : FourIndex
+        op_beta
             Expansion of two-body operator in basis of beta orbitals. When not given,
-            op_alpha is used.
+            op_alpha is used. Also a Cholesky decomposition of the operator is supported.
         """
         self.op_alpha = op_alpha
         self.op_beta = op_alpha if op_beta is None else op_beta
@@ -407,15 +449,15 @@ class UExchangeTerm(Observable):
         # alpha
         dm_alpha = cache['dm_alpha']
         exchange_alpha, new = cache.load('op_%s_alpha' % self.label,
-                                         alloc=dm_alpha.new)
+                                         alloc=dm_alpha.shape)
         if new:
-            self.op_alpha.contract_two_to_two('abcd,cb->ad', dm_alpha, exchange_alpha)
+            exchange_alpha[:] = contract_exchange(self.op_alpha, dm_alpha)
         # beta
         dm_beta = cache['dm_beta']
         exchange_beta, new = cache.load('op_%s_beta' % self.label,
-                                         alloc=dm_beta.new)
+                                         alloc=dm_beta.shape)
         if new:
-            self.op_beta.contract_two_to_two('abcd,cb->ad', dm_beta, exchange_beta)
+            exchange_beta[:] = contract_exchange(self.op_beta, dm_beta)
 
     @doc_inherit(Observable)
     def compute_energy(self, cache):
@@ -424,22 +466,20 @@ class UExchangeTerm(Observable):
         exchange_beta = cache['op_%s_beta' % self.label]
         dm_alpha = cache['dm_alpha']
         dm_beta = cache['dm_beta']
-        return -0.5 * self.fraction * exchange_alpha.contract_two('ab,ab', dm_alpha) \
-               -0.5 * self.fraction * exchange_beta.contract_two('ab,ab', dm_beta)
+        return (-0.5*self.fraction)*np.einsum('ab,ba', exchange_alpha, dm_alpha) + \
+               (-0.5*self.fraction)*np.einsum('ab,ba', exchange_beta, dm_beta)
 
     @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha, fock_beta):
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
-        fock_alpha.iadd(exchange_alpha, -self.fraction)
+        fock_alpha -= self.fraction*exchange_alpha
         exchange_beta = cache['op_%s_beta' % self.label]
-        fock_beta.iadd(exchange_beta, -self.fraction)
+        fock_beta -= self.fraction*exchange_beta
 
     @doc_inherit(Observable)
     def add_dot_hessian(self, cache, output_alpha, output_beta):
         delta_dm_alpha = cache.load('delta_dm_alpha')
-        self.op_alpha.contract_two_to_two('abcd,cb->ad', delta_dm_alpha, output_alpha,
-                                          factor=-self.fraction, clear=False)
+        output_alpha -= self.fraction*contract_exchange(self.op_alpha, delta_dm_alpha)
         delta_dm_beta = cache.load('delta_dm_beta')
-        self.op_beta.contract_two_to_two('abcd,cb->ad', delta_dm_beta, output_beta,
-                                         factor=-self.fraction, clear=False)
+        output_beta -= self.fraction*contract_exchange(self.op_beta, delta_dm_beta)

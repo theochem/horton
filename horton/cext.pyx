@@ -426,35 +426,32 @@ def fill_radial_polynomials(np.ndarray[double, ndim=1] output not None, long lma
 #
 
 
-def compute_grid_nucpot(np.ndarray[double, ndim=2] coordinates not None,
-                        np.ndarray[double, ndim=1] charges not None,
-                        np.ndarray[double, ndim=2] points not None,
-                        np.ndarray[double, ndim=1] output not None):
+def compute_grid_nucpot(double[:, ::1] coordinates not None,
+                        double[::1] charges not None,
+                        double[:, ::1] points not None,
+                        double[::1] output not None):
     '''Compute the potential due to a set of (nuclear) point charges
 
-       coordinates
-            A (N, 3) float numpy array with Cartesian coordinates of the
-            atoms.
-
-       charges
-            A (N,) numpy vector with the atomic charges.
-
-       points
-            An (M, 3) array with grid points where the potential must be
-            computed.
-
-       output
-            An (M,) output array in which the potential is stored.
+    Parameters
+    ----------
+    coordinates
+        A (N, 3) float numpy array with Cartesian coordinates of the
+        atoms.
+    charges
+        A (N,) numpy vector with the atomic charges.
+    points
+        An (M, 3) array with grid points where the potential must be
+        computed.
+    output
+        An (M,) output array in which the potential is stored.
     '''
     # type checking
-    assert coordinates.flags['C_CONTIGUOUS']
-    assert charges.flags['C_CONTIGUOUS']
-    ncharge, coordinates, charges = typecheck_geo(coordinates, None, charges, need_numbers=False)
-    assert output.flags['C_CONTIGUOUS']
-    cdef long npoint = output.shape[0]
-    assert points.flags['C_CONTIGUOUS']
-    assert points.shape[0] == npoint
+    assert coordinates.shape[1] == 3
+    ncharge = coordinates.shape[0]
+    assert charges.shape[0] == ncharge
     assert points.shape[1] == 3
+    npoint = points.shape[0]
+    assert output.shape[0] == npoint
     # actual computation
     nucpot.compute_grid_nucpot(
         &coordinates[0,0], &charges[0], ncharge,

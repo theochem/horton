@@ -58,26 +58,23 @@ def check_functional_deriv(fn, comp, dm_method, fock_method):
 
     def fun(x):
         """Compute the grid properties from a density matrix."""
-        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
+        dm_full[:] = x.reshape(obasis.nbasis, -1)
         f = dm_method(obasis, dm_full, grid.points)
         f = f.reshape((grid.size, -1))
         return 0.5*grid.integrate(f[:, comp], f[:, comp])
 
     def fun_deriv(x):
         """Compute a Fock matrix from potential data on a grid."""
-        dm_full._array[:] = x.reshape(obasis.nbasis, -1)
-        result = dm_full.new()
+        dm_full[:] = x.reshape(obasis.nbasis, -1)
         tmp = dm_method(obasis, dm_full, grid.points)
-        orig_shape = tmp.shape
-        tmp = tmp.reshape((grid.size, -1))
-        tmp[:, :comp] = 0.0
-        tmp[:, comp+1:] = 0.0
-        tmp.shape = orig_shape
-        fock_method(obasis, grid.points, grid.weights, tmp, result)
-        return result._array.ravel()
+        if tmp.ndim > 1:
+            tmp[:, :comp] = 0.0
+            tmp[:, comp+1:] = 0.0
+        fock = fock_method(obasis, grid.points, grid.weights, tmp)
+        return fock.ravel()
 
     eps = 1e-4
-    x = dm_full._array.copy().ravel()
+    x = dm_full.copy().ravel()
     dxs = []
     for _irep in xrange(100):
         tmp = np.random.uniform(-eps, +eps, x.shape)*x
@@ -414,21 +411,21 @@ def check_orbitals(mol):
     ])
 
     # just the standard usage (alpha)
-    aiorbs = (mol.exp_alpha.occupations > 0).nonzero()[0]
+    aiorbs = (mol.orb_alpha.occupations > 0).nonzero()[0]
     nalpha = len(aiorbs)
-    dm_alpha = mol.exp_alpha.to_dm()
+    dm_alpha = mol.orb_alpha.to_dm()
     ad = mol.obasis.compute_grid_density_dm(dm_alpha, points)
-    aos = mol.obasis.compute_grid_orbitals_exp(mol.exp_alpha, points, aiorbs)
+    aos = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha, points, aiorbs)
     ad_check = (aos**2).sum(axis=1)
     assert (abs(ad - ad_check)/abs(ad) < 1e-3).all()
 
-    if hasattr(mol, 'exp_beta'):
+    if hasattr(mol, 'orb_beta'):
         # just the standard usage (beta)
-        biorbs = (mol.exp_beta.occupations > 0).nonzero()[0]
+        biorbs = (mol.orb_beta.occupations > 0).nonzero()[0]
         nbeta = len(biorbs)
-        dm_beta = mol.exp_beta.to_dm()
+        dm_beta = mol.orb_beta.to_dm()
         bd = mol.obasis.compute_grid_density_dm(dm_beta, points)
-        bos = mol.obasis.compute_grid_orbitals_exp(mol.exp_beta, points, biorbs)
+        bos = mol.obasis.compute_grid_orbitals_exp(mol.orb_beta, points, biorbs)
         bd_check = (bos**2).sum(axis=1)
         assert (abs(bd - bd_check)/abs(bd) < 1e-3).all()
     else:
@@ -442,13 +439,13 @@ def check_orbitals(mol):
     assert (abs(fd - fd_check)/abs(fd) < 1e-3).all()
 
     # more detailed usage
-    assert aos.shape[1] == (mol.exp_alpha.occupations > 0).sum()
-    iorbs_alpha = (mol.exp_alpha.occupations > 0).nonzero()[0]
+    assert aos.shape[1] == (mol.orb_alpha.occupations > 0).sum()
+    iorbs_alpha = (mol.orb_alpha.occupations > 0).nonzero()[0]
     import random
     iorbs_alpha1 = np.array(random.sample(iorbs_alpha, len(iorbs_alpha)/2))
     iorbs_alpha2 = np.array([i for i in iorbs_alpha if i not in iorbs_alpha1])
-    aos1 = mol.obasis.compute_grid_orbitals_exp(mol.exp_alpha, points, iorbs_alpha1)
-    aos2 = mol.obasis.compute_grid_orbitals_exp(mol.exp_alpha, points, iorbs_alpha2)
+    aos1 = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha, points, iorbs_alpha1)
+    aos2 = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha, points, iorbs_alpha2)
     assert aos1.shape[1] == len(iorbs_alpha1)
     assert aos2.shape[1] == len(iorbs_alpha2)
     ad_check1 = (aos1**2).sum(axis=1)
@@ -478,27 +475,24 @@ def test_orbitals_co_ccpv5z_pure():
 
 def check_dm_kinetic(fn, eps=1e-100):
     mol = IOData.from_file(context.get_fn(fn))
-    lf = mol.lf
     obasis = mol.obasis
     dm = mol.get_dm_full()
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'fine',
                         random_rotate=False)
 
-    kin = obasis.compute_kinetic(lf)
-    ekin1 = kin.contract_two('ab,ab', dm)
+    kin = obasis.compute_kinetic()
+    ekin1 = np.einsum('ab,ba', kin, dm)
     kindens = obasis.compute_grid_kinetic_dm(dm, grid.points)
     ekin2 = grid.integrate(kindens)
     assert abs(ekin1 - ekin2) < eps
 
-    tmp = kin.new()
-    obasis.compute_grid_kinetic_fock(grid.points, grid.weights,
-                                     np.random.uniform(-1, 1, grid.size), tmp)
-    assert tmp.is_symmetric()
+    tmp = obasis.compute_grid_kinetic_fock(
+        grid.points, grid.weights, np.random.uniform(-1, 1, grid.size))
+    np.testing.assert_almost_equal(tmp, tmp.T)
 
-    kinn = kin.new()
-    obasis.compute_grid_kinetic_fock(grid.points, grid.weights, np.ones(grid.size), kinn)
-    assert kinn.is_symmetric()
-    ekin3 = kinn.contract_two('ab,ab', dm)
+    kinn = obasis.compute_grid_kinetic_fock(grid.points, grid.weights, np.ones(grid.size))
+    np.testing.assert_almost_equal(kinn, kinn.T)
+    ekin3 = np.einsum('ab,ba', kinn, dm)
     assert abs(ekin1 - ekin3) < eps
 
 
@@ -579,18 +573,19 @@ def check_gradient_systematic(pure):
                          goba, pure=pure)
 
     # create fake dm
-    lf = DenseLinalgFactory(obasis.nbasis)
-    dm = lf.create_two_index()
+    dm = np.zeros((obasis.nbasis, obasis.nbasis))
 
     # Run derivative tests for each DM matrix element.
     eps = 1e-4
     for ibasis0 in xrange(obasis.nbasis):
         for ibasis1 in xrange(ibasis0+1):
-            dm.set_element(ibasis0, ibasis1, 1.2)
+            dm[ibasis0, ibasis1] = 1.2
+            dm[ibasis1, ibasis0] = 1.2
             for _irep in xrange(5):
                 point = np.random.normal(0.0, 1.0, 3)
                 check_density_gradient(obasis, dm, point, eps)
-            dm.set_element(ibasis0, ibasis1, 0.0)
+            dm[ibasis0, ibasis1] = 0.0
+            dm[ibasis1, ibasis0] = 0.0
 
 
 def test_gradient_systematic_cart():
@@ -658,21 +653,19 @@ def check_hessian_systematic(pure):
                          goba, pure=pure)
 
     # create fake dm
-    lf = DenseLinalgFactory(obasis.nbasis)
-    dm = lf.create_two_index()
+    dm = np.zeros((obasis.nbasis, obasis.nbasis))
 
     # Run derivative tests for each DM matrix element.
     eps = 1e-4
     for ibasis0 in xrange(obasis.nbasis):
         for ibasis1 in xrange(ibasis0+1):
-            dm.set_element(ibasis0, ibasis1, 1.2)
-            dm.set_element(ibasis1, ibasis0, 1.2)
+            dm[ibasis0, ibasis1] = 1.2
+            dm[ibasis1, ibasis0] = 1.2
             for _irep in xrange(5):
                 point = np.random.normal(0.0, 1.0, 3)
                 check_density_hessian(obasis, dm, point, eps)
-            dm.set_element(ibasis0, ibasis1, 0.0)
-            dm.set_element(ibasis1, ibasis0, 0.0)
-
+            dm[ibasis0, ibasis1] = 0.0
+            dm[ibasis1, ibasis0] = 0.0
 
 def test_hessian_systematic_cart():
     check_hessian_systematic(False)
@@ -736,8 +729,8 @@ def check_gga_evaluation(fn):
         assert np.allclose(grad, gga[:, 1:4], atol=1e-10)
 
         # fill the density matrix with random numbers, symmetrize
-        dm_full.randomize()
-        dm_full.symmetrize()
+        dm_full = np.random.normal(0, 1, dm_full.shape)
+        dm_full = (dm_full + dm_full.T)/2
 
 
 def test_gga_evaluation_co_ccpv5z_cart():
@@ -768,15 +761,13 @@ def check_gga_fock(fn):
         pot = np.random.uniform(-1, 1, (100, 4))
 
         # combined fock matrix build
-        fock1 = mol.lf.create_two_index()
-        mol.obasis.compute_grid_gga_fock(points, weights, pot, fock1)
+        fock1 = mol.obasis.compute_grid_gga_fock(points, weights, pot)
 
         # separate fock matrix build
-        fock2 = mol.lf.create_two_index()
-        mol.obasis.compute_grid_density_fock(points, weights, pot[:, 0], fock2)
+        fock2 = mol.obasis.compute_grid_density_fock(points, weights, pot[:, 0])
         mol.obasis.compute_grid_gradient_fock(points, weights, pot[:, 1:4], fock2)
 
-        assert fock1.distance_inf(fock2) < 1e-10
+        np.testing.assert_almost_equal(fock1, fock2)
 
 
 def test_gga_fock_co_ccpv5z_cart():
@@ -842,8 +833,8 @@ def check_mgga_evaluation(fn):
         assert np.allclose(tau, mgga[:, 5], atol=1e-10)
 
         # fill the density matrix with random numbers, symmetrize
-        dm_full.randomize()
-        dm_full.symmetrize()
+        dm_full = np.random.normal(0, 1, dm_full.shape)
+        dm_full = (dm_full + dm_full.T)/2
 
 
 def test_mgga_evaluation_co_ccpv5z_cart():
@@ -874,12 +865,10 @@ def check_mgga_fock(fn):
         pot = np.random.uniform(-1, 1, (100, 6))
 
         # combined fock matrix build
-        fock1 = mol.lf.create_two_index()
-        mol.obasis.compute_grid_mgga_fock(points, weights, pot, fock1)
+        fock1 = mol.obasis.compute_grid_mgga_fock(points, weights, pot)
 
         # separate fock matrix build
-        fock2 = mol.lf.create_two_index()
-        mol.obasis.compute_grid_density_fock(points, weights, pot[:, 0], fock2)
+        fock2 = mol.obasis.compute_grid_density_fock(points, weights, pot[:, 0])
         mol.obasis.compute_grid_gradient_fock(points, weights, pot[:, 1:4], fock2)
         hessian_pot = np.zeros((100, 6), float)
         hessian_pot[:, 0] = pot[:, 4]
@@ -888,7 +877,7 @@ def check_mgga_fock(fn):
         mol.obasis.compute_grid_hessian_fock(points, weights, hessian_pot, fock2)
         mol.obasis.compute_grid_kinetic_fock(points, weights, pot[:, 5], fock2)
 
-        assert fock1.distance_inf(fock2) < 1e-10
+        np.testing.assert_almost_equal(fock1, fock2)
 
 
 def test_mgga_fock_co_ccpv5z_cart():

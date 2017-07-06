@@ -8,14 +8,12 @@ from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 fn_xyz = context.get_fn('test/water.xyz')
 mol = IOData.from_file(fn_xyz)
 obasis = get_gobasis(mol.coordinates, mol.numbers, 'cc-pvdz')
-lf = CholeskyLinalgFactory(obasis.nbasis)
 
 # Construct Hamiltonian
 # ---------------------
-mol.lf = lf
-mol.kin = obasis.compute_kinetic(lf)
-mol.na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-mol.er = obasis.compute_electron_repulsion(lf)
+mol.kin = obasis.compute_kinetic()
+mol.na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+mol.er = obasis.compute_electron_repulsion_cholesky()
 mol.core_energy = compute_nucnuc(mol.coordinates, mol.pseudo_numbers)
 
 # Write to a HDF5 file
@@ -37,14 +35,14 @@ rt_results = {
     'con_coeffs': obasis.con_coeffs,
     'scales': obasis.get_scales(),
     # Stuff that is actually computed.
-    'kin': mol.kin._array.ravel()[::10],
-    'na': mol.na._array.ravel()[::10],
+    'kin': mol.kin.ravel()[::10],
+    'na': mol.na.ravel()[::10],
     # ERIs as such are not included.
     # This is a Cholesky decomposition, which is not unique.
     # The actual depend strongly on minor details (last digits) of the ERIs and the
     # BLAS implementation.
-    #'er': mol.er._array.ravel()[::1000],
-    'er': np.einsum('aij,akl->ijkl', mol.er._array, mol.er._array).ravel()[::100],
+    #'er': mol.er.ravel()[::1000],
+    'er': np.einsum('aij,akl->ijkl', mol.er, mol.er).ravel()[::100],
     'core_energy': mol.core_energy,
 }
 # We can be extra picky because the integrals are the result of relatively simple

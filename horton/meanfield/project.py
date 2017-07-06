@@ -22,8 +22,8 @@
 
 
 import numpy as np
-from horton.matrix.base import TwoIndex
-from horton.matrix.dense import DenseLinalgFactory
+from scipy.linalg import sqrtm
+
 from horton.gbasis.cext import GOBasis
 
 
@@ -34,11 +34,11 @@ class ProjectionError(Exception):
     pass
 
 
-def project_orbitals_mgs(obasis0, obasis1, exp0, exp1, eps=1e-10):
+def project_orbitals_mgs(obasis0, obasis1, orb0, orb1, eps=1e-10):
     '''Project the orbitals onto a new basis set with the modified Gram-Schmidt algorithm.
 
-    The orbitals in ``exp0`` (w.r.t. ``obasis0``) are projected onto ``obasis1`` and
-    stored in ``exp1``.
+    The orbitals in ``orb0`` (w.r.t. ``obasis0``) are projected onto ``obasis1`` and
+    stored in ``orb1``.
 
     Parameters
     ----------
@@ -47,9 +47,9 @@ def project_orbitals_mgs(obasis0, obasis1, exp0, exp1, eps=1e-10):
              The orbital basis for the original wavefunction expansion.
     obasis1 : GOBasis
              The new orbital basis for the projected wavefunction expansion.
-    exp0 : DenseExpansion
+    orb0 : Orbitals
           The expansion of the original orbitals.
-    exp1 : DenseExpansion
+    orb1 : Orbitals
           An output argument in which the projected orbitals will be stored.
     eps : float
          A threshold for the renormalization in the Gram-Schmidt procedure
@@ -61,23 +61,22 @@ def project_orbitals_mgs(obasis0, obasis1, exp0, exp1, eps=1e-10):
     each iteration of the MGS, a renormalization is carried out. If the norm
     in this step is smaller than ``eps``, an error is raised.
 
-    Note that ``exp1`` will be incomplete in several ways. The orbital
-    energies are not copied. Only the occupied orbitals in ``exp0`` are
+    Note that ``orb1`` will be incomplete in several ways. The orbital
+    energies are not copied. Only the occupied orbitals in ``orb0`` are
     projected. Coefficients of higher orbitals are set to zero. The orbital
     occupations are simply copied. This should be sufficient to construct
     an initial guess in a new orbital basis set based on a previous solution.
 
-    If the number of orbitals in ``exp1`` is too small to store all projected
+    If the number of orbitals in ``orb1`` is too small to store all projected
     orbitals, an error is raised.
     '''
     # Compute the overlap matrix of the combined orbital basis
     obasis_both = GOBasis.concatenate(obasis0, obasis1)
-    lf = DenseLinalgFactory(obasis_both.nbasis)
-    olp_both = obasis_both.compute_overlap(lf)
+    olp_both = obasis_both.compute_overlap()
 
     # Select the blocks of interest from the big overlap matrix
-    olp_21 = olp_both._array[obasis0.nbasis:, :obasis0.nbasis]
-    olp_22 = olp_both._array[obasis0.nbasis:, obasis0.nbasis:]
+    olp_21 = olp_both[obasis0.nbasis:, :obasis0.nbasis]
+    olp_22 = olp_both[obasis0.nbasis:, obasis0.nbasis:]
 
     # Construct the projector. This minimizes the L2 norm between the new and old
     # orbitals, which does not account for orthonormality.
@@ -85,22 +84,22 @@ def project_orbitals_mgs(obasis0, obasis1, exp0, exp1, eps=1e-10):
 
     # Project occupied orbitals.
     i1 = 0
-    for i0 in xrange(exp0.nfn):
-        if exp0.occupations[i0] == 0.0:
+    for i0 in xrange(orb0.nfn):
+        if orb0.occupations[i0] == 0.0:
             continue
-        if i1 > exp1.nfn:
-            raise ProjectionError('Not enough functions available in exp1 to store the '
+        if i1 > orb1.nfn:
+            raise ProjectionError('Not enough functions available in orb1 to store the '
                                   'projected orbitals.')
-        exp1.coeffs[:,i1] = np.dot(projector, exp0.coeffs[:,i0])
-        exp1.occupations[i1] = exp0.occupations[i0]
+        orb1.coeffs[:,i1] = np.dot(projector, orb0.coeffs[:,i0])
+        orb1.occupations[i1] = orb0.occupations[i0]
         i1 += 1
 
-    # clear all parts of exp1 that were not touched by the projection loop
+    # clear all parts of orb1 that were not touched by the projection loop
     ntrans = i1
     del i1
-    exp1.coeffs[:,ntrans:] = 0.0
-    exp1.occupations[ntrans:] = 0.0
-    exp1.energies[:] = 0.0
+    orb1.coeffs[:,ntrans:] = 0.0
+    orb1.occupations[ntrans:] = 0.0
+    orb1.energies[:] = 0.0
 
     # auxiliary function for the MGS algo
     def dot22(a, b):
@@ -108,11 +107,11 @@ def project_orbitals_mgs(obasis0, obasis1, exp0, exp1, eps=1e-10):
 
     # Apply the MGS algorithm to orthogonalize the orbitals
     for i1 in xrange(ntrans):
-        orb = exp1.coeffs[:, i1]
+        orb = orb1.coeffs[:, i1]
 
         # Subtract overlap with previous orbitals
         for j1 in xrange(i1):
-            other = exp1.coeffs[:, j1]
+            other = orb1.coeffs[:, j1]
             orb -= other*dot22(other, orb)/np.sqrt(dot22(other, other))
 
         # Renormalize
@@ -123,11 +122,11 @@ def project_orbitals_mgs(obasis0, obasis1, exp0, exp1, eps=1e-10):
         orb /= norm
 
 
-def project_orbitals_ortho(olp0, olp1, exp0, exp1):
+def project_orbitals_ortho(olp0, olp1, orb0, orb1):
     r'''Re-orthogonalize the orbitals .
 
-    The orbitals in ``exp0`` (w.r.t. ``obasis0``) are re-orthonormalized w.r.t.
-    ``obasis1`` and stored in ``exp1``.
+    The orbitals in ``orb0`` (w.r.t. ``obasis0``) are re-orthonormalized w.r.t.
+    ``obasis1`` and stored in ``orb1``.
 
     Parameters
     ----------
@@ -138,9 +137,9 @@ def project_orbitals_ortho(olp0, olp1, exp0, exp1):
     olp1 : TwoIndex or GOBasis
            The overlap matrix (or alternatively the orbital basis) for the projected
            wavefunction expansion.
-    exp0 : DenseExpansion
+    orb0 : DenseExpansion
            The expansion of the original orbitals.
-    exp1 : DenseExpansion
+    orb1 : DenseExpansion
            An output argument in which the projected orbitals will be stored.
 
     Notes
@@ -164,15 +163,11 @@ def project_orbitals_ortho(olp0, olp1, exp0, exp1):
     old and new atomic basis sets are very similar, e.g. for small geometric
     changes.
     '''
-    if olp0.nbasis != olp1.nbasis:
-        raise ValueError('The two basis sets must have the same size')
-
     def helper_olp(olp):
         if isinstance(olp, GOBasis):
             obasis = olp
-            lf = DenseLinalgFactory(obasis.nbasis)
-            olp = obasis.compute_overlap(lf)
-        elif isinstance(olp, TwoIndex):
+            olp = obasis.compute_overlap()
+        elif isinstance(olp, np.ndarray):
             obasis = None
         else:
             raise TypeError('The olp arguments must be an instance of TwoIndex or GOBasis.')
@@ -181,14 +176,10 @@ def project_orbitals_ortho(olp0, olp1, exp0, exp1):
     olp0, obasis0 = helper_olp(olp0)
     olp1, obasis1 = helper_olp(olp1)
 
-    tmp = olp1.inverse()
-    tmp.idot(olp0)
-    tf = tmp.sqrt()
-
     # Transform the coefficients
-    exp1.assign_dot(tf, exp0)
-
-    # Clear the energies in exp1 as they can not be defined in a meaningful way
-    exp1.energies[:] = 0.0
+    tf = sqrtm(np.dot(np.linalg.inv(olp1), olp0))
+    orb1.coeffs[:] = np.dot(tf, orb0.coeffs)
+    # Clear the energies in orb1 as they can not be defined in a meaningful way
+    orb1.energies[:] = 0.0
     # Just copy the occupation numbers and hope for the best
-    exp1.occupations[:] = exp0.occupations
+    orb1.occupations[:] = orb0.occupations

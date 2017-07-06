@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #JSON {"lot": "UHF/cc-pVDZ",
 #JSON  "scf": "PlainSCFSolver",
-#JSON  "linalg": "CholeskyLinalgFactory",
+#JSON  "er": "cholesky",
 #JSON  "difficulty": 2,
 #JSON  "description": "Basic UHF example with Cholesky decomposition of the ERI"}
 
@@ -16,28 +16,25 @@ mol = IOData.from_file(fn_xyz)
 # Create a Gaussian basis set
 obasis = get_gobasis(mol.coordinates, mol.numbers, 'cc-pVDZ')
 
-# Create a linalg factory
-lf = DenseLinalgFactory(obasis.nbasis)
-
 # Compute Gaussian integrals
-olp = obasis.compute_overlap(lf)
-kin = obasis.compute_kinetic(lf)
-na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-er = obasis.compute_electron_repulsion(lf)
+olp = obasis.compute_overlap()
+kin = obasis.compute_kinetic()
+na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+er_vecs = obasis.compute_electron_repulsion_cholesky()
 
 # Create alpha orbitals
-exp_alpha = lf.create_expansion()
-exp_beta = lf.create_expansion()
+orb_alpha = Orbitals(obasis.nbasis)
+orb_beta = Orbitals(obasis.nbasis)
 
 # Initial guess
-guess_core_hamiltonian(olp, kin, na, exp_alpha, exp_beta)
+guess_core_hamiltonian(olp, kin + na, orb_alpha, orb_beta)
 
 # Construct the restricted HF effective Hamiltonian
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
 terms = [
     UTwoIndexTerm(kin, 'kin'),
-    UDirectTerm(er, 'hartree'),
-    UExchangeTerm(er, 'x_hf'),
+    UDirectTerm(er_vecs, 'hartree'),
+    UExchangeTerm(er_vecs, 'x_hf'),
     UTwoIndexTerm(na, 'ne'),
 ]
 ham = UEffHam(terms, external)
@@ -47,15 +44,15 @@ occ_model = AufbauOccModel(5, 4)
 
 # Converge WFN with plain SCF
 scf_solver = PlainSCFSolver(1e-6)
-scf_solver(ham, lf, olp, occ_model, exp_alpha, exp_beta)
+scf_solver(ham, olp, occ_model, orb_alpha, orb_beta)
 
 # Assign results to the molecule object and write it to a file, e.g. for
 # later analysis
 mol.title = 'UHF computation on methyl'
 mol.energy = ham.cache['energy']
 mol.obasis = obasis
-mol.exp_alpha = exp_alpha
-mol.exp_beta = exp_beta
+mol.orb_alpha = orb_alpha
+mol.orb_beta = orb_beta
 
 # useful for visualization:
 mol.to_file('methyl.molden')
@@ -65,8 +62,8 @@ mol.to_file('methyl.h5')
 # CODE BELOW IS FOR horton-regression-test.py ONLY. IT IS NOT PART OF THE EXAMPLE.
 rt_results = {
     'energy': ham.cache['energy'],
-    'exp_alpha': exp_alpha.energies,
-    'exp_beta': exp_beta.energies,
+    'orb_alpha': orb_alpha.energies,
+    'orb_beta': orb_beta.energies,
     'nn': ham.cache["energy_nn"],
     'kin': ham.cache["energy_kin"],
     'ne': ham.cache["energy_ne"],
@@ -78,7 +75,7 @@ import numpy as np  # pylint: disable=wrong-import-position
 rt_previous = {
     'energy': -39.554863031594934,
     'ex': -6.150578955382698,
-    'exp_alpha': np.array([
+    'orb_alpha': np.array([
         -11.261173936822942, -0.92269777217838156, -0.55507865679850166,
         -0.55507864413069186, -0.38566618064988517, 0.18000169912996483,
         0.25887873671524003, 0.25887875426095291, 0.62056366507437044,
@@ -88,7 +85,7 @@ rt_previous = {
         1.8208132769560363, 2.0694337081810756, 2.0694337151175644, 2.2777640361118685,
         2.2777641824311856, 2.6335291121739135, 2.7182730880363448, 2.7182732510209133
     ]),
-    'exp_beta': np.array([
+    'orb_beta': np.array([
         -11.235333850494197, -0.82602661058895288, -0.54105216781008225,
         -0.54105216145891066, 0.14324601968236972, 0.19874757910126756,
         0.26771035130192011, 0.26771036839318901, 0.62291244059962159, 0.6229125182595896,

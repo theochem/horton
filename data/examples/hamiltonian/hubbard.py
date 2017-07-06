@@ -5,20 +5,19 @@ from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 # Define Occupation model, expansion coefficients and overlap
 # -----------------------------------------------------------
-lf = DenseLinalgFactory(6)
 occ_model = AufbauOccModel(3)
-modelham = Hubbard(pbc=True)
-orb = lf.create_expansion(6)
-olp = modelham.compute_overlap(lf)
+modelham = Hubbard(6, pbc=True)
+orb = Orbitals(6)
+olp = modelham.compute_overlap()
 
 
 # One and two-body interaction terms
 # ----------------------------------
 
 # t-param, t = -1
-hopping = modelham.compute_kinetic(lf, -1)
+hopping = modelham.compute_kinetic(-1)
 # U-param, U = 2
-onsite = modelham.compute_er(lf, 2)
+onsite = modelham.compute_er(2)
 
 
 # Perform initial guess
@@ -35,7 +34,7 @@ ham = REffHam(terms)
 # Do a Hartree-Fock calculation
 # -----------------------------
 scf_solver = PlainSCFSolver()
-scf_solver(ham, lf, olp, occ_model, orb)
+scf_solver(ham, olp, occ_model, orb)
 
 
 # CODE BELOW IS FOR horton-regression-test.py ONLY. IT IS NOT PART OF THE EXAMPLE.

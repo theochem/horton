@@ -179,7 +179,7 @@ def test_example_hf_dft_rks_water_numgga():
 
 
 @attr('rt')
-def test_example_hdf_dft_rks_water_numlda():
+def test_example_hf_dft_rks_water_numlda():
     required = [context.get_fn('examples/hf_dft/rks_water_numlda.py')]
     expected = ['water.h5']
     check_script_in_tmp('horton-regression-test.py ./rks_water_numlda.py',

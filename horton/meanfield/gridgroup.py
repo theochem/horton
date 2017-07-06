@@ -397,7 +397,7 @@ class RGridGroup(GridGroup):
     @doc_inherit(Observable)
     def add_dot_hessian(self, cache, output_alpha):
         GridGroup.add_dot_hessian(self, cache, output_alpha)
-        output_alpha.iscale(0.5)
+        output_alpha *= 0.5
 
 
 class UGridGroup(GridGroup):

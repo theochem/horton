@@ -21,7 +21,7 @@
 '''Utility functions'''
 
 
-__all__ = ['typecheck_geo', 'check_type', 'check_options', 'doc_inherit']
+__all__ = ['typecheck_geo', 'check_type', 'doc_inherit']
 
 
 def typecheck_geo(coordinates=None, numbers=None, pseudo_numbers=None,
@@ -134,25 +134,6 @@ def check_type(name, instance, *Classes):
         raise TypeError('The argument \'%s\' must be an instance of %s. Got a \'%s\' instance instead.' % (
             name, ''.join(classes_parts), instance.__class__.__name__
         ))
-
-
-def check_options(name, select, *options):
-    '''Check if a select is in the list of options. If not raise ValueError
-
-       **Arguments:**
-
-       name
-            The name of the argument.
-
-       select
-            The value of the argument.
-
-       options
-            A list of allowed options.
-    '''
-    if select not in options:
-        formatted = ', '.join(['\'%s\'' % option for option in options])
-        raise ValueError('The argument \'%s\' must be one of: %s' % (name, formatted))
 
 
 def doc_inherit(base_class):

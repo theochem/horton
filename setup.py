@@ -374,13 +374,6 @@ ext_modules = [
         extra_compile_args=['-std=c++11'],
         language="c++"),
     Extension(
-        "horton.matrix.cext",
-        sources=get_sources('horton/matrix'),
-        depends=get_depends('horton/matrix'),
-        include_dirs=[np.get_include(), '.'],
-        extra_compile_args=['-std=c++11'],
-        language="c++"),
-    Extension(
         "horton.gbasis.cext",
         sources=get_sources('horton/gbasis') + ['horton/moments.cpp'],
         depends=get_depends('horton/gbasis') + ['horton/moments.pxd', 'horton/moments.h'],

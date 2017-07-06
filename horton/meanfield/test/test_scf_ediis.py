@@ -81,10 +81,10 @@ def test_interpol_hf_cs_hf():
     fn_fchk = context.get_fn('test/hf_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)
 
-    olp = mol.obasis.compute_overlap(mol.lf)
-    kin = mol.obasis.compute_kinetic(mol.lf)
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    olp = mol.obasis.compute_overlap()
+    kin = mol.obasis.compute_kinetic()
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    er = mol.obasis.compute_electron_repulsion()
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
         RTwoIndexTerm(kin, 'kin'),
@@ -95,18 +95,18 @@ def test_interpol_hf_cs_hf():
     ham = REffHam(terms, external)
     occ_model = AufbauOccModel(5)
 
-    exps = [mol.exp_alpha]
-    check_interpol_hf(ham, mol.lf, exps, olp, kin, na, occ_model)
+    orbs = [mol.orb_alpha]
+    check_interpol_hf(ham, orbs, olp, kin, na, occ_model)
 
 
 def test_interpol_lih_os_hf():
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     mol = IOData.from_file(fn_fchk)
 
-    olp = mol.obasis.compute_overlap(mol.lf)
-    kin = mol.obasis.compute_kinetic(mol.lf)
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-    er = mol.obasis.compute_electron_repulsion(mol.lf)
+    olp = mol.obasis.compute_overlap()
+    kin = mol.obasis.compute_kinetic()
+    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    er = mol.obasis.compute_electron_repulsion()
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
     terms = [
         UTwoIndexTerm(kin, 'kin'),
@@ -117,16 +117,16 @@ def test_interpol_lih_os_hf():
     ham = UEffHam(terms, external)
     occ_model = AufbauOccModel(2, 1)
 
-    exps = [mol.exp_alpha, mol.exp_beta]
-    check_interpol_hf(ham, mol.lf, exps, olp, kin, na, occ_model)
+    orbs = [mol.orb_alpha, mol.orb_beta]
+    check_interpol_hf(ham, orbs, olp, kin, na, occ_model)
 
 
-def check_interpol_hf(ham, lf, exps, olp, kin, na, occ_model):
-    guess_core_hamiltonian(olp, kin, na, *exps)
-    dms = [exp.to_dm() for exp in exps]
+def check_interpol_hf(ham, orbs, olp, kin, na, occ_model):
+    guess_core_hamiltonian(olp, kin+na, *orbs)
+    dms = [exp.to_dm() for exp in orbs]
     scf_solver = EDIISSCFSolver(maxiter=4)
     try:
-        scf_solver(ham, lf, olp, occ_model, *dms)
+        scf_solver(ham, olp, occ_model, *dms)
     except NoSCFConvergence:
         pass
 

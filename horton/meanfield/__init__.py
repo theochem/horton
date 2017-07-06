@@ -28,9 +28,11 @@ from horton.meanfield.cext import *
 from horton.meanfield.gridgroup import *
 from horton.meanfield.guess import *
 from horton.meanfield.hamiltonian import *
+from horton.meanfield.indextransform import *
 from horton.meanfield.libxc import *
 from horton.meanfield.observable import *
 from horton.meanfield.occ import *
+from horton.meanfield.orbitals import *
 from horton.meanfield.project import *
 from horton.meanfield.rotate import *
 from horton.meanfield.response import *

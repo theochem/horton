@@ -74,9 +74,10 @@ def compute_bond_orders_cs(dm_alpha, operators):
             A vector with atomic free valences
     '''
     bond_orders, populations = _compute_bond_orders_low(dm_alpha, operators)
+    valences = _compute_valences_low(dm_alpha, populations, operators)
     bond_orders *= 2
     populations *= 2
-    valences = 4*_compute_valences_low(dm_alpha, populations/4, operators)
+    valences *= 2
     free_valences = valences - (bond_orders.sum(axis=0) - np.diag(bond_orders))
     return bond_orders, valences, free_valences
 
@@ -107,9 +108,7 @@ def compute_bond_orders_os(dm_alpha, dm_beta, operators):
     bond_orders_b, populations_b = _compute_bond_orders_low(dm_beta, operators)
     bond_orders = bond_orders_a + bond_orders_b
     populations = populations_a + populations_b
-    dm_full = dm_alpha.copy()
-    dm_full.iadd(dm_beta)
-    valences = _compute_valences_low(dm_full, populations, operators)
+    valences = _compute_valences_low(dm_alpha + dm_beta, 2*populations, operators)/2
     free_valences = valences - (bond_orders.sum(axis=0) - np.diag(bond_orders))
     return bond_orders, valences, free_valences
 
@@ -133,11 +132,6 @@ def _compute_bond_orders_low(dm, operators):
        populations
             A vector with atomic populations
     '''
-    # Run some initial tests
-    for op in operators:
-        if op.nbasis != dm.nbasis:
-            raise TypeError('Mismatch detected between nbasis in op and dm.')
-
     n = len(operators)
     bond_orders = np.zeros((n, n), float)
     populations = np.zeros(n, float)
@@ -145,14 +139,13 @@ def _compute_bond_orders_low(dm, operators):
     precomputed = []
     for i0 in xrange(n):
         # compute population
-        populations[i0] = operators[i0].contract_two('ab,ab', dm)
+        populations[i0] = np.einsum('ab,ba', operators[i0], dm)
         # precompute a dot product
-        tmp = dm.copy()
-        tmp.idot(operators[i0])
+        tmp = np.dot(dm, operators[i0])
         precomputed.append(tmp)
         for i1 in xrange(i0+1):
             # compute bond orders
-            bond_orders[i0, i1] = 2*precomputed[i0].contract_two('ab,ba', precomputed[i1])
+            bond_orders[i0, i1] = 2*np.einsum('ab,ba', precomputed[i0], precomputed[i1])
             bond_orders[i1, i0] = bond_orders[i0, i1]
 
     return bond_orders, populations
@@ -173,16 +166,10 @@ def _compute_valences_low(dm, populations, operators):
        operators
             A list of one-body operators.
     '''
-    # Run some initial tests
-    for op in operators:
-        if op.nbasis != dm.nbasis:
-            raise TypeError('Mismatch detected between nbasis in op and dm.')
-
     n = len(operators)
     valences = np.zeros(n, float)
     for i in xrange(n):
         # valence for atom i
-        tmp = dm.copy()
-        tmp.idot(operators[i])
-        valences[i] = 2*populations[i] - tmp.contract_two('ab,ba', tmp)
+        tmp = np.dot(dm, operators[i])
+        valences[i] = 2*populations[i] - 2*np.einsum('ab,ba', tmp, tmp)
     return valences

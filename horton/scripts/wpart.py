@@ -89,13 +89,11 @@ def wpart_slow_analysis(wpart, mol):
         overlap_operators = {}
         for l in xrange(wpart.lmax + 1):
             for m in xrange(-l, l + 1):
-                op = mol.lf.create_two_index()
                 if counter > 0:
                     tmp = at_weights * work[:, counter - 1]
                 else:
                     tmp = at_weights
-                mol.obasis.compute_grid_density_fock(grid.points, grid.weights,
-                                                     tmp, op)
+                op = mol.obasis.compute_grid_density_fock(grid.points, grid.weights, tmp)
                 overlap_operators['olp_%05i' % counter] = op
                 counter += 1
 
@@ -103,15 +101,14 @@ def wpart_slow_analysis(wpart, mol):
 
     # Correct the s-type overlap operators such that the sum is exactly
     # equal to the total overlap.
-    error_overlap = mol.lf.create_two_index()
+    error_overlap = mol.obasis.compute_overlap()
     for index in xrange(wpart.natom):
         atom_overlap = wpart.cache.load('overlap_operators', index)['olp_00000']
-        error_overlap.iadd(atom_overlap)
-    error_overlap.iadd(mol.obasis.compute_overlap(mol.lf), -1)
-    error_overlap.iscale(1.0 / wpart.natom)
+        error_overlap -= atom_overlap
+    error_overlap /= wpart.natom
     for index in xrange(wpart.natom):
         atom_overlap = wpart.cache.load('overlap_operators', index)['olp_00000']
-        atom_overlap.iadd(error_overlap, -1)
+        atom_overlap += error_overlap
 
     # A') Construct the list of operators with a logical ordering
     #   * outer loop: s, pz, px, py, ...
@@ -134,21 +131,15 @@ def wpart_slow_analysis(wpart, mol):
     dm_spin = mol.get_dm_spin()
     if dm_spin is None:
         # closed-shell case
-        dm_alpha = dm_full.copy()
-        dm_alpha.iscale(0.5)
-        bond_orders, valences, free_valences = compute_bond_orders_cs(dm_alpha,
-                                                                      operators)
+        dm_alpha = dm_full*0.5
+        bond_orders, valences, free_valences = compute_bond_orders_cs(dm_alpha, operators)
     else:
         # open-shell case
-        dm_alpha = dm_full.copy()
-        dm_alpha.iadd(dm_spin)
-        dm_alpha.iscale(0.5)
-        dm_beta = dm_full.copy()
+        dm_alpha = 0.5*(dm_full + dm_spin)
+        dm_beta = 0.5*(dm_full - dm_spin)
         dm_beta.iadd(dm_spin, -1.0)
         dm_beta.iscale(0.5)
-        bond_orders, valences, free_valences = compute_bond_orders_os(dm_alpha,
-                                                                      dm_beta,
-                                                                      operators)
+        bond_orders, valences, free_valences = compute_bond_orders_os(dm_alpha, dm_beta, operators)
     wpart.cache.dump('bond_orders', bond_orders, tags='o')
     wpart.cache.dump('valences', valences, tags='o')
     wpart.cache.dump('free_valences', free_valences, tags='o')

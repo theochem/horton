@@ -32,25 +32,25 @@ def main(fns_fchk):
         g09_energy = mol.energy
 
         # Compute Gaussian integrals.
-        olp = mol.obasis.compute_overlap(mol.lf)
-        kin = mol.obasis.compute_kinetic(mol.lf)
-        na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
-        er = mol.obasis.compute_electron_repulsion(mol.lf)
+        olp = mol.obasis.compute_overlap()
+        kin = mol.obasis.compute_kinetic()
+        na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+        er = mol.obasis.compute_electron_repulsion()
 
         # Make a list of the expansion objects.
-        exps = [mol.exp_alpha]
-        if hasattr(mol, 'exp_beta'):
-            exps.append(mol.exp_beta)
+        orbs = [mol.orb_alpha]
+        if hasattr(mol, 'orb_beta'):
+            orbs.append(mol.orb_beta)
 
         # Keep the g09 dms.
         if debug:
-            dms_g09 = [exp.to_dm() for exp in exps]
+            dms_g09 = [orb.to_dm() for orb in orbs]
 
         # Construct an initial guess.
-        guess_core_hamiltonian(olp, kin, na, *exps)
+        guess_core_hamiltonian(olp, kin + na, *orbs)
 
         # Define the effective hamiltonian.
-        if len(exps) == 1:
+        if len(orbs) == 1:
             terms = [
                 RTwoIndexTerm(kin, 'kin'),
                 RDirectTerm(er, 'hartree'),
@@ -68,20 +68,20 @@ def main(fns_fchk):
             ham = UEffHam(terms)
 
         # Construct initial density matrices.
-        dms = [exp.to_dm() for exp in exps]
+        dms = [orb.to_dm() for orb in orbs]
 
         # Configure orbital occupations.
-        noccs = np.round(np.array([exp.occupations.sum() for exp in exps])).astype(int)
+        noccs = np.round(np.array([orb.occupations.sum() for orb in orbs])).astype(int)
         occ_model = AufbauOccModel(*noccs)
 
         # Converge the SCF.
         scf_solver = ODASCFSolver(1e-8, 1024)
-        niter = scf_solver(ham, mol.lf, olp, occ_model, *dms)
+        niter = scf_solver(ham, olp, occ_model, *dms)
 
         # Analyze results.
         horton_energy = ham.cache['energy']
         error = horton_energy - g09_energy
-        if len(exps) == 1:
+        if len(orbs) == 1:
             prefix = 'r'
         else:
             prefix = 'u'

@@ -43,9 +43,7 @@ cimport gbw
 import atexit
 
 from horton.log import log, biblio
-from horton.matrix import LinalgFactory, CholeskyLinalgFactory
 from horton.cext import compute_grid_nucpot
-from horton.utils import typecheck_geo
 
 
 __all__ = [
@@ -53,8 +51,6 @@ __all__ = [
     'boys_function', 'boys_function_array',
     # cartpure
     'cart_to_pure_low',
-    #cholesky
-    'compute_cholesky',
     # common
     'fac', 'fac2', 'binom', 'get_shell_nbasis', 'get_max_shell_type',
     'gpt_coeff', 'gb_overlap_int1d', 'nuclear_attraction_helper',
@@ -80,6 +76,64 @@ __all__ = [
     # iter_pow
     'iter_pow1_inc', 'IterPow1', 'IterPow2',
 ]
+
+
+#
+# Internall business
+#
+
+cdef check_shape(array, shape, name):
+    """Checks the shape of an array.
+
+    Parameters
+    ----------
+    array
+        Array to be checked
+    shape : tuple
+        Expected shape. Negative sizes are not checked.
+    name
+        The name of the array, used in the error messages.
+
+    Raises
+    ------
+    TypeError
+        When the dimension or the shape of the array differs from the expected shape.
+    """
+    if array.ndim != len(shape):
+        raise TypeError('Array \'{}\' has ndim={}. Expexting ndim={}.'.format(
+            name, array.ndim, len(shape)))
+    for i, si in enumerate(shape):
+        if si >= 0 and array.shape[i] != si:
+            raise TypeError('Array \'{}\' has shape[{}]={}. Expexting shape[{}]={}.'.format(
+            name, i, array.shape[i], i, si))
+
+
+cdef prepare_array(array, shape, name):
+    """Check array shape or initialize it if None.
+
+    Parameters
+    ----------
+    array
+        Array to be checked (or initialized if None).
+    shape
+        The expected shape.
+    name
+        The name of the array, used in the error messages.
+
+    Returns
+    -------
+    array
+
+    Raises
+    ------
+    TypeError
+        When the dimension or the shape of the array differs from the expected shape.
+    """
+    if array is None:
+        array = np.zeros(shape)
+    else:
+        check_shape(array, shape, name)
+    return array
 
 
 #
@@ -112,38 +166,6 @@ def cart_to_pure_low(np.ndarray[double] work_cart not None,
         npost
     )
 
-#
-# cholesky wrappers
-#
-
-def compute_cholesky(GOBasis gobasis, GB4Integral gb4int, double threshold=1e-8, lf = None):
-    cdef gbw.GB4IntegralWrapper* gb4w = NULL
-    cdef vector[double]* vectors = NULL
-    cdef np.npy_intp dims[3]
-    cdef np.ndarray result
-
-    cdef extern from "numpy/arrayobject.h":
-        void PyArray_ENABLEFLAGS(np.ndarray arr, int flags)
-
-    try:
-        gb4w = new gbw.GB4IntegralWrapper(<gbasis.GOBasis*> gobasis._this,
-                                          <ints.GB4Integral*> gb4int._this)
-        vectors = new vector[double]()
-        nvec = cholesky.cholesky(gb4w, vectors, threshold)
-        dims[0] = <np.npy_intp> nvec
-        dims[1] = <np.npy_intp> gobasis.nbasis
-        dims[2] = <np.npy_intp> gobasis.nbasis
-        result = np.PyArray_SimpleNewFromData(3, dims, np.NPY_DOUBLE, &(deref(vectors)[0]))
-        PyArray_ENABLEFLAGS(result, np.NPY_OWNDATA)
-    finally:
-        if gb4w is not NULL:
-            del gb4w
-
-    if lf is not None and isinstance(lf, CholeskyLinalgFactory):
-        result_py = lf.create_four_index(gobasis.nbasis, array=result)
-        return result_py
-    else:
-        return result
 
 #
 # common wrappers
@@ -632,125 +654,81 @@ cdef class GOBasis(GBasis):
             self._centers.shape[0], self._shell_types.shape[0], self._alphas.shape[0]
         )
 
-    def check_matrix_coeffs(self, matrix, nocc=None):
-        assert matrix.ndim == 2
-        assert matrix.flags['C_CONTIGUOUS']
-        assert matrix.shape[0] == self.nbasis
-        assert matrix.shape[1] <= self.nbasis
-        if nocc is not None:
-            assert matrix.shape[1] >= nocc
+    def check_coeffs(self, double[:, ::1] coeffs, nocc=None):
+        if coeffs.shape[0] != self.nbasis:
+            raise TypeError('coeffs.shape[0] should be equal to nbasis. '
+                            'Got {}. Expecting {}.'.format(coeffs.shape[0], self.nbasis))
+        if coeffs.shape[1] > self.nbasis:
+            raise TypeError('coeffs.shape[1] should be less than equal to nbasis. '
+                            'Got {}. Expecting <={}.'.format(coeffs.shape[0], self.nbasis))
+        if nocc is not None and coeffs.shape[1] < nocc:
+            raise TypeError('coeffs.shape[1] should not be below the number of occupation '
+                            'numbers. Got {}. Expected at least {}.'.format(coeffs.shape[1], nocc))
 
-    def check_matrix_two_index(self, matrix):
-        assert matrix.ndim == 2
-        assert matrix.flags['C_CONTIGUOUS']
-        assert matrix.shape[0] == self.nbasis
-        assert matrix.shape[1] == self.nbasis
+    def compute_overlap(self, double[:, ::1] output=None):
+        """Compute the overlap integrals in a Gaussian orbital basis.
 
-    def check_matrix_four_index(self, matrix):
-        assert matrix.ndim == 4
-        assert matrix.flags['C_CONTIGUOUS']
-        assert matrix.shape[0] == self.nbasis
-        assert matrix.shape[1] == self.nbasis
-        assert matrix.shape[2] == self.nbasis
-        assert matrix.shape[3] == self.nbasis
+        Parameters
+        ----------
+        output
+            Two-index object, optional.
 
-    def compute_overlap(self, output):
-        """Compute the overlap integrals in a Gaussian orbital basis
-
-           **Arguments:**
-
-           output
-                When a ``TwoIndex`` instance is given, it is used as output
-                argument and its contents are overwritten. When ``LinalgFactory``
-                is given, it is used to construct the output ``TwoIndex``
-                object. In both cases, the output two-index object is returned.
-
-           **Returns:** ``TwoIndex`` object
+        Returns
+        -------
+        output
         """
-        # prepare the output array
-        cdef np.ndarray[double, ndim=2] output_array
-        if isinstance(output, LinalgFactory):
-            lf = output
-            output = lf.create_two_index(self.nbasis)
-        output_array = output._array
-        self.check_matrix_two_index(output_array)
-        # call the low-level routine
-        (<gbasis.GOBasis*>self._this).compute_overlap(&output_array[0, 0])
-        # done
-        return output
+        output = prepare_array(output, (self.nbasis, self.nbasis), 'output')
+        (<gbasis.GOBasis*>self._this).compute_overlap(&output[0, 0])
+        return np.asarray(output)
 
-    def compute_kinetic(self, output):
-        """Compute the kinetic energy integrals in a Gaussian orbital basis
+    def compute_kinetic(self, double[:, ::1] output=None):
+        """Compute the kinetic energy integrals in a Gaussian orbital basis.
 
-           **Arguments:**
+        Parameters
+        ----------
+        output
+            Two-index object, optional.
 
-           output
-                When a ``TwoIndex`` instance is given, it is used as output
-                argument and its contents are overwritten. When ``LinalgFactory``
-                is given, it is used to construct the output ``TwoIndex``
-                object. In both cases, the output two-index object is returned.
-
-           **Returns:** ``TwoIndex`` object
+        Returns
+        -------
+        output
         """
-        # prepare the output array
-        cdef np.ndarray[double, ndim=2] output_array
-        if isinstance(output, LinalgFactory):
-            lf = output
-            output = lf.create_two_index(self.nbasis)
-        output_array = output._array
-        self.check_matrix_two_index(output_array)
-        # call the low-level routine
-        (<gbasis.GOBasis*>self._this).compute_kinetic(&output_array[0, 0])
-        # done
-        return output
+        output = prepare_array(output, (self.nbasis, self.nbasis), 'output')
+        (<gbasis.GOBasis*>self._this).compute_kinetic(&output[0, 0])
+        return np.asarray(output)
 
-    def compute_nuclear_attraction(self,
-                                   np.ndarray[double, ndim=2] coordinates not None,
-                                   np.ndarray[double, ndim=1] charges not None,
-                                   output):
-        """Compute the nuclear attraction integral in a Gaussian orbital basis
+    def compute_nuclear_attraction(self, double[:, ::1] coordinates not None,
+                                   double[::1] charges not None, double[:, ::1] output=None):
+        """Compute the nuclear attraction integral in a Gaussian orbital basis.
 
-           **Arguments:**
+        Parameters
+        ----------
+        coordinates
+            A float array with shape (ncharge, 3) with Cartesian coordinates
+            of point charges that define the external field.
+        charges
+            A float array with shape (ncharge,) with the values of the
+            charges.
+        output
+            Two-index object, optional.
 
-           coordinates
-                A float array with shape (ncharge,3) with Cartesian coordinates
-                of point charges that define the external field.
-
-           charges
-                A float array with shape (ncharge,) with the values of the
-                charges.
-
-           output
-                When a ``TwoIndex`` instance is given, it is used as output
-                argument and its contents are overwritten. When ``LinalgFactory``
-                is given, it is used to construct the output ``TwoIndex``
-                object. In both cases, the output two-index object is returned.
-
-           **Returns:** ``TwoIndex`` object
+        Returns
+        -------
+        output
         """
         # type checking
-        assert coordinates.flags['C_CONTIGUOUS']
-        assert charges.flags['C_CONTIGUOUS']
-        ncharge, coordinates, charges = typecheck_geo(coordinates, None, charges, need_numbers=False)
-        # prepare the output array
-        cdef np.ndarray[double, ndim=2] output_array
-        if isinstance(output, LinalgFactory):
-            lf = output
-            output = lf.create_two_index(self.nbasis)
-        output_array = output._array
-        self.check_matrix_two_index(output_array)
-        # call the low-level routine
+        check_shape(coordinates, (-1, 3), 'coordinates')
+        natom = coordinates.shape[0]
+        check_shape(charges, (natom,), 'charges')
+        output = prepare_array(output, (self.nbasis, self.nbasis), 'output')
+        # actual job
         (<gbasis.GOBasis*>self._this).compute_nuclear_attraction(
-            &charges[0], &coordinates[0, 0], ncharge,
-            &output_array[0, 0],
-        )
-        # done
-        return output
+            &charges[0], &coordinates[0, 0], natom, &output[0, 0])
+        return np.asarray(output)
 
-    def compute_erf_attraction(self,
-                                   np.ndarray[double, ndim=2] coordinates not None,
-                                   np.ndarray[double, ndim=1] charges not None,
-                                   output, double mu=0.0):
+    def compute_erf_attraction(self, double[:, ::1] coordinates not None,
+                               double[::1] charges not None, double mu=0.0,
+                               double[:, ::1] output=None):
         r"""Compute the model nuclear attraction integral with the long-range potential
 
         The potential has the following form:
@@ -760,52 +738,36 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-        coordinates: np.ndarray, shape = (ncharge,3)
-            A float array with shape (ncharge,3) with Cartesian coordinates
+        coordinates
+            A float array with shape (ncharge, 3) with Cartesian coordinates
             of point charges that define the external field.
-
-        charges: np.ndarray, shape=(ncharge,)
+        charges
              A float array with shape (ncharge,) with the values of the
              charges.
-
-        output: TwoIndex
-             When a ``TwoIndex`` instance is given, it is used as output
-             argument and its contents are overwritten. When ``LinalgFactory``
-             is given, it is used to construct the output ``TwoIndex``
-             object. In both cases, the output two-index object is returned.
-
-         mu : float
+        mu : float
              Parameter for the erf(mu r)/r potential. Default is zero.
+        output
+            Two-index object, optional.
 
         Returns
         -------
-        ``TwoIndex`` object
+        output
 
         Keywords: :index:`two-center integrals`
         """
         # type checking
-        assert coordinates.flags['C_CONTIGUOUS']
-        assert charges.flags['C_CONTIGUOUS']
-        ncharge, coordinates, charges = typecheck_geo(coordinates, None, charges, need_numbers=False)
-        # prepare the output array
-        cdef np.ndarray[double, ndim=2] output_array
-        if isinstance(output, LinalgFactory):
-            lf = output
-            output = lf.create_two_index(self.nbasis)
-        output_array = output._array
-        self.check_matrix_two_index(output_array)
-        # call the low-level routine
+        check_shape(coordinates, (-1, 3), 'coordinates')
+        natom = coordinates.shape[0]
+        check_shape(charges, (natom,), 'charges')
+        output = prepare_array(output, (self.nbasis, self.nbasis), 'output')
+        # actual job
         (<gbasis.GOBasis*>self._this).compute_erf_attraction(
-            &charges[0], &coordinates[0, 0], ncharge,
-            &output_array[0, 0], mu
-        )
-        # done
-        return output
+            &charges[0], &coordinates[0, 0], natom, &output[0, 0], mu)
+        return np.asarray(output)
 
-    def compute_gauss_attraction(self,
-                                   np.ndarray[double, ndim=2] coordinates not None,
-                                   np.ndarray[double, ndim=1] charges not None,
-                                   output, double c=1.0, double alpha=1.0):
+    def compute_gauss_attraction(self, double[:, ::1] coordinates not None,
+                                 double[::1] charges not None, double c=1.0,
+                                 double alpha=1.0, double[:, ::1] output=None, ):
         r"""Compute the model nuclear attraction with a Gaussian potential.
 
         The potential has the following form:
@@ -815,13 +777,18 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-        output : TwoIndex
-            When a ``DenseTwoIndex`` object is given, it is used as output argument and
-            its contents are overwritten.
+        coordinates
+            A float array with shape (ncharge, 3) with Cartesian coordinates
+            of point charges that define the external field.
+        charges
+             A float array with shape (ncharge,) with the values of the
+             charges.
         c : float
-            Coefficient of the gaussian.
+            Coefficient of the gaussian, default=1.0.
         alpha : float
-            Exponential parameter of the gaussian.
+            Exponential parameter of the gaussian, default=1.0.
+        output
+            Two-index object, optional.
 
         Returns
         -------
@@ -830,28 +797,17 @@ cdef class GOBasis(GBasis):
         Keywords: :index:`two-center integrals`
         """
         # type checking
-        assert coordinates.flags['C_CONTIGUOUS']
-        assert charges.flags['C_CONTIGUOUS']
-        ncharge, coordinates, charges = typecheck_geo(coordinates, None, charges, need_numbers=False)
-        # prepare the output array
-        cdef np.ndarray[double, ndim=2] output_array
-        if isinstance(output, LinalgFactory):
-            lf = output
-            output = lf.create_two_index(self.nbasis)
-        output_array = output._array
-        self.check_matrix_two_index(output_array)
-        # call the low-level routine
+        check_shape(coordinates, (-1, 3), 'coordinates')
+        natom = coordinates.shape[0]
+        check_shape(charges, (natom,), 'charges')
+        output = prepare_array(output, (self.nbasis, self.nbasis), 'output')
+        # actual job
         (<gbasis.GOBasis*>self._this).compute_gauss_attraction(
-            &charges[0], &coordinates[0, 0], ncharge,
-            &output_array[0, 0], c, alpha
-        )
-        # done
-        return output
+            &charges[0], &coordinates[0, 0], natom, &output[0, 0], c, alpha)
+        return np.asarray(output)
 
-    def compute_multipole_moment(self,
-                    np.ndarray[long, ndim=1] xyz not None,
-                    np.ndarray[double, ndim=1] center not None,
-                    output):
+    def compute_multipole_moment(self, long[::1] xyz, double[::1] center not None,
+                                 double[:, ::1] output=None):
         """Compute the (multipole) moment integrals in a Gaussian orbital basis.
 
         Calculates the integral < gto_a | (x - C_x)^l (y - C_y)^m (z - C_z)^n | gto_b >
@@ -864,37 +820,27 @@ cdef class GOBasis(GBasis):
         center : np.ndarray, shape = (3,)
             A numpy array of shape (3,) with the center [C_x, C_y, C_z] around which the
             moment integral is computed.
-        output : ``TwoIndex`` or ``LinalgFactory`` object
-            When a ``TwoIndex`` instance is given, it is used as output argument and its
-            contents are overwritten. When ``LinalgFactory`` is given, it is used to
-            construct the output ``TwoIndex`` object. In both cases, the output two-index
-            object is returned.
+        output
+            Two-index object, optional.
 
         Returns
         -------
-        output : ``TwoIndex`` object
-            The values of the integrals.
+        output
         """
         # type checking
-        assert xyz.flags['C_CONTIGUOUS']
-        assert xyz.min() >= 0
-        assert xyz.sum() >= 0
-        assert center.flags['C_CONTIGUOUS']
-        # prepare the output array
-        cdef np.ndarray[double, ndim=2] output_array
-        if isinstance(output, LinalgFactory):
-            lf = output
-            output = lf.create_two_index(self.nbasis)
-        output_array = output._array
-        self.check_matrix_two_index(output_array)
-        # call the low-level routine
+        check_shape(center, (3,), 'center')
+        check_shape(xyz, (3,), 'xyz')
+        if xyz[0] < 0 or xyz[1] < 0 or xyz[2] < 0 or xyz[0] + xyz[1] + xyz[2] <= 0:
+            raise ValueError('Exponents of the Cartesian multipole operators must be '
+                             'positive and may not sum to zero.')
+        output = prepare_array(output, (self.nbasis, self.nbasis), 'output')
+        # actual job
         (<gbasis.GOBasis*>self._this).compute_multipole_moment(
-            &xyz[0], &center[0], &output_array[0, 0])
-        # done
-        return output
+            &xyz[0], &center[0], &output[0, 0])
+        return np.asarray(output)
 
-    def compute_electron_repulsion(self, output):
-        r'''Compute electron-electron repulsion integrals
+    def compute_electron_repulsion(self, double[:, :, :, ::1] output=None):
+        r'''Compute electron-electron repulsion integrals.
 
         The potential has the following form:
 
@@ -903,11 +849,8 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-        output : FourIndex
-            When a ``DenseFourIndex`` object is given, it is used as output argument and
-            its contents are overwritten. When a ``DenseLinalgFactory`` or
-            ``CholeskyLinalgFactory`` is given, it is used to construct the four-index
-            object in which the integrals are stored.
+        output
+            A Four-index object, optional.
 
         Returns
         -------
@@ -916,24 +859,12 @@ cdef class GOBasis(GBasis):
         Keywords: :index:`ERI`, :index:`four-center integrals`
         '''
         biblio.cite('valeev2014',
-                 'the efficient implementation of four-center electron repulsion integrals')
-        if isinstance(output, CholeskyLinalgFactory):
-            lf = output
-            output = compute_cholesky(self, GB4ElectronRepulsionIntegralLibInt(self.max_shell_type), lf=lf)
-            return output
-        # prepare the output array
-        cdef np.ndarray[double, ndim=4] output_array
-        if isinstance(output, LinalgFactory):
-            lf = output
-            output = lf.create_four_index(self.nbasis)
-        output_array = output._array
-        self.check_matrix_four_index(output_array)
-        # call the low-level routine
-        (<gbasis.GOBasis*>self._this).compute_electron_repulsion(&output_array[0, 0, 0, 0])
-        # done
-        return output
+                    'the efficient implementation of four-center electron repulsion integrals')
+        output = prepare_array(output, (self.nbasis, self.nbasis, self.nbasis, self.nbasis), 'output')
+        (<gbasis.GOBasis*>self._this).compute_electron_repulsion(&output[0, 0, 0, 0])
+        return np.asarray(output)
 
-    def compute_erf_repulsion(self, output, double mu=0.0):
+    def compute_erf_repulsion(self, double mu=0.0, double[:, :, :, ::1] output=None):
         r"""Compute short-range electron repulsion integrals.
 
         The potential has the following form:
@@ -943,13 +874,10 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-        output : FourIndex
-            When a ``DenseFourIndex`` object is given, it is used as output argument and
-            its contents are overwritten. When a ``DenseLinalgFactory`` or
-            ``CholeskyLinalgFactory`` is given, it is used to construct the four-index
-            object in which the integrals are stored.
         mu : float
             Parameter for the erf(mu r)/r potential. Default is zero.
+        output
+            A Four-index object, optional.
 
         Returns
         -------
@@ -961,23 +889,12 @@ cdef class GOBasis(GBasis):
                  'the efficient implementation of four-center electron repulsion integrals')
         biblio.cite('ahlrichs2006',
                  'the methodology to implement various types of four-center integrals.')
-        if isinstance(output, CholeskyLinalgFactory):
-            lf = output
-            output = compute_cholesky(self, GB4ErfIntegralLibInt(self.max_shell_type, mu), lf=lf)
-            return output
-        # prepare the output array
-        cdef np.ndarray[double, ndim=4] output_array
-        if isinstance(output, LinalgFactory):
-            lf = output
-            output = lf.create_four_index(self.nbasis)
-        output_array = output._array
-        self.check_matrix_four_index(output_array)
-        # call the low-level routine
-        (<gbasis.GOBasis*>self._this).compute_erf_repulsion(&output_array[0, 0, 0, 0], mu)
-        # done
-        return output
+        output = prepare_array(output, (self.nbasis, self.nbasis, self.nbasis, self.nbasis), 'output')
+        (<gbasis.GOBasis*>self._this).compute_erf_repulsion(&output[0, 0, 0, 0], mu)
+        return np.asarray(output)
 
-    def compute_gauss_repulsion(self, output, double c=1.0, double alpha=1.0):
+    def compute_gauss_repulsion(self, double c=1.0, double alpha=1.0,
+                                double[:, :, :, ::1] output=None):
         r"""Compute gaussian repulsion four-center integrals.
 
         The potential has the following form:
@@ -987,15 +904,12 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-        output : FourIndex
-            When a ``DenseFourIndex`` object is given, it is used as output argument and
-            its contents are overwritten. When a ``DenseLinalgFactory`` or
-            ``CholeskyLinalgFactory`` is given, it is used to construct the four-index
-            object in which the integrals are stored.
         c : float
             Coefficient of the gaussian.
         alpha : float
             Exponential parameter of the gaussian.
+        output
+            A Four-index object, optional.
 
         Returns
         -------
@@ -1011,23 +925,11 @@ cdef class GOBasis(GBasis):
                  'four-center integrals with a Gaussian interaction potential.')
         biblio.cite('toulouse2004',
                  'four-center integrals with a Gaussian interaction potential.')
-        if isinstance(output, CholeskyLinalgFactory):
-            lf = output
-            output = compute_cholesky(self, GB4GaussIntegralLibInt(self.max_shell_type, c, alpha), lf=lf)
-            return output
-        # prepare the output array
-        cdef np.ndarray[double, ndim=4] output_array
-        if isinstance(output, LinalgFactory):
-            lf = output
-            output = lf.create_four_index(self.nbasis)
-        output_array = output._array
-        self.check_matrix_four_index(output_array)
-        # call the low-level routine
-        (<gbasis.GOBasis*>self._this).compute_gauss_repulsion(&output_array[0, 0, 0, 0], c, alpha)
-        # done
-        return output
+        output = prepare_array(output, (self.nbasis, self.nbasis, self.nbasis, self.nbasis), 'output')
+        (<gbasis.GOBasis*>self._this).compute_gauss_repulsion(&output[0, 0, 0, 0], c, alpha)
+        return np.asarray(output)
 
-    def compute_ralpha_repulsion(self, output, double alpha=-1.0):
+    def compute_ralpha_repulsion(self, double alpha=-1.0, double[:, :, :, ::1] output=None):
         r"""Compute r^alpha repulsion four-center integrals.
 
         The potential has the following form:
@@ -1039,14 +941,10 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-
-        output : FourIndex
-            When a ``DenseFourIndex`` object is given, it is used as output argument and
-            its contents are overwritten. When a ``DenseLinalgFactory`` or
-            ``CholeskyLinalgFactory`` is given, it is used to construct the four-index
-            object in which the integrals are stored.
         alpha : float
-            The power of r in the interation potential.
+            The power of r in the interaction potential.
+        output
+            A Four-index object, optional.
 
         Returns
         -------
@@ -1058,34 +956,152 @@ cdef class GOBasis(GBasis):
                  'the efficient implementation of four-center electron repulsion integrals')
         biblio.cite('ahlrichs2006',
                  'the methodology to implement various types of four-center integrals.')
-        if isinstance(output, CholeskyLinalgFactory):
-            lf = output
-            output = compute_cholesky(self, GB4RAlphaIntegralLibInt(self.max_shell_type, alpha), lf=lf)
-            return output
-        cdef np.ndarray[double, ndim=4] output_array
-        if isinstance(output, LinalgFactory):
-            lf = output
-            output = lf.create_four_index(self.nbasis)
-        output_array = output._array
-        self.check_matrix_four_index(output_array)
-        # call the low-level routine
-        (<gbasis.GOBasis*>self._this).compute_ralpha_repulsion(&output_array[0, 0, 0, 0], alpha)
-        # done
-        return output
+        output = prepare_array(output, (self.nbasis, self.nbasis, self.nbasis, self.nbasis), 'output')
+        (<gbasis.GOBasis*>self._this).compute_ralpha_repulsion(&output[0, 0, 0, 0], alpha)
+        return np.asarray(output)
 
-    def compute_grid_orbitals_exp(self, exp,
-                                  np.ndarray[double, ndim=2] points not None,
-                                  np.ndarray[long, ndim=1] iorbs not None,
-                                  np.ndarray[double, ndim=2] output=None):
+    def _compute_cholesky(self, GB4Integral gb4int, double threshold=1e-8):
+        """Apply the Cholesky code to a given type of four-center integrals.
+
+        Parameters
+        ----------
+        gb4int
+            The object that can carry out four-center integrals.
+        threshold
+            The cutoff for the Cholesky decomposition.
+
+        Returns
+        -------
+        array : np.ndarray, shape(nvec, nbasis, nbasis), dtype=float
+            The Cholesky-decomposed four-center integrals
+        """
+        cdef gbw.GB4IntegralWrapper* gb4w = NULL
+        cdef vector[double]* vectors = NULL
+        cdef np.npy_intp dims[3]
+        cdef np.ndarray result
+
+        cdef extern from "numpy/arrayobject.h":
+            void PyArray_ENABLEFLAGS(np.ndarray arr, int flags)
+
+        try:
+            gb4w = new gbw.GB4IntegralWrapper(<gbasis.GOBasis*> self._this,
+                                              <ints.GB4Integral*> gb4int._this)
+            vectors = new vector[double]()
+            nvec = cholesky.cholesky(gb4w, vectors, threshold)
+            dims[0] = <np.npy_intp> nvec
+            dims[1] = <np.npy_intp> self.nbasis
+            dims[2] = <np.npy_intp> self.nbasis
+            result = np.PyArray_SimpleNewFromData(3, dims, np.NPY_DOUBLE, &(deref(vectors)[0]))
+            PyArray_ENABLEFLAGS(result, np.NPY_OWNDATA)
+        finally:
+            if gb4w is not NULL:
+                del gb4w
+
+        return result
+
+    def compute_electron_repulsion_cholesky(self, double threshold=1e-8):
+        r"""Compute Cholesky decomposition of electron repulsion four-center integrals.
+
+        Parameters
+        ----------
+        threshold
+            The cutoff for the Cholesky decomposition.
+
+        Returns
+        -------
+        array : np.ndarray, shape(nvec, nbasis, nbasis), dtype=float
+            The Cholesky-decomposed four-center integrals
+
+        Keywords: :index:`ERI`, :index:`four-center integrals`
+        """
+        return self._compute_cholesky(GB4ElectronRepulsionIntegralLibInt(self.max_shell_type))
+
+    def compute_erf_repulsion_cholesky(self, double mu=0.0, double threshold=1e-8):
+        r"""Compute Cholesky decomposition of Erf repulsion four-center integrals.
+
+        The potential has the following form:
+
+        .. math::
+            v = \frac{\mathrm{erf}(\mu r)}{r}
+
+        Parameters
+        ----------
+        mu : float
+            Parameter for the erf(mu r)/r potential. Default is zero.
+        threshold
+            The cutoff for the Cholesky decomposition.
+
+        Returns
+        -------
+        array : np.ndarray, shape(nvec, nbasis, nbasis), dtype=float
+            The Cholesky-decomposed four-center integrals
+
+        Keywords: :index:`ERI`, :index:`four-center integrals`
+        """
+        return self._compute_cholesky(GB4ErfIntegralLibInt(self.max_shell_type, mu))
+
+    def compute_gauss_repulsion_cholesky(self, double c=1.0, double alpha=1.0,
+                                         double threshold=1e-8):
+        r"""Compute Cholesky decomposition of Gauss repulsion four-center integrals.
+
+        The potential has the following form:
+
+        .. math::
+            v = c \exp(-\alpha r^2)
+
+        Parameters
+        ----------
+        c : float
+            Coefficient of the gaussian.
+        alpha : float
+            Exponential parameter of the gaussian.
+        threshold
+            The cutoff for the Cholesky decomposition.
+
+        Returns
+        -------
+        array : np.ndarray, shape(nvec, nbasis, nbasis), dtype=float
+            The Cholesky-decomposed four-center integrals
+
+        Keywords: :index:`ERI`, :index:`four-center integrals`
+        """
+        return self._compute_cholesky(GB4GaussIntegralLibInt(self.max_shell_type, c, alpha))
+
+    def compute_ralpha_repulsion_cholesky(self, double alpha=-1.0, double threshold=1e-8):
+        r"""Compute Cholesky decomposition of ralpha repulsion four-center integrals.
+
+        The potential has the following form:
+
+        .. math::
+            v = r^{\alpha}
+
+        with :math:`\alpha > -3`.
+        Parameters
+        ----------
+        alpha : float
+            The power of r in the interaction potential.
+        threshold
+            The cutoff for the Cholesky decomposition.
+
+        Returns
+        -------
+        array : np.ndarray, shape(nvec, nbasis, nbasis), dtype=float
+            The Cholesky-decomposed four-center integrals
+
+        Keywords: :index:`ERI`, :index:`four-center integrals`
+        """
+        return self._compute_cholesky(GB4RAlphaIntegralLibInt(self.max_shell_type, alpha))
+
+    def compute_grid_orbitals_exp(self, orb, double[:, ::1] points not None,
+                                  long[::1] iorbs not None, double[:, ::1] output=None):
         r"""Compute the orbitals on a grid for a given set of expansion coefficients.
 
         **Warning:** the results are added to the output array!
 
         Parameters
         ----------
-
-        exp : DenseExpansion
-            Orbitals.
+        orb : Orbitals
+            The orbitals.
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
         iorbs : np.ndarray, shape=(n,), dtype=int
@@ -1101,40 +1117,28 @@ cdef class GOBasis(GBasis):
             the output array. (It is allocated when not given.)
         """
         # Do some type checking
-        cdef np.ndarray[double, ndim=2] coeffs = exp.coeffs
-        self.check_matrix_coeffs(coeffs)
+        cdef double[:, :] coeffs = orb.coeffs
+        self.check_coeffs(coeffs)
         nfn = coeffs.shape[1]
-        assert points.flags['C_CONTIGUOUS']
+        check_shape(points, (-1, 3), 'points')
         npoint = points.shape[0]
-        assert points.shape[1] == 3
-        assert iorbs.flags['C_CONTIGUOUS']
         norb = iorbs.shape[0]
-        if output is None:
-            output = np.zeros((npoint, norb), float)
-        else:
-            assert output.flags['C_CONTIGUOUS']
-            assert output.shape[0] == npoint
-            assert output.shape[1] == norb
+        output = prepare_array(output, (npoint, norb), 'output')
         # compute
         (<gbasis.GOBasis*>self._this).compute_grid1_exp(
             nfn, &coeffs[0, 0], npoint, &points[0, 0],
             norb, &iorbs[0], &output[0, 0])
-        return output
+        return np.asarray(output)
 
-
-    def compute_grid_orb_gradient_exp(self, exp,
-                                  np.ndarray[double, ndim=2] points not None,
-                                  np.ndarray[long, ndim=1] iorbs not None,
-                                  np.ndarray[double, ndim=3] output=None):
-
+    def compute_grid_orb_gradient_exp(self, orb, double[:, ::1] points not None,
+                                      long[::1] iorbs not None, double[:, :, ::1] output=None):
         r"""Compute the orbital gradient on a grid for a given set of expansion coefficients.
 
         **Warning:** the results are added to the output array!
 
         Parameters
         ----------
-
-        exp : DenseExpansion
+        orb : Orbitals
             Orbitals.
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
@@ -1150,29 +1154,21 @@ cdef class GOBasis(GBasis):
             the output array. (It is allocated when not given.)
         """
         # Do some type checking
-        cdef np.ndarray[double, ndim=2] coeffs = exp.coeffs
-        self.check_matrix_coeffs(coeffs)
+        cdef double[:, :] coeffs = orb.coeffs
+        self.check_coeffs(coeffs)
         nfn = coeffs.shape[1]
-        assert points.flags['C_CONTIGUOUS']
+        check_shape(points, (-1, 3), 'points')
         npoint = points.shape[0]
-        assert points.shape[1] == 3
-        assert iorbs.flags['C_CONTIGUOUS']
         norb = iorbs.shape[0]
-        if output is None:
-            output = np.zeros((npoint, norb, 3), float)
-        else:
-            assert output.flags['C_CONTIGUOUS']
-            assert output.shape[0] == npoint
-            assert output.shape[1] == norb
-            assert output.shape[3] == 3
+        output = prepare_array(output, (npoint, norb, 3), 'output')
         # compute
         (<gbasis.GOBasis*>self._this).compute_grid1_grad_exp(
             nfn, &coeffs[0, 0], npoint, &points[0, 0],
             norb, &iorbs[0], &output[0, 0, 0])
-        return output
+        return np.asarray(output)
 
-    def _compute_grid1_dm(self, dm, np.ndarray[double, ndim=2] points not None,
-                          GB1DMGridFn grid_fn not None, np.ndarray output not None,
+    def _compute_grid1_dm(self, double[:, ::1] dm not None, double[:, ::1] points not None,
+                          GB1DMGridFn grid_fn not None, double[:, ::1] output not None,
                           double epsilon=0):
         """Compute some density function on a grid for a given density matrix.
 
@@ -1181,8 +1177,7 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-
-        dm : DenseTwoIndex
+        dm : np.ndarray, shape=(nbasis, nbasis), dtype=float
             Density matrix, assumed to be symmetric.
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
@@ -1194,37 +1189,20 @@ cdef class GOBasis(GBasis):
             Allow errors on the density of this magnitude for the sake of
             efficiency. Some grid_fn implementations may ignore this.
         """
-        # Get the array of the density matrix
-        cdef np.ndarray[double, ndim=2] dmar = dm._array
-        self.check_matrix_two_index(dmar)
-
+        # Check the array shapes
+        check_shape(dm, (self.nbasis, self.nbasis,), 'dm')
+        check_shape(points, (-1, 3), 'points')
+        npoint = points.shape[0]
+        check_shape(output, (npoint, grid_fn.dim_output), 'output')
         # Get the maximum of the absolute value over the rows
-        cdef np.ndarray[double, ndim=1] dmmaxrow = np.abs(dmar).max(axis=0)
-
-        # Check the output array
-        assert output.flags['C_CONTIGUOUS']
-        assert output.dtype == np.double
-        npoint = output.shape[0]
-        if grid_fn.dim_output == 1:
-            assert output.ndim == 1
-        else:
-            assert output.ndim == 2
-            assert output.shape[1] == grid_fn.dim_output
-
-        # Check the points array
-        assert points.flags['C_CONTIGUOUS']
-        assert points.shape[0] == npoint
-        assert points.shape[1] == 3
-
+        cdef double[:] dmmaxrow = np.abs(dm).max(axis=0)
         # Go!
         (<gbasis.GOBasis*>self._this).compute_grid1_dm(
-            &dmar[0, 0], npoint, &points[0, 0],
-            grid_fn._this, <double*>np.PyArray_DATA(output), epsilon,
+            &dm[0, 0], npoint, &points[0, 0], grid_fn._this, &output[0, 0], epsilon,
             &dmmaxrow[0])
 
-    def compute_grid_density_dm(self, dm,
-                                np.ndarray[double, ndim=2] points not None,
-                                np.ndarray[double, ndim=1] output=None,
+    def compute_grid_density_dm(self, double[:, ::1] dm not None,
+                                double[:, ::1] points not None, double[::1] output=None,
                                 double epsilon=0):
         """Compute the electron density on a grid for a given density matrix.
 
@@ -1233,8 +1211,7 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-
-        dm : DenseTwoIndex
+        dm : np.ndarray, shape=(nbasis, nbasis), dtype=float
             Density matrix, assumed to be symmetric.
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
@@ -1251,12 +1228,12 @@ cdef class GOBasis(GBasis):
         """
         if output is None:
             output = np.zeros(points.shape[0])
-        self._compute_grid1_dm(dm, points, GB1DMGridDensityFn(self.max_shell_type), output, epsilon)
-        return output
+        self._compute_grid1_dm(dm, points, GB1DMGridDensityFn(self.max_shell_type),
+                               output[:, None], epsilon)
+        return np.asarray(output)
 
-    def compute_grid_gradient_dm(self, dm,
-                                 np.ndarray[double, ndim=2] points not None,
-                                 np.ndarray[double, ndim=2] output=None):
+    def compute_grid_gradient_dm(self, double[:, ::1] dm not None,
+                                 double[:, ::1] points not None, double[:, ::1] output=None):
         """Compute the electron density gradient on a grid for a given density matrix.
 
         **Warning:** the results are added to the output array! This may be useful to
@@ -1264,8 +1241,7 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-
-        dm : DenseTwoIndex
+        dm : np.ndarray, shape=(nbasis, nbasis), dtype=float
             Density matrix, assumed to be symmetric.
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
@@ -1280,11 +1256,10 @@ cdef class GOBasis(GBasis):
         if output is None:
             output = np.zeros((points.shape[0], 3), float)
         self._compute_grid1_dm(dm, points, GB1DMGridGradientFn(self.max_shell_type), output)
-        return output
+        return np.asarray(output)
 
-    def compute_grid_gga_dm(self, dm,
-                            np.ndarray[double, ndim=2] points not None,
-                            np.ndarray[double, ndim=2] output=None):
+    def compute_grid_gga_dm(self, double[:, ::1] dm not None,
+                            double[:, ::1] points not None, double[:, ::1] output=None):
         """Compute the electron density and gradient on a grid for a given density matrix.
 
         **Warning:** the results are added to the output array! This may be useful to
@@ -1292,8 +1267,7 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-
-        dm : DenseTwoIndex
+        dm : np.ndarray, shape=(nbasis, nbasis), dtype=float
             Density matrix, assumed to be symmetric.
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
@@ -1309,11 +1283,10 @@ cdef class GOBasis(GBasis):
         if output is None:
             output = np.zeros((points.shape[0], 4), float)
         self._compute_grid1_dm(dm, points, GB1DMGridGGAFn(self.max_shell_type), output)
-        return output
+        return np.asarray(output)
 
-    def compute_grid_kinetic_dm(self, dm,
-                                np.ndarray[double, ndim=2] points not None,
-                                np.ndarray[double, ndim=1] output=None):
+    def compute_grid_kinetic_dm(self, double[:, ::1] dm not None,
+                                double[:, ::1] points not None, double[::1] output=None):
         """Compute the kinetic energy density on a grid for a given density matrix.
 
         **Warning:** the results are added to the output array! This may be useful to
@@ -1321,8 +1294,7 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-
-        dm : DenseTwoIndex
+        dm : np.ndarray, shape=(nbasis, nbasis), dtype=float
             Density matrix, assumed to be symmetric.
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
@@ -1336,12 +1308,11 @@ cdef class GOBasis(GBasis):
         """
         if output is None:
             output = np.zeros((points.shape[0],), float)
-        self._compute_grid1_dm(dm, points, GB1DMGridKineticFn(self.max_shell_type), output)
-        return output
+        self._compute_grid1_dm(dm, points, GB1DMGridKineticFn(self.max_shell_type), output[:, None])
+        return np.asarray(output)
 
-    def compute_grid_hessian_dm(self, dm,
-                                np.ndarray[double, ndim=2] points not None,
-                                np.ndarray[double, ndim=2] output=None):
+    def compute_grid_hessian_dm(self, double[:, ::1] dm not None,
+                                double[:, ::1] points not None, double[:, ::1] output=None):
         """Compute the electron density Hessian on a grid for a given density matrix.
 
         **Warning:** the results are added to the output array! This may be useful to
@@ -1349,8 +1320,7 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-
-        dm : DenseTwoIndex
+        dm : np.ndarray, shape=(nbasis, nbasis), dtype=float
             Density matrix, assumed to be symmetric.
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
@@ -1373,23 +1343,21 @@ cdef class GOBasis(GBasis):
         if output is None:
             output = np.zeros((points.shape[0], 6), float)
         self._compute_grid1_dm(dm, points, GB1DMGridHessianFn(self.max_shell_type), output)
-        return output
+        return np.asarray(output)
 
-    def compute_grid_mgga_dm(self, dm,
-                             np.ndarray[double, ndim=2] points not None,
-                             np.ndarray[double, ndim=2] output=None):
+    def compute_grid_mgga_dm(self, double[:, ::1] dm not None,
+                             double[:, ::1] points not None, double[:, ::1] output=None):
         """Compute the MGGA quantities for a given density matrix.
 
         **Warning:** the results are added to the output array! This may be useful to
         combine results from different spin components.
 
-        This includes the density, the gradient, the Laplacian and the
-        kinetic energy density.
+        This includes the density, the gradient, the Laplacian and the kinetic energy
+        density.
 
         Parameters
         ----------
-
-        dm : DenseTwoIndex
+        dm : np.ndarray, shape=(nbasis, nbasis), dtype=float
             Density matrix, assumed to be symmetric.
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
@@ -1404,7 +1372,6 @@ cdef class GOBasis(GBasis):
             * 4: laplacian
             * 5: kinetic energy density
 
-
         Returns
         -------
         output : np.ndarray, shape=(npoint, 6), dtype=float
@@ -1413,11 +1380,10 @@ cdef class GOBasis(GBasis):
         if output is None:
             output = np.zeros((points.shape[0], 6), float)
         self._compute_grid1_dm(dm, points, GB1DMGridMGGAFn(self.max_shell_type), output)
-        return output
+        return np.asarray(output)
 
-    def compute_grid_hartree_dm(self, dm,
-                                np.ndarray[double, ndim=2] points not None,
-                                np.ndarray[double, ndim=1] output=None):
+    def compute_grid_hartree_dm(self, double[:, ::1] dm not None,
+                                double[:, ::1] points not None, double[::1] output=None):
         """Compute the Hartree potential on a grid for a given density matrix.
 
         **Warning:** the results are added to the output array! This may be useful to
@@ -1425,14 +1391,12 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-
-        dm : DenseTwoIndex
+        dm : np.ndarray, shape=(nbasis, nbasis), dtype=float
             Density matrix, assumed to be symmetric.
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
         output : np.ndarray, shape=(npoint,), dtype=float
             Output array. When not given, it is allocated and returned.
-
 
         Returns
         -------
@@ -1440,27 +1404,18 @@ cdef class GOBasis(GBasis):
             The output array.
         """
         # type checking
-        cdef np.ndarray[double, ndim=2] dmar = dm._array
-        self.check_matrix_two_index(dmar)
-        assert points.flags['C_CONTIGUOUS']
+        check_shape(dm, (self.nbasis, self.nbasis), 'dm')
+        check_shape(points, (-1, 3), 'points')
         npoint = points.shape[0]
-        assert points.shape[1] == 3
-        if output is None:
-            output = np.zeros(npoint, float)
-        else:
-            assert output.flags['C_CONTIGUOUS']
-            assert output.shape[0] == npoint
+        output = prepare_array(output, (npoint,), 'output')
         # compute
         (<gbasis.GOBasis*>self._this).compute_grid2_dm(
-            &dmar[0, 0], npoint, &points[0, 0],
-            &output[0])
-        return output
+            &dm[0, 0], npoint, &points[0, 0], &output[0])
+        return np.asarray(output)
 
-    def compute_grid_esp_dm(self, dm,
-                            np.ndarray[double, ndim=2] coordinates not None,
-                            np.ndarray[double, ndim=1] charges not None,
-                            np.ndarray[double, ndim=2] points not None,
-                            np.ndarray[double, ndim=1] output=None):
+    def compute_grid_esp_dm(self, double[:, ::1] dm not None,
+                            double[:, ::1] coordinates not None, double[::1] charges not None,
+                            double[:, ::1] points not None, double[::1] output=None):
         """Compute the electrostatic potential on a grid for a given density matrix.
 
         **Warning:** the results are added to the output array! This may be useful to
@@ -1468,8 +1423,7 @@ cdef class GOBasis(GBasis):
 
         Parameters
         ----------
-
-        dm : DenseTwoIndex
+        dm : np.ndarray, shape=(nbasis, nbasis), dtype=float
             Density matrix, assumed to be symmetric.
         coordinates : np.ndarray, shape=(natom, 3), dtype=float
             Cartesian coordinates of the atoms.
@@ -1480,28 +1434,26 @@ cdef class GOBasis(GBasis):
         output : np.ndarray, shape=(npoint,), dtype=float
             Output array. When not given, it is allocated and returned.
 
-
         Returns
         -------
         output : np.ndarray, shape=(npoint,), dtype=float
             The output array.
         """
         output = self.compute_grid_hartree_dm(dm, points, output)
-        output *= -1
+        cdef np.ndarray[ndim=1, dtype=double] tmp = np.asarray(output)
+        tmp *= -1
         compute_grid_nucpot(coordinates, charges, points, output)
-        return output
+        return tmp
 
-    def _compute_grid1_fock(self, np.ndarray[double, ndim=2] points not None,
-                           np.ndarray[double, ndim=1] weights not None,
-                           np.ndarray pots not None,
-                           GB1DMGridFn grid_fn not None, fock):
+    def _compute_grid1_fock(self, double[:, ::1] points not None, double[::1] weights not None,
+                            double[:, :] pots not None, GB1DMGridFn grid_fn not None,
+                            double[:, ::1] fock=None):
         """Compute a Fock operator from a some sort of potential.
 
         **Warning:** the results are added to the Fock operator!
 
         Parameters
         ----------
-
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
         weights : np.ndarray, shape=(npoint,), dtype=float
@@ -1511,62 +1463,61 @@ cdef class GOBasis(GBasis):
             at all grid points. The number of columns depends on grid_fn.
         grid_fn : GB1DMGridFn
             Implements the function to be evaluated on the grid.
-        fock : DenseTwoIndex
-            Output dense two-index object.
+        fock : np.ndarray, shape=(nbasis, nbasis), dtype=float
+            Output two-index object.
         """
-        cdef np.ndarray[double, ndim=2] output = fock._array
-        self.check_matrix_two_index(output)
-        assert points.flags['C_CONTIGUOUS']
+        fock = prepare_array(fock, (self.nbasis, self.nbasis), 'fock')
+        check_shape(points, (-1, 3), 'points')
         npoint = points.shape[0]
-        assert points.shape[1] == 3
-        assert weights.flags['C_CONTIGUOUS']
-        assert npoint == weights.shape[0]
-        assert pots.strides[0] % 8 == 0
-        pot_stride = pots.strides[0]/8
-        assert npoint == pots.shape[0]
-        if grid_fn.dim_output == 1:
-            assert pots.ndim == 1
-        else:
-            assert pots.ndim == 2
-            assert pots.shape[1] == grid_fn.dim_output
-            assert pots.strides[1] % 8 == 0
-            pot_stride *= (pots.strides[1] / 8)
+        check_shape(weights, (npoint,), 'weights')
+        check_shape(pots, (npoint, grid_fn.dim_output), 'pots')
+        if pots.strides[0] % 8 != 0:
+            raise TypeError('stride[0] of the pots argument must be a multiple of 8.')
+        if pots.strides[1] % 8 != 0:
+            raise TypeError('stride[1] of the pots argument must be a multiple of 8.')
+        pot_stride = (pots.strides[0]/8)
+        if pots.shape[1] > 1:
+            pot_stride *= (pots.strides[1]/8)
         (<gbasis.GOBasis*>self._this).compute_grid1_fock(
-            npoint, &points[0, 0], &weights[0],
-            pot_stride, <double*>np.PyArray_DATA(pots),
-            grid_fn._this, &output[0, 0])
+            npoint, &points[0, 0], &weights[0], pot_stride, &pots[0, 0], grid_fn._this,
+            &fock[0, 0])
+        return fock
 
-    def compute_grid_density_fock(self, np.ndarray[double, ndim=2] points not None,
-                                  np.ndarray[double, ndim=1] weights not None,
-                                  np.ndarray[double, ndim=1] pots not None, fock):
+    def compute_grid_density_fock(self, double[:, ::1] points not None,
+                                  double[::1] weights not None, double[:] pots not None,
+                                  double[:, ::1] fock=None):
         """Compute a Fock operator from a density potential.
 
         **Warning:** the results are added to the Fock operator!
 
         Parameters
         ----------
-
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
         weights : np.ndarray, shape=(npoint,), dtype=float
             Integration weights.
         pots : np.ndarray, shape=(npoint,), dtype=float
             Derivative of the energy toward the density at all grid points.
-        fock : DenseTwoIndex
-            Output dense two-index object.
-        """
-        self._compute_grid1_fock(points, weights, pots, GB1DMGridDensityFn(self.max_shell_type), fock)
+        fock : np.ndarray, shape=(nbasis, nbasis), dtype=float
+            Output two-index object, optional.
 
-    def compute_grid_gradient_fock(self, np.ndarray[double, ndim=2] points not None,
-                                   np.ndarray[double, ndim=1] weights not None,
-                                   np.ndarray[double, ndim=2] pots not None, fock):
+        Returns
+        -------
+        fock
+        """
+        fock = self._compute_grid1_fock(
+            points, weights, pots[:, None], GB1DMGridDensityFn(self.max_shell_type), fock)
+        return np.asarray(fock)
+
+    def compute_grid_gradient_fock(self, double[:, ::1] points not None,
+                                   double[::1] weights not None, double[:, :] pots not None,
+                                   double[:, ::1] fock=None):
         """Compute a Fock operator from a density gradient potential.
 
         **Warning:** the results are added to the Fock operator!
 
         Parameters
         ----------
-
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
         weights : np.ndarray, shape=(npoint,), dtype=float
@@ -1574,21 +1525,26 @@ cdef class GOBasis(GBasis):
         pots : np.ndarray, shape=(npoint, 3), dtype=float
             Derivative of the energy toward the density gradient components at all grid
             points.
-        fock : DenseTwoIndex
-            Output dense two-index object.
-        """
-        self._compute_grid1_fock(points, weights, pots, GB1DMGridGradientFn(self.max_shell_type), fock)
+        fock : np.ndarray, shape=(nbasis, nbasis), dtype=float
+            Output two-index object, optional.
 
-    def compute_grid_gga_fock(self, np.ndarray[double, ndim=2] points not None,
-                                    np.ndarray[double, ndim=1] weights not None,
-                                    np.ndarray[double, ndim=2] pots not None, fock):
+        Returns
+        -------
+        fock
+        """
+        fock = self._compute_grid1_fock(
+            points, weights, pots, GB1DMGridGradientFn(self.max_shell_type), fock)
+        return np.asarray(fock)
+
+    def compute_grid_gga_fock(self, double[:, ::1] points not None,
+                              double[::1] weights not None, double[:, :] pots not None,
+                              double[:, ::1] fock=None):
         """Compute a Fock operator from GGA potential data.
 
         **Warning:** the results are added to the Fock operator!
 
         Parameters
         ----------
-
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
         weights : np.ndarray, shape=(npoint,), dtype=float
@@ -1596,43 +1552,52 @@ cdef class GOBasis(GBasis):
         pots : np.ndarray, shape=(npoint, 4), dtype=float
             Derivative of the energy toward GGA ingredients (density and gradient) at all
             grid points.
-        fock : DenseTwoIndex
-            Output dense two-index object.
-        """
-        # To be replaced by something more efficient
-        self._compute_grid1_fock(points, weights, pots, GB1DMGridGGAFn(self.max_shell_type), fock)
+        fock : np.ndarray, shape=(nbasis, nbasis), dtype=float
+            Output two-index object, optional.
 
-    def compute_grid_kinetic_fock(self, np.ndarray[double, ndim=2] points not None,
-                                  np.ndarray[double, ndim=1] weights not None,
-                                  np.ndarray[double, ndim=1] pots not None, fock):
+        Returns
+        -------
+        fock
+        """
+        fock = self._compute_grid1_fock(
+            points, weights, pots, GB1DMGridGGAFn(self.max_shell_type), fock)
+        return np.asarray(fock)
+
+    def compute_grid_kinetic_fock(self, double[:, ::1] points not None,
+                                  double[::1] weights not None, double[:] pots not None,
+                                  double[:, ::1] fock=None):
         """Compute a Fock operator from a kientic-energy-density potential.
 
         **Warning:** the results are added to the Fock operator!
 
         Parameters
         ----------
-
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
         weights : np.ndarray, shape=(npoint,), dtype=float
             Integration weights.
         pots : np.ndarray, shape=(npoint,), dtype=float
             Derivative of the energy toward the kinetic energy density at all grid points.
-        fock : DenseTwoIndex
-            Output dense two-index object.
-        """
-        self._compute_grid1_fock(points, weights, pots, GB1DMGridKineticFn(self.max_shell_type), fock)
+        fock : np.ndarray, shape=(nbasis, nbasis), dtype=float
+            Output two-index object, optional.
 
-    def compute_grid_hessian_fock(self, np.ndarray[double, ndim=2] points not None,
-                                  np.ndarray[double, ndim=1] weights not None,
-                                  np.ndarray[double, ndim=2] pots not None, fock):
+        Returns
+        -------
+        fock
+        """
+        fock = self._compute_grid1_fock(
+            points, weights, pots[:, None], GB1DMGridKineticFn(self.max_shell_type), fock)
+        return np.asarray(fock)
+
+    def compute_grid_hessian_fock(self, double[:, ::1] points not None,
+                                  double[::1] weights not None, double[:, :] pots not None,
+                                  double[:, ::1] fock=None):
         """Compute a Fock operator from a density hessian potential.
 
         **Warning:** the results are added to the Fock operator!
 
         Parameters
         ----------
-
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
         weights : np.ndarray, shape=(npoint,), dtype=float
@@ -1647,21 +1612,27 @@ cdef class GOBasis(GBasis):
             * 3: element (1, 1) of the Hessian
             * 4: element (1, 2) of the Hessian
             * 5: element (2, 2) of the Hessian
-        fock : DenseTwoIndex
-            Output dense two-index object.
-        """
-        self._compute_grid1_fock(points, weights, pots, GB1DMGridHessianFn(self.max_shell_type), fock)
 
-    def compute_grid_mgga_fock(self, np.ndarray[double, ndim=2] points not None,
-                                np.ndarray[double, ndim=1] weights not None,
-                                np.ndarray[double, ndim=2] pots not None, fock):
+        fock : np.ndarray, shape=(nbasis, nbasis), dtype=float
+            Output two-index object, optional.
+
+        Returns
+        -------
+        fock
+        """
+        fock = self._compute_grid1_fock(
+            points, weights, pots, GB1DMGridHessianFn(self.max_shell_type), fock)
+        return np.asarray(fock)
+
+    def compute_grid_mgga_fock(self, double[:, ::1] points not None,
+                               double[::1] weights not None, double[:, :] pots not None,
+                               double[:, ::1] fock=None):
         """Compute a Fock operator from MGGA potential data.
 
         **Warning:** the results are added to the Fock operator!
 
         Parameters
         ----------
-
         points : np.ndarray, shape=(npoint, 3), dtype=float
             Cartesian grid points.
         weights : np.ndarray, shape=(npoint,), dtype=float
@@ -1676,10 +1647,17 @@ cdef class GOBasis(GBasis):
             * 3: gradient z
             * 4: laplacian
             * 5: kinetic energy density
-        fock : DenseTwoIndex
-            Output dense two-index object.
+
+        fock : np.ndarray, shape=(nbasis, nbasis), dtype=float
+            Output two-index object, optional.
+
+        Returns
+        -------
+        fock
         """
-        self._compute_grid1_fock(points, weights, pots, GB1DMGridMGGAFn(self.max_shell_type), fock)
+        fock = self._compute_grid1_fock(
+            points, weights, pots, GB1DMGridMGGAFn(self.max_shell_type), fock)
+        return np.asarray(fock)
 
 
 #

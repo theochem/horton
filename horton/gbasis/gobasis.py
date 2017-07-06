@@ -429,8 +429,6 @@ class GOBasisContraction(object):
         con_coeffs = self.con_coeffs
         gobasis = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
         # 2) Get the first diagonal element of the overlap matrix
-        from horton.matrix.dense import DenseLinalgFactory
-        lf = DenseLinalgFactory(gobasis.nbasis)
-        olpdiag = gobasis.compute_overlap(lf)._array[0, 0]
+        olpdiag = gobasis.compute_overlap()[0, 0]
         # 3) Normalize the contraction
         self.con_coeffs /= np.sqrt(olpdiag)

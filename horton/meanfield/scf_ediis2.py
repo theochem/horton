@@ -71,25 +71,19 @@ class EDIIS2History(EDIISHistory, CDIISHistory):
     name = 'EDIIS+DIIS'
     need_energy = True
 
-    def __init__(self, lf, nvector, ndm, deriv_scale, overlap):
-        '''
-           **Arguments:**
+    def __init__(self, nvector, ndm, deriv_scale, overlap):
+        '''Initialize a EDIIS2History object.
 
-           lf
-                The LinalgFactor used to create the two-index operators.
-
-           nvector
-                The maximum size of the history.
-
-           ndm
-                The number of density matrices (and fock matrices) in one
-                state.
-
-           deriv_scale
-                The deriv_scale attribute of the Effective Hamiltonian
-
-           overlap
-                The overlap matrix.
+        Parameters
+        ----------
+        nvector : int
+            Size of the history
+        ndm
+            The number of density matrices (and fock matrices) in one state.
+        deriv_scale
+            The deriv_scale attribute of the Effective Hamiltonian
+        overlap
+            The overlap matrix.
         '''
         # for the EDIIS part
         self.edots = np.empty((nvector, nvector))
@@ -97,7 +91,7 @@ class EDIIS2History(EDIISHistory, CDIISHistory):
         # for the CDIIS part
         self.cdots = np.empty((nvector, nvector))
         self.cdots.fill(np.nan)
-        DIISHistory.__init__(self, lf, nvector, ndm, deriv_scale, overlap, [self.edots, self.cdots])
+        DIISHistory.__init__(self, nvector, ndm, deriv_scale, overlap, [self.edots, self.cdots])
 
     @doc_inherit(DIISHistory)
     def solve(self, dms_output, focks_output):

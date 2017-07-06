@@ -66,28 +66,25 @@ class EDIISHistory(DIISHistory):
     name = 'EDIIS'
     need_energy = True
 
-    def __init__(self, lf, nvector, ndm, deriv_scale, overlap):
-        '''
-           **Arguments:**
+    def __init__(self, nvector, ndm, deriv_scale, overlap):
+        '''Initialize a EDIISHistory object.
 
-           lf
-                The LinalgFactor used to create the two-index operators.
-
-           ndm
-                The number of density matrices (and fock matrices) in one
-                state.
-
-           deriv_scale
-                The deriv_scale attribute of the Effective Hamiltonian
-
-           overlap
-                The overlap matrix.
+        Parameters
+        ----------
+        nvector : int
+            Size of the history
+        ndm
+            The number of density matrices (and fock matrices) in one state.
+        deriv_scale
+            The deriv_scale attribute of the Effective Hamiltonian
+        overlap
+            The overlap matrix.
         '''
         # A matrix with dot products of all density and fock matrices
         # Note that the dots matrix is not symmetric!
         self.edots = np.empty((nvector, nvector))
         self.edots.fill(np.nan)
-        DIISHistory.__init__(self, lf, nvector, ndm, deriv_scale, overlap, [self.edots])
+        DIISHistory.__init__(self, nvector, ndm, deriv_scale, overlap, [self.edots])
 
     def _complete_edots_matrix(self):
         '''Complete the matrix of dot products between density and fock matrices
@@ -105,12 +102,12 @@ class EDIISHistory(DIISHistory):
                 state1 = self.stack[i1]
                 self.edots[i0,i1] = 0.0
                 for j in xrange(self.ndm):
-                    self.edots[i0,i1] += state0.focks[j].contract_two('ab,ba', state1.dms[j])
+                    self.edots[i0,i1] += np.einsum('ab,ba', state0.focks[j], state1.dms[j])
                 if i0 != i1:
                     # Note that this matrix is not symmetric!
                     self.edots[i1,i0] = 0.0
                     for j in xrange(self.ndm):
-                        self.edots[i1,i0] += state1.focks[j].contract_two('ab,ba', state0.dms[j])
+                        self.edots[i1,i0] += np.einsum('ab,ba', state1.focks[j], state0.dms[j])
 
     def _setup_equations(self):
         '''Compute the equations for the quadratic programming problem.'''

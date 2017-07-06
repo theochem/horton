@@ -3380,28 +3380,23 @@ def test_erf_repulsion_h2_sto3g():
     # Create a Gaussian basis set
     obasis = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
 
-    # Create a linalg factory
-    lf = DenseLinalgFactory(obasis.nbasis)
-
     # Compute Gaussian integrals
-    olp = obasis.compute_overlap(lf)
-    kin = obasis.compute_kinetic(lf)
-    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, lf)
-    er = obasis.compute_erf_repulsion(lf, 2.25)
+    olp = obasis.compute_overlap()
+    kin = obasis.compute_kinetic()
+    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    er = obasis.compute_erf_repulsion(2.25)
 
     # Create alpha orbitals
-    exp_alpha = lf.create_expansion()
+    orb_alpha = Orbitals(obasis.nbasis)
 
     # Initial guess
-    guess_core_hamiltonian(olp, kin, na, exp_alpha)
-    mol.exp_alpha = exp_alpha
+    core = kin+na
+    guess_core_hamiltonian(olp, core, orb_alpha)
+    mol.orb_alpha = orb_alpha
 
     # Transform orbitals
-    one = kin.copy()
-    one.iadd(na)
-    two = er
-    two_mo = transform_integrals(one, two, 'tensordot', mol.exp_alpha)[1][0]
-    assert abs(mol2.two_mo._array - two_mo._array).max() < 1e-10
+    two_mo = transform_integrals(core, er, 'tensordot', mol.orb_alpha)[1][0]
+    assert abs(mol2.two_mo - two_mo).max() < 1e-10
 
 
 def check_gauss_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, scales0,
@@ -4302,11 +4297,11 @@ def test_ralpha_repulsion_4_3_2_1():
 def check_g09_overlap(fn_fchk):
     fn_log = fn_fchk[:-5] + '.log'
     mol = IOData.from_file(fn_fchk, fn_log)
-    olp1 = mol.obasis.compute_overlap(mol.lf)
+    olp1 = mol.obasis.compute_overlap()
     olp2 = mol.olp
-    mask = abs(olp1._array) > 1e-5
-    delta = olp1._array - olp2._array
-    expect = olp1._array
+    mask = abs(olp1) > 1e-5
+    delta = olp1 - olp2
+    expect = olp1
     error = (delta[mask] / expect[mask]).max()
     assert error < 1e-5
 
@@ -4334,11 +4329,11 @@ def test_overlap_co_ccpv5z_cart_hf():
 def check_g09_kinetic(fn_fchk):
     fn_log = fn_fchk[:-5] + '.log'
     mol = IOData.from_file(fn_fchk, fn_log)
-    kin1 = mol.obasis.compute_kinetic(mol.lf)
+    kin1 = mol.obasis.compute_kinetic()
     kin2 = mol.kin
-    mask = abs(kin1._array) > 1e-5
-    delta = kin1._array - kin2._array
-    expect = kin1._array
+    mask = abs(kin1) > 1e-5
+    delta = kin1 - kin2
+    expect = kin1
     error = (delta[mask] / expect[mask]).max()
     assert error < 1e-5
 
@@ -4366,11 +4361,11 @@ def test_kinetic_co_ccpv5z_cart_hf():
 def check_g09_nuclear_attraction(fn_fchk):
     fn_log = fn_fchk[:-5] + '.log'
     mol = IOData.from_file(fn_fchk, fn_log)
-    na1 = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, mol.lf)
+    na1 = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
     na2 = mol.na
-    mask = abs(na1._array) > 1e-5
-    expect = na1._array
-    result = na2._array
+    mask = abs(na1) > 1e-5
+    expect = na1
+    result = na2
     delta = -expect - result
     error = (delta[mask] / expect[mask]).max()
     assert error < 4e-5
@@ -4410,8 +4405,8 @@ def check_g09_dipole(fn_fchk):
     mol.dm_full = mol.get_dm_full()
     dipole = []
     for xyz in xyz_array:
-        dipole_ints = mol.obasis.compute_multipole_moment(xyz, center, mol.lf)
-        dipole_v = -dipole_ints.contract_two('ab,ab', mol.dm_full)
+        dipole_ints = mol.obasis.compute_multipole_moment(xyz, center)
+        dipole_v = -np.einsum('ab,ba', dipole_ints, mol.dm_full)
         for i, n in enumerate(mol.pseudo_numbers):
             dipole_v += n * pow(mol.coordinates[i, 0], xyz[0]) * \
                         pow(mol.coordinates[i, 1], xyz[1]) * \
@@ -4455,8 +4450,8 @@ def check_g09_quadrupole(fn_fchk):
     mol.dm_full = mol.get_dm_full()
     quadrupole = []
     for xyz in xyz_array:
-        quadrupole_ints = mol.obasis.compute_multipole_moment(xyz, center, mol.lf)
-        quad_v = -quadrupole_ints.contract_two('ab,ab', mol.dm_full)
+        quadrupole_ints = mol.obasis.compute_multipole_moment(xyz, center)
+        quad_v = -np.einsum('ab,ba', quadrupole_ints, mol.dm_full)
         for i, n in enumerate(mol.pseudo_numbers):
             quad_v += n * pow(mol.coordinates[i, 0], xyz[0]) * \
                       pow(mol.coordinates[i, 1], xyz[1]) * \
@@ -4485,11 +4480,11 @@ def test_quadrupole_monosilicic_acid_hf_lan_g09():
 def check_g09_electron_repulsion(fn_fchk, check_g09_zeros=False):
     fn_log = fn_fchk[:-5] + '.log'
     mol = IOData.from_file(fn_fchk, fn_log)
-    er1 = mol.obasis.compute_electron_repulsion(mol.lf)
+    er1 = mol.obasis.compute_electron_repulsion()
     er2 = mol.er
-    mask = abs(er1._array) > 1e-6
-    expect = er1._array
-    got = er2._array
+    mask = abs(er1) > 1e-6
+    expect = er1
+    got = er2
     if check_g09_zeros:
         assert ((expect == 0.0) == (got == 0.0)).all()
     delta = expect - got
@@ -4516,7 +4511,7 @@ def check_g09_grid_fn(fn_fchk):
     dm_full = mol.get_dm_full()
     rhos = mol.obasis.compute_grid_density_dm(dm_full, grid.points)
     pop = grid.integrate(rhos)
-    nel = mol.obasis.compute_overlap(mol.lf).contract_two('ab,ab', dm_full)
+    nel = np.einsum('ab,ba', mol.obasis.compute_overlap(), dm_full)
     assert abs(pop - nel) < 2e-3
 
 

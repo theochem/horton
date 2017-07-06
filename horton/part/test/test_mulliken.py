@@ -28,11 +28,11 @@ from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 def test_mulliken_operators_water_sto3g():
     fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
     mol = IOData.from_file(fn_fchk)
-    operators = get_mulliken_operators(mol.obasis, mol.lf)
+    operators = get_mulliken_operators(mol.obasis)
     for operator in operators:
-        assert operator.is_symmetric()
+        np.testing.assert_equal(operator, operator.T)
     dm_full = mol.get_dm_full()
-    populations = np.array([operator.contract_two('ab,ba', dm_full) for operator in operators])
+    populations = np.array([np.einsum('ab,ba', operator, dm_full) for operator in operators])
     charges = mol.numbers - populations
     assert charges[0] < 0 # oxygen atom
     assert abs(charges.sum()) < 1e-3

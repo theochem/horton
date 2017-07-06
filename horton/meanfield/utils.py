@@ -21,43 +21,45 @@
 """Utility functions"""
 
 
+import numpy as np
+
+from horton.meanfield.orbitals import Orbitals
+
+
 __all__ = [
     'check_dm', 'get_level_shift', 'get_spin', 'get_homo_lumo',
     'compute_commutator',
 ]
 
 
-def check_dm(dm, overlap, lf, eps=1e-4, occ_max=1.0):
+def check_dm(dm, overlap, eps=1e-4, occ_max=1.0):
     '''Check if the density matrix has eigenvalues in the proper range.
 
-       **Arguments:**
+    Parameters
+    ----------
+    dm : np.ndarray, shape=(nbasis, nbasis), dtype=float
+        The density matrix
+    overlap : np.ndarray, shape=(nbasis, nbasis), dtype=float
+        The overlap matrix
+    eps : float
+        The threshold on the eigenvalue inequalities.
+    occ_max : float
+        The maximum occupation.
 
-       dm
-            The density matrix
-
-       overlap
-            The overlap matrix
-
-       lf
-            A LinalgFactory instance.
-
-       **Optional arguments:**
-
-       eps
-            The threshold on the eigenvalue inequalities.
-
-       occ_max
-            The maximum occupation.
-
-       A ValueError is raised when the density matrix has illegal eigenvalues.
+    Raises
+    ------
+    ValueError
+        When the density matrix has wrong eigenvalues.
     '''
     # construct natural orbitals
-    exp = lf.create_expansion()
-    exp.derive_naturals(dm, overlap)
-    if exp.occupations.min() < -eps:
-        raise ValueError('The density matrix has eigenvalues considerably smaller than zero. error=%e' % (exp.occupations.min()))
-    if exp.occupations.max() > occ_max+eps:
-        raise ValueError('The density matrix has eigenvalues considerably larger than one. error=%e' % (exp.occupations.max()-1))
+    orb = Orbitals(dm.shape[0])
+    orb.derive_naturals(dm, overlap)
+    if orb.occupations.min() < -eps:
+        raise ValueError('The density matrix has eigenvalues considerably smaller than '
+                         'zero. error=%e' % (orb.occupations.min()))
+    if orb.occupations.max() > occ_max+eps:
+        raise ValueError('The density matrix has eigenvalues considerably larger than '
+                         'max. error=%e' % (orb.occupations.max()-1))
 
 
 def get_level_shift(dm, overlap):
@@ -73,18 +75,15 @@ def get_level_shift(dm, overlap):
 
        **Returns:** The level-shift operator.
     '''
-    level_shift = overlap.copy()
-    level_shift.idot(dm)
-    level_shift.idot(overlap)
-    return level_shift
+    return np.dot(overlap.T, np.dot(dm, overlap))
 
 
-def get_spin(exp_alpha, exp_beta, overlap):
+def get_spin(orb_alpha, orb_beta, overlap):
     '''Returns the expectation values of the projected and squared spin
 
        **Arguments:**
 
-       exp_alpha, exp_beta
+       orb_alpha, orb_beta
             The alpha and beta orbitals.
 
        overlap
@@ -92,37 +91,38 @@ def get_spin(exp_alpha, exp_beta, overlap):
 
        **Returns:** sz, ssq
     '''
-    nalpha = exp_alpha.occupations.sum()
-    nbeta = exp_beta.occupations.sum()
+    nalpha = orb_alpha.occupations.sum()
+    nbeta = orb_beta.occupations.sum()
     sz = (nalpha - nbeta)/2
     correction = 0.0
-    for ialpha in xrange(exp_alpha.nfn):
-        if exp_alpha.occupations[ialpha] == 0.0:
+    for ialpha in xrange(orb_alpha.nfn):
+        if orb_alpha.occupations[ialpha] == 0.0:
             continue
-        for ibeta in xrange(exp_beta.nfn):
-            if exp_beta.occupations[ibeta] == 0.0:
+        for ibeta in xrange(orb_beta.nfn):
+            if orb_beta.occupations[ibeta] == 0.0:
                 continue
-            correction += overlap.inner(exp_alpha.coeffs[:,ialpha],
-                                        exp_beta.coeffs[:,ibeta])**2
+            correction += np.dot(
+                orb_alpha.coeffs[:,ialpha],
+                np.dot(overlap, orb_beta.coeffs[:,ibeta]))**2
 
     ssq = sz*(sz+1) + nbeta - correction
     print sz, ssq
     return sz, ssq
 
 
-def get_homo_lumo(*exps):
+def get_homo_lumo(*orbs):
     '''Return the HOMO and LUMO energy for the given expansion
 
        **Arguments:**
 
-       exp1, exp2, ...
-            DensityExpansion objects
+       orb1, orb2, ...
+            Orbitals objects
 
        **Returns:** homo_energy, lumo_energy. (The second is None when all
        orbitals are occupied.)
     '''
-    homo_energy = max(exp.homo_energy for exp in exps)
-    lumo_energies = [exp.lumo_energy for exp in exps]
+    homo_energy = max(orb.homo_energy for orb in orbs)
+    lumo_energies = [orb.lumo_energy for orb in orbs]
     lumo_energies = [lumo_energy for lumo_energy in lumo_energies if lumo_energy is not None]
     if len(lumo_energies) == 0:
         lumo_energy = None
@@ -131,33 +131,20 @@ def get_homo_lumo(*exps):
     return homo_energy, lumo_energy
 
 
-def compute_commutator(dm, fock, overlap, work, output):
+def compute_commutator(dm, fock, overlap):
     '''Compute the dm-fock commutator, including an overlap matrix
 
-       **Arguments:** (all TwoIndex objects)
+    Parameters
+    ----------
+    dm
+        A density matrix
+    fock
+        A fock matrix
+    overlap
+        An overlap matrix
 
-       dm
-            A density matrix
-
-       fock
-            A fock matrix
-
-       overlap
-            An overlap matrix
-
-       work
-            A temporary matrix
-
-       output
-            The output matrix in which the commutator, S.D.F-F.D.S, is stored.
+    Return
+    ------
+    commutator
     '''
-    # construct sdf
-    work.assign(overlap)
-    work.idot(dm)
-    work.idot(fock)
-    output.assign(work)
-    # construct fds and subtract
-    work.assign(fock)
-    work.idot(dm)
-    work.idot(overlap)
-    output.iadd(work, factor=-1)
+    return np.dot(overlap, np.dot(dm, fock)) - np.dot(fock, np.dot(dm, overlap))

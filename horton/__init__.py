@@ -37,7 +37,6 @@ from horton.gbasis import *
 from horton.grid import *
 from horton.io import *
 from horton.log import *
-from horton.matrix import *
 from horton.meanfield import *
 from horton.moments import *
 from horton.periodic import *
@@ -46,4 +45,3 @@ from horton.quadprog import *
 from horton.units import *
 from horton.utils import *
 from horton.modelhamiltonians import *
-from horton.orbital_utils import *
