@@ -27,10 +27,47 @@
 #include <cstdlib>
 #include <cstring>
 #include <stdexcept>
-#include "horton/moments.h"
 #include "boys.h"
 #include "cartpure.h"
 #include "fns.h"
+
+/*
+
+From moments.cpp
+
+*/
+
+
+long fill_cartesian_polynomials(double* output, long lmax) {
+    // Shell l=0
+    if (lmax <= 0) return -1;
+
+    // Shell l=1
+    if (lmax <= 1) return 0;
+
+    // Shell l>1
+    int old_offset = 0; // first array index of the moments of the previous shell
+    int old_ncart = 3;  // number of moments in previous shell
+    for (int l = 2; l <= lmax; l++) {
+        // numbers for current iteration
+        int new_ncart = old_ncart + l+1;
+        int new_offset = old_offset + old_ncart;
+        // start by multiplying all the old ones by x
+        for (int i=0; i < old_ncart; i++) {
+            output[new_offset+i] = output[0]*output[old_offset+i];
+        }
+        // then multiply the old ones without an x, by y.
+        for (int i=0; i < l; i++) {
+            output[new_offset+old_ncart+i] = output[1]*output[new_offset-l+i];
+        }
+        // finally multiply the last old one by z
+        output[new_offset+new_ncart-1] = output[2]*output[new_offset-1];
+        // translate new to old numbers
+        old_ncart = new_ncart;
+        old_offset = new_offset;
+    }
+    return old_offset;
+}
 
 
 /*
