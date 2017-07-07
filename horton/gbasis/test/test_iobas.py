@@ -28,6 +28,8 @@ from horton.test.common import tmpdir
 
 from . common import *
 
+from .. utils import to_basis_path
+
 
 def test_str_to_shell_types_cart():
     assert str_to_shell_types('s') == [0]

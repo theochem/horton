@@ -19,6 +19,7 @@
 #
 # --
 """Utility Functions"""
+from os import path
 
 
 def typecheck_geo(coordinates=None, numbers=None, pseudo_numbers=None,
@@ -99,3 +100,9 @@ def typecheck_geo(coordinates=None, numbers=None, pseudo_numbers=None,
     if need_pseudo_numbers:
         result.append(pseudo_numbers)
     return result
+
+
+def to_basis_path(fn):
+    cur_pth = path.split(__file__)[0]
+    pth = cur_pth + "/bsets/{}".format(fn)
+    return pth

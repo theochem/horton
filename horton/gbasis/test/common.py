@@ -24,12 +24,6 @@ def load_json(fn):
     return a
 
 
-def to_basis_path(fn):
-    cur_pth = path.split(__file__)[0]
-    pth = cur_pth + "/bsets/{}".format(fn)
-    return pth
-
-
 def load_quad(fn):
     return _compose_fn("quads", fn)
 

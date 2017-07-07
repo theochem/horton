@@ -23,12 +23,10 @@
 
 import numpy as np
 
-from horton.context import context
 from cext import GOBasis
 from iobas import load_basis_atom_map_nwchem, load_basis_atom_map_gbs, dump_basis_atom_map_gbs
 from periodic import sym2num
-from utils import typecheck_geo
-
+from utils import typecheck_geo, to_basis_path
 
 __all__ = [
     'get_gobasis', 'GOBasisDesc', 'GOBasisFamily', 'go_basis_families',
@@ -285,38 +283,38 @@ class GOBasisFamily(object):
 
 
 go_basis_families_list = [
-    GOBasisFamily('STO-3G', filename=context.get_fn('basis/sto-3g.nwchem')),
-    GOBasisFamily('STO-6G', filename=context.get_fn('basis/sto-6g.nwchem')),
-    GOBasisFamily('3-21G', filename=context.get_fn('basis/3-21g.nwchem')),
-    GOBasisFamily('3-21G(d)', filename=context.get_fn('basis/3-21g(d).nwchem')),
-    GOBasisFamily('3-21++G(d)', filename=context.get_fn('basis/3-21++g(d).nwchem')),
-    GOBasisFamily('4-31G', filename=context.get_fn('basis/4-31g.nwchem')),
-    GOBasisFamily('6-31G', filename=context.get_fn('basis/6-31g.nwchem')),
-    GOBasisFamily('6-31G(d)', filename=context.get_fn('basis/6-31g(d).nwchem')),
-    GOBasisFamily('6-31G(d,p)', filename=context.get_fn('basis/6-31g(d,p).nwchem')),
-    GOBasisFamily('6-31+G', filename=context.get_fn('basis/6-31+g.nwchem')),
-    GOBasisFamily('6-31+G(d)', filename=context.get_fn('basis/6-31+g(d).nwchem')),
-    GOBasisFamily('6-31++G(d,p)', filename=context.get_fn('basis/6-31++g(d,p).nwchem')),
-    GOBasisFamily('cc-pVDZ', filename=context.get_fn('basis/cc-pvdz.nwchem')),
-    GOBasisFamily('cc-pVTZ', filename=context.get_fn('basis/cc-pvtz.nwchem')),
-    GOBasisFamily('cc-pVQZ', filename=context.get_fn('basis/cc-pvqz.nwchem')),
-    GOBasisFamily('cc-pCVDZ', filename=context.get_fn('basis/cc-pcvdz.nwchem')),
-    GOBasisFamily('cc-pCVTZ', filename=context.get_fn('basis/cc-pcvtz.nwchem')),
-    GOBasisFamily('cc-pCVQZ', filename=context.get_fn('basis/cc-pcvqz.nwchem')),
-    GOBasisFamily('aug-cc-pVDZ', filename=context.get_fn('basis/aug-cc-pvdz.nwchem')),
-    GOBasisFamily('aug-cc-pVTZ', filename=context.get_fn('basis/aug-cc-pvtz.nwchem')),
-    GOBasisFamily('aug-cc-pVQZ', filename=context.get_fn('basis/aug-cc-pvqz.nwchem')),
-    GOBasisFamily('aug-cc-pV5Z', filename=context.get_fn('basis/aug-cc-pv5z.nwchem')),
-    GOBasisFamily('aug-cc-pV6Z', filename=context.get_fn('basis/aug-cc-pv6z.nwchem')),
-    GOBasisFamily('aug-cc-pCVDZ', filename=context.get_fn('basis/aug-cc-pcvdz.nwchem')),
-    GOBasisFamily('aug-cc-pCVTZ', filename=context.get_fn('basis/aug-cc-pcvtz.nwchem')),
-    GOBasisFamily('aug-cc-pCVQZ', filename=context.get_fn('basis/aug-cc-pcvqz.nwchem')),
-    GOBasisFamily('def2-svpd', filename=context.get_fn('basis/def2-svpd.nwchem')),
-    GOBasisFamily('def2-tzvp', filename=context.get_fn('basis/def2-tzvp.nwchem')),
-    GOBasisFamily('def2-tzvpd', filename=context.get_fn('basis/def2-tzvpd.nwchem')),
-    GOBasisFamily('def2-qzvp', filename=context.get_fn('basis/def2-qzvp.nwchem')),
-    GOBasisFamily('def2-qzvpd', filename=context.get_fn('basis/def2-qzvpd.nwchem')),
-    GOBasisFamily('ANO-RCC', filename=context.get_fn('basis/ano-rcc.nwchem')),
+    GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.nwchem')),
+    GOBasisFamily('STO-6G', filename=to_basis_path('sto-6g.nwchem')),
+    GOBasisFamily('3-21G', filename=to_basis_path('3-21g.nwchem')),
+    GOBasisFamily('3-21G(d)', filename=to_basis_path('3-21g(d).nwchem')),
+    GOBasisFamily('3-21++G(d)', filename=to_basis_path('3-21++g(d).nwchem')),
+    GOBasisFamily('4-31G', filename=to_basis_path('4-31g.nwchem')),
+    GOBasisFamily('6-31G', filename=to_basis_path('6-31g.nwchem')),
+    GOBasisFamily('6-31G(d)', filename=to_basis_path('6-31g(d).nwchem')),
+    GOBasisFamily('6-31G(d,p)', filename=to_basis_path('6-31g(d,p).nwchem')),
+    GOBasisFamily('6-31+G', filename=to_basis_path('6-31+g.nwchem')),
+    GOBasisFamily('6-31+G(d)', filename=to_basis_path('6-31+g(d).nwchem')),
+    GOBasisFamily('6-31++G(d,p)', filename=to_basis_path('6-31++g(d,p).nwchem')),
+    GOBasisFamily('cc-pVDZ', filename=to_basis_path('cc-pvdz.nwchem')),
+    GOBasisFamily('cc-pVTZ', filename=to_basis_path('cc-pvtz.nwchem')),
+    GOBasisFamily('cc-pVQZ', filename=to_basis_path('cc-pvqz.nwchem')),
+    GOBasisFamily('cc-pCVDZ', filename=to_basis_path('cc-pcvdz.nwchem')),
+    GOBasisFamily('cc-pCVTZ', filename=to_basis_path('cc-pcvtz.nwchem')),
+    GOBasisFamily('cc-pCVQZ', filename=to_basis_path('cc-pcvqz.nwchem')),
+    GOBasisFamily('aug-cc-pVDZ', filename=to_basis_path('aug-cc-pvdz.nwchem')),
+    GOBasisFamily('aug-cc-pVTZ', filename=to_basis_path('aug-cc-pvtz.nwchem')),
+    GOBasisFamily('aug-cc-pVQZ', filename=to_basis_path('aug-cc-pvqz.nwchem')),
+    GOBasisFamily('aug-cc-pV5Z', filename=to_basis_path('aug-cc-pv5z.nwchem')),
+    GOBasisFamily('aug-cc-pV6Z', filename=to_basis_path('aug-cc-pv6z.nwchem')),
+    GOBasisFamily('aug-cc-pCVDZ', filename=to_basis_path('aug-cc-pcvdz.nwchem')),
+    GOBasisFamily('aug-cc-pCVTZ', filename=to_basis_path('aug-cc-pcvtz.nwchem')),
+    GOBasisFamily('aug-cc-pCVQZ', filename=to_basis_path('aug-cc-pcvqz.nwchem')),
+    GOBasisFamily('def2-svpd', filename=to_basis_path('def2-svpd.nwchem')),
+    GOBasisFamily('def2-tzvp', filename=to_basis_path('def2-tzvp.nwchem')),
+    GOBasisFamily('def2-tzvpd', filename=to_basis_path('def2-tzvpd.nwchem')),
+    GOBasisFamily('def2-qzvp', filename=to_basis_path('def2-qzvp.nwchem')),
+    GOBasisFamily('def2-qzvpd', filename=to_basis_path('def2-qzvpd.nwchem')),
+    GOBasisFamily('ANO-RCC', filename=to_basis_path('ano-rcc.nwchem')),
 ]
 go_basis_families = dict((bf.name.lower(), bf) for bf in go_basis_families_list)
 
