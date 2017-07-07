@@ -465,7 +465,7 @@ def test_abstract():
         shell_types = np.array([0, 1])
         alphas = np.array([1.0, 1.1, 1.2])
         con_coeffs = np.array([0.1, 0.2, 0.3])
-        from horton.gbasis.cext import GBasis
+        from cext import GBasis
         GBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
 
 
