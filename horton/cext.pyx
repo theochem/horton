@@ -26,7 +26,6 @@ np.import_array()
 
 cimport cell
 cimport moments
-cimport nucpot
 
 from horton.utils import typecheck_geo
 
@@ -35,8 +34,8 @@ __all__ = [
     'Cell', 'smart_wrap',
     # moments.cpp
     'fill_cartesian_polynomials', 'fill_pure_polynomials', 'fill_radial_polynomials',
-    # nucpot.cpp
-    'compute_grid_nucpot', 'compute_nucnuc',
+    # Cython
+    'compute_nucnuc',
 ]
 
 
@@ -418,44 +417,6 @@ def fill_radial_polynomials(np.ndarray[double, ndim=1] output not None, long lma
     if output.shape[0] < lmax:
         raise ValueError('The size of the output array is not sufficient to store the polynomials.')
     moments.fill_radial_polynomials(&output[0], lmax)
-
-
-
-#
-# nucpot.cpp
-#
-
-
-def compute_grid_nucpot(double[:, ::1] coordinates not None,
-                        double[::1] charges not None,
-                        double[:, ::1] points not None,
-                        double[::1] output not None):
-    '''Compute the potential due to a set of (nuclear) point charges
-
-    Parameters
-    ----------
-    coordinates
-        A (N, 3) float numpy array with Cartesian coordinates of the
-        atoms.
-    charges
-        A (N,) numpy vector with the atomic charges.
-    points
-        An (M, 3) array with grid points where the potential must be
-        computed.
-    output
-        An (M,) output array in which the potential is stored.
-    '''
-    # type checking
-    assert coordinates.shape[1] == 3
-    ncharge = coordinates.shape[0]
-    assert charges.shape[0] == ncharge
-    assert points.shape[1] == 3
-    npoint = points.shape[0]
-    assert output.shape[0] == npoint
-    # actual computation
-    nucpot.compute_grid_nucpot(
-        &coordinates[0,0], &charges[0], ncharge,
-        &points[0,0], &output[0], npoint)
 
 
 def compute_nucnuc(np.ndarray[double, ndim=2] coordinates not None,

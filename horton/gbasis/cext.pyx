@@ -39,11 +39,9 @@ cimport iter_gb
 cimport iter_pow
 cimport cholesky
 cimport gbw
+cimport nucpot
 
 import atexit
-
-from horton.cext import compute_grid_nucpot
-
 
 __all__ = [
     # boys
@@ -78,7 +76,7 @@ __all__ = [
 
 
 #
-# Internall business
+# Internal business
 #
 
 cdef check_shape(array, shape, name):
@@ -2324,3 +2322,40 @@ cdef class IterPow2:
                 self._c_i2p.n1[0], self._c_i2p.n1[1], self._c_i2p.n1[2],
                 self._c_i2p.offset, self._c_i2p.ibasis0, self._c_i2p.ibasis1,
             )
+
+
+#
+# nucpot.cpp
+#
+
+
+def compute_grid_nucpot(double[:, ::1] coordinates not None,
+                        double[::1] charges not None,
+                        double[:, ::1] points not None,
+                        double[::1] output not None):
+    '''Compute the potential due to a set of (nuclear) point charges
+
+    Parameters
+    ----------
+    coordinates
+        A (N, 3) float numpy array with Cartesian coordinates of the
+        atoms.
+    charges
+        A (N,) numpy vector with the atomic charges.
+    points
+        An (M, 3) array with grid points where the potential must be
+        computed.
+    output
+        An (M,) output array in which the potential is stored.
+    '''
+    # type checking
+    assert coordinates.shape[1] == 3
+    ncharge = coordinates.shape[0]
+    assert charges.shape[0] == ncharge
+    assert points.shape[1] == 3
+    npoint = points.shape[0]
+    assert output.shape[0] == npoint
+    # actual computation
+    nucpot.compute_grid_nucpot(
+        &coordinates[0,0], &charges[0], ncharge,
+        &points[0,0], &output[0], npoint)
