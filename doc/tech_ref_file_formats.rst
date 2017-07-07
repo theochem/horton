@@ -112,21 +112,6 @@ Optional for **dumping** ``title``
 ======================== =======================================================
 
 
-The ``.cif`` (Crystalographic Information File) format
-------------------------------------------------------
-
-======================== =======================================================
-Load                     Works only for simple files
-Dump                     Yes, except for symmetry information
-Recognized by            File extension ``.cif``
-Interoperation           `CCDC <http://www.ccdc.cam.ac.uk/pages/Home.aspx>`_, `COD <http://www.crystallography.net/>`_, ...
-Always **loading**       ``title`` ``numbers`` ``coordinates`` ``cell`` ``symmetry`` ``links``
-Derived when **loading** ``natom`` ``pseudo_numbers``
-Required for **dumping** ``numbers`` ``coordinates`` ``cell``
-Optional for **dumping** ``title``
-======================== =======================================================
-
-
 .. _ref_file_formats_cube:
 
 Cube file formats

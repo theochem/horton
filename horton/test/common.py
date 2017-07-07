@@ -35,12 +35,9 @@ from horton.meanfield.occ import AufbauOccModel
 
 
 __all__ = [
-    'in_horton_source_root',
-    'check_script', 'check_script_in_tmp', 'check_delta',
-    'get_random_cell', 'get_pentagon_moments',
-    'compare_occ_model', 'compare_orbs',
-    'compare_mols', 'compare_symmetries',
-    'tmpdir', 'numpy_seed', 'truncated_file',
+    'in_horton_source_root', 'check_script', 'check_script_in_tmp', 'check_delta',
+    'get_random_cell', 'get_pentagon_moments', 'compare_occ_model', 'compare_orbs',
+    'compare_mols', 'tmpdir', 'numpy_seed', 'truncated_file',
 ]
 
 
@@ -312,16 +309,6 @@ def compare_mols(mol1, mol2):
             np.testing.assert_equal(getattr(mol1, key), getattr(mol2, key))
         else:
             assert not hasattr(mol2, key)
-
-
-def compare_symmetries(s0, s1):
-    assert s0.name == s1.name
-    assert (s0.generators == s1.generators).all()
-    assert (s0.fracs == s1.fracs).all()
-    assert (s0.numbers == s1.numbers).all()
-    assert s0.cell.nvec == s1.cell.nvec
-    assert (s0.cell.rvecs == s1.cell.rvecs).all()
-    assert (s0.labels == s1.labels).all()
 
 
 @contextmanager

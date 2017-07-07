@@ -20,13 +20,14 @@
 # --
 
 
-import os, h5py as h5, numpy as np
+import numpy as np
+import os
 from nose.plugins.attrib import attr
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.test.common import check_script, tmpdir
-from horton.scripts.test.common import copy_files, check_files, write_random_lta_cube
-from horton.scripts.espfit import *
+from horton.scripts.test.common import check_files
+from horton.scripts.espfit import parse_wdens, parse_wnear, parse_wfar, max_at_edge
 
 
 def test_wdens():
@@ -81,23 +82,6 @@ def test_scripts():
         check_script('horton-esp-test.py esp.h5 other.h5:charges foo.h5', dn)
         check_script('horton-esp-gen.py other.h5:charges esp.cube gen.h5', dn)
         check_files(dn, ['esp.h5', 'other.h5', 'foo.h5', 'gen.h5'])
-
-
-@attr('slow')
-def test_scripts_symmetry():
-    # Write the cube file to the tmpdir and run scripts
-    with tmpdir('horton.scripts.test.test_espfit.test_scripts_symmetry') as dn:
-        # prepare files
-        write_random_lta_cube(dn, 'esp.cube')
-        copy_files(dn, ['lta_gulp.cif'])
-        # run scripts
-        check_script('horton-esp-cost.py esp.cube esp.h5 --wnear=0:1.0:0.5 --rcut=4 --alpha-scale=0.1', dn)
-        check_files(dn, ['esp.h5'])
-        check_script('horton-esp-fit.py esp.h5 other.h5 --symmetry esp.cube lta_gulp.cif', dn)
-        mol_sym = IOData.from_file('%s/lta_gulp.cif' % dn)
-        with h5.File(os.path.join(dn, 'other.h5')) as f:
-            assert 'symmetry' in f
-            assert f['symmetry/charges'].shape == (mol_sym.symmetry.natom, 2)
 
 
 def test_max_at_edge():

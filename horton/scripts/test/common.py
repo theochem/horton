@@ -20,14 +20,13 @@
 # --
 
 
-import shutil, os, numpy as np
+import os
+import shutil
 
 from horton import context
-from horton.grid.cext import UniformGrid
-from horton.io.iodata import IOData
 
 
-__all__ = ['copy_files', 'check_files', 'write_random_lta_cube']
+__all__ = ['copy_files', 'check_files']
 
 
 def copy_files(dn, fns):
@@ -38,16 +37,3 @@ def copy_files(dn, fns):
 def check_files(dn, fns):
     for fn in fns:
         assert os.path.isfile(os.path.join(dn, fn)), "Missing %s" % fn
-
-
-def write_random_lta_cube(dn, fn_cube):
-    '''Write a randomized cube file'''
-    # start from an existing cube file
-    mol = IOData.from_file(context.get_fn('test/lta_gulp.cif'))
-    # Define a uniform grid with only 1000 points, to make the tests fast.
-    ugrid = UniformGrid(np.zeros(3, float), mol.cell.rvecs*0.1, np.array([10, 10, 10]), np.array([1, 1, 1]))
-    # Write to the file dn/fn_cube
-    mol.cube_data = np.random.uniform(0, 1, ugrid.shape)
-    mol.grid = ugrid
-    mol.to_file(os.path.join(dn, fn_cube))
-    return mol
