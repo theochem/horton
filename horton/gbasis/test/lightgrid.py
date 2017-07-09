@@ -23,7 +23,7 @@
 import numpy as np
 
 
-__all__ = ['generate_molecular_grid']
+__all__ = ['generate_molecular_grid', 'integrate']
 
 
 lebedev_50_points = np.array([
@@ -222,3 +222,10 @@ def generate_molecular_grid(numbers, coordinates):
     points = np.concatenate([atomic_points for atomic_points, atomic_weights in atomic_grids])
     weights = np.concatenate([atomic_weights for atomic_points, atomic_weights in atomic_grids])
     return points, weights
+
+
+def integrate(*args):
+    """Replaces grid.integrate for gbasis tests.
+       Simply takes a dot product of all 1D numpy arrays passed to it.
+    """
+    return np.sum(reduce(np.multiply, args))

@@ -26,12 +26,12 @@ from nose.tools import assert_raises
 from nose.plugins.attrib import attr
 
 from horton.grid import RadialGrid
-from horton.grid import BeckeMolGrid
 from horton.grid.cext import ExpRTransform
 
 from .. import *  # pylint: disable=wildcard-import, unused-wildcard-import
 
-from .common import *
+from . common import *
+from . lightgrid import generate_molecular_grid
 
 
 angstrom = 1.0e-10/0.5291772083e-10
@@ -392,12 +392,12 @@ def test_grid_two_index_ne():
     mol = load_mdata(fn)
     rtf = ExpRTransform(1e-3, 2e1, 100)
     rgrid = RadialGrid(rtf)
-    grd = BeckeMolGrid(mol['coordinates'], mol['numbers'], mol['pseudo_numbers'], (rgrid, 110), random_rotate=False)
-    dist0 = np.sqrt(((grd.points - mol['coordinates'][0]) ** 2).sum(axis=1))
-    dist1 = np.sqrt(((grd.points - mol['coordinates'][1]) ** 2).sum(axis=1))
+    points, weights = generate_molecular_grid(mol['numbers'], mol['coordinates'])
+    dist0 = np.sqrt(((points - mol['coordinates'][0]) ** 2).sum(axis=1))
+    dist1 = np.sqrt(((points - mol['coordinates'][1]) ** 2).sum(axis=1))
     pot = -mol['numbers'][0] / dist0 - mol['numbers'][1] / dist1
     na_ana = obasis.compute_nuclear_attraction(mol['coordinates'], mol['pseudo_numbers'])
-    na_grid = obasis.compute_grid_density_fock(grd.points, grd.weights, pot)
+    na_grid = obasis.compute_grid_density_fock(points, weights, pot)
     # compare grid-based operator with analytical result
     assert abs(na_grid).max() > 8.0
     assert abs(na_ana - na_grid).max() < 2e-3

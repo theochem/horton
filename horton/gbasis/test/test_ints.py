@@ -22,10 +22,11 @@
 
 import numpy as np
 from nose.tools import assert_raises
-from horton.grid import BeckeMolGrid
+
 from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
-from .common import *
+from . common import *
+from . lightgrid import *
 
 
 def test_gpt_coeff():
@@ -4512,11 +4513,10 @@ def test_electron_repulsion_water_ccpvdz_cart_hf():
 def check_g09_grid_fn(fn):
     obasis = load_obasis(fn)
     mol = load_mdata(fn)
-    grid = BeckeMolGrid(mol['coordinates'], mol['numbers'], mol['pseudo_numbers'], 'tv-13.7-4',
-                        random_rotate=False)
+    points, weights = generate_molecular_grid(mol['numbers'], mol['coordinates'])
     dm_full = load_dm(fn)
-    rhos = obasis.compute_grid_density_dm(dm_full, grid.points)
-    pop = grid.integrate(rhos)
+    rhos = obasis.compute_grid_density_dm(dm_full, points)
+    pop = integrate(weights, rhos)
     nel = np.einsum('ab,ba', obasis.compute_overlap(), dm_full)
     assert abs(pop - nel) < 2e-3
 

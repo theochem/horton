@@ -24,12 +24,12 @@ import numpy as np
 from nose.plugins.attrib import attr
 from nose.tools import assert_raises
 
-from horton.grid import BeckeMolGrid
 from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 from horton.test.common import check_delta
 
 from . common import *
+from . lightgrid import generate_molecular_grid, integrate
 
 
 def check_functional_deriv(fn, comp, dm_method, fock_method):
@@ -56,24 +56,23 @@ def check_functional_deriv(fn, comp, dm_method, fock_method):
     dm_full = load_dm(fn)
 
     mol = load_mdata(fn)
-    grid = BeckeMolGrid(mol['coordinates'], mol['numbers'], mol['pseudo_numbers'], 'coarse',
-                        random_rotate=False, mode='keep')
+    points, weights = generate_molecular_grid(mol['numbers'], mol['coordinates'])
 
     def fun(x):
         """Compute the grid properties from a density matrix."""
         dm_full[:] = x.reshape(obasis.nbasis, -1)
-        f = dm_method(obasis, dm_full, grid.points)
-        f = f.reshape((grid.size, -1))
-        return 0.5 * grid.integrate(f[:, comp], f[:, comp])
+        f = dm_method(obasis, dm_full, points)
+        f = f.reshape((weights.size, -1))
+        return 0.5 * integrate(weights, f[:, comp], f[:, comp])
 
     def fun_deriv(x):
         """Compute a Fock matrix from potential data on a grid."""
         dm_full[:] = x.reshape(obasis.nbasis, -1)
-        tmp = dm_method(obasis, dm_full, grid.points)
+        tmp = dm_method(obasis, dm_full, points)
         if tmp.ndim > 1:
             tmp[:, :comp] = 0.0
             tmp[:, comp + 1:] = 0.0
-        fock = fock_method(obasis, grid.points, grid.weights, tmp)
+        fock = fock_method(obasis, points, weights, tmp)
         return fock.ravel()
 
     eps = 1e-4
@@ -233,12 +232,12 @@ def test_grid_fn_d_contraction():
 def test_density_epsilon():
     fn = 'n2_hfs_sto3g_fchk'
     mol = load_mdata(fn)
-    grid = BeckeMolGrid(mol['coordinates'], mol['numbers'], mol['pseudo_numbers'], random_rotate=False)
+    points, weights = generate_molecular_grid(mol['numbers'], mol['coordinates'])
     dm_full = load_dm(fn)
     obasis = load_obasis(fn)
-    rho1 = obasis.compute_grid_density_dm(dm_full, grid.points)
+    rho1 = obasis.compute_grid_density_dm(dm_full, points)
     for epsilon in 1e-10, 1e-5, 1e-3, 1e-1:
-        rho2 = obasis.compute_grid_density_dm(dm_full, grid.points, epsilon=epsilon)
+        rho2 = obasis.compute_grid_density_dm(dm_full, points, epsilon=epsilon)
         mask = (rho1 != rho2)
         assert ((rho1[mask] < epsilon) | (abs(rho1[mask] - rho2[mask]) < epsilon)).all()
         assert ((rho2[mask] == 0.0) | (abs(rho1[mask] - rho2[mask]) < epsilon)).all()
@@ -481,20 +480,19 @@ def check_dm_kinetic(fn, eps=1e-100):
     mol = load_mdata(fn)
     obasis = load_obasis(fn)
     dm = load_dm(fn)
-    grid = BeckeMolGrid(mol["coordinates"], mol["numbers"], mol["pseudo_numbers"], 'fine',
-                        random_rotate=False)
+    points, weights = generate_molecular_grid(mol['numbers'], mol['coordinates'])
 
     kin = obasis.compute_kinetic()
     ekin1 = np.einsum('ab,ba', kin, dm)
-    kindens = obasis.compute_grid_kinetic_dm(dm, grid.points)
-    ekin2 = grid.integrate(kindens)
+    kindens = obasis.compute_grid_kinetic_dm(dm, points)
+    ekin2 = integrate(weights, kindens)
     assert abs(ekin1 - ekin2) < eps
 
     tmp = obasis.compute_grid_kinetic_fock(
-        grid.points, grid.weights, np.random.uniform(-1, 1, grid.size))
+        points, weights, np.random.uniform(-1, 1, weights.size))
     np.testing.assert_almost_equal(tmp, tmp.T)
 
-    kinn = obasis.compute_grid_kinetic_fock(grid.points, grid.weights, np.ones(grid.size))
+    kinn = obasis.compute_grid_kinetic_fock(points, weights, np.ones(weights.size))
     np.testing.assert_almost_equal(kinn, kinn.T)
     ekin3 = np.einsum('ab,ba', kinn, dm)
     assert abs(ekin1 - ekin3) < eps
