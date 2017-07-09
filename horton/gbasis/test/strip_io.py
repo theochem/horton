@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+import json
+
+from os import mkdir
 
 from horton import *
 import numpy as np
@@ -16,17 +19,27 @@ def grep_file():
         print("Processing: ", filename)
         with open(filename) as fh:
             for i in fh:
-                if ".json" in i:
-                    skipped.append((filename, i))
-                    continue
+                # if ".json" in i:
+                #     skipped.append((filename, i))
+                #     continue
                 if "test/" in i:
                     fn, san_fn = santize_fn(i)
-                    filenames.append((fn, san_fn))
+                    filenames.append((fn, "cached/" + san_fn))
 
     filenames = set(filenames)
+    filenames2 = set()
     skipped = set(skipped)
 
     for fn, san_fn in filenames:
+        try:
+            mkdir(san_fn)
+        except OSError:
+            pass
+
+        if "json" in san_fn:
+            save_json(context.get_fn(fn), san_fn)
+            continue
+
         if "fchk" in san_fn:
             flog = fn[:-4] + "log"
             try:
@@ -35,8 +48,12 @@ def grep_file():
             except IOError:
                 pass
 
+        filenames2.add((fn, san_fn))
+
+
+
     for i in (save_gobasis_params, save_dms, save_exps, save_moldata, save_quads, save_dipoles):
-        for fn, san_fn in filenames:
+        for fn, san_fn in filenames2:
             mol = IOData.from_file(context.get_fn(fn))
             try:
                 i(mol, san_fn)
@@ -64,7 +81,7 @@ def santize_fn(line):
 def save_ints(mol, san_fn):
     for i in ("olp", "kin", "na", "er", "two_mo"):
         try:
-            np.save("ints/{}/{}".format(i, san_fn), getattr(mol, i))
+            np.save("{}/{}".format(san_fn, i), getattr(mol, i).astype(np.float32))
         except AttributeError:
             pass
 
@@ -76,19 +93,19 @@ def save_gobasis_params(mol, san_fn):
 
 
 def save_dms(mol, san_fn):
-    dm = mol.get_dm_full()
-    np.save("dms/" + san_fn, dm)
+    dm = mol.get_dm_full().astype(np.float32)
+    np.save(san_fn + "/dm", dm)
 
 
 def save_exps(mol, san_fn):
     orba = mol.orb_alpha
-    np.save("orbs_a/coeffs/" + san_fn, orba.coeffs)
-    np.save("orbs_a/occs/" + san_fn, orba.occupations)
-    np.save("orbs_a/dms/" + san_fn, orba.to_dm())
+    np.save(san_fn + "/orbs_a_coeffs", orba.coeffs)
+    np.save(san_fn + "/orbs_a_occs", orba.occupations)
+    np.save(san_fn + "/orbs_a_dms", orba.to_dm())
     orbb = mol.orb_beta
-    np.save("orbs_b/coeffs/" + san_fn, orbb.coeffs)
-    np.save("orbs_b/occs/" + san_fn, orbb.occupations)
-    np.save("orbs_b/dms/" + san_fn, orbb.to_dm())
+    np.save(san_fn + "/orbs_b_coeffs", orbb.coeffs)
+    np.save(san_fn + "/orbs_b_occs", orbb.occupations)
+    np.save(san_fn + "/orbs_b_dms", orbb.to_dm())
 
 
 def save_moldata(mol, san_fn):
@@ -100,13 +117,18 @@ def save_moldata(mol, san_fn):
 
 
 def save_quads(mol, san_fn):
-    quad = mol.quadrupole_moment
-    np.save("quads/" + san_fn, quad)
+    quad = mol.quadrupole_moment.astype(np.float32)
+    np.save(san_fn + "/quads", quad)
 
 
 def save_dipoles(mol, san_fn):
-    dipole = mol.dipole_moment
-    np.save("dipoles/" + san_fn, dipole)
+    dipole = mol.dipole_moment.astype(np.float32)
+    np.save(san_fn + "/dipoles", dipole)
 
+
+def save_json(json_fn, san_fn):
+    with open(json_fn) as fh:
+        arr = np.array(json.load(fh))
+    np.save(san_fn + "/er", arr)
 
 grep_file()

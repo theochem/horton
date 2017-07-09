@@ -350,7 +350,7 @@ def test_grid_lih_321g_hf_esp_some_points():
         [0.4, 0.2, 0.1, 0.796490099689],
     ])
     ref[:, :3] *= angstrom
-    check_grid_esp('li_h_3_21G_hf_g09_fchk', ref, 1e-8)
+    check_grid_esp('li_h_3_21G_hf_g09_fchk', ref, 1e-7)
 
 
 @attr('slow')

@@ -2981,7 +2981,7 @@ def test_electron_repulsion_0_2_1_0():
 
 
 def test_electron_repulsion_0_2_2_3():
-    fn = 'electron_repulsion_0_2_2_3.json'
+    fn = 'electron_repulsion_0_2_2_3_json'
     result0 = load_json(fn)
     check_electron_repulsion(
         np.array([0.96867, 0.41743, 1.03509]), np.array([1.84594, 0.83035, 1.20242]),
@@ -2998,7 +2998,7 @@ def test_electron_repulsion_0_2_2_3():
 
 
 def test_electron_repulsion_4_3_2_1():
-    fn = 'electron_repulsion_4_3_2_1.json'
+    fn = 'electron_repulsion_4_3_2_1_json'
     result0 = load_json(fn)
     check_electron_repulsion(
         np.array([0.94212, 1.71823, 0.3309]), np.array([0.94854, 0.12816, 0.42016]),
@@ -3341,7 +3341,7 @@ def test_erf_repulsion_0_2_1_0():
 
 
 def test_erf_repulsion_0_2_2_3():
-    fn = 'erf_repulsion_0_2_2_3.json'
+    fn = 'erf_repulsion_0_2_2_3_json'
     result0 = load_json(fn)
     check_erf_repulsion(
         np.array([0.96867, 0.41743, 1.03509]), np.array([1.84594, 0.83035, 1.20242]),
@@ -3358,7 +3358,7 @@ def test_erf_repulsion_0_2_2_3():
 
 
 def test_erf_repulsion_4_3_2_1():
-    fn = 'erf_repulsion_4_3_2_1.json'
+    fn = 'erf_repulsion_4_3_2_1_json'
     result0 = load_json(fn)
     check_erf_repulsion(
         np.array([0.94212, 1.71823, 0.3309]), np.array([0.94854, 0.12816, 0.42016]),
@@ -4266,7 +4266,7 @@ def test_ralpha_repulsion_0_2_1_0():
 
 
 def test_ralpha_repulsion_0_2_2_3():
-    fn = 'electron_repulsion_0_2_2_3.json'
+    fn = 'electron_repulsion_0_2_2_3_json'
     result0 = load_json(fn)
     check_ralpha_repulsion(
         np.array([0.96867, 0.41743, 1.03509]), np.array([1.84594, 0.83035, 1.20242]),
@@ -4283,7 +4283,7 @@ def test_ralpha_repulsion_0_2_2_3():
 
 
 def test_ralpha_repulsion_4_3_2_1():
-    fn = 'electron_repulsion_4_3_2_1.json'
+    fn = 'electron_repulsion_4_3_2_1_json'
     result0 = load_json(fn)
     check_ralpha_repulsion(
         np.array([0.94212, 1.71823, 0.3309]), np.array([0.94854, 0.12816, 0.42016]),
