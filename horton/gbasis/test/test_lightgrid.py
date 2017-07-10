@@ -29,15 +29,15 @@ def test_gaussians_triatomic():
     # An L-shaped CH2 molecule.
     coordinates = np.array([[1.6, 0.0, 0.0], [0.0, 1.6, 0.0], [0.0, 0.0, 0.0]])
     numbers = np.array([1.0, 1.0, 6.0])
-    points, weights = generate_molecular_grid(numbers, coordinates)
+    points, weights = generate_molecular_grid(numbers, coordinates, 10000)
 
     # Put normalized Slaters on the nuclei
     rho = 0.0
-    alphas = [2.0, 2.0, 5.0]
+    alphas = [2.0, 2.0, 1.8]
     for iatom in xrange(3):
         deltas = points - coordinates[iatom]
         distances = np.sqrt(np.einsum('ij,ij->i', deltas, deltas))
         rho += (alphas[iatom]**3/(8*np.pi))*np.exp(-distances*alphas[iatom])
 
     # The test
-    np.testing.assert_almost_equal(np.dot(rho, weights), 3.0, decimal=3)
+    np.testing.assert_almost_equal(np.dot(rho, weights), 3.0, decimal=2)

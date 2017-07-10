@@ -4513,12 +4513,12 @@ def test_electron_repulsion_water_ccpvdz_cart_hf():
 def check_g09_grid_fn(fn):
     obasis = load_obasis(fn)
     mol = load_mdata(fn)
-    points, weights = generate_molecular_grid(mol['numbers'], mol['coordinates'])
+    points, weights = generate_molecular_grid(mol['numbers'], mol['coordinates'], 10000)
     dm_full = load_dm(fn)
     rhos = obasis.compute_grid_density_dm(dm_full, points)
     pop = integrate(weights, rhos)
     nel = np.einsum('ab,ba', obasis.compute_overlap(), dm_full)
-    assert abs(pop - nel) < 2e-3
+    np.testing.assert_allclose(pop, nel, atol=1e-2)
 
 
 def test_grid_fn_h_sto3g():

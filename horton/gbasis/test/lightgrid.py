@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
+"""Simple molecule integration grids."""
 
 
 import numpy as np
@@ -26,150 +27,62 @@ import numpy as np
 __all__ = ['generate_molecular_grid', 'integrate']
 
 
-lebedev_50_points = np.array([
-    [1.0, 0.0, 0.0],
-    [-1.0, 0.0, 0.0],
-    [0.0, 1.0, 0.0],
-    [0.0, -1.0, 0.0],
-    [0.0, 0.0, 1.0],
-    [0.0, 0.0, -1.0],
-    [0.0, 0.7071067811865475, 0.7071067811865475],
-    [0.0, 0.7071067811865475, -0.7071067811865475],
-    [0.0, -0.7071067811865475, 0.7071067811865475],
-    [0.0, -0.7071067811865475, -0.7071067811865475],
-    [0.7071067811865475, 0.0, 0.7071067811865475],
-    [0.7071067811865475, 0.0, -0.7071067811865475],
-    [-0.7071067811865475, 0.0, 0.7071067811865475],
-    [-0.7071067811865475, 0.0, -0.7071067811865475],
-    [0.7071067811865475, 0.7071067811865475, 0.0],
-    [0.7071067811865475, -0.7071067811865475, 0.0],
-    [-0.7071067811865475, 0.7071067811865475, 0.0],
-    [-0.7071067811865475, -0.7071067811865475, 0.0],
-    [0.5773502691896258, 0.5773502691896258, 0.5773502691896258],
-    [0.5773502691896258, 0.5773502691896258, -0.5773502691896258],
-    [0.5773502691896258, -0.5773502691896258, 0.5773502691896258],
-    [0.5773502691896258, -0.5773502691896258, -0.5773502691896258],
-    [-0.5773502691896258, 0.5773502691896258, 0.5773502691896258],
-    [-0.5773502691896258, 0.5773502691896258, -0.5773502691896258],
-    [-0.5773502691896258, -0.5773502691896258, 0.5773502691896258],
-    [-0.5773502691896258, -0.5773502691896258, -0.5773502691896258],
-    [0.3015113445777636, 0.3015113445777636, 0.9045340337332909],
-    [0.3015113445777636, 0.3015113445777636, -0.9045340337332909],
-    [0.3015113445777636, -0.3015113445777636, 0.9045340337332909],
-    [0.3015113445777636, -0.3015113445777636, -0.9045340337332909],
-    [-0.3015113445777636, 0.3015113445777636, 0.9045340337332909],
-    [-0.3015113445777636, 0.3015113445777636, -0.9045340337332909],
-    [-0.3015113445777636, -0.3015113445777636, 0.9045340337332909],
-    [-0.3015113445777636, -0.3015113445777636, -0.9045340337332909],
-    [0.3015113445777636, 0.9045340337332909, 0.3015113445777636],
-    [0.3015113445777636, -0.9045340337332909, 0.3015113445777636],
-    [0.3015113445777636, 0.9045340337332909, -0.3015113445777636],
-    [0.3015113445777636, -0.9045340337332909, -0.3015113445777636],
-    [-0.3015113445777636, 0.9045340337332909, 0.3015113445777636],
-    [-0.3015113445777636, -0.9045340337332909, 0.3015113445777636],
-    [-0.3015113445777636, 0.9045340337332909, -0.3015113445777636],
-    [-0.3015113445777636, -0.9045340337332909, -0.3015113445777636],
-    [0.9045340337332909, 0.3015113445777636, 0.3015113445777636],
-    [-0.9045340337332909, 0.3015113445777636, 0.3015113445777636],
-    [0.9045340337332909, 0.3015113445777636, -0.3015113445777636],
-    [-0.9045340337332909, 0.3015113445777636, -0.3015113445777636],
-    [0.9045340337332909, -0.3015113445777636, 0.3015113445777636],
-    [-0.9045340337332909, -0.3015113445777636, 0.3015113445777636],
-    [0.9045340337332909, -0.3015113445777636, -0.3015113445777636],
-    [-0.9045340337332909, -0.3015113445777636, -0.3015113445777636]])
+class Shell(object):
+    """A 1s-type Slater density shell"""
 
-lebedev_50_weights = np.array([
-    0.0126984126984127, 0.0126984126984127, 0.0126984126984127, 0.0126984126984127,
-    0.0126984126984127, 0.0126984126984127, 0.02257495590828924, 0.02257495590828924,
-    0.02257495590828924, 0.02257495590828924, 0.02257495590828924, 0.02257495590828924,
-    0.02257495590828924, 0.02257495590828924, 0.02257495590828924, 0.02257495590828924,
-    0.02257495590828924, 0.02257495590828924, 0.02109375, 0.02109375, 0.02109375,
-    0.02109375, 0.02109375, 0.02109375, 0.02109375, 0.02109375, 0.02017333553791887,
-    0.02017333553791887, 0.02017333553791887, 0.02017333553791887, 0.02017333553791887,
-    0.02017333553791887, 0.02017333553791887, 0.02017333553791887, 0.02017333553791887,
-    0.02017333553791887, 0.02017333553791887, 0.02017333553791887, 0.02017333553791887,
-    0.02017333553791887, 0.02017333553791887, 0.02017333553791887, 0.02017333553791887,
-    0.02017333553791887, 0.02017333553791887, 0.02017333553791887, 0.02017333553791887,
-    0.02017333553791887, 0.02017333553791887, 0.02017333553791887])
-
-
-# For every element a few number are needed to perform an approximate Hirshfeld
-# partitioning and to define radial integration grids:
-#
-# Attributes
-# ----------
-# populations : np.ndarray, shape=(nshell,)
-#
-class ElementSetup(object):
-    """Parameters that define all molecular grid parameters for one element."""
-    def __init__(self, populations, alphas, a, b, npoint):
-        r"""Initialize an ElementSetup.
-
-        The electron density of every element is approximately represented by a
-        superposition of s-type Slater density functions. One function per shell is added,
-        eaching have a population and an exponent. The approximate atomic density has
-        spherical symmtery with the following radial dependencies:
-
-        .. math::
-
-            rho(r) = \\sum_{i=0}^{N_\text{shell}} \frac{N_i \alpha_i^3}{8\pi}
-                                                   \exp(-\alpha_i r)
-
-        The population and exponent parameters in this module are fitted to densities from
-        atomic relativistic LDA calculations, using the MBIS method.
-
-        The radial grid of every element has the following form:
-
-        .. math::
-
-            r(t) = a*t/(1 - b*t)
-
-        where t goes from 0 to npoint-1. a and b are parameters tuned for every element.
-        The numbers in this module are borrowed from GPAW.
+    def __init__(self, population, exponent, center=None):
+        """Initialize a Shell instance.
 
         Parameters
         ----------
-        populations : np.ndarray, shape=(nshell,)
-            The populations of the shells, :math:`N_i`
-        alphas : np.ndarray, shape=(nshell,)
-            The exponents of the shells, :math:`\alpha_i`
-        a : float
-            The a parameter defined above.
-        b : float
-            The b parameter defined above.
-        npoint : int
-            The number of radial integration grid points.
+        population : float
+            The number of electrons in the shell.
+        exponent : float
+            The exponent of the Slater function.
+        center : np.ndarray, shape=(3,)
         """
-        self.populations = np.asarray(populations)
-        self.alphas = np.asarray(alphas)
-        self.a = a
-        self.b = b
-        self.npoint = npoint
+        self.population = population
+        self.exponent = exponent
+        self.center = center
 
-    def get_radius_weight(self, t):
-        """Return the radius and jacobian for index t."""
-        r = self.a*t/(1 - self.b*t)
-        w = 4*np.pi*r**2*self.a/(1 - self.b*t)**2
-        return r, w
+    def clone(self, center):
+        """Make a copy of the shell with a new center."""
+        return Shell(self.population, self.exponent, center)
 
-    def compute_density(self, distances):
-        result = 0.0
-        for ishell in xrange(len(self.populations)):
-            prefactor = self.populations[ishell]*self.alphas[ishell]**3/(8*np.pi)
-            result += prefactor*np.exp(-distances*self.alphas[ishell])
-        return result
+    def compute_density(self, distance):
+        """Compute the density of the shell as function of the distance from the center."""
+        prefactor = self.population*self.exponent**3/(8*np.pi)
+        return prefactor*np.exp(-distance*self.exponent)
+
+    def get_random_points(self, npoint):
+        """Sample npoint random points from shape function of the shell."""
+        radii = np.random.gamma(3, 1.0/self.exponent, npoint)
+        points = np.zeros((npoint, 3))
+        norms = np.zeros(npoint)
+        while True:
+            mask = norms < 0.1
+            nnew = mask.sum()
+            if nnew == 0:
+                break
+            newpoints = np.random.normal(0, 1, (nnew, 3))
+            newnorms = np.sqrt(np.einsum('ij,ij->i', newpoints, newpoints))
+            points[mask] = newpoints
+            norms[mask] = newnorms
+        return points*(radii/norms).reshape(-1, 1) + self.center
 
 
-element_setups = {
-    1: ElementSetup([1.0], [2.0], 0.4/150.0, 1.0/150.0, 150),
-    6: ElementSetup([1.70730, 4.29270], [12.79758, 1.85580], 0.4/300.0, 1.0/300.0, 300),
-    7: ElementSetup([1.68283, 5.31717], [15.13096, 2.19942], 0.4/300.0, 1.0/300.0, 300),
-    8: ElementSetup([1.66122, 6.33878], [17.46129, 2.54326], 0.4/300.0, 1.0/300.0, 300),
+setups = {
+    1: [Shell(1.0, 2.0)],
+    3: [Shell(1.86359, 5.56763), Shell(1.13641, 0.80520)],
+    6: [Shell(1.70730, 12.79758), Shell(4.29270, 1.85580)],
+    7: [Shell(1.68283, 15.13096), Shell(5.31717, 2.19942)],
+    8: [Shell(1.66122, 17.46129), Shell(6.33878, 2.54326)],
+    9: [Shell(1.64171, 19.78991), Shell(7.35829, 2.88601)],
 }
 
 
-def generate_molecular_grid(numbers, coordinates):
-    """Generate a molecular integration grid.
+def generate_molecular_grid(numbers, coordinates, npoint_per_electron=100, seed=1):
+    """Generate a molecular integration grid, using importance sampling.
 
     Parameters
     ----------
@@ -177,6 +90,10 @@ def generate_molecular_grid(numbers, coordinates):
         Atomic numbers.
     coordinates : np.ndarray, shape(natom, 3), dtype=float
         Atomic cooorindates.
+    npoint_per_electron : int
+        The number of grid points per atomic shell.
+    seed : int
+        The random seed to use when generating the grid.
 
     Returns
     -------
@@ -185,47 +102,48 @@ def generate_molecular_grid(numbers, coordinates):
     weights : np.ndarray, shape=(npoint,), dypte=float
         Integration grid weights for all points.
     """
-    natom = len(numbers)
-    atomic_grids = []
-    for iatom0 in xrange(natom):
-        # 1) Generate atomic grid points and weights
-        setup0 = element_setups[numbers[iatom0]]
-        nsphere = len(lebedev_50_weights)
-        atomic_points = np.zeros((setup0.npoint, nsphere, 3))
-        atomic_weights = np.zeros((setup0.npoint, nsphere))
-        for t in xrange(setup0.npoint):
-            r, w = setup0.get_radius_weight(t)
-            atomic_points[t] = lebedev_50_points*r + coordinates[iatom0]
-            atomic_weights[t] = lebedev_50_weights*w
-        atomic_points.shape = (-1, 3)
-        atomic_weights.shape = (-1,)
+    state = np.random.get_state()
+    np.random.seed(seed)
+    try:
+        # Get a list of shells
+        shells = []
+        for number, coordinate in zip(numbers, coordinates):
+            for shell in setups[number]:
+                shells.append(shell.clone(coordinate))
 
-        # 2) Evaluate pro-molecular density on the grid. Also keep the density of iatom0.
-        pro_mol = 0.0
-        pro_atom0 = None
-        for iatom1 in xrange(natom):
-            deltas = atomic_points - coordinates[iatom1]
-            distances = np.sqrt(np.einsum('ij,ij->i', deltas, deltas))
-            setup1 = element_setups[numbers[iatom1]]
-            pro_atom1 = setup1.compute_density(distances)
-            if iatom0 == iatom1:
-                pro_atom0 = pro_atom1
-            pro_mol += pro_atom1
+        # Initialize outputs
+        nshell = len(shells)
+        shell_points = []
+        shell_weights = []
 
-        # 3) Multiply in the Hirshfeld weight. Simple trick to avoid division by zero.
-        ratios = (pro_atom0 + 1e-100)/(pro_mol + 1e-100)
-        atomic_weights *= ratios
+        # Random sampling
+        nelec = sum(shell.population for shell in shells)
+        weights_sum = 0.0
+        for ishell0, shell0 in enumerate(shells):
+            npoint_shell = int(np.round(npoint_per_electron*shell0.population))
+            shell_points.append(shell0.get_random_points(npoint_shell))
+            prob = 0.0
+            for ishell1, shell1 in enumerate(shells):
+                deltas = shell_points[-1] - shell1.center
+                distances = np.sqrt(np.einsum('ij,ij->i', deltas, deltas))
+                prob += shell1.compute_density(distances)
+            prob /= nelec
+            scale = shell0.population/npoint_shell
+            shell_weights.append(scale/prob)
+            weights_sum += shell0.population
 
-        # 4) Store
-        atomic_grids.append((atomic_points, atomic_weights))
+        # Fix shapes
+        points = np.concatenate(shell_points)
+        weights = np.concatenate(shell_weights)
+    finally:
+        np.random.set_state(state)
 
-    points = np.concatenate([atomic_points for atomic_points, atomic_weights in atomic_grids])
-    weights = np.concatenate([atomic_weights for atomic_points, atomic_weights in atomic_grids])
-    return points, weights
+    return points, weights/weights_sum
 
 
 def integrate(*args):
     """Replaces grid.integrate for gbasis tests.
-       Simply takes a dot product of all 1D numpy arrays passed to it.
+
+    Simply takes a dot product of all 1D numpy arrays passed to it.
     """
     return np.sum(reduce(np.multiply, args))

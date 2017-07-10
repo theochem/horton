@@ -392,7 +392,7 @@ def test_grid_two_index_ne():
     mol = load_mdata(fn)
     rtf = ExpRTransform(1e-3, 2e1, 100)
     rgrid = RadialGrid(rtf)
-    points, weights = generate_molecular_grid(mol['numbers'], mol['coordinates'])
+    points, weights = generate_molecular_grid(mol['numbers'], mol['coordinates'], 100000)
     dist0 = np.sqrt(((points - mol['coordinates'][0]) ** 2).sum(axis=1))
     dist1 = np.sqrt(((points - mol['coordinates'][1]) ** 2).sum(axis=1))
     pot = -mol['numbers'][0] / dist0 - mol['numbers'][1] / dist1
@@ -400,7 +400,7 @@ def test_grid_two_index_ne():
     na_grid = obasis.compute_grid_density_fock(points, weights, pot)
     # compare grid-based operator with analytical result
     assert abs(na_grid).max() > 8.0
-    assert abs(na_ana - na_grid).max() < 2e-3
+    np.testing.assert_allclose(na_ana, na_grid, rtol=0.005, atol=0.01)
     # check symmetry
     np.testing.assert_almost_equal(na_grid, na_grid.T)
 

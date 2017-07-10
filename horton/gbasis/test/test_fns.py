@@ -476,17 +476,17 @@ def test_orbitals_co_ccpv5z_pure():
     check_orbitals(fn_fchk)
 
 
-def check_dm_kinetic(fn, eps=1e-100):
+def check_dm_kinetic(fn, npoint, eps):
     mol = load_mdata(fn)
     obasis = load_obasis(fn)
     dm = load_dm(fn)
-    points, weights = generate_molecular_grid(mol['numbers'], mol['coordinates'])
+    points, weights = generate_molecular_grid(mol['numbers'], mol['coordinates'], npoint)
 
     kin = obasis.compute_kinetic()
     ekin1 = np.einsum('ab,ba', kin, dm)
     kindens = obasis.compute_grid_kinetic_dm(dm, points)
     ekin2 = integrate(weights, kindens)
-    assert abs(ekin1 - ekin2) < eps
+    np.testing.assert_allclose(ekin1, ekin2, atol=eps)
 
     tmp = obasis.compute_grid_kinetic_fock(
         points, weights, np.random.uniform(-1, 1, weights.size))
@@ -495,25 +495,25 @@ def check_dm_kinetic(fn, eps=1e-100):
     kinn = obasis.compute_grid_kinetic_fock(points, weights, np.ones(weights.size))
     np.testing.assert_almost_equal(kinn, kinn.T)
     ekin3 = np.einsum('ab,ba', kinn, dm)
-    assert abs(ekin1 - ekin3) < eps
+    np.testing.assert_allclose(ekin1, ekin3, atol=eps)
 
 
 def test_dm_kinetic_n2_sto3g():
-    check_dm_kinetic('n2_hfs_sto3g_fchk', 1e-3)
+    check_dm_kinetic('n2_hfs_sto3g_fchk', 20000, 1e-2)
 
 
 def test_dm_kinetic_h3_321g():
-    check_dm_kinetic('h3_pbe_321g_fchk', 5e-5)
+    check_dm_kinetic('h3_pbe_321g_fchk', 200000, 1e-3)
 
 
 @attr('slow')
 def test_dm_kinetic_co_ccpv5z_cart():
-    check_dm_kinetic('co_ccpv5z_cart_hf_g03_fchk', 4e-4)
+    check_dm_kinetic('co_ccpv5z_cart_hf_g03_fchk', 10000, 0.2)
 
 
 @attr('slow')
 def test_dm_kinetic_co_ccpv5z_pure():
-    check_dm_kinetic('co_ccpv5z_pure_hf_g03_fchk', 4e-4)
+    check_dm_kinetic('co_ccpv5z_pure_hf_g03_fchk', 10000, 0.2)
 
 
 @attr('slow')
