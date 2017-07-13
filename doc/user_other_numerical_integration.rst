@@ -212,11 +212,8 @@ The usage pattern is as follows:
     rsq = grid.points[:,0]**2 + grid.points[:,1]**2 + grid.points[:,2]**2
     pot = np.sqrt(1 + rsq)
 
-    # Allocate an output array for the operator
-    fock = lf.create_two_index()
-
     # Actual computation
-    obasis.compute_grid_density_fock(grid.points, grid.weights, pot, fock)
+    fock = obasis.compute_grid_density_fock(grid.points, grid.weights, pot)
 
 
 Other chain rules are also implemented:
