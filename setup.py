@@ -442,7 +442,6 @@ setup(
         'horton.gbasis', 'horton.gbasis.test',
         'horton.grid', 'horton.grid.test',
         'horton.io', 'horton.io.test',
-        'horton.matrix', 'horton.matrix.test',
         'horton.meanfield', 'horton.meanfield.test',
         'horton.part', 'horton.part.test',
         'horton.scripts', 'horton.scripts.test',
@@ -467,7 +466,6 @@ setup(
         ('include/horton/grid', glob('horton/grid/*.h')),
         ('include/horton/gbasis', glob('horton/gbasis/*.h')),
         ('include/horton/espfit', glob('horton/espfit/*.h')),
-        ('include/horton/matrix', glob('horton/matrix/*.h')),
     ],
     package_data={
         'horton': ['*.pxd'],
