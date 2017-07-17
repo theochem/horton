@@ -25,9 +25,6 @@ import os
 from nose.tools import assert_raises
 from nose.plugins.attrib import attr
 
-from horton.grid import RadialGrid
-from horton.grid.cext import ExpRTransform
-
 from .. import *  # pylint: disable=wildcard-import, unused-wildcard-import
 
 from . common import *
@@ -390,8 +387,6 @@ def test_grid_two_index_ne():
     fn = 'li_h_3_21G_hf_g09_fchk'
     obasis = load_obasis(fn)
     mol = load_mdata(fn)
-    rtf = ExpRTransform(1e-3, 2e1, 100)
-    rgrid = RadialGrid(rtf)
     points, weights = generate_molecular_grid(mol['numbers'], mol['coordinates'], 100000)
     dist0 = np.sqrt(((points - mol['coordinates'][0]) ** 2).sum(axis=1))
     dist1 = np.sqrt(((points - mol['coordinates'][1]) ** 2).sum(axis=1))
