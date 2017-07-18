@@ -20,8 +20,8 @@
 
 // UPDATELIBDOCTITLE: A four-center integral wrapper for the Cholesky code
 
-#ifndef GBW_H
-#define GBW_H
+#ifndef HORTON_GBASIS_GBW_H_
+#define HORTON_GBASIS_GBW_H_
 
 #include "gbasis.h"
 #include "ints.h"
@@ -32,109 +32,111 @@
         for a Cholesky algorithm.
 */
 class GB4IntegralWrapper {
-    private:
-        GOBasis* gobasis;
-        GB4Integral* gb4int;
-        long max_shell_size;
-        long slice_size;
-        double* integrals;
+ private:
+  GOBasis *gobasis;
+  GB4Integral *gb4int;
+  long max_shell_size;
+  long slice_size;
+  double *integrals;
 
-        long ishell0;
-        long ishell2;
-        long begin0; // beginning of the basis indexes for shell0
-        long begin2; // beginning of the basis indexes for shell2
+  long ishell0;
+  long ishell2;
+  long begin0;  // beginning of the basis indexes for shell0
+  long begin2;  // beginning of the basis indexes for shell2
 
-        /**
-            @brief
-                Compute four-center integrals for a quadruplet of shells
-                (defined by ishell0, ishell1, ishell2 and ishell3).
-        */
-        void compute_shell(long ishell1, long ishell3);
-    public:
-        /**
-            @brief
-                Construct the wrapper.
+  /**
+      @brief
+          Compute four-center integrals for a quadruplet of shells
+          (defined by ishell0, ishell1, ishell2 and ishell3).
+  */
+  void compute_shell(long ishell1, long ishell3);
 
-            @param gobasis
-                A Gaussian basis set for which the four-center integrals are
-                to be computed.
+ public:
+  /**
+      @brief
+          Construct the wrapper.
 
-            @param gb4int
-                A definition/implementation of a four-center integral.
-        */
-        GB4IntegralWrapper(GOBasis* gobasis, GB4Integral* gb4int);
-        ~GB4IntegralWrapper();
+      @param gobasis
+          A Gaussian basis set for which the four-center integrals are
+          to be computed.
 
-        /**
-            @brief
-                The number of basis functions.
-        */
-        long get_nbasis() {return gobasis->get_nbasis();}
+      @param gb4int
+          A definition/implementation of a four-center integral.
+  */
+  GB4IntegralWrapper(GOBasis *gobasis, GB4Integral *gb4int);
 
-        /**
-            @brief
-                Select a pair of shells to which a pair of basis indexes belong.
+  ~GB4IntegralWrapper();
 
-            The output of this function is also stored internally for the next
-            call to the compute method.
+  /**
+      @brief
+          The number of basis functions.
+  */
+  long get_nbasis() { return gobasis->get_nbasis(); }
 
-            @param index0
-                The first basis index.
+  /**
+      @brief
+          Select a pair of shells to which a pair of basis indexes belong.
 
-            @param index2
-                The third basis index. (Physicist notation!)
+      The output of this function is also stored internally for the next
+      call to the compute method.
 
-            @param pbegin0
-                Output argument. The begin of the range for the first shell.
+      @param index0
+          The first basis index.
 
-            @param pend0
-                Output argument. The end (non-inclusive) of the range for the
-                first shell.
+      @param index2
+          The third basis index. (Physicist notation!)
 
-            @param pbegin2
-                Output argument. The begin of the range for the third shell.
-                (Physicist notation!)
+      @param pbegin0
+          Output argument. The begin of the range for the first shell.
 
-            @param pend2
-                Output argument. The end (non-inclusive) of the range for the
-                third shell. (Physicist notation!)
-        */
-        void select_2index(long index0, long index2,
-                           long* pbegin0, long* pend0,
-                           long* pbegin2, long* pend2);
+      @param pend0
+          Output argument. The end (non-inclusive) of the range for the
+          first shell.
 
-        /**
-            @brief
-                Compute four-center integrals for the slices selected with
-                the select_2index method.
-        */
-        void compute();
+      @param pbegin2
+          Output argument. The begin of the range for the third shell.
+          (Physicist notation!)
 
-        /**
-            @brief
-                Compute the (double) diagonal of the four-index object. This
-                is usually needed in the initialization of a Cholesky algorithm.
+      @param pend2
+          Output argument. The end (non-inclusive) of the range for the
+          third shell. (Physicist notation!)
+  */
+  void select_2index(long index0, long index2,
+                     long *pbegin0, long *pend0,
+                     long *pbegin2, long *pend2);
 
-            @param diagonal
-                The output array to which the result is written
-                (size=nbasis*basis).
-        */
-        void compute_diagonal(double* diagonal);
+  /**
+      @brief
+          Compute four-center integrals for the slices selected with
+          the select_2index method.
+  */
+  void compute();
 
-        /**
-            @brief
-                Get a slice from the four-center integral computed with the last
-                call to the compute method.
+  /**
+      @brief
+          Compute the (double) diagonal of the four-index object. This
+          is usually needed in the initialization of a Cholesky algorithm.
 
-            @param index0
-                The first index of the slice. (Absolute indexes, not relative
-                within the currently selected shell.)
+      @param diagonal
+          The output array to which the result is written
+          (size=nbasis*basis).
+  */
+  void compute_diagonal(double *diagonal);
 
-            @param index2
-                The third index of the slice. (Physicist notation!) (Absolute
-                indexes, not relative within the currently selected shell.)
-        */
-        double* get_2index_slice(long index0, long index2);
+  /**
+      @brief
+          Get a slice from the four-center integral computed with the last
+          call to the compute method.
+
+      @param index0
+          The first index of the slice. (Absolute indexes, not relative
+          within the currently selected shell.)
+
+      @param index2
+          The third index of the slice. (Physicist notation!) (Absolute
+          indexes, not relative within the currently selected shell.)
+  */
+  double *get_2index_slice(long index0, long index2);
 };
 
-#endif
+#endif  // HORTON_GBASIS_GBW_H_

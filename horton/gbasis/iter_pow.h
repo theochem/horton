@@ -20,30 +20,34 @@
 
 // UPDATELIBDOCTITLE: Iterators over Cartesian polynomials in one shell
 
-#ifndef HORTON_GBASIS_ITER_POW_H
-#define HORTON_GBASIS_ITER_POW_H
+#ifndef HORTON_GBASIS_ITER_POW_H_
+#define HORTON_GBASIS_ITER_POW_H_
 
-int iter_pow1_inc(long* n);
+int iter_pow1_inc(long *n);
 
 class IterPow1 {
-    private:
-        long shell_type0;
-    public:
-        void reset(long shell_type0);
-        int inc();
-        long n0[3];
-        long ibasis0;
-    };
+ private:
+  long shell_type0;
+ public:
+  void reset(long shell_type0);
+
+  int inc();
+
+  long n0[3];
+  long ibasis0;
+};
 
 class IterPow2 {
-    private:
-        long shell_type0, shell_type1;
-    public:
-        void reset(long shell_type0, long shell_type1);
-        int inc();
-        long n0[3];
-        long n1[3];
-        long offset, ibasis0, ibasis1;
-    };
+ private:
+  long shell_type0, shell_type1;
+ public:
+  void reset(long shell_type0, long shell_type1);
 
-#endif
+  int inc();
+
+  long n0[3];
+  long n1[3];
+  long offset, ibasis0, ibasis1;
+};
+
+#endif  // HORTON_GBASIS_ITER_POW_H_

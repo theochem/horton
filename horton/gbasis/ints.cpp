@@ -22,11 +22,10 @@
 #include <cstdlib>
 #include <cstring>
 #include <stdexcept>
-#include <cstdlib>
 #include "boys.h"
 #include "cartpure.h"
-#include "common.h"
 #include "ints.h"
+
 using std::abs;
 
 /*
@@ -55,57 +54,54 @@ using std::abs;
 */
 
 
-GB2Integral::GB2Integral(long max_shell_type): GBCalculator(max_shell_type) {
-    nwork = max_nbasis*max_nbasis;
-    work_cart = new double[nwork];
-    work_pure = new double[nwork];
+GB2Integral::GB2Integral(long max_shell_type) : GBCalculator(max_shell_type) {
+  nwork = max_nbasis * max_nbasis;
+  work_cart = new double[nwork];
+  work_pure = new double[nwork];
 }
 
-void GB2Integral::reset(long _shell_type0, long _shell_type1, const double* _r0, const double* _r1) {
-    if ((_shell_type0 < -max_shell_type) || (_shell_type0 > max_shell_type)) {
-      throw std::domain_error("shell_type0 out of range.");
-    }
-    if ((_shell_type1 < -max_shell_type) || (_shell_type1 > max_shell_type)) {
-      throw std::domain_error("shell_type1 out of range.");
-    }
-    shell_type0 = _shell_type0;
-    shell_type1 = _shell_type1;
-    r0 = _r0;
-    r1 = _r1;
-    // We make use of the fact that a floating point zero consists of
-    // consecutive zero bytes.
-    memset(work_cart, 0, nwork*sizeof(double));
-    memset(work_pure, 0, nwork*sizeof(double));
+void
+GB2Integral::reset(long _shell_type0, long _shell_type1, const double *_r0, const double *_r1) {
+  if ((_shell_type0 < -max_shell_type) || (_shell_type0 > max_shell_type)) {
+    throw std::domain_error("shell_type0 out of range.");
+  }
+  if ((_shell_type1 < -max_shell_type) || (_shell_type1 > max_shell_type)) {
+    throw std::domain_error("shell_type1 out of range.");
+  }
+  shell_type0 = _shell_type0;
+  shell_type1 = _shell_type1;
+  r0 = _r0;
+  r1 = _r1;
+  // We make use of the fact that a floating point zero consists of
+  // consecutive zero bytes.
+  memset(work_cart, 0, nwork * sizeof(double));
+  memset(work_pure, 0, nwork * sizeof(double));
 }
 
 void GB2Integral::cart_to_pure() {
-    /*
-       The initial results are always stored in work_cart. The projection
-       routine always outputs its result in work_pure. Once that is done,
-       the pointers to both blocks are swapped such that the final result is
-       always back in work_cart.
-    */
+  /*
+     The initial results are always stored in work_cart. The projection
+     routine always outputs its result in work_pure. Once that is done,
+     the pointers to both blocks are swapped such that the final result is
+     always back in work_cart.
+  */
 
-    // Project along index 0 (rows)
-    if (shell_type0 < -1) {
-        cart_to_pure_low(work_cart, work_pure, -shell_type0,
-            1, // anterior
-            get_shell_nbasis(abs(shell_type1)) // posterior
-        );
-        swap_work();
-    }
+  // Project along index 0 (rows)
+  if (shell_type0 < -1) {
+    cart_to_pure_low(work_cart, work_pure, -shell_type0,
+                     1,  // anterior
+                     get_shell_nbasis(abs(shell_type1)));  // posterior
+    swap_work();
+  }
 
-    // Project along index 1 (cols)
-    if (shell_type1 < -1) {
-        cart_to_pure_low(work_cart, work_pure, -shell_type1,
-            get_shell_nbasis(shell_type0), // anterior
-            1 // posterior
-        );
-        swap_work();
-    }
+  // Project along index 1 (cols)
+  if (shell_type1 < -1) {
+    cart_to_pure_low(work_cart, work_pure, -shell_type1,
+                     get_shell_nbasis(shell_type0),  // anterior
+                     1);  // posterior
+    swap_work();
+  }
 }
-
-
 
 /*
 
@@ -114,24 +110,26 @@ void GB2Integral::cart_to_pure() {
 */
 
 
-void GB2OverlapIntegral::add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1) {
-    double pre, gamma_inv;
-    double gpt_center[3];
+void GB2OverlapIntegral::add(double coeff, double alpha0, double alpha1, const double *scales0,
+                             const double *scales1) {
+  double pre, gamma_inv;
+  double gpt_center[3];
 
-    gamma_inv = 1.0/(alpha0 + alpha1);
-    pre = coeff*exp(-alpha0*alpha1*gamma_inv*dist_sq(r0, r1));
-    compute_gpt_center(alpha0, r0, alpha1, r1, gamma_inv, gpt_center);
-    i2p.reset(abs(shell_type0), abs(shell_type1));
-    do {
-        work_cart[i2p.offset] += pre*(
-            gb_overlap_int1d(i2p.n0[0], i2p.n1[0], gpt_center[0] - r0[0], gpt_center[0] - r1[0], gamma_inv)*
-            gb_overlap_int1d(i2p.n0[1], i2p.n1[1], gpt_center[1] - r0[1], gpt_center[1] - r1[1], gamma_inv)*
-            gb_overlap_int1d(i2p.n0[2], i2p.n1[2], gpt_center[2] - r0[2], gpt_center[2] - r1[2], gamma_inv)*
-            scales0[i2p.ibasis0]*scales1[i2p.ibasis1]
-        );
-    } while (i2p.inc());
+  gamma_inv = 1.0 / (alpha0 + alpha1);
+  pre = coeff * exp(-alpha0 * alpha1 * gamma_inv * dist_sq(r0, r1));
+  compute_gpt_center(alpha0, r0, alpha1, r1, gamma_inv, gpt_center);
+  i2p.reset(abs(shell_type0), abs(shell_type1));
+  do {
+    work_cart[i2p.offset] += pre * (
+        gb_overlap_int1d(i2p.n0[0], i2p.n1[0], gpt_center[0] - r0[0], gpt_center[0] - r1[0],
+                         gamma_inv) *
+            gb_overlap_int1d(i2p.n0[1], i2p.n1[1], gpt_center[1] - r0[1], gpt_center[1] - r1[1],
+                             gamma_inv) *
+            gb_overlap_int1d(i2p.n0[2], i2p.n1[2], gpt_center[2] - r0[2], gpt_center[2] - r1[2],
+                             gamma_inv) *
+            scales0[i2p.ibasis0] * scales1[i2p.ibasis1]);
+  } while (i2p.inc());
 }
-
 
 /*
 
@@ -140,53 +138,57 @@ void GB2OverlapIntegral::add(double coeff, double alpha0, double alpha1, const d
 */
 
 
-double kinetic_helper(double alpha0, double alpha1, long n0, long n1, double pa, double pb, double gamma_inv) {
-    double poly = 0;
+double kinetic_helper(double alpha0, double alpha1, long n0, long n1, double pa, double pb,
+                      double gamma_inv) {
+  double poly = 0;
 
-    if (n0 > 0) {
-        if (n1 > 0) {
-            // <-1|-1>
-            poly += 0.5*n0*n1*gb_overlap_int1d(n0-1, n1-1, pa, pb, gamma_inv);
-        }
-        // <-1|+1>
-        poly -= alpha1*n0*gb_overlap_int1d(n0-1, n1+1, pa, pb, gamma_inv);
-    }
+  if (n0 > 0) {
     if (n1 > 0) {
-        // <+1|-1>
-        poly -= alpha0*n1*gb_overlap_int1d(n0+1, n1-1, pa, pb, gamma_inv);
+      // <-1|-1>
+      poly += 0.5 * n0 * n1 * gb_overlap_int1d(n0 - 1, n1 - 1, pa, pb, gamma_inv);
     }
-    // <+1|+1>
-    poly += 2.0*alpha0*alpha1*gb_overlap_int1d(n0+1, n1+1, pa, pb, gamma_inv);
+    // <-1|+1>
+    poly -= alpha1 * n0 * gb_overlap_int1d(n0 - 1, n1 + 1, pa, pb, gamma_inv);
+  }
+  if (n1 > 0) {
+    // <+1|-1>
+    poly -= alpha0 * n1 * gb_overlap_int1d(n0 + 1, n1 - 1, pa, pb, gamma_inv);
+  }
+  // <+1|+1>
+  poly += 2.0 * alpha0 * alpha1 * gb_overlap_int1d(n0 + 1, n1 + 1, pa, pb, gamma_inv);
 
-    return poly;
+  return poly;
 }
 
-void GB2KineticIntegral::add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1) {
-    double pre, gamma_inv, poly, fx0, fy0, fz0;
-    double gpt_center[3], pa[3], pb[3];
+void GB2KineticIntegral::add(double coeff, double alpha0, double alpha1, const double *scales0,
+                             const double *scales1) {
+  double pre, gamma_inv, poly, fx0, fy0, fz0;
+  double gpt_center[3], pa[3], pb[3];
 
-    gamma_inv = 1.0/(alpha0 + alpha1);
-    pre = coeff*exp(-alpha0*alpha1*gamma_inv*dist_sq(r0, r1));
-    compute_gpt_center(alpha0, r0, alpha1, r1, gamma_inv, gpt_center);
-    pa[0] = gpt_center[0] - r0[0];
-    pa[1] = gpt_center[1] - r0[1];
-    pa[2] = gpt_center[2] - r0[2];
-    pb[0] = gpt_center[0] - r1[0];
-    pb[1] = gpt_center[1] - r1[1];
-    pb[2] = gpt_center[2] - r1[2];
+  gamma_inv = 1.0 / (alpha0 + alpha1);
+  pre = coeff * exp(-alpha0 * alpha1 * gamma_inv * dist_sq(r0, r1));
+  compute_gpt_center(alpha0, r0, alpha1, r1, gamma_inv, gpt_center);
+  pa[0] = gpt_center[0] - r0[0];
+  pa[1] = gpt_center[1] - r0[1];
+  pa[2] = gpt_center[2] - r0[2];
+  pb[0] = gpt_center[0] - r1[0];
+  pb[1] = gpt_center[1] - r1[1];
+  pb[2] = gpt_center[2] - r1[2];
 
-    i2p.reset(abs(shell_type0), abs(shell_type1));
-    do {
-        fx0 = gb_overlap_int1d(i2p.n0[0], i2p.n1[0], pa[0], pb[0], gamma_inv);
-        fy0 = gb_overlap_int1d(i2p.n0[1], i2p.n1[1], pa[1], pb[1], gamma_inv);
-        fz0 = gb_overlap_int1d(i2p.n0[2], i2p.n1[2], pa[2], pb[2], gamma_inv);
-        poly = fy0*fz0*kinetic_helper(alpha0, alpha1, i2p.n0[0], i2p.n1[0], pa[0], pb[0], gamma_inv) +
-               fz0*fx0*kinetic_helper(alpha0, alpha1, i2p.n0[1], i2p.n1[1], pa[1], pb[1], gamma_inv) +
-               fx0*fy0*kinetic_helper(alpha0, alpha1, i2p.n0[2], i2p.n1[2], pa[2], pb[2], gamma_inv);
-        work_cart[i2p.offset] += pre*scales0[i2p.ibasis0]*scales1[i2p.ibasis1]*poly;
-    } while (i2p.inc());
+  i2p.reset(abs(shell_type0), abs(shell_type1));
+  do {
+    fx0 = gb_overlap_int1d(i2p.n0[0], i2p.n1[0], pa[0], pb[0], gamma_inv);
+    fy0 = gb_overlap_int1d(i2p.n0[1], i2p.n1[1], pa[1], pb[1], gamma_inv);
+    fz0 = gb_overlap_int1d(i2p.n0[2], i2p.n1[2], pa[2], pb[2], gamma_inv);
+    poly = fy0 * fz0 *
+        kinetic_helper(alpha0, alpha1, i2p.n0[0], i2p.n1[0], pa[0], pb[0], gamma_inv) +
+        fz0 * fx0 *
+            kinetic_helper(alpha0, alpha1, i2p.n0[1], i2p.n1[1], pa[1], pb[1], gamma_inv) +
+        fx0 * fy0 *
+            kinetic_helper(alpha0, alpha1, i2p.n0[2], i2p.n1[2], pa[2], pb[2], gamma_inv);
+    work_cart[i2p.offset] += pre * scales0[i2p.ibasis0] * scales1[i2p.ibasis1] * poly;
+  } while (i2p.inc());
 }
-
 
 /*
 
@@ -195,107 +197,109 @@ void GB2KineticIntegral::add(double coeff, double alpha0, double alpha1, const d
 */
 
 
-GB2AttractionIntegral::GB2AttractionIntegral(long max_shell_type, double* charges,
-                                             double* centers, long ncharge) :
-            GB2Integral(max_shell_type), charges(charges), centers(centers), ncharge(ncharge) {
-    work_g0 = new double[2*max_shell_type+1];
-    work_g1 = new double[2*max_shell_type+1];
-    work_g2 = new double[2*max_shell_type+1];
-    work_boys = new double[2*max_shell_type+1];
+GB2AttractionIntegral::GB2AttractionIntegral(long max_shell_type, double *charges,
+                                             double *centers, long ncharge) :
+    GB2Integral(max_shell_type), charges(charges), centers(centers), ncharge(ncharge) {
+  work_g0 = new double[2 * max_shell_type + 1];
+  work_g1 = new double[2 * max_shell_type + 1];
+  work_g2 = new double[2 * max_shell_type + 1];
+  work_boys = new double[2 * max_shell_type + 1];
 }
-
 
 GB2AttractionIntegral::~GB2AttractionIntegral() {
-    delete[] work_g0;
-    delete[] work_g1;
-    delete[] work_g2;
-    delete[] work_boys;
+  delete[] work_g0;
+  delete[] work_g1;
+  delete[] work_g2;
+  delete[] work_boys;
 }
 
+void
+GB2AttractionIntegral::add(double coeff, double alpha0, double alpha1, const double *scales0,
+                           const double *scales1) {
+  double pre, gamma, gamma_inv, arg;
+  double gpt_center[3], pa[3], pb[3], pc[3];
 
-void GB2AttractionIntegral::add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1) {
-    double pre, gamma, gamma_inv, arg;
-    double gpt_center[3], pa[3], pb[3], pc[3];
+  gamma = alpha0 + alpha1;
+  gamma_inv = 1.0 / gamma;
+  pre = 2 * M_PI * gamma_inv * coeff * exp(-alpha0 * alpha1 * gamma_inv * dist_sq(r0, r1));
+  compute_gpt_center(alpha0, r0, alpha1, r1, gamma_inv, gpt_center);
+  pa[0] = gpt_center[0] - r0[0];
+  pa[1] = gpt_center[1] - r0[1];
+  pa[2] = gpt_center[2] - r0[2];
+  pb[0] = gpt_center[0] - r1[0];
+  pb[1] = gpt_center[1] - r1[1];
+  pb[2] = gpt_center[2] - r1[2];
 
-    gamma = alpha0 + alpha1;
-    gamma_inv = 1.0/gamma;
-    pre = 2*M_PI*gamma_inv*coeff*exp(-alpha0*alpha1*gamma_inv*dist_sq(r0, r1));
-    compute_gpt_center(alpha0, r0, alpha1, r1, gamma_inv, gpt_center);
-    pa[0] = gpt_center[0] - r0[0];
-    pa[1] = gpt_center[1] - r0[1];
-    pa[2] = gpt_center[2] - r0[2];
-    pb[0] = gpt_center[0] - r1[0];
-    pb[1] = gpt_center[1] - r1[1];
-    pb[2] = gpt_center[2] - r1[2];
+  for (long icharge = 0; icharge < ncharge; icharge++) {
+    // thrid center for the current charge
+    pc[0] = gpt_center[0] - centers[icharge * 3];
+    pc[1] = gpt_center[1] - centers[icharge * 3 + 1];
+    pc[2] = gpt_center[2] - centers[icharge * 3 + 2];
 
-    for (long icharge=0; icharge < ncharge; icharge++) {
-        // thrid center for the current charge
-        pc[0] = gpt_center[0] - centers[icharge*3  ];
-        pc[1] = gpt_center[1] - centers[icharge*3+1];
-        pc[2] = gpt_center[2] - centers[icharge*3+2];
+    // Fill the work array with the Boys function values
+    arg = gamma * (pc[0] * pc[0] + pc[1] * pc[1] + pc[2] * pc[2]);
+    // for (long nu=abs(shell_type0)+abs(shell_type1); nu>=0; nu--) {
+    //    work_boys[nu] = boys_function(nu, arg);
+    // }
+    /*
+       Laplace transform of the potential
+    */
 
-        // Fill the work array with the Boys function values
-        arg = gamma*(pc[0]*pc[0] + pc[1]*pc[1] + pc[2]*pc[2]);
-        // for (long nu=abs(shell_type0)+abs(shell_type1); nu>=0; nu--) {
-        //    work_boys[nu] = boys_function(nu, arg);
-        //}
-        /*
-           Laplace transform of the potential
-        */
+    int mmax = abs(shell_type0) + abs(shell_type1);
+    laplace_of_potential(gamma, arg, mmax, work_boys);
 
-        int mmax = abs(shell_type0) + abs(shell_type1);
-        laplace_of_potential(gamma, arg, mmax, work_boys);
+    // Iterate over all combinations of Cartesian exponents
+    i2p.reset(abs(shell_type0), abs(shell_type1));
+    do {
+      // Fill the work arrays with the polynomials
+      nuclear_attraction_helper(work_g0, i2p.n0[0], i2p.n1[0], pa[0], pb[0], pc[0],
+                                gamma_inv);
+      nuclear_attraction_helper(work_g1, i2p.n0[1], i2p.n1[1], pa[1], pb[1], pc[1],
+                                gamma_inv);
+      nuclear_attraction_helper(work_g2, i2p.n0[2], i2p.n1[2], pa[2], pb[2], pc[2],
+                                gamma_inv);
 
-        // Iterate over all combinations of Cartesian exponents
-        i2p.reset(abs(shell_type0), abs(shell_type1));
-        do {
-            // Fill the work arrays with the polynomials
-            nuclear_attraction_helper(work_g0, i2p.n0[0], i2p.n1[0], pa[0], pb[0], pc[0], gamma_inv);
-            nuclear_attraction_helper(work_g1, i2p.n0[1], i2p.n1[1], pa[1], pb[1], pc[1], gamma_inv);
-            nuclear_attraction_helper(work_g2, i2p.n0[2], i2p.n1[2], pa[2], pb[2], pc[2], gamma_inv);
+      // Take the product
+      arg = 0;
+      for (long i0 = i2p.n0[0] + i2p.n1[0]; i0 >= 0; i0--)
+        for (long i1 = i2p.n0[1] + i2p.n1[1]; i1 >= 0; i1--)
+          for (long i2 = i2p.n0[2] + i2p.n1[2]; i2 >= 0; i2--)
+            arg += work_g0[i0] * work_g1[i1] * work_g2[i2] * work_boys[i0 + i1 + i2];
 
-            // Take the product
-            arg = 0;
-            for (long i0=i2p.n0[0]+i2p.n1[0]; i0>=0; i0--)
-                for (long i1=i2p.n0[1]+i2p.n1[1]; i1>=0; i1--)
-                    for (long i2=i2p.n0[2]+i2p.n1[2]; i2>=0; i2--)
-                        arg += work_g0[i0]*work_g1[i1]*work_g2[i2]*work_boys[i0+i1+i2];
-
-            // Finally add to the work array, accounting for opposite charge of electron and nucleus
-            work_cart[i2p.offset] -= pre*scales0[i2p.ibasis0]*scales1[i2p.ibasis1]*arg*charges[icharge];
-        } while (i2p.inc());
-    }
+      // Finally add to the work array, accounting for opposite charge of electron and nucleus
+      work_cart[i2p.offset] -=
+          pre * scales0[i2p.ibasis0] * scales1[i2p.ibasis1] * arg * charges[icharge];
+    } while (i2p.inc());
+  }
 }
-
 
 void GB2NuclearAttractionIntegral::laplace_of_potential(double gamma, double arg, long mmax,
-                                                        double* output) {
+                                                        double *output) {
   boys_function_array(mmax, arg, output);
 }
 
-
 void GB2ErfAttractionIntegral::laplace_of_potential(double gamma, double arg, long mmax,
-                                                    double* output) {
-  double efac = mu*mu/(mu*mu + gamma);
-  boys_function_array(mmax, arg*efac, output);
+                                                    double *output) {
+  double efac = mu * mu / (mu * mu + gamma);
+  boys_function_array(mmax, arg * efac, output);
   double prefac = sqrt(efac);
-  for (long m=0; m <= mmax; m++) {
+  for (long m = 0; m <= mmax; m++) {
     output[m] *= prefac;
     prefac *= efac;
   }
 }
 
-
 void GB2GaussAttractionIntegral::laplace_of_potential(double gamma, double arg, long mmax,
-                                                      double* output) {
-  double afac = alpha/(gamma+alpha);
-  double prefac = (M_PI/(gamma+alpha))*sqrt(M_PI/(gamma+alpha))*c*exp(-arg*afac)*(gamma/(2*M_PI));
-  for (long m=0; m <= mmax; m++) {
+                                                      double *output) {
+  double afac = alpha / (gamma + alpha);
+  double prefac =
+      (M_PI / (gamma + alpha)) * sqrt(M_PI / (gamma + alpha)) * c * exp(-arg * afac) *
+          (gamma / (2 * M_PI));
+  for (long m = 0; m <= mmax; m++) {
     output[m] = prefac;
     prefac *= afac;
   }
 }
-
 
 /*
 
@@ -305,105 +309,104 @@ void GB2GaussAttractionIntegral::laplace_of_potential(double gamma, double arg, 
 
 
 double moment_helper(long n0, long n1, long n2, double pa, double pb, double pc, double gamma_inv) {
-    /*
-     The Obara Saika Scheme, equations A7 and A8 in "Efficient recursive computation of
-     molecular integrals over Cartesian Gaussian functions", S. Obara, A. Saika, Journal
-     of Chemical Physics, vol. 84, p. 3963, y. 1986.
+  /*
+   The Obara Saika Scheme, equations A7 and A8 in "Efficient recursive computation of
+   molecular integrals over Cartesian Gaussian functions", S. Obara, A. Saika, Journal
+   of Chemical Physics, vol. 84, p. 3963, y. 1986.
 
-     Note that we use a shift in the indices:
-     (0_A|R(0)|0_B) in the paper is stored in work_mm[1][1][1].
-     In this allows to set all terms in with the angular momentum index becomes -1 to 0,
-     avoiding a lot of if-statements.
-    */
+   Note that we use a shift in the indices:
+   (0_A|R(0)|0_B) in the paper is stored in work_mm[1][1][1].
+   In this allows to set all terms in with the angular momentum index becomes -1 to 0,
+   avoiding a lot of if-statements.
+  */
 
-    double result;
-    // if n2 == 0, we just need the overlap.
-    if (n2 == 0) {
-        result = gb_overlap_int1d(n0, n1, pa, pb, (2.0e0 * gamma_inv));
-    } else {
-        long m, l, n;
-        double work_mm[n0+2][n1+2][n2+2];
+  double result;
+  // if n2 == 0, we just need the overlap.
+  if (n2 == 0) {
+    result = gb_overlap_int1d(n0, n1, pa, pb, (2.0e0 * gamma_inv));
+  } else {
+    long m, l, n;
+    double work_mm[n0 + 2][n1 + 2][n2 + 2];
 
-        for (l=0; l < (n0+2); l++) {
-            for (m=0; m < (n1+2); m++) {
-                for (n=0; n < (n2+2); n++) {
-                    work_mm[l][m][n] = 0.0e0;
-                }
-            }
+    for (l = 0; l < (n0 + 2); l++) {
+      for (m = 0; m < (n1 + 2); m++) {
+        for (n = 0; n < (n2 + 2); n++) {
+          work_mm[l][m][n] = 0.0e0;
         }
-
-        // The auxiliary overlap (0_A|R(0)|0_B) is stored in work_mm[1][1][1]:
-        work_mm[1][1][1] = gb_overlap_int1d(0, 0, pa, pb, (2.0e0 * gamma_inv));
-
-        // Equation A8 in the Obara-Saika paper for (0_A|R(mu + 1)|0_B):
-        for (n=1; n < (n2+1); n++) {
-            work_mm[1][1][n+1] = pc * work_mm[1][1][n] + (gamma_inv * (n-1) * work_mm[1][1][n-1]);
-        }
-
-        // Equation A7 in the Obara-Saika paper for (0_A|R(mu)|b + 1):
-        for (m=1; m < (n1+1); m++) {
-            for (n=1; n <= (n2+1); n++) {
-                work_mm[1][m+1][n] = pb * work_mm[1][m][n]
-                                                + (gamma_inv * (m-1) * work_mm[1][m-1][n])
-                                                + (gamma_inv * (n-1) * work_mm[1][m][n-1]);
-            }
-        }
-
-        // Equation A7 in the Obara-Saika paper for (a + 1|R(mu)|b):
-        for (l=1; l < (n0+1); l++) {
-            for (m=1; m <= (n1+1); m++) {
-                for (n=1; n <= (n2+1); n++) {
-                    work_mm[l+1][m][n] = pa * work_mm[l][m][n]
-                                                + (gamma_inv * (l-1) * work_mm[l-1][m][n])
-                                                + (gamma_inv * (m-1) * work_mm[l][m-1][n])
-                                                + (gamma_inv * (n-1) * work_mm[l][m][n-1]);
-                }
-            }
-        }
-
-        result = work_mm[n0+1][n1+1][n2+1];
+      }
     }
 
-    return result;
+    // The auxiliary overlap (0_A|R(0)|0_B) is stored in work_mm[1][1][1]:
+    work_mm[1][1][1] = gb_overlap_int1d(0, 0, pa, pb, (2.0e0 * gamma_inv));
+
+    // Equation A8 in the Obara-Saika paper for (0_A|R(mu + 1)|0_B):
+    for (n = 1; n < (n2 + 1); n++) {
+      work_mm[1][1][n + 1] =
+          pc * work_mm[1][1][n] + (gamma_inv * (n - 1) * work_mm[1][1][n - 1]);
+    }
+
+    // Equation A7 in the Obara-Saika paper for (0_A|R(mu)|b + 1):
+    for (m = 1; m < (n1 + 1); m++) {
+      for (n = 1; n <= (n2 + 1); n++) {
+        work_mm[1][m + 1][n] = pb * work_mm[1][m][n]
+            + (gamma_inv * (m - 1) * work_mm[1][m - 1][n])
+            + (gamma_inv * (n - 1) * work_mm[1][m][n - 1]);
+      }
+    }
+
+    // Equation A7 in the Obara-Saika paper for (a + 1|R(mu)|b):
+    for (l = 1; l < (n0 + 1); l++) {
+      for (m = 1; m <= (n1 + 1); m++) {
+        for (n = 1; n <= (n2 + 1); n++) {
+          work_mm[l + 1][m][n] = pa * work_mm[l][m][n]
+              + (gamma_inv * (l - 1) * work_mm[l - 1][m][n])
+              + (gamma_inv * (m - 1) * work_mm[l][m - 1][n])
+              + (gamma_inv * (n - 1) * work_mm[l][m][n - 1]);
+        }
+      }
+    }
+
+    result = work_mm[n0 + 1][n1 + 1][n2 + 1];
+  }
+
+  return result;
 }
 
-
-GB2MomentIntegral::GB2MomentIntegral(long max_shell_type, long* xyz, double* center)
-: GB2Integral(max_shell_type), xyz(xyz), center(center) {
-    if (xyz[0] + xyz[1] + xyz[2] < 0)
+GB2MomentIntegral::GB2MomentIntegral(long max_shell_type, long *xyz, double *center)
+    : GB2Integral(max_shell_type), xyz(xyz), center(center) {
+  if (xyz[0] + xyz[1] + xyz[2] < 0)
     throw std::domain_error(" sum < 0");
-    if ((xyz[0] < 0) || (xyz[1] < 0) || (xyz[2] < 0))
+  if ((xyz[0] < 0) || (xyz[1] < 0) || (xyz[2] < 0))
     throw std::domain_error(" all elements of xyz must be >= 0");
 }
 
-
 void GB2MomentIntegral::add(double coeff, double alpha0, double alpha1,
-                            const double* scales0, const double* scales1) {
-    double pre, gamma_inv, twogamma_inv;
-    double gpt_center[3], pa[3], pb[3], pc[3];
+                            const double *scales0, const double *scales1) {
+  double pre, gamma_inv, twogamma_inv;
+  double gpt_center[3], pa[3], pb[3], pc[3];
 
-    gamma_inv = 1.0/(alpha0 + alpha1);
-    twogamma_inv = 0.50/(alpha0 + alpha1);
-    pre = coeff*exp(-alpha0*alpha1*gamma_inv*dist_sq(r0, r1));
-    compute_gpt_center(alpha0, r0, alpha1, r1, gamma_inv, gpt_center);
-    pa[0] = gpt_center[0] - r0[0];
-    pa[1] = gpt_center[1] - r0[1];
-    pa[2] = gpt_center[2] - r0[2];
-    pb[0] = gpt_center[0] - r1[0];
-    pb[1] = gpt_center[1] - r1[1];
-    pb[2] = gpt_center[2] - r1[2];
-    pc[0] = gpt_center[0] - center[0];
-    pc[1] = gpt_center[1] - center[1];
-    pc[2] = gpt_center[2] - center[2];
-    i2p.reset(abs(shell_type0), abs(shell_type1));
+  gamma_inv = 1.0 / (alpha0 + alpha1);
+  twogamma_inv = 0.50 / (alpha0 + alpha1);
+  pre = coeff * exp(-alpha0 * alpha1 * gamma_inv * dist_sq(r0, r1));
+  compute_gpt_center(alpha0, r0, alpha1, r1, gamma_inv, gpt_center);
+  pa[0] = gpt_center[0] - r0[0];
+  pa[1] = gpt_center[1] - r0[1];
+  pa[2] = gpt_center[2] - r0[2];
+  pb[0] = gpt_center[0] - r1[0];
+  pb[1] = gpt_center[1] - r1[1];
+  pb[2] = gpt_center[2] - r1[2];
+  pc[0] = gpt_center[0] - center[0];
+  pc[1] = gpt_center[1] - center[1];
+  pc[2] = gpt_center[2] - center[2];
+  i2p.reset(abs(shell_type0), abs(shell_type1));
 
-    do {
-        work_cart[i2p.offset] += pre*(
-            moment_helper(i2p.n0[0], i2p.n1[0], xyz[0], pa[0], pb[0], pc[0], twogamma_inv)*
-            moment_helper(i2p.n0[1], i2p.n1[1], xyz[1], pa[1], pb[1], pc[1], twogamma_inv)*
-            moment_helper(i2p.n0[2], i2p.n1[2], xyz[2], pa[2], pb[2], pc[2], twogamma_inv)*
-            scales0[i2p.ibasis0]*scales1[i2p.ibasis1]);
-    } while (i2p.inc());
+  do {
+    work_cart[i2p.offset] += pre * (
+        moment_helper(i2p.n0[0], i2p.n1[0], xyz[0], pa[0], pb[0], pc[0], twogamma_inv) *
+            moment_helper(i2p.n0[1], i2p.n1[1], xyz[1], pa[1], pb[1], pc[1], twogamma_inv) *
+            moment_helper(i2p.n0[2], i2p.n1[2], xyz[2], pa[2], pb[2], pc[2], twogamma_inv) *
+            scales0[i2p.ibasis0] * scales1[i2p.ibasis1]);
+  } while (i2p.inc());
 }
 
 /*
@@ -416,14 +419,14 @@ void GB2MomentIntegral::add(double coeff, double alpha0, double alpha1,
 GB4Integral::GB4Integral(long max_shell_type)
     : GBCalculator(max_shell_type), shell_type0(0), shell_type1(0), shell_type2(0),
       shell_type3(0), r0(NULL), r1(NULL), r2(NULL), r3(NULL) {
-  nwork = max_nbasis*max_nbasis*max_nbasis*max_nbasis;
+  nwork = max_nbasis * max_nbasis * max_nbasis * max_nbasis;
   work_cart = new double[nwork];
   work_pure = new double[nwork];
 }
 
 void GB4Integral::reset(
     long _shell_type0, long _shell_type1, long _shell_type2, long _shell_type3,
-    const double* _r0, const double* _r1, const double* _r2, const double* _r3) {
+    const double *_r0, const double *_r1, const double *_r2, const double *_r3) {
   if ((_shell_type0 < -max_shell_type) || (_shell_type0 > max_shell_type))
     throw std::domain_error("shell_type0 out of range.");
   if ((_shell_type1 < -max_shell_type) || (_shell_type1 > max_shell_type))
@@ -442,8 +445,8 @@ void GB4Integral::reset(
   r3 = _r3;
   // We make use of the fact that a floating point zero consists of
   // consecutive zero bytes.
-  memset(work_cart, 0, nwork*sizeof(double));
-  memset(work_pure, 0, nwork*sizeof(double));
+  memset(work_cart, 0, nwork * sizeof(double));
+  memset(work_pure, 0, nwork * sizeof(double));
 }
 
 void GB4Integral::cart_to_pure() {
@@ -456,9 +459,9 @@ void GB4Integral::cart_to_pure() {
   if (shell_type0 < -1) {
     cart_to_pure_low(work_cart, work_pure, -shell_type0,
                      1,                                    // anterior
-                     get_shell_nbasis(abs(shell_type1))*
-                     get_shell_nbasis(abs(shell_type2))*
-                     get_shell_nbasis(abs(shell_type3)));  // posterior
+                     get_shell_nbasis(abs(shell_type1)) *
+                         get_shell_nbasis(abs(shell_type2)) *
+                         get_shell_nbasis(abs(shell_type3)));  // posterior
     swap_work();
   }
 
@@ -466,16 +469,16 @@ void GB4Integral::cart_to_pure() {
   if (shell_type1 < -1) {
     cart_to_pure_low(work_cart, work_pure, -shell_type1,
                      get_shell_nbasis(shell_type0),        // anterior
-                     get_shell_nbasis(abs(shell_type2))*
-                     get_shell_nbasis(abs(shell_type3)));  // posterior
+                     get_shell_nbasis(abs(shell_type2)) *
+                         get_shell_nbasis(abs(shell_type3)));  // posterior
     swap_work();
   }
 
   // Project along index 2
   if (shell_type2 < -1) {
     cart_to_pure_low(work_cart, work_pure, -shell_type2,
-                     get_shell_nbasis(shell_type0)*
-                     get_shell_nbasis(shell_type1),        // anterior
+                     get_shell_nbasis(shell_type0) *
+                         get_shell_nbasis(shell_type1),        // anterior
                      get_shell_nbasis(abs(shell_type3)));  // posterior
     swap_work();
   }
@@ -483,9 +486,9 @@ void GB4Integral::cart_to_pure() {
   // Project along index 3
   if (shell_type3 < -1) {
     cart_to_pure_low(work_cart, work_pure, -shell_type3,
-                     get_shell_nbasis(shell_type0)*
-                     get_shell_nbasis(shell_type1)*
-                     get_shell_nbasis(shell_type2),  // anterior
+                     get_shell_nbasis(shell_type0) *
+                         get_shell_nbasis(shell_type1) *
+                         get_shell_nbasis(shell_type2),  // anterior
                      1);                             // posterior
     swap_work();
   }
@@ -499,7 +502,7 @@ void GB4Integral::cart_to_pure() {
 */
 
 #if LIBINT2_REALTYPE != double
-#error LibInt must be compiled with REALTYPE=double.
+#error LibInt must be compiled with REALTYPE = double.
 #endif
 
 #if LIBINT2_SUPPORT_ERI == 0
@@ -512,7 +515,10 @@ void GB4Integral::cart_to_pure() {
 
 GB4IntegralLibInt::GB4IntegralLibInt(long max_shell_type)
     : GB4Integral(max_shell_type),
-      libint_args{{0, NULL, 0.0}, {0, NULL, 0.0}, {0, NULL, 0.0}, {0, NULL, 0.0}},
+      libint_args{{0, NULL, 0.0},
+                  {0, NULL, 0.0},
+                  {0, NULL, 0.0},
+                  {0, NULL, 0.0}},
       order{0, 0, 0, 0}, ab{0.0, 0.0, 0.0}, cd{0.0, 0.0, 0.0}, ab2(0.0), cd2(0.0) {
   libint2_init_eri(&erieval, max_shell_type, 0);
   erieval.contrdepth = 1;
@@ -524,7 +530,7 @@ GB4IntegralLibInt::~GB4IntegralLibInt() {
 
 void GB4IntegralLibInt::reset(
     long _shell_type0, long _shell_type1, long _shell_type2, long _shell_type3,
-    const double* _r0, const double* _r1, const double* _r2, const double* _r3) {
+    const double *_r0, const double *_r1, const double *_r2, const double *_r3) {
   GB4Integral::reset(_shell_type0, _shell_type1, _shell_type2, _shell_type3, _r0, _r1, _r2, _r3);
 
   // Store the arguments for libint such that they can be reordered conveniently.
@@ -615,10 +621,10 @@ void GB4IntegralLibInt::reset(
 #endif
 }
 
-
 void GB4IntegralLibInt::add(
     double coeff, double alpha0, double alpha1, double alpha2, double alpha3,
-    const double* scales0, const double* scales1, const double* scales2, const double* scales3) {
+    const double *scales0, const double *scales1, const double *scales2,
+    const double *scales3) {
   /*
       Store the arguments for libint such that they can be reordered
       conveniently.
@@ -635,7 +641,7 @@ void GB4IntegralLibInt::add(
   */
 
   const double gammap = libint_args[order[0]].alpha + libint_args[order[2]].alpha;
-  const double gammap_inv = 1.0/gammap;
+  const double gammap_inv = 1.0 / gammap;
   double p[3];
   compute_gpt_center(libint_args[order[0]].alpha, libint_args[order[0]].r,
                      libint_args[order[2]].alpha, libint_args[order[2]].r,
@@ -674,20 +680,20 @@ void GB4IntegralLibInt::add(
 #endif
 
   const double gammaq = libint_args[order[1]].alpha + libint_args[order[3]].alpha;
-  const double gammaq_inv = 1.0/gammaq;
+  const double gammaq_inv = 1.0 / gammaq;
   double q[3];
   compute_gpt_center(libint_args[order[1]].alpha, libint_args[order[1]].r,
                      libint_args[order[3]].alpha, libint_args[order[3]].r,
                      gammaq_inv, q);
   const double qc[3] = {
-    q[0] - libint_args[order[1]].r[0],
-    q[1] - libint_args[order[1]].r[1],
-    q[2] - libint_args[order[1]].r[2]
+      q[0] - libint_args[order[1]].r[0],
+      q[1] - libint_args[order[1]].r[1],
+      q[2] - libint_args[order[1]].r[2]
   };
   const double qd[3] = {
-    q[0] - libint_args[order[3]].r[0],
-    q[1] - libint_args[order[3]].r[1],
-    q[2] - libint_args[order[3]].r[2]
+      q[0] - libint_args[order[3]].r[0],
+      q[1] - libint_args[order[3]].r[1],
+      q[2] - libint_args[order[3]].r[2]
   };
 
 #if LIBINT2_DEFINED(eri, QC_x)
@@ -745,9 +751,9 @@ void GB4IntegralLibInt::add(
 #endif
 
   const double pq[3] = {p[0] - q[0], p[1] - q[1], p[2] - q[2]};
-  const double pq2 = pq[0]*pq[0] + pq[1]*pq[1] + pq[2]*pq[2];
+  const double pq2 = pq[0] * pq[0] + pq[1] * pq[1] + pq[2] * pq[2];
   const double eta = gammap + gammaq;
-  const double eta_inv = 1.0/eta;
+  const double eta_inv = 1.0 / eta;
   double w[3];
   compute_gpt_center(gammap, p, gammaq, q, eta_inv, w);
 
@@ -784,20 +790,20 @@ void GB4IntegralLibInt::add(
   */
 
   const double k1 = exp(-libint_args[order[0]].alpha * libint_args[order[2]].alpha *
-                        ab2 * gammap_inv);
+      ab2 * gammap_inv);
   const double k2 = exp(-libint_args[order[1]].alpha * libint_args[order[3]].alpha *
-                        cd2 * gammaq_inv);
+      cd2 * gammaq_inv);
 #define PI_POW_3_2 5.5683279968317078
-  const double pfac = PI_POW_3_2*k1*k2*eta_inv*sqrt(eta_inv)*coeff;
-  const double rho = 1.0/(gammaq_inv + gammap_inv);
-  const double t = pq2*rho;
+  const double pfac = PI_POW_3_2 * k1 * k2 * eta_inv * sqrt(eta_inv) * coeff;
+  const double rho = 1.0 / (gammaq_inv + gammap_inv);
+  const double t = pq2 * rho;
 
   /*
       Laplace transform of the potential
   */
 
   int mmax = libint_args[0].am + libint_args[1].am + libint_args[2].am + libint_args[3].am;
-  double kernel[4*MAX_SHELL_TYPE+1];
+  double kernel[4 * MAX_SHELL_TYPE + 1];
   laplace_of_potential(pfac, rho, t, mmax, kernel);
 
 #define TEST_END_BOYS mmax--; if (mmax < 0) goto end_boys;
@@ -888,7 +894,7 @@ void GB4IntegralLibInt::add(
 #if LIBINT2_DEFINED(eri, LIBINT_T_SS_EREP_SS(28))
   erieval.LIBINT_T_SS_EREP_SS(28)[0] = kernel[28]; TEST_END_BOYS;
 #endif
-end_boys:
+  end_boys:
 
   /*
       Actual computation of all the integrals in this shell-set by libint
@@ -897,13 +903,13 @@ end_boys:
   if ((libint_args[0].am == 0) && (libint_args[1].am == 0) &&
       (libint_args[2].am == 0) && (libint_args[3].am == 0)) {
     work_cart[0] += erieval.LIBINT_T_SS_EREP_SS(0)[0] *
-                    scales0[0] * scales1[0] * scales2[0] * scales3[0];
+        scales0[0] * scales1[0] * scales2[0] * scales3[0];
   } else {
     libint2_build_eri
-        [libint_args[order[0]].am]
-        [libint_args[order[2]].am]
-        [libint_args[order[1]].am]
-        [libint_args[order[3]].am]
+    [libint_args[order[0]].am]
+    [libint_args[order[2]].am]
+    [libint_args[order[1]].am]
+    [libint_args[order[3]].am]
         (&erieval);
 
     /*
@@ -914,27 +920,27 @@ end_boys:
     double strides[4];
     strides[3] = 1;
     strides[2] = get_shell_nbasis(libint_args[3].am);
-    strides[1] = strides[2]*get_shell_nbasis(libint_args[2].am);
-    strides[0] = strides[1]*get_shell_nbasis(libint_args[1].am);
+    strides[1] = strides[2] * get_shell_nbasis(libint_args[2].am);
+    strides[0] = strides[1] * get_shell_nbasis(libint_args[1].am);
     const int nbasis0 = get_shell_nbasis(libint_args[order[0]].am);
     const int nbasis1 = get_shell_nbasis(libint_args[order[1]].am);
     const int nbasis2 = get_shell_nbasis(libint_args[order[2]].am);
     const int nbasis3 = get_shell_nbasis(libint_args[order[3]].am);
-    const double* scales[4];
+    const double *scales[4];
     scales[0] = scales0;
     scales[1] = scales1;
     scales[2] = scales2;
     scales[3] = scales3;
     long counter = 0;
-    for (int i0=0; i0 < nbasis0; i0++) {
-      for (int i2=0; i2 < nbasis2; i2++) {
-        for (int i1=0; i1 < nbasis1; i1++) {
-          for (int i3=0; i3 < nbasis3; i3++) {
-            const long offset = i0*strides[order[0]] + i1*strides[order[1]] +
-                                i2*strides[order[2]] + i3*strides[order[3]];
+    for (int i0 = 0; i0 < nbasis0; i0++) {
+      for (int i2 = 0; i2 < nbasis2; i2++) {
+        for (int i1 = 0; i1 < nbasis1; i1++) {
+          for (int i3 = 0; i3 < nbasis3; i3++) {
+            const long offset = i0 * strides[order[0]] + i1 * strides[order[1]] +
+                i2 * strides[order[2]] + i3 * strides[order[3]];
             work_cart[offset] += erieval.targets[0][counter] *
-                                 scales[order[0]][i0] * scales[order[1]][i1] *
-                                 scales[order[2]][i2] * scales[order[3]][i3];
+                scales[order[0]][i0] * scales[order[1]][i1] *
+                scales[order[2]][i2] * scales[order[3]][i3];
             counter++;
           }
         }
@@ -943,47 +949,44 @@ end_boys:
   }
 }
 
-
 void GB4ElectronRepulsionIntegralLibInt::laplace_of_potential(
-    double prefac, double rho, double t, long mmax, double* output) {
+    double prefac, double rho, double t, long mmax, double *output) {
   boys_function_array(mmax, t, output);
-  prefac *= 2.0*M_PI/rho;
-  for (long m=0; m <= mmax; m++) {
+  prefac *= 2.0 * M_PI / rho;
+  for (long m = 0; m <= mmax; m++) {
     output[m] *= prefac;
   }
 }
 
-
 void GB4ErfIntegralLibInt::laplace_of_potential(
-    double prefac, double rho, double t, long mmax, double* output) {
-  double efac = mu*mu/(mu*mu + rho);
-  boys_function_array(mmax, t*efac, output);
-  prefac *= 2.0*M_PI/rho*sqrt(efac);
-  for (long m=0; m <= mmax; m++) {
+    double prefac, double rho, double t, long mmax, double *output) {
+  double efac = mu * mu / (mu * mu + rho);
+  boys_function_array(mmax, t * efac, output);
+  prefac *= 2.0 * M_PI / rho * sqrt(efac);
+  for (long m = 0; m <= mmax; m++) {
     output[m] *= prefac;
     prefac *= efac;
   }
 }
 
-
 void GB4GaussIntegralLibInt::laplace_of_potential(double prefac, double rho, double t,
-                                                  long mmax, double* output) {
-  double afac = alpha/(rho+alpha);
-  prefac *= (sqrt(M_PI*M_PI*M_PI)/(rho+alpha))*sqrt(1.0/(rho+alpha))*c*exp(-t*afac);
-  for (long m=0; m <= mmax; m++) {
+                                                  long mmax, double *output) {
+  double afac = alpha / (rho + alpha);
+  prefac *= (sqrt(M_PI * M_PI * M_PI) / (rho + alpha)) * sqrt(1.0 / (rho + alpha)) * c *
+      exp(-t * afac);
+  for (long m = 0; m <= mmax; m++) {
     output[m] = prefac;
     prefac *= afac;
   }
 }
 
-
 void GB4RAlphaIntegralLibInt::laplace_of_potential(double prefac, double rho, double t,
-                                                   long mmax, double* output) {
+                                                   long mmax, double *output) {
   if (mmax > 10)
     throw std::domain_error("mmax > 10, highest cartesian angular value implemented is 10");
-  prefac *= exp(-t)/(rho*sqrt(rho));
-  double tfactor = ((4.0*M_PI)/(2.0*sqrt(pow(rho, alpha))));
-  for (long m=0; m <= mmax; m++) {
-    output[m] = tfactor*dtaylor(m, alpha, t, prefac);
+  prefac *= exp(-t) / (rho * sqrt(rho));
+  double tfactor = ((4.0 * M_PI) / (2.0 * sqrt(pow(rho, alpha))));
+  for (long m = 0; m <= mmax; m++) {
+    output[m] = tfactor * dtaylor(m, alpha, t, prefac);
   }
 }

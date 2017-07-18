@@ -27,56 +27,53 @@
 /**
     Find the maximum diagonal error, used several times in the cholesky routine.
 */
-double find_maxdiag(double* diagerr, long nbasis, long begin1, long end1,
-    long begin2, long end2, long &index1, long &index2)
-{
+double find_maxdiag(double *diagerr, long nbasis, long begin1, long end1,
+                    long begin2, long end2, long &index1, long &index2) {
   double maxdiag = 0;
-  index1 = -1; //safety
-  index2 = -1; //safety
-  for (long i1=begin1; i1<end1; i1++){
-    for (long i2=begin2; i2<end2; i2++){
-       if (maxdiag < diagerr[i1*nbasis + i2]){
-         maxdiag = diagerr[i1*nbasis + i2];
-         index1 = i1;
-         index2 = i2;
+  index1 = -1;  // safety
+  index2 = -1;  // safety
+  for (long i1 = begin1; i1 < end1; i1++) {
+    for (long i2 = begin2; i2 < end2; i2++) {
+      if (maxdiag < diagerr[i1 * nbasis + i2]) {
+        maxdiag = diagerr[i1 * nbasis + i2];
+        index1 = i1;
+        index2 = i2;
       }
     }
   }
   return maxdiag;
 }
 
-
-long cholesky(GB4IntegralWrapper* gbw4, std::vector<double>* vectors,
-    double threshold)
-{
+long cholesky(GB4IntegralWrapper *gbw4, std::vector<double> *vectors,
+              double threshold) {
   if (threshold <= 0) {
     // The algorithm below may go crazy with a non-positive threshold.
     throw std::domain_error("Cholesky threshold must be strictly positive.");
   }
 
   long nbasis = gbw4->get_nbasis();
-  double* diagonal = new double[nbasis*nbasis];  // allocate 2 index object
-  double* diagerr = new double[nbasis*nbasis];   //  "
-  double* slice = NULL;                          //  "
-  double* pastvector_sum = new double[nbasis*nbasis];
+  double *diagonal = new double[nbasis * nbasis];  // allocate 2 index object
+  double *diagerr = new double[nbasis * nbasis];   //  "
+  double *slice = NULL;                          //  "
+  double *pastvector_sum = new double[nbasis * nbasis];
   // storage for 2-index cholesky vectors, start with allocation of 15% of the
   // full 4-center matrix
 //  std::vector<double>* vectors = new std::vector<double>;
-  vectors->reserve(nbasis*nbasis*nbasis*nbasis*0.15);
+  vectors->reserve(nbasis * nbasis * nbasis * nbasis * 0.15);
 
   /*
     In some future version, we'll introduce a mask to only compute integrals
     that will be relevant after some pre-screening test. These will be flagged
     with a mask array.
   */
-  //bool* mask = NULL;        // 2-index object
+  // bool* mask = NULL;        // 2-index object
 
   /*
     Initialize the diagonal and set the diagerr equal to the diagonal (because
     we start with zero Cholesky vectors).
   */
   gbw4->compute_diagonal(diagonal);
-  memcpy(diagerr, diagonal, sizeof(double)*nbasis*nbasis);
+  memcpy(diagerr, diagonal, sizeof(double) * nbasis * nbasis);
 
   /*
     This is extra stuff in the wrapper we'll need in future:
@@ -97,7 +94,7 @@ long cholesky(GB4IntegralWrapper* gbw4, std::vector<double>* vectors,
                                 index1, index2);
 
   // std::cout << "initial maxdiag " << maxdiag << " " << index1 << " " << index2 << std::endl;
-  unsigned long nvec=0;
+  unsigned long nvec = 0;
   do {
     // call wrapper to let it select a pair of shells for the given variables
     // index1 and index2.
@@ -117,14 +114,14 @@ long cholesky(GB4IntegralWrapper* gbw4, std::vector<double>* vectors,
       slice = gbw4->get_2index_slice(index1, index2);
 
       // construct new cholesky vector
-      memset(pastvector_sum, 0, sizeof(double)*nbasis*nbasis);
+      memset(pastvector_sum, 0, sizeof(double) * nbasis * nbasis);
       maxdiag = 1.0 / sqrt(maxdiag);
 
       // compute sum of past Ls
       for (unsigned long l = 0; l < nvec; l++) {
-        double factor = (*vectors)[l*nbasis*nbasis + index1*nbasis + index2];
-        for (long i = nbasis*nbasis-1; i >= 0; i--) {
-          pastvector_sum[i] += factor*(*vectors)[l*nbasis*nbasis + i];
+        double factor = (*vectors)[l * nbasis * nbasis + index1 * nbasis + index2];
+        for (long i = nbasis * nbasis - 1; i >= 0; i--) {
+          pastvector_sum[i] += factor * (*vectors)[l * nbasis * nbasis + i];
         }
         /*
         cblas_daxpy(nbasis*nbasis,
@@ -136,17 +133,17 @@ long cholesky(GB4IntegralWrapper* gbw4, std::vector<double>* vectors,
       // compute current L
       for (long i = 0; i < nbasis; i++) {
         for (long j = 0; j < nbasis; j++) {
-          vectors->push_back(maxdiag * (slice[i*nbasis + j] -
-                             pastvector_sum[i*nbasis + j]));
+          vectors->push_back(maxdiag * (slice[i * nbasis + j] -
+              pastvector_sum[i * nbasis + j]));
         }
       }
 
       // update diagerr
-      for (long i=0; i<nbasis; i++){
-        for (long j=0; j<nbasis; j++){
-          diagerr[i*nbasis + j] -=
-              (*vectors)[(nvec*nbasis*nbasis) + i*nbasis + j] *
-              (*vectors)[(nvec*nbasis*nbasis) + i*nbasis + j];
+      for (long i = 0; i < nbasis; i++) {
+        for (long j = 0; j < nbasis; j++) {
+          diagerr[i * nbasis + j] -=
+              (*vectors)[(nvec * nbasis * nbasis) + i * nbasis + j] *
+                  (*vectors)[(nvec * nbasis * nbasis) + i * nbasis + j];
         }
       }
 
@@ -159,7 +156,7 @@ long cholesky(GB4IntegralWrapper* gbw4, std::vector<double>* vectors,
       maxdiag = find_maxdiag(diagerr, nbasis, begin1, end1, begin2, end2,
                              index1, index2);
       // std::cout << "current maxdiag " << maxdiag << " " << index1 << " " << index2 << std::endl;
-    } while (maxdiag > threshold*1000);
+    } while (maxdiag > threshold * 1000);
 
     // Look for the new maximum error on the diagonal
     maxdiag = find_maxdiag(diagerr, nbasis, 0, nbasis, 0, nbasis,

@@ -21,8 +21,8 @@
 // UPDATELIBDOCTITLE: Low-level implementation of nuclear potential on a grid
 
 
-#ifndef HORTON_NUCPOT_H
-#define HORTON_NUCPOT_H
+#ifndef HORTON_GBASIS_NUCPOT_H_
+#define HORTON_GBASIS_NUCPOT_H_
 
 /** @brief
         Compute the electrostatic potential due to the nuclei on a grid.
@@ -49,7 +49,7 @@
         The number of grid points.
 
  */
-void compute_grid_nucpot(double* coordinates, double* charges, long natom,
-                         double* points, double* output, long npoint);
+void compute_grid_nucpot(double *coordinates, double *charges, long natom,
+                         double *points, double *output, long npoint);
 
-#endif
+#endif  // HORTON_GBASIS_NUCPOT_H_

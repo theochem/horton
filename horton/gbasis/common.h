@@ -20,8 +20,8 @@
 
 // UPDATELIBDOCTITLE: Auxiliary functions
 
-#ifndef HORTON_GBASIS_COMMON_H
-#define HORTON_GBASIS_COMMON_H
+#ifndef HORTON_GBASIS_COMMON_H_
+#define HORTON_GBASIS_COMMON_H_
 
 #define MAX_SHELL_TYPE 7
 #define MAX_NCART_CUMUL ((MAX_SHELL_TYPE+1)*(MAX_SHELL_TYPE+2)*(MAX_SHELL_TYPE+3))/6
@@ -30,17 +30,28 @@
 
 // Simple math stuff
 long fac(long n);
+
 long fac2(long n);
+
 long binom(long n, long m);
+
 long get_shell_nbasis(long shell_type);
+
 long get_max_shell_type();
-const double dist_sq(const double* r0, const double* r1);
+
+const double dist_sq(const double *r0, const double *r1);
 
 // Auxiliary functions for Gaussian integrals
-void compute_gpt_center(double alpha0, const double* r0, double alpha1, const double* r1, double gamma_inv, double* gpt_center);
+void compute_gpt_center(double alpha0, const double *r0, double alpha1, const double *r1,
+                        double gamma_inv,
+                        double *gpt_center);
+
 double gpt_coeff(long k, long n0, long n1, double pa, double pb);
+
 double gb_overlap_int1d(long n0, long n1, double pa, double pb, double gamma_inv);
-void nuclear_attraction_helper(double* work_g, long n0, long n1, double pa, double pb, double pc, double gamma_inv);
+
+void nuclear_attraction_helper(double *work_g, long n0, long n1, double pa, double pb, double pc,
+                               double gamma_inv);
 
 // Auxiliary functions for r^alpha integrals
 
@@ -71,4 +82,4 @@ long jfac(int j, int n);
 */
 double dtaylor(int n, double alpha, double t, double prefac);
 
-#endif
+#endif  // HORTON_GBASIS_COMMON_H_

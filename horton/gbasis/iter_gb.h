@@ -20,101 +20,115 @@
 
 // UPDATELIBDOCTITLE: Iterators over Gaussian basis functions
 
-#ifndef HORTON_GBASIS_ITER_GB_H
-#define HORTON_GBASIS_ITER_GB_H
+#ifndef HORTON_GBASIS_ITER_GB_H_
+#define HORTON_GBASIS_ITER_GB_H_
 
 #include "gbasis.h"
 
 class IterGB1 {
-    private:
-        // input fields
-        const GBasis* gbasis;
-        const long* basis_offsets;
-    public:
-        IterGB1(GBasis* gbasis);
+ private:
+  // input fields
+  const GBasis *gbasis;
+  const long *basis_offsets;
 
-        int inc_shell();
-        void update_shell();
-        int inc_prim();
-        void update_prim();
-        void store(const double* work, double* output, long dim);
+ public:
+  explicit IterGB1(GBasis *gbasis);
 
-        // 'public' iterator fields
-        long shell_type0;
-        double con_coeff, alpha0;
-        const double* r0; // current centers
-        const double* scales0; // normalization constants
-        long ibasis0; // basis function counters (for output storage)
+  int inc_shell();
 
-        // 'private' iterator fields
-        long ishell0; // shell counters
-        long nprim0, iprim0, oprim0; // primitive counters
-    };
+  void update_shell();
 
+  int inc_prim();
+
+  void update_prim();
+
+  void store(const double *work, double *output, long dim);
+
+  // 'public' iterator fields
+  long shell_type0;
+  double con_coeff, alpha0;
+  const double *r0;  // current centers
+  const double *scales0;  // normalization constants
+  long ibasis0;  // basis function counters (for output storage)
+
+  // 'private' iterator fields
+  long ishell0;  // shell counters
+  long nprim0, iprim0, oprim0;  // primitive counters
+};
 
 class IterGB2 {
-    private:
-        // input fields
-        const GBasis* gbasis;
-        const long* basis_offsets;
-    public:
-        IterGB2(GBasis* gbasis);
+ private:
+  // input fields
+  const GBasis *gbasis;
+  const long *basis_offsets;
 
-        int inc_shell();
-        void update_shell();
-        int inc_prim();
-        void update_prim();
-        void store(const double* work, double* output);
-        double dot(const double* work, const double* dm);
+ public:
+  explicit IterGB2(GBasis *gbasis);
 
-        // 'public' iterator fields
-        long shell_type0, shell_type1;
-        double con_coeff, alpha0, alpha1;
-        const double* r0;// current centers
-        const double* r1; // current centers
-        const double* scales0; // normalization constants
-        const double* scales1; // normalization constants
-        long ibasis0, ibasis1; // basis function counters (for output storage)
+  int inc_shell();
 
-        // 'private' iterator fields
-        long ishell0, ishell1; // shell counters
-        long nprim0, nprim1, iprim0, iprim1, oprim0, oprim1; // primitive counters
-    };
+  void update_shell();
 
+  int inc_prim();
+
+  void update_prim();
+
+  void store(const double *work, double *output);
+
+  double dot(const double *work, const double *dm);
+
+  // 'public' iterator fields
+  long shell_type0, shell_type1;
+  double con_coeff, alpha0, alpha1;
+  const double *r0;  // current centers
+  const double *r1;  // current centers
+  const double *scales0;  // normalization constants
+  const double *scales1;  // normalization constants
+  long ibasis0, ibasis1;  // basis function counters (for output storage)
+
+  // 'private' iterator fields
+  long ishell0, ishell1;  // shell counters
+  long nprim0, nprim1, iprim0, iprim1, oprim0, oprim1;  // primitive counters
+};
 
 class IterGB4 {
-    private:
-        // input fields
-        const GBasis* gbasis;
-        const long* basis_offsets;
-    public:
-        IterGB4(GBasis* gbasis);
+ private:
+  // input fields
+  const GBasis *gbasis;
+  const long *basis_offsets;
 
-        int inc_shell();
-        void update_shell();
-        int inc_prim();
-        void update_prim();
-        void store(const double* work, double* output);
+ public:
+  explicit IterGB4(GBasis *gbasis);
 
-        // 'public' iterator fields
-        long shell_type0, shell_type1, shell_type2, shell_type3;
-        double con_coeff, alpha0, alpha1, alpha2, alpha3;
-        const double* r0; // current centers
-        const double* r1; // current centers
-        const double* r2; // current centers
-        const double* r3; // current centers
-        const double* scales0; // normalization constants
-        const double* scales1; // normalization constants
-        const double* scales2; // normalization constants
-        const double* scales3; // normalization constants
-        long ibasis0, ibasis1, ibasis2, ibasis3; // basis function counters (for output storage)
+  int inc_shell();
 
-        // 'private' iterator fields
-        long ishell0, ishell1, ishell2, ishell3; // shell counters
-        long ishell3_max;
-        long nprim0, nprim1, nprim2, nprim3; // primitive counters
-        long iprim0, iprim1, iprim2, iprim3;
-        long oprim0, oprim1, oprim2, oprim3;
-    };
+  void update_shell();
 
-#endif
+  int inc_prim();
+
+  void update_prim();
+
+  void store(const double *work, double *output);
+
+  // 'public' iterator fields
+  long shell_type0, shell_type1, shell_type2, shell_type3;
+  double con_coeff, alpha0, alpha1, alpha2, alpha3;
+  const double *r0;  // current centers
+  const double *r1;  // current centers
+  const double *r2;  // current centers
+  const double *r3;  // current centers
+  const double *scales0;  // normalization constants
+  const double *scales1;  // normalization constants
+  const double *scales2;  // normalization constants
+  const double *scales3;  // normalization constants
+  long ibasis0, ibasis1, ibasis2, ibasis3;  // basis function counters (for output storage)
+
+  // 'private' iterator fields
+  long ishell0, ishell1, ishell2, ishell3;  // shell counters
+  long ishell3_max;
+  long nprim0, nprim1, nprim2, nprim3;  // primitive counters
+  long iprim0, iprim1, iprim2, iprim3;
+  long oprim0, oprim1, oprim2, oprim3;
+};
+
+#endif  // HORTON_GBASIS_ITER_GB_H_

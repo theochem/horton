@@ -127,7 +127,7 @@
       Base class for grid calculators that require only a single loop over all basis
       functions.
   */
-class GB1GridFn : public GBCalculator  {
+class GB1GridFn : public GBCalculator {
  public:
   /** @brief
         Construct a GB1GridFn object.
@@ -156,19 +156,19 @@ class GB1GridFn : public GBCalculator  {
       @param point
         Cartesian coordinates of the grid point. (size=3)
    */
-  virtual void reset(long shell_type0, const double* r0, const double* point);
+  virtual void reset(long shell_type0, const double *r0, const double *point);
 
-  //! Convert results in work array from Cartesian to pure functions where needed.
+  // ! Convert results in work array from Cartesian to pure functions where needed.
   void cart_to_pure();
 
-  //! Shell type of the contraction.
-  const long get_shell_type0() const {return shell_type0;}
+  // ! Shell type of the contraction.
+  const long get_shell_type0() const { return shell_type0; }
 
-  //! Multiplier for the size of the work array
-  long get_dim_work() {return dim_work;}
+  // ! Multiplier for the size of the work array
+  long get_dim_work() { return dim_work; }
 
-  //! Number of results per grid point.
-  long get_dim_output() {return dim_output;}
+  // ! Number of results per grid point.
+  long get_dim_output() { return dim_output; }
 
   /** @brief
         Add contributions to work array for current grid point and given primitive shell.
@@ -182,23 +182,22 @@ class GB1GridFn : public GBCalculator  {
       @param scales0
         Normalization prefactors for primitives in the shell.
     */
-  virtual void add(double coeff, double alpha0, const double* scales0) = 0;
+  virtual void add(double coeff, double alpha0, const double *scales0) = 0;
 
  protected:
-  const long dim_work;    //!< Multiplier for the size of the work array.
-  const long dim_output;  //!< Number of results per grid point.
-  long shell_type0;       //!< Shell type of the current contraction.
-  const double *r0;       //!< Center of the current contraction.
-  const double *point;    //!< Grid point at which the fn is evaluated
-  IterPow1 i1p;           //!< Iterator over Cartesian powers for given ang mom.
+  const long dim_work;    // !< Multiplier for the size of the work array.
+  const long dim_output;  // !< Number of results per grid point.
+  long shell_type0;       // !< Shell type of the current contraction.
+  const double *r0;       // !< Center of the current contraction.
+  const double *point;    // !< Grid point at which the fn is evaluated
+  IterPow1 i1p;           // !< Iterator over Cartesian powers for given ang mom.
 };
-
 
 /** @brief
       Base class for GB1 grid calculators that use the expansion coefficients of the
       orbitals.
   */
-class GB1ExpGridFn : public GB1GridFn  {
+class GB1ExpGridFn : public GB1GridFn {
  public:
   /** @brief
         Construct a GB1ExpGridFn object.
@@ -236,13 +235,12 @@ class GB1ExpGridFn : public GB1GridFn  {
       @param output
         The output array for the current grid point. (size=dim_output)
     */
-  virtual void compute_point_from_exp(double* work_basis, double* coeffs, long nbasis,
-                                      double* output) = 0;
+  virtual void compute_point_from_exp(double *work_basis, double *coeffs, long nbasis,
+                                      double *output) = 0;
 
  protected:
-  long nfn;  //!< Number of orbitals (occupied and virtual).
+  long nfn;  // !< Number of orbitals (occupied and virtual).
 };
-
 
 /** @brief
       Evaluates a selection of orbitals on a grid.
@@ -252,7 +250,7 @@ class GB1ExpGridFn : public GB1GridFn  {
       Content of the argument 'output' (at one grid point):
         [0-norb] Values of the orbitals.
   */
-class GB1ExpGridOrbitalFn : public GB1ExpGridFn  {
+class GB1ExpGridOrbitalFn : public GB1ExpGridFn {
  public:
   /** @brief
         Construct a GB1ExpGridOrbitalFn object.
@@ -269,30 +267,29 @@ class GB1ExpGridOrbitalFn : public GB1ExpGridFn  {
       @param norb
         The number of elements in iorbs.
     */
-  GB1ExpGridOrbitalFn(long max_shell_type, long nfn, long* iorbs, long norb)
+  GB1ExpGridOrbitalFn(long max_shell_type, long nfn, long *iorbs, long norb)
       : GB1ExpGridFn(max_shell_type, nfn, 1, norb), poly_work{0.0}, offset(0),
         iorbs(iorbs), norb(norb) {}
 
-  //! Reset calculator for a new contraction. (See base class for details.)
-  virtual void reset(long _shell_type0, const double* _r0, const double* _point);
+  // ! Reset calculator for a new contraction. (See base class for details.)
+  virtual void reset(long _shell_type0, const double *_r0, const double *_point);
 
   /** @brief
         Add contributions to work array for current grid point and given primitive shell.
         (See base class for more details.)
     */
-  virtual void add(double coeff, double alpha0, const double* scales0);
+  virtual void add(double coeff, double alpha0, const double *scales0);
 
-  //! Compute (final) results for a given grid point. (See base class for details.)
-  virtual void compute_point_from_exp(double* work_basis, double* coeffs,
-                                      long nbasis, double* output);
+  // ! Compute (final) results for a given grid point. (See base class for details.)
+  virtual void compute_point_from_exp(double *work_basis, double *coeffs,
+                                      long nbasis, double *output);
 
  protected:
-  double poly_work[MAX_NCART_CUMUL];  //!< Work array with Cartesian polynomials.
-  long offset;  //!< Offset for the polynomials for the density.
-  long* iorbs;  //!< Array of indices of orbitals to be evaluated on grid.
-  long norb;    //!< The number of elements in iorbs.
+  double poly_work[MAX_NCART_CUMUL];  // !< Work array with Cartesian polynomials.
+  long offset;  // !< Offset for the polynomials for the density.
+  long *iorbs;  // !< Array of indices of orbitals to be evaluated on grid.
+  long norb;    // !< The number of elements in iorbs.
 };
-
 
 /** @brief
       Evaluates the gradient of a selection of orbitals on a grid.
@@ -306,7 +303,7 @@ class GB1ExpGridOrbitalFn : public GB1ExpGridFn  {
         [i*norb + 1] derivative of orbital i toward y.
         [i*norb + 2] derivative of orbital i toward z.
  */
-class GB1ExpGridOrbGradientFn : public GB1ExpGridFn  {
+class GB1ExpGridOrbGradientFn : public GB1ExpGridFn {
  public:
   /** @brief
         Construct a GB1ExpGridOrbGradientFn object.
@@ -323,40 +320,39 @@ class GB1ExpGridOrbGradientFn : public GB1ExpGridFn  {
       @param norb
         The number of elements in iorbs.
     */
-  explicit GB1ExpGridOrbGradientFn(long max_shell_type, long nfn, long* iorbs, long norb)
-      : GB1ExpGridFn(max_shell_type, nfn, 3, norb*3), poly_work{0.0}, offset(0),
+  explicit GB1ExpGridOrbGradientFn(long max_shell_type, long nfn, long *iorbs, long norb)
+      : GB1ExpGridFn(max_shell_type, nfn, 3, norb * 3), poly_work{0.0}, offset(0),
         offset_l1(0), offset_h1(0), iorbs(iorbs), norb(norb) {}
-  //! Reset calculator for a new contraction. (See base class for details.)
-  virtual void reset(long _shell_type0, const double* _r0, const double* _point);
+
+  // ! Reset calculator for a new contraction. (See base class for details.)
+  virtual void reset(long _shell_type0, const double *_r0, const double *_point);
 
   /** @brief
         Add contributions to work array for current grid point and given primitive shell.
         (See base class for more details.)
     */
-  virtual void add(double coeff, double alpha0, const double* scales0);
+  virtual void add(double coeff, double alpha0, const double *scales0);
 
-
-  //! Compute the final result on one grid point. (See base class for details.)
-  virtual void compute_point_from_exp(double* work_basis, double* coeffs,
-                                      long nbasis, double* output);
+  // ! Compute the final result on one grid point. (See base class for details.)
+  virtual void compute_point_from_exp(double *work_basis, double *coeffs,
+                                      long nbasis, double *output);
 
  protected:
-  long* iorbs;     //!< Array of indices of orbitals to be evaluated on grid.
-  long norb;       //!< The number of elements in iorbs.
-  double poly_work[MAX_NCART_CUMUL_D];  //!< Work array with Cartesian polynomials.
-  long offset;     //!< Offset for the polynomials for the density
-  long offset_l1;  //!< Lower offset for the polynomials for the gradient.
-  long offset_h1;  //!< Higher offset for the polynomials for the gradient.
+  long *iorbs;     // !< Array of indices of orbitals to be evaluated on grid.
+  long norb;       // !< The number of elements in iorbs.
+  double poly_work[MAX_NCART_CUMUL_D];  // !< Work array with Cartesian polynomials.
+  long offset;     // !< Offset for the polynomials for the density
+  long offset_l1;  // !< Lower offset for the polynomials for the gradient.
+  long offset_h1;  // !< Higher offset for the polynomials for the gradient.
 };
-
 
 /** @brief
       Base class for GB1 grid calculators that use the first-order density matrix
       coefficients.
   */
-class GB1DMGridFn : public GB1GridFn  {
+class GB1DMGridFn : public GB1GridFn {
  public:
-  //! Construct a GB1GridFn object. (See base class for details.)
+  // ! Construct a GB1GridFn object. (See base class for details.)
   GB1DMGridFn(long max_shell_type, long dim_work, long dim_output)
       : GB1GridFn(max_shell_type, dim_work, dim_output) {}
 
@@ -382,8 +378,8 @@ class GB1DMGridFn : public GB1GridFn  {
       @param dmmaxrow
         The maximum value of the density matrix on each row. (size=nbasis)
     */
-  virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis,
-                                     double* output, double epsilon, double* dmmaxrow) = 0;
+  virtual void compute_point_from_dm(double *work_basis, double *dm, long nbasis,
+                                     double *output, double epsilon, double *dmmaxrow) = 0;
 
   /** @brief
         Add contribution to Fock matrix from one grid point.
@@ -407,10 +403,9 @@ class GB1DMGridFn : public GB1GridFn  {
       @param fock
         The Fock matrix to which the result will be added. (size=nbasis*nbasis)
     */
-  virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis,
-                                     double* fock) = 0;
+  virtual void compute_fock_from_pot(double *pot, double *work_basis, long nbasis,
+                                     double *fock) = 0;
 };
-
 
 /** @brief
       Compute just the electron density on a grid.
@@ -420,7 +415,7 @@ class GB1DMGridFn : public GB1GridFn  {
     Content of the argument 'output' and the energy derivative in 'pot' (at one grid point):
       [0] The electron density
   */
-class GB1DMGridDensityFn : public GB1DMGridFn  {
+class GB1DMGridDensityFn : public GB1DMGridFn {
  public:
   /** @brief
         Construct a GB1DMGridDensityFn object.
@@ -431,28 +426,27 @@ class GB1DMGridDensityFn : public GB1DMGridFn  {
   explicit GB1DMGridDensityFn(long max_shell_type)
       : GB1DMGridFn(max_shell_type, 1, 1), poly_work{0.0}, offset(0) {}
 
-  //! Reset calculator for a new contraction. (See base class for details.)
-  virtual void reset(long _shell_type0, const double* _r0, const double* _point);
+  // ! Reset calculator for a new contraction. (See base class for details.)
+  virtual void reset(long _shell_type0, const double *_r0, const double *_point);
 
   /** @brief
         Add contributions to work array for current grid point and given primitive shell.
         (See base class for more details.)
     */
-  virtual void add(double coeff, double alpha0, const double* scales0);
+  virtual void add(double coeff, double alpha0, const double *scales0);
 
-  //! Compute the final result on one grid point. (See base class for details.)
-  virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis,
-                                     double* output, double epsilon, double* dmmaxrow);
+  // ! Compute the final result on one grid point. (See base class for details.)
+  virtual void compute_point_from_dm(double *work_basis, double *dm, long nbasis,
+                                     double *output, double epsilon, double *dmmaxrow);
 
-  //! Add contribution to Fock matrix for one grid point. (See base class for details.)
-  virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis,
-                                     double* fock);
+  // ! Add contribution to Fock matrix for one grid point. (See base class for details.)
+  virtual void compute_fock_from_pot(double *pot, double *work_basis, long nbasis,
+                                     double *fock);
 
  private:
-  double poly_work[MAX_NCART_CUMUL];  //!< Work array with Cartesian polynomials.
-  long offset;  //!< Offset for the polynomials for the density
+  double poly_work[MAX_NCART_CUMUL];  // !< Work array with Cartesian polynomials.
+  long offset;  // !< Offset for the polynomials for the density
 };
-
 
 /** @brief
       Compute gradient of the electron density on a grid.
@@ -467,7 +461,7 @@ class GB1DMGridDensityFn : public GB1DMGridFn  {
       [1] Density derivative toward y.
       [2] Density derivative toward z.
   */
-class GB1DMGridGradientFn : public GB1DMGridFn  {
+class GB1DMGridGradientFn : public GB1DMGridFn {
  public:
   /** @brief
         Construct a GB1DMGridGradientFn object.
@@ -493,30 +487,29 @@ class GB1DMGridGradientFn : public GB1DMGridFn  {
       : GB1DMGridFn(max_shell_type, 4, dim_output), poly_work{0.0}, offset(0),
         offset_l1(0), offset_h1(0) {}
 
-  //! Reset calculator for a new contraction. (See base class for details.)
-  virtual void reset(long _shell_type0, const double* _r0, const double* _point);
+  // ! Reset calculator for a new contraction. (See base class for details.)
+  virtual void reset(long _shell_type0, const double *_r0, const double *_point);
 
   /** @brief
         Add contributions to work array for current grid point and given primitive shell.
         (See base class for more details.)
     */
-  virtual void add(double coeff, double alpha0, const double* scales0);
+  virtual void add(double coeff, double alpha0, const double *scales0);
 
-  //! Compute the final result on one grid point. (See base class for details.)
-  virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis,
-                                     double* output, double epsilon, double* dmmaxrow);
+  // ! Compute the final result on one grid point. (See base class for details.)
+  virtual void compute_point_from_dm(double *work_basis, double *dm, long nbasis,
+                                     double *output, double epsilon, double *dmmaxrow);
 
-  //! Add contribution to Fock matrix for one grid point. (See base class for details.)
-  virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis,
-                                     double* fock);
+  // ! Add contribution to Fock matrix for one grid point. (See base class for details.)
+  virtual void compute_fock_from_pot(double *pot, double *work_basis, long nbasis,
+                                     double *fock);
 
  protected:
-  double poly_work[MAX_NCART_CUMUL_D];  //!< Work array with Cartesian polynomials.
-  long offset;     //!< Offset for the polynomials for the density
-  long offset_l1;  //!< Lower offset for the polynomials for the gradient.
-  long offset_h1;  //!< Higher offset for the polynomials for the gradient.
+  double poly_work[MAX_NCART_CUMUL_D];  // !< Work array with Cartesian polynomials.
+  long offset;     // !< Offset for the polynomials for the density
+  long offset_l1;  // !< Lower offset for the polynomials for the gradient.
+  long offset_h1;  // !< Higher offset for the polynomials for the gradient.
 };
-
 
 /** @brief
       Compute density and gradient on a grid.
@@ -532,7 +525,7 @@ class GB1DMGridGradientFn : public GB1DMGridFn  {
       [2] Density derivative toward y.
       [3] Density derivative toward z.
   */
-class GB1DMGridGGAFn : public GB1DMGridGradientFn  {
+class GB1DMGridGGAFn : public GB1DMGridGradientFn {
  public:
   /** @brief
         Construct a GB1DMGridGGAFn object.
@@ -540,17 +533,16 @@ class GB1DMGridGGAFn : public GB1DMGridGradientFn  {
       @param max_shell_type
         The maximum shell type in the basis set.
     */
-  explicit GB1DMGridGGAFn(long max_shell_type): GB1DMGridGradientFn(max_shell_type, 4) {}
+  explicit GB1DMGridGGAFn(long max_shell_type) : GB1DMGridGradientFn(max_shell_type, 4) {}
 
-  //! Compute the final result on one grid point. (See base class for details.)
-  virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis,
-                                     double* output, double epsilon, double* dmmaxrow);
+  // ! Compute the final result on one grid point. (See base class for details.)
+  virtual void compute_point_from_dm(double *work_basis, double *dm, long nbasis,
+                                     double *output, double epsilon, double *dmmaxrow);
 
-  //! Add contribution to Fock matrix for one grid point. (See base class for details.)
-  virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis,
-                                     double* fock);
+  // ! Add contribution to Fock matrix for one grid point. (See base class for details.)
+  virtual void compute_fock_from_pot(double *pot, double *work_basis, long nbasis,
+                                     double *fock);
 };
-
 
 /** @brief
       Compute kinetic energy density on a grid.
@@ -562,7 +554,7 @@ class GB1DMGridGGAFn : public GB1DMGridGradientFn  {
     Content of the argument 'output' and the energy derivative in 'pot' (at one grid point):
       [0] Kinetic energy density.
   */
-class GB1DMGridKineticFn : public GB1DMGridFn  {
+class GB1DMGridKineticFn : public GB1DMGridFn {
  public:
   /** @brief
         Construct a GB1DMGridKineticFn object.
@@ -574,30 +566,29 @@ class GB1DMGridKineticFn : public GB1DMGridFn  {
       : GB1DMGridFn(max_shell_type, 3, 1), poly_work{0.0}, offset(0), offset_l1(0),
         offset_h1(0) {}
 
-  //! Reset calculator for a new contraction. (See base class for details.)
-  virtual void reset(long _shell_type0, const double* _r0, const double* _point);
+  // ! Reset calculator for a new contraction. (See base class for details.)
+  virtual void reset(long _shell_type0, const double *_r0, const double *_point);
 
   /** @brief
         Add contributions to work array for current grid point and given primitive shell.
         (See base class for more details.)
     */
-  virtual void add(double coeff, double alpha0, const double* scales0);
+  virtual void add(double coeff, double alpha0, const double *scales0);
 
-  //! Compute the final result on one grid point. (See base class for details.)
-  virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis,
-                                     double* output, double epsilon, double* dmmaxrow);
+  // ! Compute the final result on one grid point. (See base class for details.)
+  virtual void compute_point_from_dm(double *work_basis, double *dm, long nbasis,
+                                     double *output, double epsilon, double *dmmaxrow);
 
-  //! Add contribution to Fock matrix for one grid point. (See base class for details.)
-  virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis,
-                                     double* fock);
+  // ! Add contribution to Fock matrix for one grid point. (See base class for details.)
+  virtual void compute_fock_from_pot(double *pot, double *work_basis, long nbasis,
+                                     double *fock);
 
  private:
-  double poly_work[MAX_NCART_CUMUL_D];  //!< Work array with Cartesian polynomials.
-  long offset;     //!< Offset for the polynomials for the density.
-  long offset_l1;  //!< Lower offset for the polynomials for the gradient.
-  long offset_h1;  //!< Higher offset for the polynomials for the gradient.
+  double poly_work[MAX_NCART_CUMUL_D];  // !< Work array with Cartesian polynomials.
+  long offset;     // !< Offset for the polynomials for the density.
+  long offset_l1;  // !< Lower offset for the polynomials for the gradient.
+  long offset_h1;  // !< Higher offset for the polynomials for the gradient.
 };
-
 
 /** @brief
       Compute density Hessian on a grid: xx, xy, xz, yy, yz, zz.
@@ -621,7 +612,7 @@ class GB1DMGridKineticFn : public GB1DMGridFn  {
       [4] Density derivative toward yz.
       [5] Density derivative toward zz.
   */
-class GB1DMGridHessianFn : public GB1DMGridFn  {
+class GB1DMGridHessianFn : public GB1DMGridFn {
  public:
   /** @brief
         Construct a GB1DMGridHessianFn object.
@@ -633,32 +624,31 @@ class GB1DMGridHessianFn : public GB1DMGridFn  {
       : GB1DMGridFn(max_shell_type, 10, 6), poly_work{0.0}, offset(0),
         offset_l1(0), offset_h1(0), offset_l2(0), offset_h2(0) {}
 
-  //! Reset calculator for a new contraction. (See base class for details.)
-  virtual void reset(long _shell_type0, const double* _r0, const double* _point);
+  // ! Reset calculator for a new contraction. (See base class for details.)
+  virtual void reset(long _shell_type0, const double *_r0, const double *_point);
 
   /** @brief
         Add contributions to work array for current grid point and given primitive shell.
         (See base class for more details.)
     */
-  virtual void add(double coeff, double alpha0, const double* scales0);
+  virtual void add(double coeff, double alpha0, const double *scales0);
 
-  //! Compute the final result on one grid point. (See base class for details.)
-  virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis,
-                                     double* output, double epsilon, double* dmmaxrow);
+  // ! Compute the final result on one grid point. (See base class for details.)
+  virtual void compute_point_from_dm(double *work_basis, double *dm, long nbasis,
+                                     double *output, double epsilon, double *dmmaxrow);
 
-  //! Add contribution to Fock matrix for one grid point. (See base class for details.)
-  virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis,
-                                     double* fock);
+  // ! Add contribution to Fock matrix for one grid point. (See base class for details.)
+  virtual void compute_fock_from_pot(double *pot, double *work_basis, long nbasis,
+                                     double *fock);
 
  private:
-  double poly_work[MAX_NCART_CUMUL_DD];  //!< Work array with Cartesian polynomials.
-  long offset;     //!< Offset for the polynomials for the density.
-  long offset_l1;  //!< Lower offset for the polynomials for the gradient.
-  long offset_h1;  //!< Higher offset for the polynomials for the gradient.
-  long offset_l2;  //!< Lower offset for the polynomials for the hessian.
-  long offset_h2;  //!< Higher offset for the polynomials for the hessian.
+  double poly_work[MAX_NCART_CUMUL_DD];  // !< Work array with Cartesian polynomials.
+  long offset;     // !< Offset for the polynomials for the density.
+  long offset_l1;  // !< Lower offset for the polynomials for the gradient.
+  long offset_h1;  // !< Higher offset for the polynomials for the gradient.
+  long offset_l2;  // !< Lower offset for the polynomials for the hessian.
+  long offset_h2;  // !< Higher offset for the polynomials for the hessian.
 };
-
 
 /** @brief
       Compute MGGA properties on a grid: density, gradient, laplacian and kinetic energy
@@ -678,7 +668,7 @@ class GB1DMGridHessianFn : public GB1DMGridFn  {
       [4] Laplacian of the density.
       [5] Kinetic energy density.
   */
-class GB1DMGridMGGAFn : public GB1DMGridFn  {
+class GB1DMGridMGGAFn : public GB1DMGridFn {
  public:
   /** @brief
         Construct a GB1DMGridMGGAFn object.
@@ -690,39 +680,38 @@ class GB1DMGridMGGAFn : public GB1DMGridFn  {
       : GB1DMGridFn(max_shell_type, 5, 6), poly_work{0.0}, offset(0), offset_l1(0),
         offset_h1(0), offset_l2(0), offset_h2(0) {}
 
-  //! Reset calculator for a new contraction. (See base class for details.)
-  virtual void reset(long _shell_type0, const double* _r0, const double* _point);
+  // ! Reset calculator for a new contraction. (See base class for details.)
+  virtual void reset(long _shell_type0, const double *_r0, const double *_point);
 
   /** @brief
         Add contributions to work array for current grid point and given primitive shell.
         (See base class for more details.)
     */
-  virtual void add(double coeff, double alpha0, const double* scales0);
+  virtual void add(double coeff, double alpha0, const double *scales0);
 
-  //! Compute the final result on one grid point. (See base class for details.)
-  virtual void compute_point_from_dm(double* work_basis, double* dm, long nbasis,
-                                     double* output, double epsilon, double* dmmaxrow);
+  // ! Compute the final result on one grid point. (See base class for details.)
+  virtual void compute_point_from_dm(double *work_basis, double *dm, long nbasis,
+                                     double *output, double epsilon, double *dmmaxrow);
 
-  //! Add contribution to Fock matrix for one grid point. (See base class for details.)
-  virtual void compute_fock_from_pot(double* pot, double* work_basis, long nbasis,
-                                     double* fock);
+  // ! Add contribution to Fock matrix for one grid point. (See base class for details.)
+  virtual void compute_fock_from_pot(double *pot, double *work_basis, long nbasis,
+                                     double *fock);
 
  private:
-  double poly_work[MAX_NCART_CUMUL_DD];  //!< Work array with Cartesian polynomials.
-  long offset;     //!< Offset for the polynomials for the density.
-  long offset_l1;  //!< Lower offset for the polynomials for the gradient.
-  long offset_h1;  //!< Higher offset for the polynomials for the gradient.
-  long offset_l2;  //!< Lower offset for the polynomials for the hessian.
-  long offset_h2;  //!< Higher offset for the polynomials for the hessian.
+  double poly_work[MAX_NCART_CUMUL_DD];  // !< Work array with Cartesian polynomials.
+  long offset;     // !< Offset for the polynomials for the density.
+  long offset_l1;  // !< Lower offset for the polynomials for the gradient.
+  long offset_h1;  // !< Higher offset for the polynomials for the gradient.
+  long offset_l2;  // !< Lower offset for the polynomials for the hessian.
+  long offset_h2;  // !< Higher offset for the polynomials for the hessian.
 };
-
 
 /** @brief
       Base class for grid calculators that require a double loop over all basis functions.
   */
-class GB2DMGridFn : public GBCalculator  {
+class GB2DMGridFn : public GBCalculator {
  public:
-  //! Construct a GB2DMGridFn object. (See base class for details.)
+  // ! Construct a GB2DMGridFn object. (See base class for details.)
   explicit GB2DMGridFn(long max_shell_type);
 
   /** @brief
@@ -743,17 +732,17 @@ class GB2DMGridFn : public GBCalculator  {
       @param point
         Cartesian coordinates of the grid point. (size=3)
    */
-  void reset(long shell_type0, long shell_type1, const double* r0, const double* r1,
-             const double* point);
+  void reset(long shell_type0, long shell_type1, const double *r0, const double *r1,
+             const double *point);
 
-  //! Convert results in work array from Cartesian to pure functions where needed.
+  // ! Convert results in work array from Cartesian to pure functions where needed.
   void cart_to_pure();
 
-  //! Shell type of the first contraction.
-  const long get_shell_type0() const {return shell_type0;}
+  // ! Shell type of the first contraction.
+  const long get_shell_type0() const { return shell_type0; }
 
-  //! Shell type of the second contraction.
-  const long get_shell_type1() const {return shell_type1;}
+  // ! Shell type of the second contraction.
+  const long get_shell_type1() const { return shell_type1; }
 
   /** @brief
         Add contributions to work array for current grid point and given pair of primitive
@@ -774,18 +763,17 @@ class GB2DMGridFn : public GBCalculator  {
       @param scales1
         Normalization prefactors for primitives in second shell.
     */
-  virtual void add(double coeff, double alpha0, double alpha1, const double* scales0,
-                   const double* scales1) = 0;
+  virtual void add(double coeff, double alpha0, double alpha1, const double *scales0,
+                   const double *scales1) = 0;
 
  protected:
-  long shell_type0;     //!< Shell type of the first contraction.
-  long shell_type1;     //!< Shell type of the second contraction.
-  const double *r0;     //!< Center of first basis contraction.
-  const double *r1;     //!< Center of second basis contraction.
-  const double *point;  //!< Grid point at which the fn is evaluated.
-  IterPow2 i2p;         //!< Double loop iterator over Cartesian powers of given ang mom.
+  long shell_type0;     // !< Shell type of the first contraction.
+  long shell_type1;     // !< Shell type of the second contraction.
+  const double *r0;     // !< Center of first basis contraction.
+  const double *r1;     // !< Center of second basis contraction.
+  const double *point;  // !< Grid point at which the fn is evaluated.
+  IterPow2 i2p;         // !< Double loop iterator over Cartesian powers of given ang mom.
 };
-
 
 /** @brief
       Calculator for Hartree potential on a set of grid points.
@@ -796,25 +784,25 @@ class GB2DMGridFn : public GBCalculator  {
     Content of work_basis (at one grid point):
       [0] The Hartree potential due to the product of the two basis functions.
  */
-class GB2DMGridHartreeFn : public GB2DMGridFn  {
+class GB2DMGridHartreeFn : public GB2DMGridFn {
  public:
-  //! Construct a GB2DMGridHartreeFn object. (See base class for details.)
+  // ! Construct a GB2DMGridHartreeFn object. (See base class for details.)
   explicit GB2DMGridHartreeFn(long max_shell_type);
+
   ~GB2DMGridHartreeFn();
 
   /** @brief
         Add contributions to work array for current grid point and given pair of primitive
         shells. (See base class for details.)
     */
-  virtual void add(double coeff, double alpha0, double alpha1, const double* scales0,
-                   const double* scales1);
+  virtual void add(double coeff, double alpha0, double alpha1, const double *scales0,
+                   const double *scales1);
 
  private:
-  double* work_g0;    //!< Work array for results from NAI helper code (x).
-  double* work_g1;    //!< Work array for results from NAI helper code (y).
-  double* work_g2;    //!< Work array for results from NAI helper code (z).
-  double* work_boys;  //!< Work array for Boys function values for different m values.
+  double *work_g0;    // !< Work array for results from NAI helper code (x).
+  double *work_g1;    // !< Work array for results from NAI helper code (y).
+  double *work_g2;    // !< Work array for results from NAI helper code (z).
+  double *work_boys;  // !< Work array for Boys function values for different m values.
 };
-
 
 #endif  // HORTON_GBASIS_FNS_H_

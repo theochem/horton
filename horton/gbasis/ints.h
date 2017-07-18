@@ -20,118 +20,130 @@
 
 // UPDATELIBDOCTITLE: Evaluation of integrals of Gaussian basis functions
 
-#ifndef HORTON_GBASIS_INTS_H
-#define HORTON_GBASIS_INTS_H
+#ifndef HORTON_GBASIS_INTS_H_
+#define HORTON_GBASIS_INTS_H_
 
 #include "libint2.h"
 #include "calc.h"
 #include "iter_pow.h"
 
-
 class GB2Integral : public GBCalculator {
-    protected:
-        long shell_type0, shell_type1;
-        const double *r0, *r1;
-        IterPow2 i2p;
-    public:
-        GB2Integral(long max_shell_type);
-        void reset(long shell_type0, long shell_type1, const double* r0, const double* r1);
-        virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1) = 0;
-        void cart_to_pure();
-        const long get_shell_type0() const {return shell_type0;}
-        const long get_shell_type1() const {return shell_type1;}
+ protected:
+  long shell_type0, shell_type1;
+  const double *r0, *r1;
+  IterPow2 i2p;
+ public:
+  explicit GB2Integral(long max_shell_type);
+
+  void reset(long shell_type0, long shell_type1, const double *r0, const double *r1);
+
+  virtual void add(double coeff, double alpha0, double alpha1, const double *scales0,
+                   const double *scales1) = 0;
+
+  void cart_to_pure();
+
+  const long get_shell_type0() const { return shell_type0; }
+
+  const long get_shell_type1() const { return shell_type1; }
 };
 
 /** @brief
  Compute the overlap integrals in a Gaussian orbital basis.
  */
-class GB2OverlapIntegral: public GB2Integral {
-    public:
-        GB2OverlapIntegral(long max_shell_type) : GB2Integral(max_shell_type) {};
-        virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
+class GB2OverlapIntegral : public GB2Integral {
+ public:
+  explicit GB2OverlapIntegral(long max_shell_type) : GB2Integral(max_shell_type) {}
+
+  virtual void
+  add(double coeff, double alpha0, double alpha1, const double *scales0, const double *scales1);
 };
 
 /** @brief
  Compute the kinetic integrals in a Gaussian orbital basis.
  */
-class GB2KineticIntegral: public GB2Integral {
-    public:
-        GB2KineticIntegral(long max_shell_type) : GB2Integral(max_shell_type) {};
-        virtual void add(double coeff, double alpha0, double alpha1, const double* scales0, const double* scales1);
+class GB2KineticIntegral : public GB2Integral {
+ public:
+  explicit GB2KineticIntegral(long max_shell_type) : GB2Integral(max_shell_type) {}
+
+  virtual void
+  add(double coeff, double alpha0, double alpha1, const double *scales0, const double *scales1);
 };
 
 /** @brief
  Compute the nuclear attraction integrals in a Gaussian orbital basis.
  */
-class GB2AttractionIntegral: public GB2Integral {
-     private:
-        double* charges;    //!< Array with values of the nuclear charges.
-        double* centers;    //!< The centers where the charges are located.
-        long ncharge;       //!< Number of nuclear charges.
+class GB2AttractionIntegral : public GB2Integral {
+ private:
+  double *charges;    // !< Array with values of the nuclear charges.
+  double *centers;    // !< The centers where the charges are located.
+  long ncharge;       // !< Number of nuclear charges.
 
-        double* work_g0;    //!< Temporary array to store intermediate results.
-        double* work_g1;    //!< Temporary array to store intermediate results.
-        double* work_g2;    //!< Temporary array to store intermediate results.
-        double* work_boys;  //!< Temporary array to store the laplace of the interaction potential.
+  double *work_g0;    // !< Temporary array to store intermediate results.
+  double *work_g1;    // !< Temporary array to store intermediate results.
+  double *work_g2;    // !< Temporary array to store intermediate results.
+  double *work_boys;  // !< Temporary array to store the laplace of the interaction potential.
 
-     public:
-        /** @brief
-              Initialize a GB2AttractionIntegral object.
+ public:
+  /** @brief
+        Initialize a GB2AttractionIntegral object.
 
-         @param max_shell_type
-             Highest angular momentum index to be expected in the reset method.
+   @param max_shell_type
+       Highest angular momentum index to be expected in the reset method.
 
-         */
-        GB2AttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge);
-        ~GB2AttractionIntegral();
-        /** @brief
-          Add results for a combination of Cartesian primitive shells to the work array.
+   */
+  GB2AttractionIntegral(long max_shell_type, double *charges, double *centers, long ncharge);
 
-         @param coeff
-             Product of the contraction coefficients of the four primitives.
+  ~GB2AttractionIntegral();
 
-         @param alpha0
-             The exponent of primitive shell 0.
+  /** @brief
+    Add results for a combination of Cartesian primitive shells to the work array.
 
-         @param alpha1
-             The exponent of primitive shell 1.
+   @param coeff
+       Product of the contraction coefficients of the four primitives.
 
-         @param scales0
-            The normalization prefactors for basis functions in primitive shell 0
+   @param alpha0
+       The exponent of primitive shell 0.
 
-         @param scales1
-            The normalization prefactors for basis functions in primitive shell 1
-        */
-        virtual void add(double coeff, double alpha0, double alpha1, const double* scales0,
-                         const double* scales1);
-        /** @brief
-          Evaluate the Laplace transform of the the potential applied to nuclear attraction terms.
+   @param alpha1
+       The exponent of primitive shell 1.
 
-         For theoretical details and the precise definition of the Laplace transform, we
-         refer to the following paper:
+   @param scales0
+      The normalization prefactors for basis functions in primitive shell 0
 
-         Ahlrichs, R. A simple algebraic derivation of the Obara-Saika scheme for general
-         two-electron interaction potentials. Phys. Chem. Chem. Phys. 8, 3072–3077 (2006).
-         10.1039/B605188J
+   @param scales1
+      The normalization prefactors for basis functions in primitive shell 1
+  */
+  virtual void add(double coeff, double alpha0, double alpha1, const double *scales0,
+                   const double *scales1);
 
-         For the general definition of this transform, see Eq. (8) in the reference above.
-         Section 5 contains solutions of the Laplace transform for several popular cases.
+  /** @brief
+    Evaluate the Laplace transform of the the potential applied to nuclear attraction terms.
 
-         @param gamma
-             Sum of the exponents of the two gaussian functions involved in the integral.
-             Similar to  the first term in Eq. (3) in Ahlrichs' paper.
+   For theoretical details and the precise definition of the Laplace transform, we
+   refer to the following paper:
 
-         @param arg
-             Rescaled distance between the two centers obtained from the application of the
-             Gaussian product theorem. Equivalent to Eq. (5) in Ahlrichs' paper.
+   Ahlrichs, R. A simple algebraic derivation of the Obara-Saika scheme for general
+   two-electron interaction potentials. Phys. Chem. Chem. Phys. 8, 3072–3077 (2006).
+   10.1039/B605188J
 
-         @param mmax
-             Maximum derivative of the Laplace transform to be considered.
+   For the general definition of this transform, see Eq. (8) in the reference above.
+   Section 5 contains solutions of the Laplace transform for several popular cases.
 
-         @param output
-             Output array. The size must be at least mmax + 1.
-         */
-        virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output) = 0;
+   @param gamma
+       Sum of the exponents of the two gaussian functions involved in the integral.
+       Similar to  the first term in Eq. (3) in Ahlrichs' paper.
+
+   @param arg
+       Rescaled distance between the two centers obtained from the application of the
+       Gaussian product theorem. Equivalent to Eq. (5) in Ahlrichs' paper.
+
+   @param mmax
+       Maximum derivative of the Laplace transform to be considered.
+
+   @param output
+       Output array. The size must be at least mmax + 1.
+   */
+  virtual void laplace_of_potential(double gamma, double arg, long mmax, double *output) = 0;
 };
 
 /** @brief
@@ -156,8 +168,8 @@ class GB2NuclearAttractionIntegral : public GB2AttractionIntegral {
       @param ncharge
           Number of nuclear charges.
    */
-  explicit GB2NuclearAttractionIntegral(long max_shell_type, double* charges,
-                                        double* centers, long ncharge)
+  explicit GB2NuclearAttractionIntegral(long max_shell_type, double *charges,
+                                        double *centers, long ncharge)
       : GB2AttractionIntegral(max_shell_type, charges, centers, ncharge) {}
 
   /** @brief
@@ -167,7 +179,7 @@ class GB2NuclearAttractionIntegral : public GB2AttractionIntegral {
 
       See base class for more details.
     */
-  virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output);
+  virtual void laplace_of_potential(double gamma, double arg, long mmax, double *output);
 };
 
 /** @brief
@@ -195,7 +207,7 @@ class GB2ErfAttractionIntegral : public GB2AttractionIntegral {
       @param mu
           The range-separation parameter.
     */
-  GB2ErfAttractionIntegral(long max_shell_type, double* charges, double* centers,
+  GB2ErfAttractionIntegral(long max_shell_type, double *charges, double *centers,
                            long ncharge, double mu)
       : GB2AttractionIntegral(max_shell_type, charges, centers, ncharge), mu(mu) {}
 
@@ -206,14 +218,13 @@ class GB2ErfAttractionIntegral : public GB2AttractionIntegral {
 
       See base class for more details.
     */
-  virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output);
+  virtual void laplace_of_potential(double gamma, double arg, long mmax, double *output);
 
-  const double get_mu() const {return mu;}  //!< The range-separation parameter.
+  const double get_mu() const { return mu; }  // !< The range-separation parameter.
 
  private:
-  double mu;  //!< The range-separation parameter.
+  double mu;  // !< The range-separation parameter.
 };
-
 
 /** @brief
         Gaussian nuclear electron attraction two-center integrals.
@@ -243,9 +254,11 @@ class GB2GaussAttractionIntegral : public GB2AttractionIntegral {
       @param alpha
           Exponential parameter of the gaussian.
     */
-  GB2GaussAttractionIntegral(long max_shell_type, double* charges, double* centers, long ncharge,
+  GB2GaussAttractionIntegral(long max_shell_type, double *charges, double *centers, long ncharge,
                              double c, double alpha)
-      : GB2AttractionIntegral(max_shell_type, charges, centers, ncharge), c(c), alpha(alpha) {}
+      : GB2AttractionIntegral(max_shell_type, charges, centers, ncharge), c(c),
+        alpha(alpha) {}
+
   /** @brief
           Evaluate the Laplace transform of the Gaussian potential.
 
@@ -262,63 +275,61 @@ class GB2GaussAttractionIntegral : public GB2AttractionIntegral {
 
       See base class for more details.
     */
-  virtual void laplace_of_potential(double gamma, double arg, long mmax, double* output);
+  virtual void laplace_of_potential(double gamma, double arg, long mmax, double *output);
 
-  const double get_c() const {return c;}  //!< Coefficient of the gaussian.
-  const double get_alpha() const {return alpha;}  //!< Exponential parameter of the gaussian.
+  const double get_c() const { return c; }  // !< Coefficient of the gaussian.
+  const double get_alpha() const { return alpha; }  // !< Exponential parameter of the gaussian.
 
  private:
-  double c;  //!< Coefficient of the gaussian.
-  double alpha;  //!< Exponential parameter of the gaussian.
+  double c;  // !< Coefficient of the gaussian.
+  double alpha;  // !< Exponential parameter of the gaussian.
 };
-
 
 /** @brief
         Compute the (multipole) moment integrals in a Gaussian orbital basis.
         < gto_a | (x - C_x)^l (y - C_y)^m (z - C_z)^n | gto_b >.
  */
-class GB2MomentIntegral: public GB2Integral {
-    private:
-        long* xyz;          //!< Powers for x, y and z of the multipole moment.
-        double* center;     //!< The origin w.r.t. to which the multipole moment is computed.
+class GB2MomentIntegral : public GB2Integral {
+ private:
+  long *xyz;          // !< Powers for x, y and z of the multipole moment.
+  double *center;     // !< The origin w.r.t. to which the multipole moment is computed.
 
-    public:
-        /** @brief
-                Initialize Moment integral calculator
+ public:
+  /** @brief
+          Initialize Moment integral calculator
 
-            @param max_shell_type
-                The highest angular momentum index suported
+      @param max_shell_type
+          The highest angular momentum index suported
 
-            @param xyz
-                The powers of x,y,z in the integrals (l, m, n).
+      @param xyz
+          The powers of x,y,z in the integrals (l, m, n).
 
-            @param center
-                The center [C_x, C_y, C_z] around which the moment integrals arecomputed
-        */
-        GB2MomentIntegral(long max_shell_type, long* xyz, double* center);
+      @param center
+          The center [C_x, C_y, C_z] around which the moment integrals arecomputed
+  */
+  GB2MomentIntegral(long max_shell_type, long *xyz, double *center);
 
-        /** @brief
-                Add integrals for a pair of primite shells to the current contraction.
+  /** @brief
+          Add integrals for a pair of primite shells to the current contraction.
 
-            @param coeff
-                The contraction coefficient for the current primitive.
+      @param coeff
+          The contraction coefficient for the current primitive.
 
-            @param alpha0
-                The exponent of the primitive shell 0.
+      @param alpha0
+          The exponent of the primitive shell 0.
 
-            @param alpha1
-                The exponent of the primitive shell 1.
+      @param alpha1
+          The exponent of the primitive shell 1.
 
-            @param scales0
-                The normalization constants for the basis functions in primitive shell 0.
+      @param scales0
+          The normalization constants for the basis functions in primitive shell 0.
 
-            @param scales1
-                The normalization constants for the basis functions in primitive shell 1.
-          */
-        virtual void add(double coeff, double alpha0, double alpha1,
-                         const double* scales0, const double* scales1);
+      @param scales1
+          The normalization constants for the basis functions in primitive shell 1.
+    */
+  virtual void add(double coeff, double alpha0, double alpha1,
+                   const double *scales0, const double *scales1);
 };
-
 
 //! Base class for four-center integrals.
 class GB4Integral : public GBCalculator {
@@ -359,8 +370,8 @@ class GB4Integral : public GBCalculator {
           Cartesian coordinates of center 3.
     */
   virtual void reset(long shell_type0, long shell_type1, long shell_type2,
-                     long shell_type3, const double* r0, const double* r1,
-                     const double* r2, const double* r3);
+                     long shell_type3, const double *r0, const double *r1,
+                     const double *r2, const double *r3);
 
   /** @brief
           Add results for a combination of Cartesian primitive shells to the work array.
@@ -393,36 +404,34 @@ class GB4Integral : public GBCalculator {
           The normalization prefactors for basis functions in primitive shell 3
     */
   virtual void add(double coeff, double alpha0, double alpha1, double alpha2,
-                   double alpha3, const double* scales0, const double* scales1,
-                   const double* scales2, const double* scales3) = 0;
+                   double alpha3, const double *scales0, const double *scales1,
+                   const double *scales2, const double *scales3) = 0;
 
-  //! Transform the results in the work array from Cartesian to pure functions where needed.
+  // ! Transform the results in the work array from Cartesian to pure functions where needed.
   void cart_to_pure();
 
-  const long get_shell_type0() const {return shell_type0;}  //!< Shell type of contraction 0
-  const long get_shell_type1() const {return shell_type1;}  //!< Shell type of contraction 1
-  const long get_shell_type2() const {return shell_type2;}  //!< Shell type of contraction 2
-  const long get_shell_type3() const {return shell_type3;}  //!< Shell type of contraction 3
+  const long get_shell_type0() const { return shell_type0; }  // !< Shell type of contraction 0
+  const long get_shell_type1() const { return shell_type1; }  // !< Shell type of contraction 1
+  const long get_shell_type2() const { return shell_type2; }  // !< Shell type of contraction 2
+  const long get_shell_type3() const { return shell_type3; }  // !< Shell type of contraction 3
 
  protected:
-  long shell_type0;  //!< Shell type of contraction 0
-  long shell_type1;  //!< Shell type of contraction 1
-  long shell_type2;  //!< Shell type of contraction 2
-  long shell_type3;  //!< Shell type of contraction 3
-  const double *r0;  //!< Center of contraction 0
-  const double *r1;  //!< Center of contraction 1
-  const double *r2;  //!< Center of contraction 2
-  const double *r3;  //!< Center of contraction 3
+  long shell_type0;  // !< Shell type of contraction 0
+  long shell_type1;  // !< Shell type of contraction 1
+  long shell_type2;  // !< Shell type of contraction 2
+  long shell_type3;  // !< Shell type of contraction 3
+  const double *r0;  // !< Center of contraction 0
+  const double *r1;  // !< Center of contraction 1
+  const double *r2;  // !< Center of contraction 2
+  const double *r3;  // !< Center of contraction 3
 };
-
 
 //! Arguments associated with one primitive shell in LibInt conventions.
 typedef struct {
-  unsigned int am;  //!< Shell type in LibInt conventions.
-  const double* r;  //!< Center of a primitive shell.
-  double alpha;     //!< Exponent of a primitive shell.
+  unsigned int am;  // !< Shell type in LibInt conventions.
+  const double *r;  // !< Center of a primitive shell.
+  double alpha;     // !< Exponent of a primitive shell.
 } libint_arg_t;
-
 
 //! Base class for four-center integrals that use LibInt.
 class GB4IntegralLibInt : public GB4Integral {
@@ -434,6 +443,7 @@ class GB4IntegralLibInt : public GB4Integral {
           Highest angular momentum index to be expected in the reset method.
     */
   explicit GB4IntegralLibInt(long max_shell_type);
+
   ~GB4IntegralLibInt();
 
   /** @brief
@@ -442,15 +452,16 @@ class GB4IntegralLibInt : public GB4Integral {
       See base class for details.
     */
   virtual void reset(long shell_type0, long shell_type1, long shell_type2, long shell_type3,
-                     const double* r0, const double* r1, const double* r2, const double* r3);
+                     const double *r0, const double *r1, const double *r2, const double *r3);
+
   /** @brief
           Add results for a combination of Cartesian primitive shells to the work array.
 
       See base class for details.
     */
   virtual void add(double coeff, double alpha0, double alpha1, double alpha2, double alpha3,
-                   const double* scales0, const double* scales1, const double* scales2,
-                   const double* scales3);
+                   const double *scales0, const double *scales1, const double *scales2,
+                   const double *scales3);
 
   /** @brief
           Evaluate the Laplace transform of the the potential.
@@ -482,18 +493,17 @@ class GB4IntegralLibInt : public GB4Integral {
           Output array. The size must be at least mmax + 1.
    */
   virtual void laplace_of_potential(double prefac, double rho, double t, long mmax,
-                                    double* output) = 0;
+                                    double *output) = 0;
 
  private:
-  Libint_eri_t erieval;         //!< LibInt runtime object.
-  libint_arg_t libint_args[4];  //!< Arguments (shell info) for libint.
-  long order[4];                //!< Re-ordering of shells for compatibility with LibInt.
-  double ab[3];                 //!< Relative vector from shell 2 to 0 (LibInt order).
-  double cd[3];                 //!< Relative vector from shell 3 to 1 (LibInt order).
-  double ab2;                   //!< Norm squared of ab.
-  double cd2;                   //!< Norm squared of cd.
+  Libint_eri_t erieval;         // !< LibInt runtime object.
+  libint_arg_t libint_args[4];  // !< Arguments (shell info) for libint.
+  long order[4];                // !< Re-ordering of shells for compatibility with LibInt.
+  double ab[3];                 // !< Relative vector from shell 2 to 0 (LibInt order).
+  double cd[3];                 // !< Relative vector from shell 3 to 1 (LibInt order).
+  double ab2;                   // !< Norm squared of ab.
+  double cd2;                   // !< Norm squared of cd.
 };
-
 
 /** @brief
         Electron repulsion four-center integrals.
@@ -519,9 +529,8 @@ class GB4ElectronRepulsionIntegralLibInt : public GB4IntegralLibInt {
       See base class for more details.
     */
   virtual void laplace_of_potential(double prefac, double rho, double t, long mmax,
-                                    double* output);
+                                    double *output);
 };
-
 
 /** @brief
         Short-range electron repulsion four-center integrals.
@@ -550,14 +559,13 @@ class GB4ErfIntegralLibInt : public GB4IntegralLibInt {
       See base class for more details.
     */
   virtual void laplace_of_potential(double prefac, double rho, double t, long mmax,
-                                    double* output);
+                                    double *output);
 
-  const double get_mu() const {return mu;}  //!< The range-separation parameter.
+  const double get_mu() const { return mu; }  // !< The range-separation parameter.
 
  private:
-  double mu;  //!< The range-separation parameter.
+  double mu;  // !< The range-separation parameter.
 };
-
 
 /** @brief
         Gaussian electron repulsion four-center integrals.
@@ -598,16 +606,15 @@ class GB4GaussIntegralLibInt : public GB4IntegralLibInt {
       See base class for more details.
     */
   virtual void laplace_of_potential(double prefac, double rho, double t, long mmax,
-                                    double* output);
+                                    double *output);
 
-  const double get_c() const {return c;}  //!< Coefficient of the gaussian.
-  const double get_alpha() const {return alpha;}  //!< Exponential parameter of the gaussian.
+  const double get_c() const { return c; }  // !< Coefficient of the gaussian.
+  const double get_alpha() const { return alpha; }  // !< Exponential parameter of the gaussian.
 
  private:
-  double c;  //!< Coefficient of the gaussian.
-  double alpha;  //!< Exponential parameter of the gaussian.
+  double c;  // !< Coefficient of the gaussian.
+  double alpha;  // !< Exponential parameter of the gaussian.
 };
-
 
 /** @brief
         Gaussian electron repulsion four-center integrals.
@@ -635,13 +642,12 @@ class GB4RAlphaIntegralLibInt : public GB4IntegralLibInt {
       See base class for more details.
     */
   virtual void laplace_of_potential(double prefac, double rho, double t, long mmax,
-                                    double* output);
+                                    double *output);
 
-  const double get_alpha() const {return alpha;}  //!< The power of r.
+  const double get_alpha() const { return alpha; }  // !< The power of r.
 
  private:
-  double alpha;  //!< The power of r.
+  double alpha;  // !< The power of r.
 };
 
-
-#endif
+#endif  // HORTON_GBASIS_INTS_H_
