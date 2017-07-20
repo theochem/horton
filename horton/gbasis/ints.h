@@ -33,7 +33,7 @@ class GB2Integral : public GBCalculator {
   const double *r0, *r1;
   IterPow2 i2p;
  public:
-  explicit GB2Integral(long max_shell_type);
+  explicit GB2Integral(long max_shell_type) : GBCalculator(max_shell_type, 1, 2) {}
 
   void reset(long shell_type0, long shell_type1, const double *r0, const double *r1);
 
@@ -340,7 +340,9 @@ class GB4Integral : public GBCalculator {
       @param max_shell_type
           Highest angular momentum index to be expected in the reset method.
     */
-  explicit GB4Integral(long max_shell_type);
+  explicit GB4Integral(long max_shell_type)
+    : GBCalculator(max_shell_type, 1, 4), shell_type0(0), shell_type1(0),
+      shell_type2(0), shell_type3(0), r0(NULL), r1(NULL), r2(NULL), r3(NULL) {}
 
   /** @brief
           Set internal parameters for a new group of four contractions.

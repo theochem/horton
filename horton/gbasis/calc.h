@@ -41,11 +41,20 @@ class GBCalculator {
   /** @brief
         Construct a GBCalculator object.
 
+      This also allocates work arrays for manipulating and storing intermediate
+      results. The size of these work arrays is dim_work*max_nbasis**basis_work.
+
       @param max_shell_type
         The maximum shell type in the basis set. This is used to allocate
         sufficiently large working arrays.
+
+      @param dim_work
+        Prefactor for the size of the work arrays.
+
+      @param basis_work
+        The work array size is multiplied by max_nbasis**basis_work.
     */
-  explicit GBCalculator(long max_shell_type);
+  GBCalculator(long max_shell_type, long dim_work, int basis_work);
 
   virtual ~GBCalculator();
 

@@ -30,12 +30,18 @@
 #include "calc.h"
 #include "common.h"
 
-GBCalculator::GBCalculator(long max_shell_type)
+GBCalculator::GBCalculator(long max_shell_type, long dim_work, int basis_work)
     : max_shell_type(max_shell_type), work_pure(NULL), work_cart(NULL) {
   if (max_shell_type < 0) {
     throw std::domain_error("max_shell_type must be positive.");
   }
   max_nbasis = get_shell_nbasis(max_shell_type);
+  nwork = dim_work;
+  for (int i = 0; i < basis_work; i++) {
+    nwork *= max_nbasis;
+  }
+  work_cart = new double[nwork];
+  work_pure = new double[nwork];
 }
 
 GBCalculator::~GBCalculator() {

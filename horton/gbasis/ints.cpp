@@ -54,12 +54,6 @@ using std::abs;
 */
 
 
-GB2Integral::GB2Integral(long max_shell_type) : GBCalculator(max_shell_type) {
-  nwork = max_nbasis * max_nbasis;
-  work_cart = new double[nwork];
-  work_pure = new double[nwork];
-}
-
 void
 GB2Integral::reset(long _shell_type0, long _shell_type1, const double *_r0, const double *_r1) {
   if ((_shell_type0 < -max_shell_type) || (_shell_type0 > max_shell_type)) {
@@ -415,14 +409,6 @@ void GB2MomentIntegral::add(double coeff, double alpha0, double alpha1,
 
 */
 
-
-GB4Integral::GB4Integral(long max_shell_type)
-    : GBCalculator(max_shell_type), shell_type0(0), shell_type1(0), shell_type2(0),
-      shell_type3(0), r0(NULL), r1(NULL), r2(NULL), r3(NULL) {
-  nwork = max_nbasis * max_nbasis * max_nbasis * max_nbasis;
-  work_cart = new double[nwork];
-  work_pure = new double[nwork];
-}
 
 void GB4Integral::reset(
     long _shell_type0, long _shell_type1, long _shell_type2, long _shell_type3,
