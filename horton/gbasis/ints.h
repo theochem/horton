@@ -33,7 +33,9 @@ class GB2Integral : public GBCalculator {
   const double *r0, *r1;
   IterPow2 i2p;
  public:
-  explicit GB2Integral(long max_shell_type) : GBCalculator(max_shell_type, 1, 2) {}
+  explicit GB2Integral(long max_shell_type)
+      : GBCalculator(max_shell_type, 1, 2), shell_type0(0), shell_type1(0),
+        r0(NULL), r1(NULL), i2p() {}
 
   void reset(long shell_type0, long shell_type1, const double *r0, const double *r1);
 

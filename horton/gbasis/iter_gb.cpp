@@ -24,18 +24,13 @@
 #include "common.h"
 #include "iter_gb.h"
 
-IterGB1::IterGB1(GBasis *gbasis) :
-    gbasis(gbasis),
-    basis_offsets(gbasis->get_basis_offsets()),
-    // public fields
-    shell_type0(0),
-    con_coeff(0.0),
-    alpha0(0.0),
-    r0(NULL),
-    ibasis0(0),
-    // internal fields
-    ishell0(0),
-    nprim0(0), iprim0(0), oprim0(0) {}
+IterGB1::IterGB1(GBasis *gbasis)
+    : gbasis(gbasis), basis_offsets(gbasis->get_basis_offsets()),
+      // public fields
+      shell_type0(0), con_coeff(0.0), alpha0(0.0), r0(NULL), scales0(NULL),
+      ibasis0(0),
+      // internal fields
+      ishell0(0), nprim0(0), iprim0(0), oprim0(0) {}
 
 int IterGB1::inc_shell() {
   // Increment shell and related counters.
@@ -99,6 +94,7 @@ IterGB2::IterGB2(GBasis *gbasis) :
     con_coeff(0.0),
     alpha0(0.0), alpha1(0.0),
     r0(NULL), r1(NULL),
+    scales0(NULL), scales1(NULL),
     ibasis0(0), ibasis1(0),
     // internal fields
     ishell0(0), ishell1(0),
@@ -240,6 +236,7 @@ IterGB4::IterGB4(GBasis *gbasis) :
     con_coeff(0.0),
     alpha0(0.0), alpha1(0.0), alpha2(0.0), alpha3(0.0),
     r0(NULL), r1(NULL), r2(NULL), r3(NULL),
+    scales0(NULL), scales1(NULL), scales2(NULL), scales3(NULL),
     ibasis0(0), ibasis1(0), ibasis2(0), ibasis3(0),
     // internal fields
     ishell0(0), ishell1(0), ishell2(0), ishell3(0),

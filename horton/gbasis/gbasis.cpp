@@ -64,11 +64,11 @@ GBasis::GBasis(const double *centers, const long *shell_map, const long *nprims,
     centers(centers), shell_map(shell_map), nprims(nprims),
     shell_types(shell_types), alphas(alphas), con_coeffs(con_coeffs),
     ncenter(ncenter), nshell(nshell), nprim_total(nprim_total) {
-  long shell_nbasis, shell_type;
+  long shell_nbasis;
 
   // check for maximum shell type
   for (long ishell = 0; ishell < nshell; ishell++) {
-    shell_type = abs(shell_types[ishell]);
+    long shell_type = abs(shell_types[ishell]);
     if (shell_type > MAX_SHELL_TYPE) {
       throw std::domain_error("Exceeded the maximum shell type.");
     }
