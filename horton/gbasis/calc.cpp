@@ -20,10 +20,6 @@
 
 // #define DEBUG
 
-#ifdef DEBUG
-#include <cstdio>
-#endif
-
 #include <cmath>
 #include <cstdlib>
 #include <stdexcept>
@@ -45,9 +41,6 @@ GBCalculator::GBCalculator(long max_shell_type, long dim_work, int basis_work)
 }
 
 GBCalculator::~GBCalculator() {
-#ifdef DEBUG
-  printf("%x %x\n", work_cart, work_pure);
-#endif
   delete[] work_cart;
   delete[] work_pure;
 }
