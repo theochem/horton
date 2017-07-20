@@ -146,7 +146,7 @@ void GBasis::init_scales() {
 }
 
 void GBasis::compute_two_index(double *output, GB2Integral *integral) {
-  IterGB2 iter = IterGB2(this);
+  IterGB2 iter(this);
   iter.update_shell();
   do {
     integral->reset(iter.shell_type0, iter.shell_type1, iter.r0, iter.r1);
@@ -160,7 +160,7 @@ void GBasis::compute_two_index(double *output, GB2Integral *integral) {
 }
 
 void GBasis::compute_four_index(double *output, GB4Integral *integral) {
-  IterGB4 iter = IterGB4(this);
+  IterGB4 iter(this);
   iter.update_shell();
   do {
     integral->reset(iter.shell_type0, iter.shell_type1, iter.shell_type2, iter.shell_type3,
@@ -176,7 +176,7 @@ void GBasis::compute_four_index(double *output, GB4Integral *integral) {
 }
 
 void GBasis::compute_grid_point1(double *output, double *point, GB1GridFn *grid_fn) {
-  IterGB1 iter = IterGB1(this);
+  IterGB1 iter(this);
   iter.update_shell();
   do {
     grid_fn->reset(iter.shell_type0, iter.r0, point);
@@ -191,7 +191,7 @@ void GBasis::compute_grid_point1(double *output, double *point, GB1GridFn *grid_
 
 double GBasis::compute_grid_point2(double *dm, double *point, GB2DMGridFn *grid_fn) {
   double result = 0.0;
-  IterGB2 iter = IterGB2(this);
+  IterGB2 iter(this);
   iter.update_shell();
   do {
     grid_fn->reset(iter.shell_type0, iter.shell_type1, iter.r0, iter.r1, point);
@@ -218,60 +218,58 @@ const double GOBasis::normalization(const double alpha, const long *n) const {
 }
 
 void GOBasis::compute_overlap(double *output) {
-  GB2OverlapIntegral integral = GB2OverlapIntegral(get_max_shell_type());
+  GB2OverlapIntegral integral(get_max_shell_type());
   compute_two_index(output, &integral);
 }
 
 void GOBasis::compute_kinetic(double *output) {
-  GB2KineticIntegral integral = GB2KineticIntegral(get_max_shell_type());
+  GB2KineticIntegral integral(get_max_shell_type());
   compute_two_index(output, &integral);
 }
 
-void GOBasis::compute_nuclear_attraction(double *charges, double *centers, long ncharge,
-                                         double *output) {
-  GB2NuclearAttractionIntegral integral = GB2NuclearAttractionIntegral(get_max_shell_type(),
-                                                                       charges, centers, ncharge);
+void GOBasis::compute_nuclear_attraction(double *charges, double *centers,
+                                         long ncharge, double *output) {
+  GB2NuclearAttractionIntegral integral(get_max_shell_type(), charges, centers,
+                                        ncharge);
   compute_two_index(output, &integral);
 }
 
-void GOBasis::compute_erf_attraction(double *charges, double *centers, long ncharge, double *output,
-                                     double mu) {
-  GB2ErfAttractionIntegral integral = GB2ErfAttractionIntegral(get_max_shell_type(),
-                                                               charges, centers, ncharge, mu);
+void GOBasis::compute_erf_attraction(double *charges, double *centers,
+                                     long ncharge, double *output, double mu) {
+  GB2ErfAttractionIntegral integral(get_max_shell_type(), charges, centers,
+                                    ncharge, mu);
   compute_two_index(output, &integral);
 }
 
 void GOBasis::compute_gauss_attraction(double *charges, double *centers, long ncharge,
                                        double *output, double c, double alpha) {
-  GB2GaussAttractionIntegral integral = GB2GaussAttractionIntegral(get_max_shell_type(),
-                                                                   charges, centers, ncharge, c,
-                                                                   alpha);
+  GB2GaussAttractionIntegral integral(get_max_shell_type(), charges, centers,
+                                      ncharge, c, alpha);
   compute_two_index(output, &integral);
 }
 
 void GOBasis::compute_multipole_moment(long *xyz, double *center, double *output) {
-  GB2MomentIntegral integral = GB2MomentIntegral(get_max_shell_type(), xyz, center);
+  GB2MomentIntegral integral(get_max_shell_type(), xyz, center);
   compute_two_index(output, &integral);
 }
 
 void GOBasis::compute_electron_repulsion(double *output) {
-  GB4ElectronRepulsionIntegralLibInt integral =
-      GB4ElectronRepulsionIntegralLibInt(get_max_shell_type());
+  GB4ElectronRepulsionIntegralLibInt integral(get_max_shell_type());
   compute_four_index(output, &integral);
 }
 
 void GOBasis::compute_erf_repulsion(double *output, double mu) {
-  GB4ErfIntegralLibInt integral = GB4ErfIntegralLibInt(get_max_shell_type(), mu);
+  GB4ErfIntegralLibInt integral(get_max_shell_type(), mu);
   compute_four_index(output, &integral);
 }
 
 void GOBasis::compute_gauss_repulsion(double *output, double c, double alpha) {
-  GB4GaussIntegralLibInt integral = GB4GaussIntegralLibInt(get_max_shell_type(), c, alpha);
+  GB4GaussIntegralLibInt integral(get_max_shell_type(), c, alpha);
   compute_four_index(output, &integral);
 }
 
 void GOBasis::compute_ralpha_repulsion(double *output, double alpha) {
-  GB4RAlphaIntegralLibInt integral = GB4RAlphaIntegralLibInt(get_max_shell_type(), alpha);
+  GB4RAlphaIntegralLibInt integral(get_max_shell_type(), alpha);
   compute_four_index(output, &integral);
 }
 
@@ -279,7 +277,7 @@ void GOBasis::compute_grid1_exp(long nfn, double *coeffs, long npoint, double *p
                                 long norb, long *iorbs, double *output) {
   // The work array contains the basis functions evaluated at the grid point,
   // and optionally some of its derivatives.
-  GB1ExpGridOrbitalFn grid_fn = GB1ExpGridOrbitalFn(get_max_shell_type(), nfn, iorbs, norb);
+  GB1ExpGridOrbitalFn grid_fn(get_max_shell_type(), nfn, iorbs, norb);
 
   long nwork = get_nbasis() * grid_fn.get_dim_work();
   long dim_output = grid_fn.get_dim_output();
@@ -308,8 +306,7 @@ void GOBasis::compute_grid1_grad_exp(long nfn, double *coeffs, long npoint,
                                      double *points, long norb, long *iorbs, double *output) {
   // The work array contains the basis functions evaluated at the grid point,
   // and optionally some of its derivatives.
-  GB1ExpGridOrbGradientFn grid_fn = GB1ExpGridOrbGradientFn(get_max_shell_type(),
-                                                            nfn, iorbs, norb);
+  GB1ExpGridOrbGradientFn grid_fn(get_max_shell_type(), nfn, iorbs, norb);
 
   long nwork = get_nbasis() * grid_fn.get_dim_work();
   long dim_output = grid_fn.get_dim_output();
@@ -370,7 +367,7 @@ void GOBasis::compute_grid2_dm(double *dm, long npoint, double *points, double *
   // For the moment, it is only possible to compute the Hartree potential on
   // a grid with this routine. Generalizations with electrical field and
   // other things are for later.
-  GB2DMGridHartreeFn grid_fn = GB2DMGridHartreeFn(get_max_shell_type());
+  GB2DMGridHartreeFn grid_fn(get_max_shell_type());
 
   for (long ipoint = 0; ipoint < npoint; ipoint++) {
     *output += compute_grid_point2(dm, points, &grid_fn);
@@ -379,8 +376,8 @@ void GOBasis::compute_grid2_dm(double *dm, long npoint, double *points, double *
   }
 }
 
-void GOBasis::compute_grid1_fock(long npoint, double *points, double *weights, long pot_stride,
-                                 double *pots,
+void GOBasis::compute_grid1_fock(long npoint, double *points, double *weights,
+                                 long pot_stride, double *pots,
                                  GB1DMGridFn *grid_fn, double *output) {
   // The work array contains the basis functions evaluated at the grid point,
   // and optionally some of its derivatives.

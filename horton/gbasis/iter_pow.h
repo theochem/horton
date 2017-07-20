@@ -29,6 +29,9 @@ class IterPow1 {
  private:
   long shell_type0;
  public:
+  IterPow1() : shell_type0(0), n0({0, 0, 0}), ibasis0(0) {}
+  IterPow1(const IterPow1& other) = delete;
+
   void reset(long shell_type0);
 
   int inc();
@@ -41,6 +44,10 @@ class IterPow2 {
  private:
   long shell_type0, shell_type1;
  public:
+  IterPow2() : shell_type0(0), shell_type1(0), n0({0, 0, 0}), n1({0, 0, 0}),
+               offset(0), ibasis0(0), ibasis1(0) {}
+  IterPow2(const IterPow2& other) = delete;
+
   void reset(long shell_type0, long shell_type1);
 
   int inc();

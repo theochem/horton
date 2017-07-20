@@ -64,6 +64,7 @@ class GB4IntegralWrapper {
           A definition/implementation of a four-center integral.
   */
   GB4IntegralWrapper(GOBasis *gobasis, GB4Integral *gb4int);
+  GB4IntegralWrapper(const GB4IntegralWrapper& other) = delete;
 
   ~GB4IntegralWrapper();
 

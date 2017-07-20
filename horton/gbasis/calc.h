@@ -55,6 +55,7 @@ class GBCalculator {
         The work array size is multiplied by max_nbasis**basis_work.
     */
   GBCalculator(long max_shell_type, long dim_work, int basis_work);
+  GBCalculator(const GBCalculator& other) = delete;
 
   virtual ~GBCalculator();
 
