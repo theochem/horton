@@ -33,6 +33,7 @@ class IterGB1 {
 
  public:
   explicit IterGB1(GBasis *gbasis);
+  IterGB1(const IterGB1& other) = delete;
 
   int inc_shell();
 
@@ -64,6 +65,7 @@ class IterGB2 {
 
  public:
   explicit IterGB2(GBasis *gbasis);
+  IterGB2(const IterGB2& other) = delete;
 
   int inc_shell();
 
@@ -99,6 +101,7 @@ class IterGB4 {
 
  public:
   explicit IterGB4(GBasis *gbasis);
+  IterGB4(const IterGB4& other) = delete;
 
   int inc_shell();
 

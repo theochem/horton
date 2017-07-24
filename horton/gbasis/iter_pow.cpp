@@ -49,7 +49,7 @@ int iter_pow1_inc(long *n) {
 */
 
 void IterPow1::reset(long shell_type0) {
-  shell_type0 = shell_type0;
+  this->shell_type0 = shell_type0;
   n0[0] = shell_type0;
   n0[1] = 0;
   n0[2] = 0;
@@ -76,8 +76,8 @@ int IterPow1::inc() {
 
 
 void IterPow2::reset(long shell_type0, long shell_type1) {
-  shell_type0 = shell_type0;
-  shell_type1 = shell_type1;
+  this->shell_type0 = shell_type0;
+  this->shell_type1 = shell_type1;
   n0[0] = shell_type0;
   n0[1] = 0;
   n0[2] = 0;

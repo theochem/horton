@@ -21,8 +21,9 @@
 
 #include "gbw.h"
 
-GB4IntegralWrapper::GB4IntegralWrapper(GOBasis *gobasis, GB4Integral *gb4int) :
-    gobasis(gobasis), gb4int(gb4int) {
+GB4IntegralWrapper::GB4IntegralWrapper(GOBasis *gobasis, GB4Integral *gb4int)
+    : gobasis(gobasis), gb4int(gb4int), ishell0(-1), ishell2(-1), begin0(-1),
+      begin2(-1) {
   max_shell_size = get_shell_nbasis(gobasis->get_max_shell_type());
   slice_size = gobasis->get_nbasis() * gobasis->get_nbasis();
   /*

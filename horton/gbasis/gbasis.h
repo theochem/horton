@@ -54,6 +54,7 @@ class GBasis {
   GBasis(const double *centers, const long *shell_map, const long *nprims,
          const long *shell_types, const double *alphas, const double *con_coeffs,
          const long ncenter, const long nshell, const long nprim_total);
+  GBasis(const GBasis& other) = delete;
 
   virtual ~GBasis();
 

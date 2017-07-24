@@ -71,7 +71,7 @@ class CPPCheckTrapdoorProgram(TrapdoorProgram):
 
         # Call Cppcheck
         command = [binary] + get_source_filenames(config, 'cpp') + \
-                  ['-q', '--enable=all', '--std=c++11', '--xml',
+                  ['-q', '--enable=all', '--language=c++', '--std=c++11', '--xml',
                    '--suppress=missingIncludeSystem', '--suppress=unusedFunction']
         xml_str = run_command(command)[1]
         etree = ElementTree.fromstring(xml_str)

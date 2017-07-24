@@ -142,7 +142,9 @@ class GB1GridFn : public GBCalculator {
       @param dim_output
         The number of results for each grid point, e.g. 3 for a density gradient.
     */
-  GB1GridFn(long max_shell_type, long dim_work, long dim_output);
+    GB1GridFn(long max_shell_type, long dim_work, long dim_output)
+        : GBCalculator(max_shell_type, dim_work, 1), dim_work(dim_work),
+          dim_output(dim_output), shell_type0(0), r0(NULL), point(NULL), i1p() {}
 
   /** @brief
         Reset calculator for a new contraction.
@@ -712,8 +714,9 @@ class GB1DMGridMGGAFn : public GB1DMGridFn {
 class GB2DMGridFn : public GBCalculator {
  public:
   // ! Construct a GB2DMGridFn object. (See base class for details.)
-  explicit GB2DMGridFn(long max_shell_type);
-
+  explicit GB2DMGridFn(long max_shell_type)
+      : GBCalculator(max_shell_type, 1, 2), shell_type0(0), shell_type1(0),
+        r0(NULL), r1(NULL), point(NULL), i2p() {}
   /** @brief
         Reset calculator for a new pair of contractions.
 
