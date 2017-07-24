@@ -1,5 +1,8 @@
 import json
+import tempfile
+from contextlib import contextmanager
 
+import shutil
 from os import path
 
 import numpy as np
@@ -8,6 +11,94 @@ from .. import gobasis
 
 import mol_data as mdata
 import gobasis_data as gdata
+
+
+
+@contextmanager
+def tmpdir(name):
+    dn = tempfile.mkdtemp(name)
+    try:
+        yield dn
+    finally:
+        shutil.rmtree(dn)
+
+
+def check_delta(fun, fun_deriv, x, dxs):
+    """Check the difference between two function values using the analytical gradient
+
+       Arguments:
+
+       fun
+            The function whose derivatives must be to be tested
+
+       fun_deriv
+            The implementation of the analytical derivatives
+
+       x
+            The argument for the reference point.
+
+       dxs
+            A list with small relative changes to x
+
+       For every displacement in ``dxs``, the following computation is repeated:
+
+       1) ``D1 = fun(x+dx) - fun(x)`` is computed.
+       2) ``D2 = 0.5*dot(fun_deriv(x+dx) + fun_deriv(x), dx)`` is computed.
+
+       A threshold is set to the median of the D1 set. For each case where |D1|
+       is larger than the threshold, |D1 - D2|, should be smaller than the
+       threshold.
+
+       This test makes two assumptions:
+
+       1) The gradient at ``x`` is non-zero.
+       2) The displacements, ``dxs``, are small enough such that in the majority
+          of cases, the linear term in ``fun(x+dx) - fun(x)`` dominates. Hence,
+          sufficient elements in ``dxs`` should be provided for this test to
+          work.
+    """
+    assert len(x.shape) == 1
+    if len(dxs) < 20:
+        raise ValueError('At least 20 displacements are needed for good statistics.')
+
+    dn1s = []
+    dn2s = []
+    dnds = []
+    f0 = fun(x)
+    grad0 = fun_deriv(x)
+    for dx in dxs:
+        f1 = fun(x+dx)
+        grad1 = fun_deriv(x+dx)
+        grad = 0.5*(grad0+grad1)
+        d1 = f1 - f0
+        if hasattr(d1, '__iter__'):
+            norm = np.linalg.norm
+        else:
+            norm = abs
+        d2 = np.dot(grad, dx)
+
+        dn1s.append(norm(d1))
+        dn2s.append(norm(d2))
+        dnds.append(norm(d1-d2))
+    dn1s = np.array(dn1s)
+    dn2s = np.array(dn2s)
+    dnds = np.array(dnds)
+
+    # Get the threshold (and mask)
+    threshold = np.median(dn1s)
+    mask = dn1s > threshold
+    # Make sure that all cases for which dn1 is above the treshold, dnd is below
+    # the threshold
+    if not (dnds[mask] < threshold).all():
+        raise AssertionError((
+                                 'The first order approximation on the difference is too wrong. The '
+                                 'threshold is %.1e.\n\nDifferences:\n%s\n\nFirst order '
+                                 'approximation to differences:\n%s\n\nAbsolute errors:\n%s')
+                             % (threshold,
+                                ' '.join('%.1e' % v for v in dn1s[mask]),
+                                ' '.join('%.1e' % v for v in dn2s[mask]),
+                                ' '.join('%.1e' % v for v in dnds[mask])
+                                ))
 
 
 def _compose_fn(subpath, fn, ext=".npy"):

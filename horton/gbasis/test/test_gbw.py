@@ -23,7 +23,7 @@ import numpy as np
 
 from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
-from .common import *
+from .common import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 def get_h2o_er():

@@ -25,8 +25,8 @@ from nose.tools import assert_raises
 
 from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
-from . common import *
-from . lightgrid import *
+from . common import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from . lightgrid import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 def test_gpt_coeff():

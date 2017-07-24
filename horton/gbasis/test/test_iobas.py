@@ -24,9 +24,7 @@ from nose.tools import assert_raises
 
 from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
-from horton.test.common import tmpdir
-
-from . common import *
+from . common import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 from .. utils import to_basis_path
 

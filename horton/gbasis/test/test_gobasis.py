@@ -27,7 +27,7 @@ from nose.plugins.attrib import attr
 
 from .. import *  # pylint: disable=wildcard-import, unused-wildcard-import
 
-from . common import *
+from . common import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from . lightgrid import generate_molecular_grid
 
 
