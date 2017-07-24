@@ -97,11 +97,11 @@ cdef check_shape(array, shape, name):
         When the dimension or the shape of the array differs from the expected shape.
     """
     if array.ndim != len(shape):
-        raise TypeError('Array \'{}\' has ndim={}. Expexting ndim={}.'.format(
+        raise TypeError('Array \'{}\' has ndim={}. Expecting ndim={}.'.format(
             name, array.ndim, len(shape)))
     for i, si in enumerate(shape):
         if 0 <= si != array.shape[i]:
-            raise TypeError('Array \'{}\' has shape[{}]={}. Expexting shape[{}]={}.'.format(
+            raise TypeError('Array \'{}\' has shape[{}]={}. Expecting shape[{}]={}.'.format(
             name, i, array.shape[i], i, si))
 
 
@@ -269,7 +269,7 @@ cdef class GBasis:
        The order of the pure shells is based on the order of real spherical.
        The functions are sorted from low to high magnetic quantum number,
        with cosine-like functions before the sine-like functions. The order
-       of functions in a Cartesian shell is alhpabetic. Some examples:
+       of functions in a Cartesian shell is alphabetic. Some examples:
 
        shell_type = 0, S:
          0 -> 1
@@ -2333,7 +2333,7 @@ def compute_grid_nucpot(double[:, ::1] coordinates not None,
                         double[::1] charges not None,
                         double[:, ::1] points not None,
                         double[::1] output not None):
-    '''Compute the potential due to a set of (nuclear) point charges
+    """Compute the potential due to a set of (nuclear) point charges
 
     Parameters
     ----------
@@ -2347,7 +2347,7 @@ def compute_grid_nucpot(double[:, ::1] coordinates not None,
         computed.
     output
         An (M,) output array in which the potential is stored.
-    '''
+    """
     # type checking
     assert coordinates.shape[1] == 3
     ncharge = coordinates.shape[0]

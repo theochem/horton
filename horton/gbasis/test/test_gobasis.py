@@ -27,11 +27,11 @@ from nose.plugins.attrib import attr
 
 from .. import *  # pylint: disable=wildcard-import, unused-wildcard-import
 
-from . common import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from . lightgrid import generate_molecular_grid
+from .common import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from .lightgrid import generate_molecular_grid
 
+angstrom = 1.0e-10 / 0.5291772083e-10
 
-angstrom = 1.0e-10/0.5291772083e-10
 
 def test_shell_nbasis():
     assert get_shell_nbasis(-3) == 7
@@ -461,7 +461,7 @@ def test_abstract():
         shell_types = np.array([0, 1])
         alphas = np.array([1.0, 1.1, 1.2])
         con_coeffs = np.array([0.1, 0.2, 0.3])
-        from .. cext import GBasis
+        from ..cext import GBasis
         GBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
 
 

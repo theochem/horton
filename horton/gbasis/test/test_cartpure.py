@@ -174,7 +174,6 @@ def test_cart_pure_domain():
 
 @attr('slow')
 def test_cart_pure_water_ccpvdz_hf():
-    pth = path.split(__file__)[0]
     # Also load fchk file to get reordering of matrix elements.
     for fn in load_olp, load_kin, load_na:
         block_pure = fn("water_ccpvdz_pure_hf_g03_fchk")[9:14, 9:14]

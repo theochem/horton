@@ -27,7 +27,7 @@ from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 def test_boys_functions():
-    # reference data computed with sympy.mpmath arbitrary precision libraray
+    # reference data computed with sympy.mpmath arbitrary precision library
     result = np.array([
         boys_function(0, 0.0e+00), boys_function(0, 1.0e-20),
         boys_function(0, 1.0e-10), boys_function(0, 1.0e-07),

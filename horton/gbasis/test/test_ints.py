@@ -226,7 +226,7 @@ def check_overlap(alphas0, alphas1, r0, r1, scales0, scales1, shell_type0, shell
     assert result0.shape == (nbasis0, nbasis1)
     # Clear the working memory
     gb2i.reset(shell_type0, shell_type1, r0, r1)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1 in zip(alphas0, alphas1):
         gb2i.add(1.0, alpha0, alpha1, scales0, scales1)
     result1 = gb2i.get_work(nbasis0, nbasis1)
@@ -591,7 +591,7 @@ def check_kinetic(alphas0, alphas1, r0, r1, scales0, scales1, shell_type0, shell
     assert result0.shape == (nbasis0, nbasis1)
     # Clear the working memory
     gb2i.reset(shell_type0, shell_type1, r0, r1)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1 in zip(alphas0, alphas1):
         gb2i.add(1.0, alpha0, alpha1, scales0, scales1)
     result1 = gb2i.get_work(nbasis0, nbasis1)
@@ -955,7 +955,7 @@ def check_nuclear_attraction(alphas0, alphas1, r0, r1, scales0, scales1, charges
     assert result0.shape == (nbasis0, nbasis1)
     # Clear the working memory
     gb2i.reset(shell_type0, shell_type1, r0, r1)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1 in zip(alphas0, alphas1):
         gb2i.add(1.0, alpha0, alpha1, scales0, scales1)
     result1 = gb2i.get_work(nbasis0, nbasis1)
@@ -1450,7 +1450,7 @@ def get_erf_attraction(alphas0, alphas1, r0, r1, scales0, scales1, charges, cent
     nbasis1 = get_shell_nbasis(shell_type1)
     # Clear the working memory
     gb2i.reset(shell_type0, shell_type1, r0, r1)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1 in zip(alphas0, alphas1):
         gb2i.add(1.0, alpha0, alpha1, scales0, scales1)
     return gb2i.get_work(nbasis0, nbasis1)
@@ -2017,7 +2017,7 @@ def check_gauss_attraction(alphas0, alphas1, r0, r1, scales0, scales1, charges, 
     assert result0.shape == (nbasis0, nbasis1)
     # Clear the working memory
     gb2i.reset(shell_type0, shell_type1, r0, r1)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1 in zip(alphas0, alphas1):
         gb2i.add(1.0, alpha0, alpha1, scales0, scales1)
     result1 = gb2i.get_work(nbasis0, nbasis1)
@@ -2688,10 +2688,6 @@ def test_gauss_attraction_4_4():
 def test_gb4_erilibint_class():
     max_shell_type = 4
     max_nbasis = get_shell_nbasis(max_shell_type)
-    r0 = np.array([2.645617, 0.377945, -0.188973])
-    r1 = np.array([0.000000, 0.000000, 0.188973])
-    r2 = np.array([1.456687, 0.132147, -0.13572])
-    r3 = np.array([0.798754, 0.456465, 0.465736])
 
     gb4i = GB4ElectronRepulsionIntegralLibInt(max_shell_type)
     assert gb4i.max_shell_type == max_shell_type
@@ -2717,7 +2713,7 @@ def check_electron_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3,
     assert result0.shape == (nbasis0, nbasis1, nbasis2, nbasis3)
     # Clear the working memory
     gb4i.reset(shell_type0, shell_type1, shell_type2, shell_type3, r0, r1, r2, r3)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1, alpha2, alpha3 in zip(alphas0, alphas1, alphas2, alphas3):
         gb4i.add(1.0, alpha0, alpha1, alpha2, alpha3, scales0, scales1, scales2, scales3)
     result1 = gb4i.get_work(nbasis0, nbasis1, nbasis2, nbasis3)
@@ -3043,7 +3039,7 @@ def get_erf_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3,
     nbasis3 = get_shell_nbasis(shell_type3)
     # Clear the working memory
     gb4i.reset(shell_type0, shell_type1, shell_type2, shell_type3, r0, r1, r2, r3)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1, alpha2, alpha3 in zip(alphas0, alphas1, alphas2, alphas3):
         gb4i.add(1.0, alpha0, alpha1, alpha2, alpha3, scales0, scales1, scales2, scales3)
     return gb4i.get_work(nbasis0, nbasis1, nbasis2, nbasis3)
@@ -3446,7 +3442,7 @@ def check_gauss_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, sc
     assert result0.shape == (nbasis0, nbasis1, nbasis2, nbasis3)
     # Clear the working memory
     gb4i.reset(shell_type0, shell_type1, shell_type2, shell_type3, r0, r1, r2, r3)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1, alpha2, alpha3 in zip(alphas0, alphas1, alphas2, alphas3):
         gb4i.add(1.0, alpha0, alpha1, alpha2, alpha3, scales0, scales1, scales2, scales3)
     result1 = gb4i.get_work(nbasis0, nbasis1, nbasis2, nbasis3)
@@ -3968,7 +3964,7 @@ def check_ralpha_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, s
     assert result0.shape == (nbasis0, nbasis1, nbasis2, nbasis3)
     # Clear the working memory
     gb4i.reset(shell_type0, shell_type1, shell_type2, shell_type3, r0, r1, r2, r3)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1, alpha2, alpha3 in zip(alphas0, alphas1, alphas2, alphas3):
         gb4i.add(1.0, alpha0, alpha1, alpha2, alpha3, scales0, scales1, scales2, scales3)
     result1 = gb4i.get_work(nbasis0, nbasis1, nbasis2, nbasis3)

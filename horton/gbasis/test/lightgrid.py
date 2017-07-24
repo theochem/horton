@@ -89,7 +89,7 @@ def generate_molecular_grid(numbers, coordinates, npoint_per_electron=100, seed=
     numbers : np.ndarray, shape=(natom,), dtype=int
         Atomic numbers.
     coordinates : np.ndarray, shape(natom, 3), dtype=float
-        Atomic cooorindates.
+        Atomic coordinates.
     npoint_per_electron : int
         The number of grid points per atomic shell.
     seed : int
@@ -99,7 +99,7 @@ def generate_molecular_grid(numbers, coordinates, npoint_per_electron=100, seed=
     -------
     points : np.ndarray, shape=(npoint, 3), dtype=float
         Positions of the grid points.
-    weights : np.ndarray, shape=(npoint,), dypte=float
+    weights : np.ndarray, shape=(npoint,), dtype=float
         Integration grid weights for all points.
     """
     state = np.random.get_state()
@@ -112,7 +112,6 @@ def generate_molecular_grid(numbers, coordinates, npoint_per_electron=100, seed=
                 shells.append(shell.clone(coordinate))
 
         # Initialize outputs
-        nshell = len(shells)
         shell_points = []
         shell_weights = []
 

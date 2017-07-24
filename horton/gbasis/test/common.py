@@ -1,17 +1,13 @@
-import json
+import shutil
 import tempfile
 from contextlib import contextmanager
 
-import shutil
+import numpy as np
 from os import path
 
-import numpy as np
-
-from .. import gobasis
-
-import mol_data as mdata
 import gobasis_data as gdata
-
+import mol_data as mdata
+from .. import gobasis
 
 
 @contextmanager
@@ -67,9 +63,9 @@ def check_delta(fun, fun_deriv, x, dxs):
     f0 = fun(x)
     grad0 = fun_deriv(x)
     for dx in dxs:
-        f1 = fun(x+dx)
-        grad1 = fun_deriv(x+dx)
-        grad = 0.5*(grad0+grad1)
+        f1 = fun(x + dx)
+        grad1 = fun_deriv(x + dx)
+        grad = 0.5 * (grad0 + grad1)
         d1 = f1 - f0
         if hasattr(d1, '__iter__'):
             norm = np.linalg.norm
@@ -79,7 +75,7 @@ def check_delta(fun, fun_deriv, x, dxs):
 
         dn1s.append(norm(d1))
         dn2s.append(norm(d2))
-        dnds.append(norm(d1-d2))
+        dnds.append(norm(d1 - d2))
     dn1s = np.array(dn1s)
     dn2s = np.array(dn2s)
     dnds = np.array(dnds)
@@ -87,7 +83,7 @@ def check_delta(fun, fun_deriv, x, dxs):
     # Get the threshold (and mask)
     threshold = np.median(dn1s)
     mask = dn1s > threshold
-    # Make sure that all cases for which dn1 is above the treshold, dnd is below
+    # Make sure that all cases for which dn1 is above the threshold, dnd is below
     # the threshold
     if not (dnds[mask] < threshold).all():
         raise AssertionError((

@@ -415,7 +415,7 @@ class GOBasisContraction(object):
             raise NotImplementedError("Only segmented contractions can be normalized.")
         # Warning! Ugly code ahead to avoid re-implementing the norm of contraction. The
         # code below (ab)uses the GOBasis machinery to get that result.
-        # 1) Constract a GOBasis object with only this contraction.
+        # 1) Construct a GOBasis object with only this contraction.
         centers = np.array([[0.0, 0.0, 0.0]])
         shell_map = np.array([0])
         nprims = np.array([len(self.alphas)])

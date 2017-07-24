@@ -56,7 +56,6 @@ def load_basis_atom_map_nwchem(filename):
 
     f = open(filename)
     basis_atom_map = {}
-    bc = None  # The current contraction being loaded
     for line in f:
         # Strip off comments and white space.
         line = line[:line.find('#')].strip()
@@ -92,7 +91,6 @@ def load_basis_atom_map_gbs(filename):
     from gobasis import GOBasisAtom, GOBasisContraction
 
     basis_atom_map = {}
-    bc = None  # The current contraction being loaded
     cur_atom = None
     cur_shell_types = None
     with open(filename, 'r') as f:
@@ -112,7 +110,7 @@ def load_basis_atom_map_gbs(filename):
                 cur_shell_types = str_to_shell_types(words[0])
                 empty_contr = [GOBasisContraction(shell_type, [], [])
                                for shell_type in cur_shell_types]
-                # Try to get the atom and add emptry contraction, or create new atom.
+                # Try to get the atom and add empty contraction, or create new atom.
                 goba = basis_atom_map.get(n)
                 if goba is None:
                     basis_atom_map[n] = GOBasisAtom(empty_contr)
@@ -122,7 +120,7 @@ def load_basis_atom_map_gbs(filename):
                 # An extra primitive for the current contraction(s).
                 exponent = fortran_float(words[0])
                 coeffs = [fortran_float(w) for w in words[1:]]
-                for i, bc in enumerate(empty_contr):  #FIXME: empty_contr ref before assignment
+                for i, bc in enumerate(empty_contr):  # FIXME: empty_contr ref before assignment
                     bc.alphas.append(exponent)
                     bc.con_coeffs.append(coeffs[i::len(cur_shell_types)])
     return basis_atom_map

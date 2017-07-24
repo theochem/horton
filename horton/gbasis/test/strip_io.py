@@ -50,8 +50,6 @@ def grep_file():
 
         filenames2.add((fn, san_fn))
 
-
-
     for i in (save_gobasis_params, save_dms, save_exps, save_moldata, save_quads, save_dipoles):
         for fn, san_fn in filenames2:
             mol = IOData.from_file(context.get_fn(fn))
@@ -130,5 +128,6 @@ def save_json(json_fn, san_fn):
     with open(json_fn) as fh:
         arr = np.array(json.load(fh))
     np.save(san_fn + "/er", arr)
+
 
 grep_file()
