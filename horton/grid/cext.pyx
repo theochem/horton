@@ -477,10 +477,6 @@ def compute_cubic_spline_int_weights(np.ndarray[double, ndim=1] weights not None
 #
 
 
-def index_wrap(long i, long high):
-    return evaluate.index_wrap(i, high)
-
-
 def eval_spline_grid(CubicSpline spline not None,
                      np.ndarray[double, ndim=1] center not None,
                      np.ndarray[double, ndim=1] output not None,
