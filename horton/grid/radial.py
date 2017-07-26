@@ -32,21 +32,15 @@ __all__ = ['RadialGrid']
 class RadialGrid(object):
     '''An integration grid for the radial component of a spherical coordinate system'''
 
-    def __init__(self, rtransform, int1d=None):
+    def __init__(self, rtransform):
         self._rtransform = rtransform
-        if int1d is None:
-            self._int1d = rtransform.get_default_int1d()
-        else:
-            self._int1d = int1d
         self._weights = (4*np.pi)*(
             self._rtransform.get_deriv()*
-            self._rtransform.get_radii()**2*
-            self._int1d.get_weights(rtransform.npoint)
+            self._rtransform.get_radii()**2
         )
 
     def __eq__(self, other):
-        return (self.int1d.__class__ == other.int1d.__class__ and
-                self.rtransform.to_string() == other.rtransform.to_string())
+        return self.rtransform.to_string() == other.rtransform.to_string()
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -68,12 +62,6 @@ class RadialGrid(object):
         return self._rtransform
 
     rtransform = property(_get_rtransform)
-
-    def _get_int1d(self):
-        '''The 1D radial integrator object of the grid.'''
-        return self._int1d
-
-    int1d = property(_get_int1d)
 
     def _get_weights(self):
         '''The grid weights.'''
@@ -116,4 +104,4 @@ class RadialGrid(object):
            The corresponding radii remain the same.
         '''
         rtf = self._rtransform.chop(new_size)
-        return RadialGrid(rtf, self._int1d)
+        return RadialGrid(rtf)

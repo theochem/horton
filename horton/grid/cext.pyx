@@ -927,12 +927,6 @@ cdef class RTransform(object):
         '''
         raise NotImplementedError
 
-    def get_default_int1d(self):
-        '''Return the recommended 1D integrator for this rtransform'''
-        from horton.grid.int1d import SimpsonIntegrator1D
-        return SimpsonIntegrator1D()
-
-
 
 cdef class IdentityRTransform(RTransform):
     '''For testing only'''
@@ -1066,10 +1060,6 @@ cdef class PowerRTransform(RTransform):
         rmin = self.radius(1)
         return PowerRTransform(rmin, self.rmax, self.npoint/2)
 
-    def get_default_int1d(self):
-        from horton.grid.int1d import StubIntegrator1D
-        return StubIntegrator1D()
-
 
 cdef class HyperbolicRTransform(RTransform):
     r'''A Hyperbolic grid (as in the GPAW program).
@@ -1091,10 +1081,6 @@ cdef class HyperbolicRTransform(RTransform):
 
     def to_string(self):
         return ' '.join(['HyperbolicRTransform', repr(self.a), repr(self.b), repr(self.npoint)])
-
-    def get_default_int1d(self):
-        from horton.grid.int1d import StubIntegrator1D
-        return StubIntegrator1D()
 
 
 #

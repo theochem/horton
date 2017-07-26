@@ -256,14 +256,7 @@ class ProAtomRecord(object):
         # compute the running integral of the density (popint)
         radii = self.rgrid.radii
         tmp = (4*np.pi) * radii**2 * self.rho * self.rgrid.rtransform.get_deriv()
-        popint = []
-        for i in xrange(len(tmp)):
-            if i >= self.rgrid.int1d.npoint_min:
-                popint.append(np.dot(tmp[:i], self.rgrid.int1d.get_weights(i)))
-            else:
-                popint.append(tmp[:i].sum())
-        popint = np.array(popint)
-
+        popint = tmp.cumsum()
         # find the radii
         indexes = popint.searchsorted(populations)
         result = []
