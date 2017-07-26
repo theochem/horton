@@ -414,6 +414,10 @@ The following is disabled to allow access to the protected members of the
   a protected member (i.e. class member with a name beginning with an underscore) is
   access outside the class or a descendant of the class where it’s defined.
 
+The following is disabled to allow for ease of splitting modules (i.e. modularity):
+
+* **W0403**: relative imports. Relative import %r, should be %r
+
 The following are excluded due false positives:
 
 * **E0611**: *no-name-in-module*. No name %r in module %r used when a name cannot be found
