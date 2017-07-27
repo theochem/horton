@@ -24,7 +24,6 @@
 from horton.grid.base import *
 from horton.grid.atgrid import *
 from horton.grid.cext import *
-from horton.grid.int1d import *
 from horton.grid.molgrid import *
 from horton.grid.ode2 import *
 from horton.grid.poisson import *

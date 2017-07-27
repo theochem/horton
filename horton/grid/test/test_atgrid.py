@@ -39,7 +39,7 @@ def test_normalize_nlls():
 
 def test_agspec_tuple1():
     rtf = ExpRTransform(0.1, 1e1, 4)
-    rgrid = RadialGrid(rtf, StubIntegrator1D())
+    rgrid = RadialGrid(rtf)
 
     agspec = AtomicGridSpec((rgrid, 6))
     rgrid0, nlls0 = agspec.get(1, 1)
@@ -52,7 +52,7 @@ def test_agspec_tuple1():
 
 def test_agspec_tuple2():
     rtf = ExpRTransform(0.1, 1e1, 4)
-    rgrid = RadialGrid(rtf, StubIntegrator1D())
+    rgrid = RadialGrid(rtf)
 
     agspec = AtomicGridSpec((rgrid, [6,14,26,6]))
     rgrid0, nlls0 = agspec.get(1, 1)
@@ -65,10 +65,10 @@ def test_agspec_tuple2():
 
 def test_agspec_list():
     agspec = AtomicGridSpec([
-        (1, 1, RadialGrid(ExpRTransform(0.1, 1e1, 4), StubIntegrator1D()), [6,14,26,6]),
-        (2, 2, RadialGrid(ExpRTransform(0.2, 1e1, 4), StubIntegrator1D()), [6,14,26,14]),
-        (10, 8, RadialGrid(ExpRTransform(0.3, 1e1, 4), StubIntegrator1D()), [6,14,26,26]),
-        (10, 10, RadialGrid(ExpRTransform(0.4, 1e1, 4), StubIntegrator1D()), [6,14,26,38]),
+        (1, 1, RadialGrid(ExpRTransform(0.1, 1e1, 4)), [6,14,26,6]),
+        (2, 2, RadialGrid(ExpRTransform(0.2, 1e1, 4)), [6,14,26,14]),
+        (10, 8, RadialGrid(ExpRTransform(0.3, 1e1, 4)), [6,14,26,26]),
+        (10, 10, RadialGrid(ExpRTransform(0.4, 1e1, 4)), [6,14,26,38]),
     ])
     rgrid, nlls = agspec.get(1, 1)
     assert rgrid.rtransform.rmin == 0.1
@@ -152,7 +152,7 @@ def test_agspec_get_size():
 def test_atomic_grid_basics1():
     center = np.random.uniform(-1,1,3)
     rtf = ExpRTransform(0.1, 1e1, 4)
-    rgrid = RadialGrid(rtf, StubIntegrator1D())
+    rgrid = RadialGrid(rtf)
     for random_rotate in True, False:
         ag0 = AtomicGrid(1, 1, center, (rgrid, 6), random_rotate)
         assert abs(ag0.points.mean(axis=0) - center).max() < 1e-10
@@ -171,7 +171,7 @@ def test_atomic_grid_basics1():
 def test_atomic_grid_basics2():
     center = np.random.uniform(-1,1,3)
     rtf = ExpRTransform(0.1, 1e1, 3)
-    rgrid = RadialGrid(rtf, StubIntegrator1D())
+    rgrid = RadialGrid(rtf)
     ag2 = AtomicGrid(1, 1, center, (rgrid, [6, 14, 26]))
     assert abs(ag2.points.mean(axis=0) - center).max() < 1e-10
     assert (ag2.nlls == [6, 14, 26]).all()
@@ -183,7 +183,7 @@ def get_hydrogen_1s():
     # density of the 1s orbital
     center = np.random.uniform(-1,1,3)
     rtf = PowerRTransform(1e-3, 2e1, 100)
-    rgrid = RadialGrid(rtf, CubicIntegrator1D())
+    rgrid = RadialGrid(rtf)
     ag = AtomicGrid(1, 1, center, (rgrid, 110), 100)
     distances = np.sqrt(((center - ag.points)**2).sum(axis=1))
     fn = np.exp(-2*distances)/np.pi
@@ -194,7 +194,7 @@ def get_hydrogen_1pz():
     # density of the 1pz orbital
     center = np.random.uniform(-1,1,3)
     rtf = PowerRTransform(1e-3, 2e1, 100)
-    rgrid = RadialGrid(rtf, SimpsonIntegrator1D())
+    rgrid = RadialGrid(rtf)
     ag = AtomicGrid(1, 1, center, (rgrid, 110), 100)
     z = ag.points[:,2] - center[2]
     distances = np.sqrt(((center - ag.points)**2).sum(axis=1))
@@ -222,7 +222,7 @@ def test_spherical_average_hydrogen_1s():
 def test_spherical_average_grads1():
     center = np.random.uniform(-1,1,3)
     rtf = PowerRTransform(1e-3, 2e1, 100)
-    rgrid = RadialGrid(rtf, CubicIntegrator1D())
+    rgrid = RadialGrid(rtf)
     ag = AtomicGrid(1, 1, center, (rgrid, 110), 100)
 
     delta = ag.points - ag.center
@@ -242,7 +242,7 @@ def test_spherical_average_grads1():
 def test_spherical_average_grads2():
     center = np.random.uniform(-1,1,3)
     rtf = PowerRTransform(1e-3, 2e1, 100)
-    rgrid = RadialGrid(rtf, CubicIntegrator1D())
+    rgrid = RadialGrid(rtf)
     ag = AtomicGrid(1, 1, center, (rgrid, 110), 100)
 
     delta = ag.points - ag.center

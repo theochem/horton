@@ -162,7 +162,6 @@ class AtomicGrid(IntGrid):
                 ('Min LL sphere', self._nlls.min()),
                 ('Max LL sphere', self._nlls.max()),
                 ('Radial Transform', self._rgrid.rtransform.to_string()),
-                ('1D Integrator', self._rgrid.int1d),
             ])
         # Cite reference
         biblio.cite('lebedev1999', 'the use of Lebedev-Laikov grids (quadrature on a sphere)')

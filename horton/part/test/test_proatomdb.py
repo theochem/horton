@@ -127,8 +127,8 @@ def test_compute_radii():
     padb = ProAtomDB.from_refatoms([1, 6], 0, 0, (rgrid, 110))
     record = padb.get_record(6, 0)
     indexes, radii = record.compute_radii([2.0, 5.9, 5.999])
-    assert (indexes == [69, 90, 100]).all()
-    assert abs(radii - np.array([0.600577, 4.168655, 10.0])).max() < 1e-5
+    assert (indexes == [68, 89, 100]).all()
+    assert abs(radii - np.array([0.522305, 3.595831, 10.0])).max() < 1e-5
 
 
 def test_moments():
@@ -149,12 +149,10 @@ def check_spline_record(spline, record):
 
 def check_spline_pop(spline, pop):
     rtf = spline.rtransform
-    int1d = spline.rtransform.get_default_int1d()
     check_pop = 4*np.pi*dot_multi(
         rtf.get_deriv(),
         rtf.get_radii()**2,
         spline.y,
-        int1d.get_weights(rtf.npoint),
     )
     assert abs(pop - check_pop) < 1e-2
 

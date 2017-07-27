@@ -179,7 +179,6 @@ def test_hyperbolic_basics():
 def test_identity_properties():
     rtf = IdentityRTransform(100)
     assert rtf.npoint == 100
-    assert isinstance(rtf.get_default_int1d(), SimpsonIntegrator1D)
 
 
 def test_linear_properties():
@@ -188,7 +187,6 @@ def test_linear_properties():
     assert rtf.rmax == 0.8
     assert rtf.npoint == 100
     assert rtf.alpha > 0
-    assert isinstance(rtf.get_default_int1d(), SimpsonIntegrator1D)
 
 
 def test_exp_properties():
@@ -197,7 +195,6 @@ def test_exp_properties():
     assert rtf.rmax == 1e1
     assert rtf.npoint == 100
     assert rtf.alpha > 0
-    assert isinstance(rtf.get_default_int1d(), SimpsonIntegrator1D)
 
 
 def test_power_properties():
@@ -208,7 +205,6 @@ def test_power_properties():
         assert rtf.rmax == rmax
         assert rtf.npoint == 100
         assert rtf.power >= 2
-        assert isinstance(rtf.get_default_int1d(), StubIntegrator1D)
 
 
 def test_hyperbolic_properties():

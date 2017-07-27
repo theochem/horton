@@ -29,7 +29,6 @@ from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 def test_integrate_hydrogen_single_1s():
     numbers = np.array([1], int)
     coordinates = np.array([[0.0, 0.0, -0.5]], float)
-    int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
 
@@ -43,7 +42,6 @@ def test_integrate_hydrogen_single_1s():
 def test_integrate_hydrogen_pair_1s():
     numbers = np.array([1, 1], int)
     coordinates = np.array([[0.0, 0.0, -0.5], [0.0, 0.0, 0.5]], float)
-    int1d = TrapezoidIntegrator1D()
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
 
@@ -85,7 +83,7 @@ def test_molgrid_attrs_subgrid():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialGrid(rtf, TrapezoidIntegrator1D())
+    rgrid = RadialGrid(rtf)
     mg = BeckeMolGrid(coordinates, numbers, None, (rgrid, 110), mode='keep')
 
     assert mg.size == 2*110*100
@@ -115,7 +113,7 @@ def test_molgrid_attrs():
     numbers = np.array([6, 8], int)
     coordinates = np.array([[0.0, 0.2, -0.5], [0.1, 0.0, 0.5]], float)
     rtf = ExpRTransform(1e-3, 1e1, 100)
-    rgrid = RadialGrid(rtf, TrapezoidIntegrator1D())
+    rgrid = RadialGrid(rtf)
     mg = BeckeMolGrid(coordinates, numbers, None, (rgrid, 110))
 
     assert mg.size == 2*110*100
