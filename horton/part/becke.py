@@ -27,7 +27,7 @@ from horton.grid.cext import becke_helper_atom
 from horton.log import log, timer, biblio
 from base import WPart
 from horton.periodic import periodic
-from horton.units import angstrom
+from utils import angstrom
 
 
 __all__ = ['BeckeWPart']
