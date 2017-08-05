@@ -23,8 +23,7 @@
 import numpy as np, h5py as h5
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from horton.part.test.common import get_proatomdb_cp2k
-from horton.test.common import tmpdir
+from common import get_fn, get_proatomdb_cp2k, tmpdir
 
 
 def test_db_basics():
@@ -76,7 +75,7 @@ def test_db_basics_pseudo():
 
 
 def test_record_basics_pseudo():
-    fn_out = context.get_fn('test/atom_si.cp2k.out')
+    fn_out = get_fn('atom_si.cp2k.out')
     mol = IOData.from_file(fn_out)
     r = ProAtomRecord.from_iodata(mol)
     assert r.number == 14
@@ -233,7 +232,7 @@ def test_empty_proatom():
 
 
 def test_io_atdens():
-    padb = ProAtomDB.from_file(context.get_fn('test/pro.atdens'))
+    padb = ProAtomDB.from_file(get_fn('pro.atdens'))
     assert padb.get_numbers() == [16]
     assert padb.get_charges(16) == [3, 2]
     r = padb.get_record(16, 3)

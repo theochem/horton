@@ -1,0 +1,53 @@
+Foo
+SP        RHF                                                         LANL2MB
+Charge                                     I                2
+Multiplicity                               I                1
+Number of electrons                        I                2
+Number of alpha electrons                  I                1
+Number of beta electrons                   I                1
+Number of basis functions                  I                4
+Number of independent functions            I                4
+Atomic numbers                             I   N=           1
+          14
+Nuclear charges                            R   N=           1
+  4.00000000E+00
+Current cartesian coordinates              R   N=           3
+  0.00000000E+00  0.00000000E+00  0.00000000E+00
+Real atomic weights                        R   N=           1
+  2.79769284E+01
+Shell types                                I   N=           2
+           0           1
+Number of primitives per shell             I   N=           2
+           3           3
+Shell to atom map                          I   N=           2
+           1           1
+Primitive exponents                        R   N=           6
+  1.22200000E+00  2.59500000E-01  9.31000000E-02  2.58000000E+00  2.98400000E-01
+  8.85000000E-02
+Contraction coefficients                   R   N=           6
+ -2.74463915E-01  6.16693302E-01  5.58089893E-01 -3.97838080E-02  5.21981461E-01
+  5.87364502E-01
+Coordinates of each shell                  R   N=           6
+  0.00000000E+00  0.00000000E+00  0.00000000E+00  0.00000000E+00  0.00000000E+00
+  0.00000000E+00
+Virial Ratio                               R      6.064321463641323E+00
+Total Energy                               R     -2.769676229936306E+00
+Alpha Orbital Energies                     R   N=           4
+ -1.18112459E+00 -6.03119792E-01 -6.03119792E-01 -6.03119792E-01
+Alpha MO coefficients                      R   N=          16
+  1.00000000E+00  0.00000000E+00  0.00000000E+00  0.00000000E+00  0.00000000E+00
+  0.00000000E+00  0.00000000E+00  1.00000000E+00  0.00000000E+00  0.00000000E+00
+  1.00000000E+00  0.00000000E+00  0.00000000E+00  1.00000000E+00  0.00000000E+00
+  0.00000000E+00
+Total SCF Density                          R   N=          10
+  2.00000000E+00  0.00000000E+00  0.00000000E+00  0.00000000E+00  0.00000000E+00
+  0.00000000E+00  0.00000000E+00  0.00000000E+00  0.00000000E+00  0.00000000E+00
+Mulliken Charges                           R   N=           1
+  2.00000000E+00
+Cartesian Gradient                         R   N=           3
+  0.00000000E+00  0.00000000E+00  0.00000000E+00
+Dipole Moment                              R   N=           3
+  0.00000000E+00  0.00000000E+00  0.00000000E+00
+Quadrupole Moment                          R   N=           6
+ -4.44089210E-16 -4.44089210E-16 -4.44089210E-16  0.00000000E+00  0.00000000E+00
+  0.00000000E+00

@@ -24,10 +24,11 @@
 from nose.tools import assert_raises
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from common import get_fn
 
 
 def test_base_exceptions():
-    fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
+    fn_fchk = get_fn('n2_hfs_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)

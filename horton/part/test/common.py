@@ -20,32 +20,51 @@
 # --
 
 
-from glob import glob
+import os
+import shutil
+import tempfile
 
-from horton import ProAtomDB, context
+from glob import glob
+from contextlib import contextmanager
+
+from .. proatomdb import ProAtomDB
 
 
 __all__ = [
-    'get_proatomdb_cp2k', 'get_proatomdb_hf_sto3g',
+    'get_fn', 'get_proatomdb_cp2k', 'get_proatomdb_hf_sto3g',
     'get_proatomdb_hf_lan', 'check_names', 'check_proatom_splines',
 ]
 
 
+def get_fn(fn):
+    cur_pth = os.path.split(__file__)[0]
+    return "{0}/cached/{1}".format(cur_pth, fn)
+
+
+@contextmanager
+def tmpdir(name):
+    dn = tempfile.mkdtemp(name)
+    try:
+        yield dn
+    finally:
+        shutil.rmtree(dn)
+
+
 def get_proatomdb_cp2k():
     '''Return a proatomdb of pseudo oxygens and one silicon for testing purposes'''
-    fns = glob(context.get_fn('test/atom_*.cp2k.out'))
+    fns = glob(get_fn('atom_*.cp2k.out'))
     return ProAtomDB.from_files(fns)
 
 
 def get_proatomdb_hf_sto3g():
     '''Return a proatomdb of H and O at hf/sto-3g for testing purposes'''
-    fns = glob(context.get_fn('test/atom_???_???_hf_sto3g.fchk'))
+    fns = glob(get_fn('atom_???_???_hf_sto3g.fchk'))
     return ProAtomDB.from_files(fns)
 
 
 def get_proatomdb_hf_lan():
     '''Return a proatomdb of H, O, Si at hf/LANL2MB for testing purposes'''
-    fns = glob(context.get_fn('test/atom_???_???_hf_lan.fchk'))
+    fns = glob(get_fn('atom_???_???_hf_lan.fchk'))
     return ProAtomDB.from_files(fns)
 
 

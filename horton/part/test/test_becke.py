@@ -21,13 +21,15 @@
 # --
 
 
+from common import get_fn
+
 from nose.tools import assert_raises
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 def test_becke_n2_hfs_sto3g():
-    fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
+    fn_fchk = get_fn('n2_hfs_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
@@ -48,7 +50,7 @@ def test_becke_n2_hfs_sto3g():
 
 
 def test_becke_nonlocal_lih_hf_321g():
-    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
+    fn_fchk = get_fn('li_h_3-21G_hf_g09.fchk')
     mol = IOData.from_file(fn_fchk)
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
@@ -68,7 +70,7 @@ def test_becke_nonlocal_lih_hf_321g():
 
 
 def check_becke_azirine(key, expected):
-    fn_fchk = context.get_fn('test/2h-azirine-%s.fchk' % key)
+    fn_fchk = get_fn('2h-azirine-%s.fchk' % key)
     mol = IOData.from_file(fn_fchk)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False, mode='only')
     dm_full = mol.get_dm_full()
@@ -98,7 +100,7 @@ def test_becke_azirine_mp3():
 
 
 def test_becke_ch3_hf_sto3g():
-    fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
+    fn_fchk = get_fn('ch3_hf_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)
     grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False, mode='only')
     dm_full = mol.get_dm_full()

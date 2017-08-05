@@ -22,11 +22,12 @@
 
 import numpy as np
 
+from common import get_fn
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 def test_mulliken_operators_water_sto3g():
-    fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
+    fn_fchk = get_fn('water_sto3g_hf_g03.fchk')
     mol = IOData.from_file(fn_fchk)
     operators = get_mulliken_operators(mol.obasis)
     for operator in operators:

@@ -24,8 +24,9 @@ import numpy as np
 from nose.plugins.attrib import attr
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from horton.part.test.common import check_names, check_proatom_splines, \
-    get_proatomdb_hf_sto3g, get_proatomdb_hf_lan
+from common import (get_fn, check_names, check_proatom_splines,
+                    get_proatomdb_hf_sto3g, get_proatomdb_hf_lan)
+
 from horton.scripts.wpart import wpart_schemes
 
 
@@ -35,7 +36,7 @@ def check_water_hf_sto3g(scheme, expecting, needs_padb=True, **kwargs):
         kwargs['proatomdb'] = proatomdb
 
     # Get the IOData
-    fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
+    fn_fchk = get_fn('water_sto3g_hf_g03.fchk')
     mol = IOData.from_file(fn_fchk)
     dm_full = mol.get_dm_full()
 
@@ -99,7 +100,7 @@ def check_msa_hf_lan(scheme, expecting, needs_padb=True, **kwargs):
         kwargs['proatomdb'] = proatomdb
 
     # Get the IOData
-    fn_fchk = context.get_fn('test/monosilicic_acid_hf_lan.fchk')
+    fn_fchk = get_fn('monosilicic_acid_hf_lan.fchk')
     mol = IOData.from_file(fn_fchk)
     dm_full = mol.get_dm_full()
 
