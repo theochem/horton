@@ -26,7 +26,7 @@ import numpy as np
 from horton.cache import JustOnceClass, just_once, Cache
 from horton.log import log
 from horton.moments import get_ncart_cumul, get_npure_cumul
-from horton.utils import typecheck_geo
+from utils import typecheck_geo
 from horton.grid.atgrid import AtomicGrid
 from horton.grid.poisson import solve_poisson_becke
 
