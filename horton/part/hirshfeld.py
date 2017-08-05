@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Hirshfeld partitioning'''
+"""Hirshfeld partitioning"""
 
 
 from horton.cache import just_once
@@ -26,7 +26,7 @@ from horton.log import log, biblio
 from stockholder import StockholderWPart
 
 
-__all__ = ['HirshfeldWPart']
+__all__ = ["HirshfeldWPart"]
 
 
 def check_proatomdb(numbers, pseudo_numbers, proatomdb):
@@ -54,7 +54,7 @@ class HirshfeldMixin(object):
         if log.do_medium:
             log.deflist([
                 ('Scheme', 'Hirshfeld'),
-                ('Proatomic DB',  self.proatomdb),
+                ('Proatomic DB', self.proatomdb),
             ])
             biblio.cite('hirshfeld1977', 'the use of Hirshfeld partitioning')
 
@@ -82,7 +82,8 @@ class HirshfeldMixin(object):
             biblio.cite('chu2004', 'the reference C6 parameters of isolated atoms')
             biblio.cite('yan1996', 'the isolated hydrogen C6 parameter')
 
-        ref_c6s = { # reference C6 values in atomic units
+        # reference C6 values in atomic units
+        ref_c6s = {
             1: 6.499, 2: 1.42, 3: 1392.0, 4: 227.0, 5: 99.5, 6: 46.6, 7: 24.2,
             8: 15.6, 9: 9.52, 10: 6.20, 11: 1518.0, 12: 626.0, 13: 528.0, 14:
             305.0, 15: 185.0, 16: 134.0, 17: 94.6, 18: 64.2, 19: 3923.0, 20:
@@ -107,25 +108,26 @@ class HirshfeldMixin(object):
                 n = self.numbers[i]
                 volumes[i] = radial_moments[i, 3]
                 ref_volume = self.proatomdb.get_record(n, 0).get_moment(3)
-                volume_ratios[i] = volumes[i]/ref_volume
+                volume_ratios[i] = volumes[i] / ref_volume
                 if n in ref_c6s:
-                    c6s[i] = (volume_ratios[i])**2*ref_c6s[n]
+                    c6s[i] = (volume_ratios[i])**2 * ref_c6s[n]
                 else:
-                    c6s[i] = -1 # This is just to indicate that no value is available.
+                    # This is just used to indicate that no value is available.
+                    c6s[i] = -1
 
 
 class HirshfeldWPart(HirshfeldMixin, StockholderWPart):
-    '''Hirshfeld partitioning with Becke-Lebedev grids'''
+    """Hirshfeld partitioning with Becke-Lebedev grids"""
 
     def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens,
                  proatomdb, spindens=None, local=True, lmax=3):
-        '''
+        """
            **Arguments:** (that are not defined in ``WPart``)
 
            proatomdb
                 In instance of ProAtomDB that contains all the reference atomic
                 densities.
-        '''
+        """
         HirshfeldMixin. __init__(self, numbers, pseudo_numbers, proatomdb)
         StockholderWPart.__init__(self, coordinates, numbers, pseudo_numbers,
                                   grid, moldens, spindens, local, lmax)

@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Density-based partitioning (fuzzy atoms-in-molecules) package'''
+"""Density-based partitioning (fuzzy atoms-in-molecules) package"""
 
 
 from base import *

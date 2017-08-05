@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Base classes for all stockholder partitioning schemes'''
+"""Base classes for all stockholder partitioning schemes"""
 
 
 import numpy as np
@@ -29,9 +29,7 @@ from base import WPart
 from horton.grid.poisson import solve_poisson_becke
 
 
-__all__ = [
-    'StockholderWPart',
-]
+__all__ = ["StockholderWPart"]
 
 
 class StockHolderMixin(object):
@@ -42,7 +40,7 @@ class StockHolderMixin(object):
         raise NotImplementedError
 
     def fix_proatom_rho(self, index, rho, deriv):
-        '''Check if the radial density for the proatom is correct and fix as needed.
+        """Check if the radial density for the proatom is correct and fix as needed.
 
            **Arguments:**
 
@@ -54,13 +52,13 @@ class StockHolderMixin(object):
 
            deriv
                 the derivative of the radial density or None.
-        '''
+        """
         rgrid = self.get_rgrid(index)
 
         # Check for negative parts
         original = rgrid.integrate(rho)
         if rho.min() < 0:
-            rho[rho<0] = 0.0
+            rho[rho < 0] = 0.0
             deriv = None
             error = rgrid.integrate(rho) - original
             if log.do_medium:

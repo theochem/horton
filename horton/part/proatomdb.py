@@ -18,11 +18,12 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Pro-atom databases'''
+"""Pro-atom databases"""
 
 
 import os
-import h5py as h5, numpy as np
+import h5py as h5
+import numpy as np
 
 from horton.context import context
 from horton.grid.atgrid import AtomicGrid, AtomicGridSpec
@@ -37,11 +38,11 @@ __all__ = ['ProAtomRecord', 'ProAtomDB']
 
 
 class ProAtomRecord(object):
-    '''A single proatomic density record'''
+    """A single proatomic density record"""
 
     @classmethod
     def from_iodata(cls, iodata, agspec='fine'):
-        '''Construct a proatom record from a data dictionary and an atomic grid
+        """Construct a proatom record from a data dictionary and an atomic grid
 
            **Arguments:**
 
@@ -54,7 +55,7 @@ class ProAtomRecord(object):
                 A specifications of the atomic grid. This can either be an
                 instance of the AtomicGridSpec object, or the first argument
                 of its constructor.
-        '''
+        """
         if iodata.natom != 1:
             raise ValueError('More than one atom found for pro-atom record.')
         number = iodata.numbers[0]
@@ -66,7 +67,7 @@ class ProAtomRecord(object):
 
     @classmethod
     def from_dm(cls, center, number, pseudo_number, obasis, dm_full, energy, agspec='fine'):
-        '''Construct a proatom record from a single-atom density matrix
+        """Construct a proatom record from a single-atom density matrix
 
            **Arguments:**
 
@@ -94,7 +95,7 @@ class ProAtomRecord(object):
                 A specifications of the atomic grid. This can either be an
                 instance of the AtomicGridSpec object, or the first argument
                 of its constructor.
-        '''
+        """
         if len(center) != 3:
             raise TypeError('Center should be a vector with three elements.')
         if not isinstance(agspec, AtomicGridSpec):
@@ -109,7 +110,8 @@ class ProAtomRecord(object):
         # Derive the number of electrions and the charge
         overlap = obasis.compute_overlap()
         nel = np.einsum('ab,ba', overlap, dm_full)
-        assert abs(nel - int(np.round(nel))) < 1e-4 # only integer nel are supported
+        if not abs(nel - int(np.round(nel))) < 1e-4:
+            raise ValueError('Only integer number of electrons in supported.')
         nel = int(np.round(nel))
         charge = pseudo_number - nel
 
@@ -117,7 +119,7 @@ class ProAtomRecord(object):
         return cls(number, charge, energy, atgrid.rgrid, rho, deriv, pseudo_number)
 
     def __init__(self, number, charge, energy, rgrid, rho, deriv=None, pseudo_number=None, ipot_energy=None):
-        '''
+        """
            **Arguments:**
 
            number
@@ -146,7 +148,7 @@ class ProAtomRecord(object):
 
            ipot_energy
                 The ionization potential.
-        '''
+        """
         self._number = number
         self._charge = charge
         self._energy = energy
@@ -164,79 +166,79 @@ class ProAtomRecord(object):
         self._safe = True
 
     def _get_number(self):
-        '''The element number'''
+        """The element number"""
         return self._number
 
     number = property(_get_number)
 
     def _get_charge(self):
-        '''The charge'''
+        """The charge"""
         return self._charge
 
     charge = property(_get_charge)
 
     def _get_energy(self):
-        '''The total electronic energy'''
+        """The total electronic energy"""
         return self._energy
 
     energy = property(_get_energy)
 
     def _get_ipot_energy(self):
-        '''The ionization potential'''
+        """The ionization potential"""
         return self._ipot_energy
 
     ipot_energy = property(_get_ipot_energy)
 
     def _get_rho(self):
-        '''The density on a radial grid'''
+        """The density on a radial grid"""
         return self._rho
 
     rho = property(_get_rho)
 
     def _get_deriv(self):
-        '''The radial derivative of the density on a radial grid'''
+        """The radial derivative of the density on a radial grid"""
         return self._deriv
 
     deriv = property(_get_deriv)
 
     def _get_rgrid(self):
-        '''The radial grid'''
+        """The radial grid"""
         return self._rgrid
 
     rgrid = property(_get_rgrid)
 
     def _get_pseudo_number(self):
-        '''The pseudo element number (effective core charge)'''
+        """The pseudo element number (effective core charge)"""
         return self._pseudo_number
 
     pseudo_number = property(_get_pseudo_number)
 
     def _get_population(self):
-        '''The total number of electrons'''
+        """The total number of electrons"""
         return self._number - self._charge
 
     population = property(_get_population)
 
     def _get_pseudo_population(self):
-        '''The total effective number of electrons'''
+        """The total effective number of electrons"""
         return self._pseudo_number - self._charge
 
     pseudo_population = property(_get_pseudo_population)
 
     def _get_safe(self):
-        '''When safe is True, this pro atom is safe to use, i.e. not know to be basis-set bound'''
+        """When safe is True, this pro atom is safe to use, i.e. not know to be basis-set bound"""
         return self._safe
 
     safe = property(_get_safe)
 
     def update_safe(self, other):
-        '''Updates the safe attribute based on a comparison with other records
+        """Updates the safe attribute based on a comparison with other records
 
            **Arguments:**
 
            other
                 Another instance of ProAtomRecord
-        '''
+        """
         if other.number == self._number:
             if other.population < self.population and \
                other.energy < self.energy:
@@ -245,17 +247,17 @@ class ProAtomRecord(object):
                 self._ipot_energy = other.energy - self.energy
 
     def compute_radii(self, populations):
-        '''Compute approximate radii and grid points at which the atom contains the given populations
+        """Compute approximate radii and grid points at which the atom contains the given populations
 
            **Arguments:**
 
            populations
                 A list of populations for which the corresponding radii have to
                 be computed.
-        '''
+        """
         # compute the running integral of the density (popint)
         radii = self.rgrid.radii
-        tmp = (4*np.pi) * radii**2 * self.rho * self.rgrid.rtransform.get_deriv()
+        tmp = 4 * np.pi * radii**2 * self.rho * self.rgrid.rtransform.get_deriv()
         popint = tmp.cumsum()
         # find the radii
         indexes = popint.searchsorted(populations)
@@ -266,16 +268,16 @@ class ProAtomRecord(object):
                 result.append(radii[-1])
             else:
                 # linear interpolation
-                x = (populations[i] - popint[index])/(popint[index-1] - popint[index])
-                result.append(x*radii[index-1]+(1-x)*radii[index])
+                x = (populations[i] - popint[index]) / (popint[index - 1] - popint[index])
+                result.append(x * radii[index - 1] + (1 - x) * radii[index])
         return indexes, result
 
     def get_moment(self, order):
-        '''Return the integral of rho*r**order'''
+        """Return the integral of rho*r**order"""
         return self.rgrid.integrate(self.rho, self.rgrid.radii**order)
 
     def chop(self, npoint):
-        '''Reduce the proatom to the given number of radial grid points.'''
+        """Reduce the proatom to the given number of radial grid points."""
         self._rho = self._rho[:npoint]
         if self._deriv is not None:
             self._deriv = self._deriv[:npoint]
@@ -297,7 +299,7 @@ class ProAtomRecord(object):
 
 class ProAtomDB(object):
     def __init__(self, records):
-        '''
+        """
            **Arguments:**
 
            records
@@ -307,7 +309,7 @@ class ProAtomDB(object):
 
            Based on the records present it is determined which records are
            safe to use, i.e. apparently not bound by the basis set.
-        '''
+        """
         # Search for duplicates (same number and charge) and only retain the
         # lowest in energy for each combination.
         _map = {}
@@ -332,7 +334,8 @@ class ProAtomDB(object):
             else:
                 # compare
                 if rgrid != r.rgrid:
-                    raise ValueError('All proatoms of a given element must have the same radial grid')
+                    raise ValueError('All proatoms of a given element must have the same radial '
+                                     'grid.')
 
         # Update the safe flags based on the energies of other pro_atoms
         for number in self.get_numbers():
@@ -358,7 +361,7 @@ class ProAtomDB(object):
         return self._map[(number, charge)]
 
     def get_numbers(self):
-        '''Return the element numbers present in the database'''
+        """Return the element numbers present in the database"""
         result = self._rgrid_map.keys()
         result.sort()
         return result
@@ -378,7 +381,7 @@ class ProAtomDB(object):
 
     @classmethod
     def from_files(cls, fns, agspec='fine'):
-        '''
+        """
            Construct a ProAtomDB from a series of HORTON checkpoint files.
 
            **Arguments:**
@@ -392,7 +395,7 @@ class ProAtomDB(object):
                 A specifications of the atomic grid. This can either be an
                 instance of the AtomicGridSpec object, or the first argument
                 of its constructor.
-        '''
+        """
         if not isinstance(agspec, AtomicGridSpec):
             agspec = AtomicGridSpec(agspec)
         records = []
@@ -406,7 +409,7 @@ class ProAtomDB(object):
 
     @classmethod
     def from_refatoms(cls, numbers=None, max_cation=3, max_anion=2, agspec='fine'):
-        '''
+        """
            Construct a ProAtomDB from reference atoms included in HORTON
 
            **Arguments:**
@@ -431,7 +434,7 @@ class ProAtomDB(object):
                 A specifications of the atomic grid. This can either be an
                 instance of the AtomicGridSpec object, or the first argument
                 of its constructor.
-        '''
+        """
         # Search for all the relevant .h5 files of built-in reference atoms
         fns_chk = []
         for fn in context.glob('refatoms/*.h5'):
@@ -450,7 +453,7 @@ class ProAtomDB(object):
 
     @classmethod
     def from_file(cls, filename):
-        '''Construct an dabase from an HDF5 file
+        """Construct an dabase from an HDF5 file
 
            **Arguments:**
 
@@ -460,7 +463,7 @@ class ProAtomDB(object):
 
            Note that the records are loaded and given as argument to the
            constructor, which may weed out duplicates.
-        '''
+        """
         if isinstance(filename, h5.Group):
             records = load_proatom_records_h5_group(filename)
         elif isinstance(filename, basestring):
@@ -476,7 +479,7 @@ class ProAtomDB(object):
         return ProAtomDB(records)
 
     def to_file(self, filename):
-        '''Write the database to an HDF5 file
+        """Write the database to an HDF5 file
 
 
            **Arguments:**
@@ -484,7 +487,7 @@ class ProAtomDB(object):
            filename
                 A string with the filename of the hdf5 file, or a h5.File or
                 h5.Group object.
-        '''
+        """
         # parse the argument
         if isinstance(filename, basestring):
             f = LockedH5File(filename, 'w')
@@ -515,7 +518,7 @@ class ProAtomDB(object):
                 f.close()
 
     def get_rho(self, number, parameters=0, combine='linear', do_deriv=False):
-        '''Construct a proatom density on a grid.
+        """Construct a proatom density on a grid.
 
            **Arguments:**
 
@@ -541,7 +544,7 @@ class ProAtomDB(object):
                 When set to True, the derivative of rho is also returned. In
                 case the derivative is not available, the second return value is
                 None.
-        '''
+        """
         if isinstance(parameters, int):
             charge = parameters
             record = self.get_record(number, charge)
@@ -559,23 +562,23 @@ class ProAtomDB(object):
                 for charge, coeff in parameters.iteritems():
                     if coeff != 0.0:
                         record = self.get_record(number, charge)
-                        rho += coeff*record.rho
+                        rho += coeff * record.rho
                         if do_deriv and record.deriv is not None and deriv is not None:
-                            deriv += coeff*record.deriv
+                            deriv += coeff * record.deriv
                         else:
                             deriv = None
             elif combine == 'geometric':
                 for charge, coeff in parameters.iteritems():
                     if coeff != 0.0:
                         record = self.get_record(number, charge)
-                        rho += coeff*np.log(record.rho)
+                        rho += coeff * np.log(record.rho)
                         if do_deriv and record.deriv is not None and deriv is not None:
-                            deriv += coeff*record.deriv/record.rho
+                            deriv += coeff * record.deriv / record.rho
                         else:
                             deriv = None
                 rho = np.exp(rho)
                 if do_deriv and deriv is not None:
-                    deriv = rho*deriv
+                    deriv = rho * deriv
             else:
                 raise ValueError('Combine argument "%s" not supported.' % combine)
             if not isinstance(rho, np.ndarray):
@@ -590,15 +593,15 @@ class ProAtomDB(object):
             raise TypeError('Could not interpret parameters argument')
 
     def get_spline(self, number, parameters=0, combine='linear'):
-        '''Construct a proatom spline.
+        """Construct a proatom spline.
 
            **Arguments:** See ``get_rho`` method.
-        '''
+        """
         rho, deriv = self.get_rho(number, parameters, combine, do_deriv=True)
         return CubicSpline(rho, deriv, self.get_rgrid(number).rtransform)
 
     def compact(self, nel_lost):
-        '''Make the pro-atoms more compact
+        """Make the pro-atoms more compact
 
            **Argument:**
 
@@ -609,7 +612,7 @@ class ProAtomDB(object):
 
            Note that only 'safe' atoms are considered to determine the cutoff
            radius.
-        '''
+        """
         if log.do_medium:
             log('Reducing extents of the pro-atoms')
             log('   Z     npiont           radius')
@@ -619,8 +622,8 @@ class ProAtomDB(object):
             npoint = 0
             for charge in self.get_charges(number, safe=True):
                 r = self.get_record(number, charge)
-                nel = r.pseudo_number-charge
-                npoint = max(npoint, r.compute_radii([nel-nel_lost])[0][0]+1)
+                nel = r.pseudo_number - charge
+                npoint = max(npoint, r.compute_radii([nel - nel_lost])[0][0] + 1)
             for charge in self.get_charges(number):
                 r = self.get_record(number, charge)
                 r.chop(npoint)
@@ -645,7 +648,7 @@ class ProAtomDB(object):
                 r = self.get_record(number, charge)
                 nel_before = rgrid.integrate(r.rho)
                 nel_integer = r.pseudo_number - charge
-                r.rho[:] *= nel_integer/nel_before
+                r.rho[:] *= nel_integer / nel_before
                 nel_after = rgrid.integrate(r.rho)
                 if log.do_medium:
                     log('%4i     %+3i    %15.8e   %15.8e' % (
@@ -654,7 +657,7 @@ class ProAtomDB(object):
 
 
 def load_proatom_records_h5_group(f):
-    '''Load proatom records from the given HDF5 group'''
+    """Load proatom records from the given HDF5 group"""
     records = []
     for grp in f.itervalues():
         assert isinstance(grp, h5.Group)
@@ -676,13 +679,13 @@ def load_proatom_records_h5_group(f):
 
 
 def load_proatom_records_h5_file(filename):
-    '''Load proatom records from the given HDF5 file'''
+    """Load proatom records from the given HDF5 file"""
     with LockedH5File(filename) as f:
         return load_proatom_records_h5_group(f)
 
 
 def load_proatom_records_atdens(filename):
-    '''Load proatom records from the given atdens file file'''
+    """Load proatom records from the given atdens file file"""
     def read_numbers(f, npoint):
         numbers = []
         while len(numbers) < npoint:
@@ -702,7 +705,7 @@ def load_proatom_records_atdens(filename):
         # Construct a radial grid
         r1 = radii[1]
         r2 = radii[-1]
-        rtf = ExpRTransform(r1, r2, npoint-1)
+        rtf = ExpRTransform(r1, r2, npoint - 1)
         rgrid = RadialGrid(rtf)
         # load the proatoms
         while True:

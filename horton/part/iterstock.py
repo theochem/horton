@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Iterative Stockholder Analysis (ISA) partitioning'''
+"""Iterative Stockholder Analysis (ISA) partitioning"""
 
 
 import numpy as np
@@ -27,19 +27,20 @@ from horton.log import log, biblio
 from stockholder import StockholderWPart
 
 
-__all__ = ['IterativeProatomMixin', 'IterativeStockholderWPart']
+__all__ = ["IterativeProatomMixin", "IterativeStockholderWPart"]
 
 
 class IterativeProatomMixin():
     def compute_change(self, propars1, propars2):
-        '''Compute the difference between an old and a new proatoms'''
-        msd = 0.0 # mean-square deviation
+        """Compute the difference between an old and a new proatoms"""
+        # Compute mean-square deviation
+        msd = 0.0
         for index in xrange(self.natom):
             rgrid = self.get_rgrid(index)
             rho1, deriv1 = self.get_proatom_rho(index, propars1)
             rho2, deriv2 = self.get_proatom_rho(index, propars2)
             delta = rho1 - rho2
-            msd +=  rgrid.integrate(delta, delta)
+            msd += rgrid.integrate(delta, delta)
         return np.sqrt(msd)
 
     def _init_propars(self):
@@ -109,14 +110,14 @@ class IterativeProatomMixin():
 
 
 class IterativeStockholderWPart(IterativeProatomMixin, StockholderWPart):
-    '''Iterative Stockholder Partitioning with Becke-Lebedev grids'''
+    """Iterative Stockholder Partitioning with Becke-Lebedev grids"""
     name = 'is'
     options = ['lmax', 'threshold', 'maxiter']
     linear = False
 
     def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens,
                  spindens=None, lmax=3, threshold=1e-6, maxiter=500):
-        '''
+        """
            **Optional arguments:** (that are not defined in ``WPart``)
 
            threshold
@@ -128,7 +129,7 @@ class IterativeStockholderWPart(IterativeProatomMixin, StockholderWPart):
                 The maximum number of iterations. If no convergence is reached
                 in the end, no warning is given.
                 Reduce the CPU cost at the expense of more memory consumption.
-        '''
+        """
         self._threshold = threshold
         self._maxiter = maxiter
         StockholderWPart.__init__(self, coordinates, numbers, pseudo_numbers,
@@ -149,14 +150,14 @@ class IterativeStockholderWPart(IterativeProatomMixin, StockholderWPart):
     def get_proatom_rho(self, index, propars=None):
         if propars is None:
             propars = self.cache.load('propars')
-        return propars[self._ranges[index]:self._ranges[index+1]], None
+        return propars[self._ranges[index]:self._ranges[index + 1]], None
 
     def _init_propars(self):
         IterativeProatomMixin._init_propars(self)
         self._ranges = [0]
         for index in xrange(self.natom):
             npoint = self.get_rgrid(index).size
-            self._ranges.append(self._ranges[-1]+npoint)
+            self._ranges.append(self._ranges[-1] + npoint)
         ntotal = self._ranges[-1]
         return self.cache.load('propars', alloc=ntotal, tags='o')[0]
 
@@ -169,7 +170,7 @@ class IterativeStockholderWPart(IterativeProatomMixin, StockholderWPart):
 
         # assign as new propars
         propars = self.cache.load('propars')
-        propars[self._ranges[index]:self._ranges[index+1]] = spherical_average
+        propars[self._ranges[index]:self._ranges[index + 1]] = spherical_average
 
         # compute the new charge
         pseudo_population = atgrid.rgrid.integrate(spherical_average)

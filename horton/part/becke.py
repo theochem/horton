@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Becke partitioning'''
+"""Becke partitioning"""
 
 
 import numpy as np
@@ -34,7 +34,7 @@ __all__ = ['BeckeWPart']
 
 
 class BeckeWPart(WPart):
-    '''Becke partitioning with Becke-Lebedev grids'''
+    """Becke partitioning with Becke-Lebedev grids"""
 
     name = 'b'
     options = ['lmax', 'k']
@@ -42,12 +42,12 @@ class BeckeWPart(WPart):
 
     def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens,
                  spindens=None, local=True, lmax=3, k=3):
-        '''
+        """
            **Optional arguments:** (that are not defined in ``WPart``)
 
            k
                 The order of the polynomials used in the Becke partitioning.
-        '''
+        """
         self._k = k
         WPart.__init__(self, coordinates, numbers, pseudo_numbers, grid,
                        moldens, spindens, local, lmax)
@@ -71,10 +71,12 @@ class BeckeWPart(WPart):
         radii = []
         for number in self.numbers:
             if number == 1:
-                radius = 0.35*angstrom # exception defined in Becke's paper
+                # exception defined in Becke's paper
+                radius = 0.35 * angstrom
             else:
                 radius = periodic[number].becke_radius
-                if radius is None: # for cases not covered by Brag-Slater
+                if radius is None:
+                    # for cases not covered by Brag-Slater
                     radius = periodic[number].cov_radius
             radii.append(radius)
         radii = np.array(radii)
@@ -89,7 +91,7 @@ class BeckeWPart(WPart):
             pb()
 
     def _get_k(self):
-        '''The order of the Becke switching function.'''
+        """The order of the Becke switching function."""
         return self._k
 
     k = property(_get_k)

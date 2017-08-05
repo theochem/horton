@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Mulliken partitioning'''
+"""Mulliken partitioning"""
 
 
 import numpy as np
@@ -26,11 +26,11 @@ import numpy as np
 from horton.gbasis.cext import get_shell_nbasis
 
 
-__all__ = ['partition_mulliken', 'get_mulliken_operators']
+__all__ = ["partition_mulliken", "get_mulliken_operators"]
 
 
 def partition_mulliken(operator, obasis, index):
-    '''Fill in the mulliken operator in the first argument.
+    """Fill in the mulliken operator in the first argument.
 
     Parameters
     ----------
@@ -44,7 +44,7 @@ def partition_mulliken(operator, obasis, index):
 
     This routine implies that the first ``natom`` centers in the obasis corresponds to the
     atoms in the system.
-    '''
+    """
     mask = np.zeros(obasis.nbasis, dtype=bool)
     begin = 0
     for ishell in xrange(obasis.nshell):
@@ -53,11 +53,11 @@ def partition_mulliken(operator, obasis, index):
             mask[begin:end] = True
         begin = end
     operator[mask] = 0.0
-    operator[:] = 0.5*(operator + operator.T)
+    operator[:] = 0.5 * (operator + operator.T)
 
 
 def get_mulliken_operators(obasis):
-    '''Return a list of Mulliken operators for the given obasis.'''
+    """Return a list of Mulliken operators for the given obasis."""
     operators = []
     olp = obasis.compute_overlap()
     for icenter in xrange(obasis.ncenter):
