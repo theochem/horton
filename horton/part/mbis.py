@@ -23,8 +23,8 @@
 
 import numpy as np
 from horton.log import log, biblio
-from horton.part.stockholder import StockholderWPart
-from horton.part.iterstock import IterativeProatomMixin
+from stockholder import StockholderWPart
+from iterstock import IterativeProatomMixin
 
 
 __all__ = ['MBISWPart']

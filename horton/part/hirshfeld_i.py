@@ -24,8 +24,8 @@
 import numpy as np
 
 from horton.log import log, biblio
-from horton.part.hirshfeld import HirshfeldWPart
-from horton.part.iterstock import IterativeProatomMixin
+from hirshfeld import HirshfeldWPart
+from iterstock import IterativeProatomMixin
 
 
 __all__ = ['HirshfeldIWPart']

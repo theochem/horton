@@ -25,7 +25,7 @@ import numpy as np
 
 from horton.log import log
 from horton.grid.cext import CubicSpline
-from horton.part.base import WPart
+from base import WPart
 from horton.grid.poisson import solve_poisson_becke
 
 

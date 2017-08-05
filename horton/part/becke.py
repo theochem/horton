@@ -25,7 +25,7 @@ import numpy as np
 
 from horton.grid.cext import becke_helper_atom
 from horton.log import log, timer, biblio
-from horton.part.base import WPart
+from base import WPart
 from horton.periodic import periodic
 from horton.units import angstrom
 

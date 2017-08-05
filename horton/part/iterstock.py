@@ -24,7 +24,7 @@
 import numpy as np
 from horton.cache import just_once
 from horton.log import log, biblio
-from horton.part.stockholder import StockholderWPart
+from stockholder import StockholderWPart
 
 
 __all__ = ['IterativeProatomMixin', 'IterativeStockholderWPart']
