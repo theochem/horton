@@ -21,12 +21,12 @@
 '''Density-based partitioning (fuzzy atoms-in-molecules) package'''
 
 
-from horton.part.base import *
-from horton.part.becke import *
-from horton.part.hirshfeld import *
-from horton.part.hirshfeld_i import *
-from horton.part.iterstock import *
-from horton.part.mbis import *
-from horton.part.mulliken import *
-from horton.part.proatomdb import *
-from horton.part.stockholder import *
+from base import *
+from becke import *
+from hirshfeld import *
+from hirshfeld_i import *
+from iterstock import *
+from mbis import *
+from mulliken import *
+from proatomdb import *
+from stockholder import *
