@@ -22,7 +22,7 @@
 
 
 import numpy as np
-from horton.cache import just_once
+from cache import just_once
 from horton.log import log, biblio
 from stockholder import StockholderWPart
 
