@@ -21,7 +21,6 @@
 # --
 """Check commits for bad habits. Can be used as pre-commit when no arguments are given."""
 
-
 import argparse
 import subprocess
 import sys
@@ -77,7 +76,7 @@ def check_commits(ancestor):
         # Define the ranges to be checked with git diff
         diff_args = []
         for i in xrange(len(commit_ids) - 1):
-            diff_args.append('{}..{}'.format(commit_ids[i+1], commit_ids[i]))
+            diff_args.append('{}..{}'.format(commit_ids[i + 1], commit_ids[i]))
 
     # Loop over all commits and check them:
     for diff_arg in diff_args:
@@ -87,6 +86,9 @@ def check_commits(ancestor):
         status_lines = subprocess.check_output(
             ['git', 'diff', '--name-status', '-M', diff_arg or '--cached'],
             stderr=subprocess.STDOUT).decode("utf-8").splitlines()
+
+        status_lines = [line for line in status_lines if
+                        not (line.endswith(".npy") or line.endswith(".npz"))]
 
         # Check all files in the diff.
         for status_line in status_lines:
@@ -125,7 +127,7 @@ def check_commits(ancestor):
             # Run some tests on the diff.
             for line in diff_lines:
                 if line.startswith('diff') or line.startswith('index') or \
-                   line.startswith('-') or line.startswith('+++'):
+                        line.startswith('-') or line.startswith('+++'):
                     pass
                 elif line.startswith('@@'):
                     line_number = line.split()[2]
