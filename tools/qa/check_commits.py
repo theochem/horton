@@ -88,6 +88,8 @@ def check_commits(ancestor):
             ['git', 'diff', '--name-status', '-M', diff_arg or '--cached'],
             stderr=subprocess.STDOUT).decode("utf-8").splitlines()
 
+        status_lines = [l for l in status_lines if ".npy" not in l and ".npz" not in l]
+
         # Check all files in the diff.
         for status_line in status_lines:
             # Parse the status line
