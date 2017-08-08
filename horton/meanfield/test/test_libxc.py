@@ -24,7 +24,7 @@ from nose.tools import assert_raises
 from nose.plugins.skip import SkipTest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from horton.meanfield.test.common import check_interpolation, \
+from .common import check_interpolation, \
     check_dot_hessian, check_dot_hessian_polynomial, check_dot_hessian_cache
 
 

@@ -24,7 +24,7 @@ import numpy as np
 
 from horton.log import biblio
 from horton.exceptions import NoSCFConvergence
-from horton.meanfield.scf_diis import DIISHistory, DIISSCFSolver
+from .scf_diis import DIISHistory, DIISSCFSolver
 from horton.quadprog import QPSolver
 from horton.utils import doc_inherit
 

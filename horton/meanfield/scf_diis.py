@@ -25,9 +25,9 @@ import numpy as np
 
 from horton.log import log, timer
 from horton.exceptions import NoSCFConvergence
-from horton.meanfield.convergence import convergence_error_commutator
-from horton.meanfield.utils import compute_commutator, check_dm
-from horton.meanfield.orbitals import Orbitals
+from .convergence import convergence_error_commutator
+from .utils import compute_commutator, check_dm
+from .orbitals import Orbitals
 
 
 __all__ = []

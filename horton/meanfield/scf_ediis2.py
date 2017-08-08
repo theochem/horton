@@ -24,9 +24,9 @@
 import numpy as np
 
 from horton.log import biblio
-from horton.meanfield.scf_diis import DIISHistory, DIISSCFSolver
-from horton.meanfield.scf_cdiis import CDIISHistory
-from horton.meanfield.scf_ediis import EDIISHistory
+from .scf_diis import DIISHistory, DIISSCFSolver
+from .scf_cdiis import CDIISHistory
+from .scf_ediis import EDIISHistory
 from horton.utils import doc_inherit
 
 

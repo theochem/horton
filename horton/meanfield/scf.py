@@ -25,8 +25,8 @@ import numpy as np
 
 from horton.log import log, timer
 from horton.exceptions import NoSCFConvergence
-from horton.meanfield.convergence import convergence_error_eigen
-from horton.meanfield.utils import get_level_shift
+from .convergence import convergence_error_eigen
+from .utils import get_level_shift
 
 
 __all__ = ['PlainSCFSolver']

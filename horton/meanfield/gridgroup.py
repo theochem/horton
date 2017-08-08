@@ -21,7 +21,7 @@
 """Container for observables involving numerical integration"""
 
 
-from horton.meanfield.observable import Observable
+from .observable import Observable
 from horton.utils import doc_inherit
 
 

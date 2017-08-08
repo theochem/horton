@@ -21,7 +21,7 @@
 
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from horton.meanfield.test.common import check_interpolation, helper_compute
+from .common import check_interpolation, helper_compute
 
 
 def test_energy_hydrogen():

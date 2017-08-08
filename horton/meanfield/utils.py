@@ -23,7 +23,7 @@
 
 import numpy as np
 
-from horton.meanfield.orbitals import Orbitals
+from .orbitals import Orbitals
 
 
 __all__ = [

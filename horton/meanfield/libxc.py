@@ -23,9 +23,9 @@
 
 from horton.log import timer, biblio
 from horton.utils import doc_inherit
-from horton.meanfield.gridgroup import GridObservable, DF_LEVEL_LDA, \
+from .gridgroup import GridObservable, DF_LEVEL_LDA, \
     DF_LEVEL_GGA, DF_LEVEL_MGGA
-from horton.meanfield.cext import RLibXCWrapper, ULibXCWrapper
+from .cext import RLibXCWrapper, ULibXCWrapper
 
 
 __all__ = [

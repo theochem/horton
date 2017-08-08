@@ -23,7 +23,7 @@
 import numpy as np
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from horton.meanfield.test.common import helper_compute
+from .common import helper_compute
 
 
 def test_project_msg_identical():

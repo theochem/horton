@@ -27,7 +27,7 @@
 
 import numpy as np
 
-from horton.meanfield.utils import compute_commutator
+from .utils import compute_commutator
 
 
 __all__ = [

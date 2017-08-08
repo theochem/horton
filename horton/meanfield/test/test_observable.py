@@ -22,7 +22,7 @@
 
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from horton.meanfield.test.common import check_dot_hessian, \
+from .common import check_dot_hessian, \
     check_dot_hessian_polynomial, check_dot_hessian_cache
 
 

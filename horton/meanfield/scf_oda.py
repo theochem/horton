@@ -25,9 +25,9 @@ import numpy as np
 
 from horton.log import log, timer
 from horton.exceptions import NoSCFConvergence
-from horton.meanfield.convergence import convergence_error_commutator
-from horton.meanfield.orbitals import Orbitals
-from horton.meanfield.utils import check_dm, compute_commutator
+from .convergence import convergence_error_commutator
+from .orbitals import Orbitals
+from .utils import check_dm, compute_commutator
 
 
 __all__ = ['ODASCFSolver', 'check_cubic']

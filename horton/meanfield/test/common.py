@@ -28,18 +28,18 @@ from horton.gbasis.gobasis import get_gobasis
 from horton.grid.molgrid import BeckeMolGrid
 from horton.io.iodata import IOData
 from horton.log import log
-from horton.meanfield.builtin import RDiracExchange, UDiracExchange
-from horton.meanfield.convergence import convergence_error_eigen
-from horton.meanfield.gridgroup import RGridGroup, UGridGroup
-from horton.meanfield.guess import guess_core_hamiltonian
-from horton.meanfield.hamiltonian import REffHam, UEffHam
-from horton.meanfield.libxc import RLibXCLDA, ULibXCLDA, RLibXCGGA, ULibXCGGA, \
+from .. builtin import RDiracExchange, UDiracExchange
+from .. convergence import convergence_error_eigen
+from .. gridgroup import RGridGroup, UGridGroup
+from .. guess import guess_core_hamiltonian
+from .. hamiltonian import REffHam, UEffHam
+from .. libxc import RLibXCLDA, ULibXCLDA, RLibXCGGA, ULibXCGGA, \
     ULibXCMGGA, RLibXCHybridMGGA
-from horton.meanfield.observable import RTwoIndexTerm, RDirectTerm, RExchangeTerm
-from horton.meanfield.observable import UTwoIndexTerm, UDirectTerm, UExchangeTerm
-from horton.meanfield.orbitals import Orbitals
-from horton.meanfield.occ import AufbauOccModel, FixedOccModel
-from horton.meanfield.scf_oda import check_cubic
+from .. observable import RTwoIndexTerm, RDirectTerm, RExchangeTerm
+from .. observable import UTwoIndexTerm, UDirectTerm, UExchangeTerm
+from .. orbitals import Orbitals
+from .. occ import AufbauOccModel, FixedOccModel
+from .. scf_oda import check_cubic
 
 
 __all__ = [

@@ -26,7 +26,7 @@ from nose.tools import assert_raises
 from nose.plugins.attrib import attr
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf, \
+from .common import check_hf_cs_hf, check_lih_os_hf, \
     check_water_cs_hfs, check_n2_cs_hfs, check_h3_os_hfs, check_h3_os_pbe, \
     check_co_cs_pbe, check_vanadium_sc_hf, check_water_cs_m05, \
     check_methyl_os_tpss
@@ -78,7 +78,7 @@ def test_methyl_os_tpss():
 
 
 def test_find_min_cubic():
-    from horton.meanfield.scf_oda import find_min_cubic
+    from .. scf_oda import find_min_cubic
     assert find_min_cubic(0.2, 0.5, 3.0, -0.7) == 0.0
     assert abs(find_min_cubic(2.1, -5.2, -3.0, 2.8) - 0.939645667705) < 1e-8
     assert abs(find_min_cubic(0.0, 1.0, -0.1, -0.1) - 0.0153883154024) < 1e-8
@@ -91,7 +91,7 @@ def test_find_min_cubic():
 
 
 def test_find_min_quadratic():
-    from horton.meanfield.scf_oda import find_min_quadratic
+    from .. scf_oda import find_min_quadratic
     assert find_min_quadratic(0.0, -0.7) == 1.0
     assert abs(find_min_quadratic(-3.0, 2.8) - 0.51724137931) < 1e-8
     assert abs(find_min_quadratic(-0.2, 0.1) - 0.666666666667) < 1e-8

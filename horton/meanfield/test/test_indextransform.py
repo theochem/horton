@@ -24,7 +24,7 @@ import numpy as np
 from nose.tools import assert_raises
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from horton.meanfield.indextransform import _parse_four_index_transform_orbs
+from .. indextransform import _parse_four_index_transform_orbs
 
 def test_parse_index_transform_orbs():
     assert _parse_four_index_transform_orbs(0, 1, 2, 3) == (0, 1, 2, 3)
