@@ -60,7 +60,7 @@ def wpart_slow_analysis(wpart, mol):
 
        mol
             An instance of IOData. This instance must at least contain an
-            obasis, exp_alpha and exp_beta (in case of unrestricted spin) object.
+            obasis, orb_alpha and orb_beta (in case of unrestricted spin) object.
     """
 
     # A) Compute AIM overlap operators
@@ -137,8 +137,6 @@ def wpart_slow_analysis(wpart, mol):
         # open-shell case
         dm_alpha = 0.5*(dm_full + dm_spin)
         dm_beta = 0.5*(dm_full - dm_spin)
-        dm_beta.iadd(dm_spin, -1.0)
-        dm_beta.iscale(0.5)
         bond_orders, valences, free_valences = compute_bond_orders_os(dm_alpha, dm_beta, operators)
     wpart.cache.dump('bond_orders', bond_orders, tags='o')
     wpart.cache.dump('valences', valences, tags='o')
@@ -152,12 +150,12 @@ def wpart_slow_analysis(wpart, mol):
     if log.do_medium:
         log('Computing Xs response.')
     if dm_spin is None:
-        if not hasattr(mol, 'exp_alpha'):
+        if not hasattr(mol, 'orb_alpha'):
             return
-        xs_response = 2 * compute_noninteracting_response(mol.exp_alpha, operators)
+        xs_response = 2 * compute_noninteracting_response(mol.orb_alpha, operators)
     else:
-        if not (hasattr(mol, 'exp_alpha') and hasattr(mol, 'exp_beta')):
+        if not (hasattr(mol, 'orb_alpha') and hasattr(mol, 'orb_beta')):
             return
-        xs_response = compute_noninteracting_response(mol.exp_alpha, operators)
-        xs_response += compute_noninteracting_response(mol.exp_beta, operators)
+        xs_response = compute_noninteracting_response(mol.orb_alpha, operators)
+        xs_response += compute_noninteracting_response(mol.orb_beta, operators)
     wpart.cache.dump('noninteracting_response', xs_response, tags='o')
