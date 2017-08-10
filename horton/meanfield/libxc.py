@@ -368,6 +368,10 @@ class RLibXCHybridGGA(RLibXCGGA):
         """Return the fraction of Hartree-Fock exchange for this functional."""
         return self._libxc_wrapper.get_hyb_exx_fraction()
 
+    def get_cam_coeffs(self):
+        """Return the range-separation parameters: omega, alpha and beta."""
+        return self._libxc_wrapper.get_hyb_cam_coefs()
+
 
 class ULibXCHybridGGA(ULibXCGGA):
     """Any hybrid GGA functional from LibXC for unrestricted wavefunctions."""
@@ -377,6 +381,10 @@ class ULibXCHybridGGA(ULibXCGGA):
     def get_exx_fraction(self):
         """Return the fraction of Hartree-Fock exchange for this functional."""
         return self._libxc_wrapper.get_hyb_exx_fraction()
+
+    def get_cam_coeffs(self):
+        """Return the range-separation parameters: omega, alpha and beta."""
+        return self._libxc_wrapper.get_hyb_cam_coefs()
 
 
 class RLibXCMGGA(LibXCEnergy):
@@ -552,6 +560,10 @@ class RLibXCHybridMGGA(RLibXCMGGA):
         """Return the fraction of Hartree-Fock exchange for this functional."""
         return self._libxc_wrapper.get_hyb_exx_fraction()
 
+    def get_cam_coeffs(self):
+        """Return the range-separation parameters: omega, alpha and beta."""
+        return self._libxc_wrapper.get_hyb_cam_coefs()
+
 
 class ULibXCHybridMGGA(ULibXCMGGA):
     """Any hybrid GGA functional from LibXC for unrestricted wavefunctions."""
@@ -561,3 +573,7 @@ class ULibXCHybridMGGA(ULibXCMGGA):
     def get_exx_fraction(self):
         """Return the fraction of Hartree-Fock exchange for this functional."""
         return self._libxc_wrapper.get_hyb_exx_fraction()
+
+    def get_cam_coeffs(self):
+        """Return the range-separation parameters: omega, alpha and beta."""
+        return self._libxc_wrapper.get_hyb_cam_coefs()

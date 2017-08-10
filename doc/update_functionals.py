@@ -93,12 +93,14 @@ def main():
     for key in keys:
         try:
             w = ULibXCWrapper(key)
-            print >> s, '**%s**' % key
-            print >> s, '   | %s' % w.name
-            for line in w.refs.split('\n'):
-                line = line.strip()
-                if len(line) > 0:
-                    print >> s, '   | *%s*' % line
+            print >> s, '**{}**: {}'.format(key, w.name)
+            print >> s
+            for ref, doi, biblio in w.refs:
+                print >> s, ' | {}'.format(ref),
+                if len(doi) > 0:
+                    print >> s, ' https://doi.org/{}'.format(doi)
+                else:
+                    print >> s
             print >> s
         except ValueError:
             # A bug in libxc ...

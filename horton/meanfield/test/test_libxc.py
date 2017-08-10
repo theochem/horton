@@ -20,6 +20,9 @@
 # --
 
 
+from nose.tools import assert_raises
+from nose.plugins.skip import SkipTest
+
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.meanfield.test.common import check_interpolation, \
     check_dot_hessian, check_dot_hessian_polynomial, check_dot_hessian_cache
@@ -234,6 +237,7 @@ def test_dot_hessian_o3lyp_cs():
 
 
 def test_dot_hessian_o3lyp_cs_polynomial():
+    raise SkipTest("We should use more robust tests for derivatives.")
     mol, olp, kin, na, ham = setup_o3lyp_cs()
     check_dot_hessian_polynomial(olp, kin+na, ham, [mol.orb_alpha], is_hf=False, extent=0.00001)
 
@@ -369,34 +373,85 @@ def test_cubic_interpolation_x_tpss_os():
     check_interpolation(ham, olp, kin, na, [mol.orb_alpha, mol.orb_beta])
 
 
-def test_hyb_gga_exx_fraction():
+def test_hyb_cam_exx_parameters():
     # xc_pbeh = The PBE0 functional
     t1 = RLibXCHybridGGA('xc_pbeh')
     assert t1.get_exx_fraction() == 0.25
+    assert t1.get_cam_coeffs() == (0.0, 0.25, 0.0)
     t2 = ULibXCHybridGGA('xc_pbeh')
     assert t2.get_exx_fraction() == 0.25
+    assert t2.get_cam_coeffs() == (0.0, 0.25, 0.0)
+    t1 = RLibXCHybridGGA('xc_wb97x')
+    assert t1.get_cam_coeffs() == (0.3, 1.0, -0.842294)
+    assert t1.get_exx_fraction() == 1.0
 
-
-def test_lda_c_vwn_present():
+def test_functionals_present():
     t1 = RLibXCLDA('c_vwn')     # The VWN 5 functional
     assert t1._libxc_wrapper.key == 'lda_c_vwn'
     t2 = RLibXCLDA('c_vwn_4')   # The VWN 4 functional
     assert t2._libxc_wrapper.key == 'lda_c_vwn_4'
+    t3 = RLibXCHybridGGA('xc_wb97x')
+    assert t3._libxc_wrapper.key == 'hyb_gga_xc_wb97x'
 
+
+ref_lda_x_1 = """\
+@article{Dirac1930_376,
+  title = {Note on Exchange Phenomena in the Thomas Atom},
+  author = {P. A. M. Dirac},\n  journal = {Math. Proc. Cambridge Philos. Soc.},
+  volume = {26},
+  issue = {03},
+  month = {7},
+  pages = {376},
+  numpages = {10},
+  year = {1930},
+  issn = {1469-8064},
+  doi = {10.1017/S0305004100016108},
+  URL = {http://journals.cambridge.org/article_S0305004100016108}
+}"""
+
+
+ref_lda_x_2 = """\
+@article{Bloch1929_545,
+  title = {Bemerkung zur Elektronentheorie des Ferromagnetismus und der elektrischen Leitf\xc3\xa4higkeit},
+  author = {F. Bloch},
+  journal = {Z. Phys.},
+  volume = {57},
+  number = {7-8},
+  pages = {545},
+  year = {1929},
+  issn = {0044-3328},
+  publisher = {Springer-Verlag},
+  language = {German},
+  doi = {10.1007/BF01340281},
+  url = {http://link.springer.com/article/10.1007\\%2FBF01340281}
+}"""
 
 def test_info():
     t = RLibXCWrapper('lda_x')
     assert t.key == 'lda_x'
-    assert t.name is not None
-    assert t.number is not None
-    assert t.kind is not None
-    assert t.family is not None
-    assert t.refs is not None
+    assert t.name == "Slater exchange"
+    assert isinstance(t.number, int)
+    assert isinstance(t.kind, int)
+    assert isinstance(t.family, int)
+    assert t.refs == [
+        ['P. A. M. Dirac, Math. Proc. Cambridge Philos. Soc. 26, 376 (1930)',
+         '10.1017/S0305004100016108',
+         ref_lda_x_1],
+        ['F. Bloch, Z. Phys. 57, 545 (1929)',
+         '10.1007/BF01340281',
+         ref_lda_x_2]]
 
 
-def test_hyb_mgga_exx_fraction():
+def test_info_nonexisting():
+    with assert_raises(ValueError):
+        t = RLibXCWrapper('lda_foobar')
+
+
+def test_hyb_cam_exx_parameters():
     # xc_tpssh = The TPSS functional with exact exchange
     t1 = RLibXCHybridMGGA('xc_tpssh')
     assert t1.get_exx_fraction() == 0.1
+    assert t1.get_cam_coeffs() == (0.0, 0.1, 0.0)
     t2 = ULibXCHybridMGGA('xc_tpssh')
     assert t2.get_exx_fraction() == 0.1
+    assert t2.get_cam_coeffs() == (0.0, 0.1, 0.0)
