@@ -137,8 +137,6 @@ def wpart_slow_analysis(wpart, mol):
         # open-shell case
         dm_alpha = 0.5*(dm_full + dm_spin)
         dm_beta = 0.5*(dm_full - dm_spin)
-        dm_beta.iadd(dm_spin, -1.0)
-        dm_beta.iscale(0.5)
         bond_orders, valences, free_valences = compute_bond_orders_os(dm_alpha, dm_beta, operators)
     wpart.cache.dump('bond_orders', bond_orders, tags='o')
     wpart.cache.dump('valences', valences, tags='o')
