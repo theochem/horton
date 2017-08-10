@@ -20,8 +20,6 @@
 # --
 
 
-import numpy as np
-
 from nose.plugins.attrib import attr
 from nose.tools import assert_raises
 

@@ -18,16 +18,15 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Evaluation of response functions'''
+"""Evaluation of response functions"""
 
 import numpy as np
-
 
 __all__ = ['compute_noninteracting_response']
 
 
 def compute_noninteracting_response(orb, operators, work=None):
-    '''Compute the non-interacting response matrix for a given orbital expansion
+    """Compute the non-interacting response matrix for a given orbital expansion
 
        **Arguments:**
 
@@ -48,7 +47,7 @@ def compute_noninteracting_response(orb, operators, work=None):
        orbitals are present at the fermi level. For example, in case of
        fractional occupations in DFT, this method does not give the correct
        non-interacting response matrix.
-    '''
+    """
     # Convert the operators to the orbital basis
     coeffs = orb.coeffs
     norb = orb.nfn
@@ -63,10 +62,11 @@ def compute_noninteracting_response(orb, operators, work=None):
     energies = orb.energies
     occupations = orb.occupations
     with np.errstate(invalid='ignore'):
-        prefacs = np.subtract.outer(occupations, occupations)/np.subtract.outer(energies, energies)
+        prefacs = np.subtract.outer(occupations, occupations) / np.subtract.outer(energies,
+                                                                                  energies)
     # Purge divisions by zero. If degeneracies occur at the fermi level, this
     # way of computing the noninteracting response matrix is not correct anyway.
-    #for iorb in xrange(norb):
+    # for iorb in xrange(norb):
     #    prefacs[iorb,iorb] = 0.0
     mask = occupations == occupations.reshape(-1, 1)
     mask |= energies == energies.reshape(-1, 1)
@@ -84,9 +84,9 @@ def compute_noninteracting_response(orb, operators, work=None):
     # while the complex conjugate corresponds to the upper diagonal of prefacs.)
     result = np.zeros((nop, nop), float)
     for iop0 in xrange(nop):
-        for iop1 in xrange(iop0+1):
+        for iop1 in xrange(iop0 + 1):
             # evaluate the sum over states expression
-            state_sum = (work[iop0]*work[iop1]*prefacs).sum()
+            state_sum = (work[iop0] * work[iop1] * prefacs).sum()
 
             # store the state sum
             result[iop0, iop1] = state_sum

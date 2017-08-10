@@ -31,9 +31,10 @@ def test_guess_hamcore_cs():
     olp = mol.obasis.compute_overlap()
     kin = mol.obasis.compute_kinetic()
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
-    guess_core_hamiltonian(olp, kin+na, mol.orb_alpha)
+    guess_core_hamiltonian(olp, kin + na, mol.orb_alpha)
     # just a few simple checks
-    assert abs(mol.orb_alpha.energies[0] - (-2.59083334E+01)) > 1e-5 # values from fchk must be overwritten
+    assert abs(mol.orb_alpha.energies[0] - (
+    -2.59083334E+01)) > 1e-5  # values from fchk must be overwritten
     assert (mol.orb_alpha.energies.argsort() == np.arange(mol.obasis.nbasis)).all()
 
 
@@ -43,10 +44,12 @@ def test_guess_hamcore_os():
     olp = mol.obasis.compute_overlap()
     kin = mol.obasis.compute_kinetic()
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
-    guess_core_hamiltonian(olp, kin+na, mol.orb_alpha, mol.orb_beta)
+    guess_core_hamiltonian(olp, kin + na, mol.orb_alpha, mol.orb_beta)
     # just a few simple checks
-    assert abs(mol.orb_alpha.energies[0] - (-2.76116635E+00)) > 1e-5 # values from fchk must be overwritten
-    assert abs(mol.orb_beta.energies[0] - (-2.76031162E+00)) > 1e-5 # values from fchk must be overwritten
+    assert abs(mol.orb_alpha.energies[0] - (
+    -2.76116635E+00)) > 1e-5  # values from fchk must be overwritten
+    assert abs(
+        mol.orb_beta.energies[0] - (-2.76031162E+00)) > 1e-5  # values from fchk must be overwritten
     assert (mol.orb_alpha.energies.argsort() == np.arange(mol.obasis.nbasis)).all()
     assert abs(mol.orb_alpha.energies - mol.orb_beta.energies).max() < 1e-10
     assert abs(mol.orb_alpha.coeffs - mol.orb_beta.coeffs).max() < 1e-10

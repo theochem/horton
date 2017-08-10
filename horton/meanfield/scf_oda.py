@@ -18,7 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Optimal Damping SCF algorithm'''
+"""Optimal Damping SCF algorithm"""
 
 import numpy as np
 
@@ -31,7 +31,7 @@ __all__ = ['ODASCFSolver', 'check_cubic']
 
 
 def find_min_cubic(f0, f1, g0, g1):
-    '''Find the minimum of a cubic polynomial in the range [0,1]
+    """Find the minimum of a cubic polynomial in the range [0,1]
 
        **Arguments:**
 
@@ -43,7 +43,7 @@ def find_min_cubic(f0, f1, g0, g1):
             The derivative at argument 0
        g1
             The derivative at argument 1
-    '''
+    """
     # coefficients of the polynomial a*x**3 + b*x**2 + c*x + d
     d = f0
     c = g0
@@ -59,7 +59,7 @@ def find_min_cubic(f0, f1, g0, g1):
             xb = (-b - np.sqrt(discriminant)) / (3 * a)
             # test the solutions
             for x in xa, xb:
-                if x >= 0 and x <= 1:
+                if 0 <= x <= 1:
                     # compute the curvature at the solution
                     curv = 6 * a * x + 2 * b
                     if curv > 0:
@@ -69,7 +69,7 @@ def find_min_cubic(f0, f1, g0, g1):
         elif b > 0:  # only b > 0 because b is also the curvature
             print('7:               quadratic')
             x = -0.5 * c / b
-            if x >= 0 and x <= 1:
+            if 0 <= x <= 1:
                 return x
 
     # If we get here, no solution was found in the interval. One of the
@@ -82,7 +82,7 @@ def find_min_cubic(f0, f1, g0, g1):
 
 
 def find_min_quadratic(g0, g1):
-    '''Find the minimum of a quadratic polynomial in the range [0,1]
+    """Find the minimum of a quadratic polynomial in the range [0,1]
 
        **Arguments:**
 
@@ -90,7 +90,7 @@ def find_min_quadratic(g0, g1):
             The derivative at argument 0
        g1
             The derivative at argument 1
-    '''
+    """
     if g0 > 0:
         if g1 < -g0:
             return 1.0
@@ -105,11 +105,11 @@ def find_min_quadratic(g0, g1):
 
 
 class ODASCFSolver(object):
-    '''Optimal damping SCF algorithm (with cubic interpolation)'''
+    """Optimal damping SCF algorithm (with cubic interpolation)"""
     kind = 'dm'  # input/output variable is the density matrix
 
     def __init__(self, threshold=1e-8, maxiter=128, skip_energy=False, debug=False):
-        '''
+        """
            **Optional arguments:**
 
            maxiter
@@ -125,14 +125,14 @@ class ODASCFSolver(object):
            debug
                 When set to True, for each mixing step, a plot is made to double
                 check the cubic interpolation.
-        '''
+        """
         self.maxiter = maxiter
         self.threshold = threshold
         self.skip_energy = skip_energy
         self.debug = debug
 
     def __call__(self, ham, overlap, occ_model, *dm0s):
-        '''Find a self-consistent set of density matrices.
+        """Find a self-consistent set of density matrices.
 
            **Arguments:**
 
@@ -148,7 +148,7 @@ class ODASCFSolver(object):
            dm1, dm2, ...
                 The initial density matrices. The number of dms must match
                 ham.ndm.
-        '''
+        """
         # Some type checking
         if ham.ndm != len(dm0s):
             raise TypeError(
@@ -168,8 +168,6 @@ class ODASCFSolver(object):
         fock1s = [np.zeros(overlap.shape) for i in xrange(ham.ndm)]
         dm1s = [np.zeros(overlap.shape) for i in xrange(ham.ndm)]
         orbs = [Orbitals(overlap.shape[0]) for i in xrange(ham.ndm)]
-        work = np.zeros(dm0s[0].shape)
-        commutator = np.zeros(dm0s[0].shape)
         converged = False
         counter = 0
         mixing = None
@@ -246,7 +244,7 @@ class ODASCFSolver(object):
             # counter
             counter += 1
 
-        print(ham) # TODO: add __repr__ to ham
+        print(ham)  # TODO: add __repr__ to ham
 
         if not converged:
             raise NoSCFConvergence
@@ -254,12 +252,12 @@ class ODASCFSolver(object):
         return counter
 
     def error(self, ham, lf, overlap, *dms):
-        '''See :py:func:`horton.meanfield.convergence.convergence_error_commutator`.'''
+        """See :py:func:`horton.meanfield.convergence.convergence_error_commutator`."""
         return convergence_error_commutator(ham, lf, overlap, *dms)
 
 
 def check_cubic(ham, dm0s, dm1s, e0, e1, g0, g1, do_plot=True):
-    '''Method to test the correctness of the cubic interpolation
+    """Method to test the correctness of the cubic interpolation
 
        **Arguments:**
 
@@ -297,7 +295,7 @@ def check_cubic(ham, dm0s, dm1s, e0, e1, g0, g1, do_plot=True):
 
        This function is mainly useful as a tool to double check the
        implementation of Fock matrices.
-    '''
+    """
     # coefficients of the polynomial a*x**3 + b*x**2 + c*x + d
     d = e0
     c = g0

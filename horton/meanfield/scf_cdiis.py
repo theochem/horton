@@ -18,24 +18,23 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Commutator DIIS SCF algorithm'''
-
+"""Commutator DIIS SCF algorithm"""
 
 import numpy as np
 
-from .scf_diis import DIISHistory, DIISSCFSolver
 from horton.quadprog import solve_safe
 from horton.utils import doc_inherit
-
+from .scf_diis import DIISHistory, DIISSCFSolver
 
 __all__ = ['CDIISSCFSolver']
 
 
 class CDIISSCFSolver(DIISSCFSolver):
-    '''The Commmutatator (or Pulay) DIIS SCF solver [pulay1980]_'''
+    """The Commutator (or Pulay) DIIS SCF solver [pulay1980]_"""
 
-    def __init__(self, threshold=1e-6, maxiter=128, nvector=6, skip_energy=False, prune_old_states=False):
-        '''
+    def __init__(self, threshold=1e-6, maxiter=128, nvector=6, skip_energy=False,
+                 prune_old_states=False):
+        """
            **Optional arguments:**
 
            maxiter
@@ -55,21 +54,22 @@ class CDIISSCFSolver(DIISSCFSolver):
                 coefficient is zero. Pruning starts at the oldest state and stops
                 as soon as a state is encountered with a non-zero coefficient. Even
                 if some newer states have a zero coefficient.
-        '''
-        DIISSCFSolver.__init__(self, CDIISHistory, threshold, maxiter, nvector, skip_energy, prune_old_states)
+        """
+        DIISSCFSolver.__init__(self, CDIISHistory, threshold, maxiter, nvector, skip_energy,
+                               prune_old_states)
         self.biblio.append(['pulay1980', 'the commutator DIIS SCF algorithm'])
 
 
 class CDIISHistory(DIISHistory):
-    '''A commutator DIIS history object that keeps track of previous SCF solutions
+    """A commutator DIIS history object that keeps track of previous SCF solutions
 
        This type of DIIS is also called Pulay DIIS.
-    '''
+    """
     name = 'CDIIS'
     need_energy = False
 
     def __init__(self, nvector, ndm, deriv_scale, overlap):
-        '''
+        """
            **Arguments:**
 
            nvector
@@ -84,30 +84,30 @@ class CDIISHistory(DIISHistory):
 
            overlap
                 The overlap matrix.
-        '''
+        """
         self.cdots = np.empty((nvector, nvector))
         self.cdots.fill(np.nan)
         DIISHistory.__init__(self, nvector, ndm, deriv_scale, overlap, [self.cdots])
 
     def _complete_cdots_matrix(self):
-        '''Complete the matrix of dot products between commutators
+        """Complete the matrix of dot products between commutators
 
            Even after multiple additions, this routine will fill up all the
            missing dot products in self.cdots.
-        '''
-        for i0 in xrange(self.nused-1, -1, -1):
+        """
+        for i0 in xrange(self.nused - 1, -1, -1):
             state0 = self.stack[i0]
-            self.cdots[i0,i0] = state0.normsq
+            self.cdots[i0, i0] = state0.normsq
             # Compute off-diagonal coefficients
             for i1 in xrange(i0):
-                if np.isfinite(self.cdots[i0,i1]):
+                if np.isfinite(self.cdots[i0, i1]):
                     return
                 state1 = self.stack[i1]
                 cdot = 0.0
                 for j in xrange(self.ndm):
                     cdot += np.einsum('ab,ab', state0.commutators[j], state1.commutators[j])
-                self.cdots[i0,i1] = cdot
-                self.cdots[i1,i0] = cdot
+                self.cdots[i0, i1] = cdot
+                self.cdots[i1, i0] = cdot
 
     @doc_inherit(DIISHistory)
     def solve(self, dms_output, focks_output):
@@ -115,18 +115,18 @@ class CDIISHistory(DIISHistory):
         assert self.nused >= 2
         # Fill in the missing commutators
         self._complete_cdots_matrix()
-        coeffs = solve_cdiis(self.cdots[:self.nused,:self.nused])
+        coeffs = solve_cdiis(self.cdots[:self.nused, :self.nused])
         # get a condition number
-        absevals = abs(np.linalg.eigvalsh(self.cdots[:self.nused,:self.nused]))
+        absevals = abs(np.linalg.eigvalsh(self.cdots[:self.nused, :self.nused]))
         with np.errstate(divide='ignore'):
-            cn = absevals.max()/absevals.min()
+            cn = absevals.max() / absevals.min()
         # assign extrapolated fock
         error = self._build_combinations(coeffs, dms_output, focks_output)
         return None, coeffs, cn, 'C', error
 
 
 def solve_cdiis(a):
-    r'''Solve the linear equations found in the cdiis method
+    r"""Solve the linear equations found in the cdiis method
 
        The following is minimized:
 
@@ -139,15 +139,15 @@ def solve_cdiis(a):
 
        a
             The matrix a, an array of size (N,N).
-    '''
+    """
     n = len(a)
     assert a.shape == (n, n)
     assert (a == a.T).all()
-    a2 = np.zeros((n+1, n+1))
-    a2[:n,:n] = a
-    a2[n,:n] = 1
-    a2[:n,n] = 1
-    b2 = np.zeros(n+1)
+    a2 = np.zeros((n + 1, n + 1))
+    a2[:n, :n] = a
+    a2[n, :n] = 1
+    a2[:n, n] = 1
+    b2 = np.zeros(n + 1)
     b2[n] = 1
     x2 = solve_safe(a2, b2)
     return x2[:n]

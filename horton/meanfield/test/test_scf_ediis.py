@@ -21,7 +21,6 @@
 
 
 import numpy as np
-
 from nose.plugins.attrib import attr
 from nose.tools import assert_raises
 
@@ -122,7 +121,7 @@ def test_interpol_lih_os_hf():
 
 
 def check_interpol_hf(ham, orbs, olp, kin, na, occ_model):
-    guess_core_hamiltonian(olp, kin+na, *orbs)
+    guess_core_hamiltonian(olp, kin + na, *orbs)
     dms = [exp.to_dm() for exp in orbs]
     scf_solver = EDIISSCFSolver(maxiter=4)
     try:
@@ -139,9 +138,9 @@ def check_interpol_hf(ham, orbs, olp, kin, na, occ_model):
     energies_approx = np.zeros(npt)
     energies_hf = np.zeros(npt)
     for ipt in xrange(npt):
-        x[0] = 1-alphas[ipt]
+        x[0] = 1 - alphas[ipt]
         x[1] = alphas[ipt]
-        energies_approx[ipt] = np.dot(x, 0.5*np.dot(b, x)-e)
+        energies_approx[ipt] = np.dot(x, 0.5 * np.dot(b, x) - e)
         # compute the hf energy
         scf_solver._history._build_combinations(x, dms, None)
         ham.reset(*dms)

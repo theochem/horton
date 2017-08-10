@@ -21,9 +21,8 @@
 
 
 import numpy as np
-
-from nose.tools import assert_raises
 from nose.plugins.attrib import attr
+from nose.tools import assert_raises
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from .common import check_hf_cs_hf, check_lih_os_hf, \
@@ -78,7 +77,7 @@ def test_methyl_os_tpss():
 
 
 def test_find_min_cubic():
-    from .. scf_oda import find_min_cubic
+    from ..scf_oda import find_min_cubic
     assert find_min_cubic(0.2, 0.5, 3.0, -0.7) == 0.0
     assert abs(find_min_cubic(2.1, -5.2, -3.0, 2.8) - 0.939645667705) < 1e-8
     assert abs(find_min_cubic(0.0, 1.0, -0.1, -0.1) - 0.0153883154024) < 1e-8
@@ -91,7 +90,7 @@ def test_find_min_cubic():
 
 
 def test_find_min_quadratic():
-    from .. scf_oda import find_min_quadratic
+    from ..scf_oda import find_min_quadratic
     assert find_min_quadratic(0.0, -0.7) == 1.0
     assert abs(find_min_quadratic(-3.0, 2.8) - 0.51724137931) < 1e-8
     assert abs(find_min_quadratic(-0.2, 0.1) - 0.666666666667) < 1e-8
@@ -114,24 +113,23 @@ def test_aufbau_spin():
     terms = [
         UTwoIndexTerm(kin, 'kin'),
         UDirectTerm(er, 'hartree'),
-        UExchangeTerm(er,'x_hf'),
+        UExchangeTerm(er, 'x_hf'),
         UTwoIndexTerm(na, 'ne'),
     ]
     ham = UEffHam(terms)
 
-    # Construct an initial state with instable spin polarization
-    guess_core_hamiltonian(olp, kin+na, mol.orb_alpha, mol.orb_beta)
+    # Construct an initial state with unstable spin polarization
+    guess_core_hamiltonian(olp, kin + na, mol.orb_alpha, mol.orb_beta)
     mol.orb_alpha.occupations[:3] = 1
     mol.orb_beta.occupations[:] = 0
     dms = [mol.orb_alpha.to_dm(), mol.orb_beta.to_dm()]
 
     # converge scf and check the spins
-    scf_solver = ODASCFSolver(1e-6) # On some machines, 1e-8 does not work.
+    scf_solver = ODASCFSolver(1e-6)  # On some machines, 1e-8 does not work.
     scf_solver(ham, olp, occ_model, *dms)
     assert scf_solver.error(ham, olp, *dms) < scf_solver.threshold
     assert abs(np.einsum('ab,ba', olp, dms[0]) - 2) < 1e-10
     assert abs(np.einsum('ab,ba', olp, dms[1]) - 1) < 1e-10
-
 
 
 def test_check_dm():
@@ -143,14 +141,14 @@ def test_check_dm():
 
     olp = np.identity(2)
 
-    op1 = np.dot(v*[-0.1, 0.5], v.T)
+    op1 = np.dot(v * [-0.1, 0.5], v.T)
     with assert_raises(ValueError):
         check_dm(op1, olp)
-    op1 = np.dot(v*[0.1, 1.5], v.T)
+    op1 = np.dot(v * [0.1, 1.5], v.T)
     with assert_raises(ValueError):
         check_dm(op1, olp)
-    op1 = np.dot(v*[-0.1, 1.5], v.T)
+    op1 = np.dot(v * [-0.1, 1.5], v.T)
     with assert_raises(ValueError):
         check_dm(op1, olp)
-    op1 = np.dot(v*[0.1, 0.5], v.T)
+    op1 = np.dot(v * [0.1, 0.5], v.T)
     check_dm(op1, olp)

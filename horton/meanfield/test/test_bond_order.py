@@ -30,15 +30,16 @@ def check_bond_orders(fn):
     if dm_full is not None:
         dm_spin = mol.get_dm_spin()
         if dm_spin is not None:
-            dm_alpha = 0.5*(dm_full + dm_spin)
-            dm_beta = 0.5*(dm_full - dm_spin)
-            bond_orders, valences, free_valences = compute_bond_orders_os(dm_alpha, dm_beta, operators)
+            dm_alpha = 0.5 * (dm_full + dm_spin)
+            dm_beta = 0.5 * (dm_full - dm_spin)
+            bond_orders, valences, free_valences = compute_bond_orders_os(dm_alpha, dm_beta,
+                                                                          operators)
         else:
-            dm_alpha = 0.5*dm_full
+            dm_alpha = 0.5 * dm_full
             bond_orders, valences, free_valences = compute_bond_orders_cs(dm_alpha, operators)
     else:
         raise NotImplementedError
-    assert abs(bond_orders.sum() - 2*mol.numbers.sum()) < 1e-3
+    assert abs(bond_orders.sum() - 2 * mol.numbers.sum()) < 1e-3
     assert bond_orders.shape == (mol.natom, mol.natom)
     assert valences.shape == (mol.natom,)
     assert free_valences.shape == (mol.natom,)

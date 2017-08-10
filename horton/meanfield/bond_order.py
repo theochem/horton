@@ -18,10 +18,10 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-r'''Generic implementation of bond orders for mean-field wavefunctions
+r"""Generic implementation of bond orders for mean-field wavefunctions
 
-   In the context bond orders and self-electron delocatization indices (SEDI's)
-   are always one an the same thing. For two AIM overlap perators, :math:`S_A`
+   In the context bond orders and self-electron delocalization indices (SEDI's)
+   are always one an the same thing. For two AIM overlap operators, :math:`S_A`
    and :math:`S_B`, the bond order is defined as:
 
    .. math::
@@ -42,17 +42,15 @@ r'''Generic implementation of bond orders for mean-field wavefunctions
 
    .. math::
        F_A = V_A - \sum_{B \neq A} \text{BO}_{AB}
-'''
-
+"""
 
 import numpy as np
-
 
 __all__ = ['compute_bond_orders_cs', 'compute_bond_orders_os']
 
 
 def compute_bond_orders_cs(dm_alpha, operators):
-    '''Compute bond orders, valences and free valences (closed-shell case)
+    """Compute bond orders, valences and free valences (closed-shell case)
 
        **Arguments:**
 
@@ -72,7 +70,7 @@ def compute_bond_orders_cs(dm_alpha, operators):
 
        free_valences
             A vector with atomic free valences
-    '''
+    """
     bond_orders, populations = _compute_bond_orders_low(dm_alpha, operators)
     valences = _compute_valences_low(dm_alpha, populations, operators)
     bond_orders *= 2
@@ -83,7 +81,7 @@ def compute_bond_orders_cs(dm_alpha, operators):
 
 
 def compute_bond_orders_os(dm_alpha, dm_beta, operators):
-    '''Compute bond orders, valences and free valences (open-shell case)
+    """Compute bond orders, valences and free valences (open-shell case)
 
        **Arguments:**
 
@@ -103,18 +101,18 @@ def compute_bond_orders_os(dm_alpha, dm_beta, operators):
 
        free_valences
             A vector with atomic free valences
-    '''
+    """
     bond_orders_a, populations_a = _compute_bond_orders_low(dm_alpha, operators)
     bond_orders_b, populations_b = _compute_bond_orders_low(dm_beta, operators)
     bond_orders = bond_orders_a + bond_orders_b
     populations = populations_a + populations_b
-    valences = _compute_valences_low(dm_alpha + dm_beta, 2*populations, operators)/2
+    valences = _compute_valences_low(dm_alpha + dm_beta, 2 * populations, operators) / 2
     free_valences = valences - (bond_orders.sum(axis=0) - np.diag(bond_orders))
     return bond_orders, valences, free_valences
 
 
 def _compute_bond_orders_low(dm, operators):
-    '''Compute bond orders and populations
+    """Compute bond orders and populations
 
        **Arguments:**
 
@@ -131,7 +129,7 @@ def _compute_bond_orders_low(dm, operators):
 
        populations
             A vector with atomic populations
-    '''
+    """
     n = len(operators)
     bond_orders = np.zeros((n, n), float)
     populations = np.zeros(n, float)
@@ -143,16 +141,16 @@ def _compute_bond_orders_low(dm, operators):
         # precompute a dot product
         tmp = np.dot(dm, operators[i0])
         precomputed.append(tmp)
-        for i1 in xrange(i0+1):
+        for i1 in xrange(i0 + 1):
             # compute bond orders
-            bond_orders[i0, i1] = 2*np.einsum('ab,ba', precomputed[i0], precomputed[i1])
+            bond_orders[i0, i1] = 2 * np.einsum('ab,ba', precomputed[i0], precomputed[i1])
             bond_orders[i1, i0] = bond_orders[i0, i1]
 
     return bond_orders, populations
 
 
 def _compute_valences_low(dm, populations, operators):
-    '''Computes the valences
+    """Computes the valences
 
        **Arguments:**
 
@@ -165,11 +163,11 @@ def _compute_valences_low(dm, populations, operators):
 
        operators
             A list of one-body operators.
-    '''
+    """
     n = len(operators)
     valences = np.zeros(n, float)
     for i in xrange(n):
         # valence for atom i
         tmp = np.dot(dm, operators[i])
-        valences[i] = 2*populations[i] - 2*np.einsum('ab,ba', tmp, tmp)
+        valences[i] = 2 * populations[i] - 2 * np.einsum('ab,ba', tmp, tmp)
     return valences

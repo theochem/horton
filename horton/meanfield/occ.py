@@ -20,14 +20,12 @@
 # --
 """Occupation number models"""
 
-
 import numpy as np
 
+from horton.constants import boltzmann
 from horton.exceptions import ElectronCountError
 from horton.quadprog import find_1d_root
-from horton.constants import boltzmann
 from horton.utils import doc_inherit
-
 
 __all__ = [
     'FixedOccModel', 'AufbauOccModel', 'AufbauSpinOccModel', 'FermiOccModel',
@@ -35,20 +33,20 @@ __all__ = [
 
 
 class OccModel(object):
-    '''Base class for the occupation models'''
+    """Base class for the occupation models"""
 
     def assign(self, *orbs):
-        '''Assign occupation numbers to the Orbitals objects
+        """Assign occupation numbers to the Orbitals objects
 
            **Arguments:**
 
            orb_alpha, orb_beta, ...
                 Orbitals objects
-        '''
+        """
         raise NotImplementedError
 
     def check_dms(self, overlap, *dms, **kwargs):
-        '''Test if the given density matrices contain the right number of electrons
+        """Test if the given density matrices contain the right number of electrons
 
            **Arguments:**
 
@@ -62,7 +60,7 @@ class OccModel(object):
 
            eps (default=1e-4)
                 The allowed deviation.
-        '''
+        """
         raise NotImplementedError
 
 
@@ -90,20 +88,20 @@ class FixedOccModel(OccModel):
 
 
 class AufbauOccModel(OccModel):
-    '''The standard Aufbau occupation number model.
+    """The standard Aufbau occupation number model.
 
        This model just fills up all the lowest lying orbitals. When the total
        number of electrons in one channel is fractional, the fractional electron
        is put in the HOMO orbital.
-    '''
+    """
 
     def __init__(self, *noccs):
-        '''
+        """
            **Arguments:**
 
            nalpha, nbeta, ...
                 The number of electrons in each channel.
-        '''
+        """
         for nocc in noccs:
             if nocc < 0:
                 raise ElectronCountError('Negative number of electrons is not allowed.')
@@ -118,7 +116,8 @@ class AufbauOccModel(OccModel):
             raise TypeError('Expected %i Orbitals objects, got %i.' % (len(self.nocc), len(orbs)))
         for orb, nocc in zip(orbs, self.noccs):
             if orb.nfn < nocc:
-                raise ElectronCountError('The number of orbitals must not be lower than the number of alpha or beta electrons.')
+                raise ElectronCountError(
+                    'The number of orbitals must not be lower than the number of alpha or beta electrons.')
             # It is assumed that the orbitals are sorted from low to high energy.
             if nocc == int(nocc):
                 orb.occupations[:nocc] = 1.0
@@ -140,14 +139,15 @@ class AufbauOccModel(OccModel):
 
 
 class AufbauSpinOccModel(OccModel):
-    '''This Aufbau model only applies to unrestricted wavefunctions'''
+    """This Aufbau model only applies to unrestricted wavefunctions"""
+
     def __init__(self, nel):
-        '''
+        """
            **Arguments:**
 
            nel
                 The total number of electrons (alpha + beta)
-        '''
+        """
         if nel <= 0:
             raise ElectronCountError('The number of electron must be positive.')
         self.nel = nel
@@ -175,9 +175,10 @@ class AufbauSpinOccModel(OccModel):
 
 
 class FermiOccModel(AufbauOccModel):
-    '''Fermi smearing electron occupation model'''
+    """Fermi smearing electron occupation model"""
+
     def __init__(self, *noccs, **kwargs):
-        r'''
+        r"""
            **Arguments:**
 
            nalpha, nbeta, ...
@@ -209,7 +210,7 @@ class FermiOccModel(AufbauOccModel):
 
            where :math:`n_\text{occ}` can be set per (spin) channel. This is
            only a part of the methodology presented in [rabuck1999]_.
-        '''
+        """
         temperature = kwargs.pop('temperature', 300)
         eps = kwargs.pop('eps', 1e-8)
         if len(kwargs) > 0:
@@ -221,28 +222,29 @@ class FermiOccModel(AufbauOccModel):
         self.temperature = float(temperature)
         self.eps = eps
         AufbauOccModel.__init__(self, *noccs)
-        self.biblio.append(['rabuck1999', 'the Fermi broading method to assign orbital occupations'])
+        self.biblio.append(
+            ['rabuck1999', 'the Fermi broading method to assign orbital occupations'])
 
     @doc_inherit(OccModel)
     def assign(self, *orbs):
-        beta = 1.0/self.temperature/boltzmann
+        beta = 1.0 / self.temperature / boltzmann
         for orb, nocc in zip(orbs, self.noccs):
             def get_occ(mu):
                 occ = np.zeros(orb.nfn)
                 mask = orb.energies < mu
-                e = np.exp(beta*(orb.energies[mask] - mu))
-                occ[mask] = 1.0/(e + 1.0)
+                e = np.exp(beta * (orb.energies[mask] - mu))
+                occ[mask] = 1.0 / (e + 1.0)
                 mask = ~mask
-                e = np.exp(-beta*(orb.energies[mask] - mu))
-                occ[mask] = e/(1.0 + e)
+                e = np.exp(-beta * (orb.energies[mask] - mu))
+                occ[mask] = e / (1.0 + e)
                 return occ
 
             def error(mu):
                 return nocc - get_occ(mu).sum()
 
-            mu0 = orb.energies[orb.nfn/2]
+            mu0 = orb.energies[orb.nfn / 2]
             error0 = error(mu0)
-            delta = 0.1*(1 - 2*(error0 < 0))
+            delta = 0.1 * (1 - 2 * (error0 < 0))
             for i in xrange(100):
                 mu1 = mu0 + delta
                 error1 = error(mu1)

@@ -20,11 +20,9 @@
 # --
 """Base classes for energy terms and other observables of the wavefunction"""
 
-
 import numpy as np
 
 from horton.utils import doc_inherit
-
 
 __all__ = [
     'compute_dm_full',
@@ -205,8 +203,8 @@ def contract_direct(op, dm):
     """
     if op.ndim == 3:
         # Cholesky decomposition
-        tmp = np.tensordot(op, dm, axes=([(1,2),(1,0)]))
-        return np.tensordot(op, tmp, [0,0])
+        tmp = np.tensordot(op, dm, axes=([(1, 2), (1, 0)]))
+        return np.tensordot(op, tmp, [0, 0])
     elif op.ndim == 4:
         # Normal case
         return np.einsum('abcd,bd->ac', op, dm)
@@ -353,8 +351,8 @@ def contract_exchange(op, dm):
     """
     if op.ndim == 3:
         # Cholesky decomposition
-        tmp = np.tensordot(op, dm, axes=([1,1]))
-        return np.tensordot(op, tmp, ([0,2],[0,2]))
+        tmp = np.tensordot(op, dm, axes=([1, 1]))
+        return np.tensordot(op, tmp, ([0, 2], [0, 2]))
     elif op.ndim == 4:
         return np.einsum('abcd,cb->ad', op, dm)
     else:
@@ -406,12 +404,12 @@ class RExchangeTerm(Observable):
     def add_fock(self, cache, fock_alpha):
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
-        fock_alpha -= self.fraction*exchange_alpha
+        fock_alpha -= self.fraction * exchange_alpha
 
     @doc_inherit(Observable)
     def add_dot_hessian(self, cache, output_alpha):
         delta_dm_alpha = cache.load('delta_dm_alpha')
-        output_alpha -= (0.5*self.fraction)*contract_exchange(self.op_alpha, delta_dm_alpha)
+        output_alpha -= (0.5 * self.fraction) * contract_exchange(self.op_alpha, delta_dm_alpha)
 
 
 class UExchangeTerm(Observable):
@@ -455,7 +453,7 @@ class UExchangeTerm(Observable):
         # beta
         dm_beta = cache['dm_beta']
         exchange_beta, new = cache.load('op_%s_beta' % self.label,
-                                         alloc=dm_beta.shape)
+                                        alloc=dm_beta.shape)
         if new:
             exchange_beta[:] = contract_exchange(self.op_beta, dm_beta)
 
@@ -466,20 +464,20 @@ class UExchangeTerm(Observable):
         exchange_beta = cache['op_%s_beta' % self.label]
         dm_alpha = cache['dm_alpha']
         dm_beta = cache['dm_beta']
-        return (-0.5*self.fraction)*np.einsum('ab,ba', exchange_alpha, dm_alpha) + \
-               (-0.5*self.fraction)*np.einsum('ab,ba', exchange_beta, dm_beta)
+        return (-0.5 * self.fraction) * np.einsum('ab,ba', exchange_alpha, dm_alpha) + \
+               (-0.5 * self.fraction) * np.einsum('ab,ba', exchange_beta, dm_beta)
 
     @doc_inherit(Observable)
     def add_fock(self, cache, fock_alpha, fock_beta):
         self._update_exchange(cache)
         exchange_alpha = cache['op_%s_alpha' % self.label]
-        fock_alpha -= self.fraction*exchange_alpha
+        fock_alpha -= self.fraction * exchange_alpha
         exchange_beta = cache['op_%s_beta' % self.label]
-        fock_beta -= self.fraction*exchange_beta
+        fock_beta -= self.fraction * exchange_beta
 
     @doc_inherit(Observable)
     def add_dot_hessian(self, cache, output_alpha, output_beta):
         delta_dm_alpha = cache.load('delta_dm_alpha')
-        output_alpha -= self.fraction*contract_exchange(self.op_alpha, delta_dm_alpha)
+        output_alpha -= self.fraction * contract_exchange(self.op_alpha, delta_dm_alpha)
         delta_dm_beta = cache.load('delta_dm_beta')
-        output_beta -= self.fraction*contract_exchange(self.op_beta, delta_dm_beta)
+        output_beta -= self.fraction * contract_exchange(self.op_beta, delta_dm_beta)

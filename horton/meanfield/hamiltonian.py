@@ -20,10 +20,8 @@
 # --
 """Mean-field DFT/HF Hamiltonian data structures"""
 
-
 from horton.cache import Cache
 from horton.utils import doc_inherit
-
 
 __all__ = [
     'REffHam', 'UEffHam'
@@ -169,7 +167,7 @@ class EffHam(object):
             A list of output TwoIndex objects in which the dot product of the energy
             Hessian with the delta density matrices is stored.
 
-        Note that the result must be multiplied by the feactor deriv_scale squared in
+        Note that the result must be multiplied by the factor deriv_scale squared in
         order to obtain the proper second order derivative. This is due to conventions
         related to the definition of the Fock matrix.
         """
@@ -198,7 +196,8 @@ class REffHam(EffHam):
     def reset_delta(self, in_delta_dm_alpha):
         self.cache.clear(tags='d')
         # Take a copy of the input alpha delta density matrix in the cache.
-        delta_dm_alpha = self.cache.load('delta_dm_alpha', alloc=in_delta_dm_alpha.shape, tags='d')[0]
+        delta_dm_alpha = self.cache.load('delta_dm_alpha', alloc=in_delta_dm_alpha.shape, tags='d')[
+            0]
         delta_dm_alpha[:] = in_delta_dm_alpha
 
     @doc_inherit(EffHam)
@@ -228,7 +227,8 @@ class UEffHam(EffHam):
     def reset_delta(self, in_delta_dm_alpha, in_delta_dm_beta):
         self.cache.clear(tags='d')
         # Take a copy of the input alpha and beta delta density matrix in the cache.
-        delta_dm_alpha = self.cache.load('delta_dm_alpha', alloc=in_delta_dm_alpha.shape, tags='d')[0]
+        delta_dm_alpha = self.cache.load('delta_dm_alpha', alloc=in_delta_dm_alpha.shape, tags='d')[
+            0]
         delta_dm_alpha[:] = in_delta_dm_alpha
         delta_dm_beta = self.cache.load('delta_dm_beta', alloc=in_delta_dm_beta.shape, tags='d')[0]
         delta_dm_beta[:] = in_delta_dm_beta

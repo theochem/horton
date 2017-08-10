@@ -20,12 +20,10 @@
 # --
 """Interface to LDA, GGA and hybrid functionals from LibXC"""
 
-
 from horton.utils import doc_inherit
+from .cext import RLibXCWrapper, ULibXCWrapper
 from .gridgroup import GridObservable, DF_LEVEL_LDA, \
     DF_LEVEL_GGA, DF_LEVEL_MGGA
-from .cext import RLibXCWrapper, ULibXCWrapper
-
 
 __all__ = [
     'LibXCEnergy',
@@ -56,7 +54,8 @@ class LibXCEnergy(GridObservable):
         self._name = name
         self._libxc_wrapper = self.LibXCWrapper(name)
         GridObservable.__init__(self, 'libxc_%s' % name)
-        self.biblio.append(['marques2012', 'using LibXC, the library of exchange and correlation functionals'])
+        self.biblio.append(
+            ['marques2012', 'using LibXC, the library of exchange and correlation functionals'])
 
 
 class RLibXCLDA(LibXCEnergy):
@@ -101,7 +100,7 @@ class RLibXCLDA(LibXCEnergy):
         kernel, new = cache.load('kernel_libxc_%s_alpha' % self._name, alloc=grid.size)
         if new:
             self._libxc_wrapper.compute_lda_fxc(cache['rho_full'], kernel)
-        dots_alpha[:, 0] += kernel*cache['delta_rho_full']
+        dots_alpha[:, 0] += kernel * cache['delta_rho_full']
 
 
 class ULibXCLDA(LibXCEnergy):
@@ -163,7 +162,7 @@ class RLibXCGGA(LibXCEnergy):
         return grid.integrate(edens, rho_full)
 
     def _compute_dpot_spot(self, cache, grid):
-        """Helper function to compute potential resutls with LibXC.
+        """Helper function to compute potential results with LibXC.
 
         This is needed for add_pot and add_dot.
 
@@ -199,7 +198,7 @@ class RLibXCGGA(LibXCEnergy):
         if new:
             my_gga_pot_alpha[:, 0] = dpot
             grad_rho = cache['grad_rho_full']
-            my_gga_pot_alpha[:, 1:4] = grad_rho*spot.reshape(-1, 1)
+            my_gga_pot_alpha[:, 1:4] = grad_rho * spot.reshape(-1, 1)
             my_gga_pot_alpha[:, 1:4] *= 2
 
         # Add to the output argument
@@ -263,14 +262,14 @@ class RLibXCGGA(LibXCEnergy):
             delta_rho = cache['delta_rho_full']
             delta_grad_rho = cache['delta_grad_rho_full']
             delta_sigma = cache['delta_sigma_full']
-            my_gga_dot_alpha[:, 0] = kernel_dd*delta_rho + kernel_ds*delta_sigma
-            my_gga_dot_alpha[:, 1:4] = 2*(kernel_ds*delta_rho +
-                                          kernel_ss*delta_sigma).reshape(-1, 1) * \
+            my_gga_dot_alpha[:, 0] = kernel_dd * delta_rho + kernel_ds * delta_sigma
+            my_gga_dot_alpha[:, 1:4] = 2 * (kernel_ds * delta_rho +
+                                            kernel_ss * delta_sigma).reshape(-1, 1) * \
                                        grad_rho
 
             # the easy-to-forget contribution
             spot = self._compute_dpot_spot(cache, grid)[1]
-            my_gga_dot_alpha[:, 1:4] += 2*spot.reshape(-1, 1)*delta_grad_rho
+            my_gga_dot_alpha[:, 1:4] += 2 * spot.reshape(-1, 1) * delta_grad_rho
 
         # Add to the output argument
         dots_alpha[:, :4] += my_gga_dot_alpha
@@ -334,15 +333,15 @@ class ULibXCGGA(LibXCEnergy):
                                            alloc=(grid.size, 4))
         if new:
             my_gga_pot_alpha[:, 0] = dpot_both[:, 0]
-            my_gga_pot_alpha[:, 1:4] = (2*spot_all[:, 0].reshape(-1, 1))*grad_alpha
-            my_gga_pot_alpha[:, 1:4] += (spot_all[:, 1].reshape(-1, 1))*grad_beta
+            my_gga_pot_alpha[:, 1:4] = (2 * spot_all[:, 0].reshape(-1, 1)) * grad_alpha
+            my_gga_pot_alpha[:, 1:4] += (spot_all[:, 1].reshape(-1, 1)) * grad_beta
 
         my_gga_pot_beta, new = cache.load('gga_pot_libxc_%s_beta' % self._name,
                                           alloc=(grid.size, 4))
         if new:
             my_gga_pot_beta[:, 0] = dpot_both[:, 1]
-            my_gga_pot_beta[:, 1:4] = (2*spot_all[:, 2].reshape(-1, 1))*grad_beta
-            my_gga_pot_beta[:, 1:4] += (spot_all[:, 1].reshape(-1, 1))*grad_alpha
+            my_gga_pot_beta[:, 1:4] = (2 * spot_all[:, 2].reshape(-1, 1)) * grad_beta
+            my_gga_pot_beta[:, 1:4] += (spot_all[:, 1].reshape(-1, 1)) * grad_alpha
 
         pots_alpha[:, :4] += my_gga_pot_alpha
         pots_beta[:, :4] += my_gga_pot_beta
@@ -433,7 +432,7 @@ class RLibXCMGGA(LibXCEnergy):
         if new:
             my_mgga_pot_alpha[:, 0] = dpot
             grad_rho = cache['grad_rho_full']
-            my_mgga_pot_alpha[:, 1:4] = grad_rho*spot.reshape(-1, 1)
+            my_mgga_pot_alpha[:, 1:4] = grad_rho * spot.reshape(-1, 1)
             my_mgga_pot_alpha[:, 1:4] *= 2
             my_mgga_pot_alpha[:, 4] = lpot
             my_mgga_pot_alpha[:, 5] = tpot
@@ -518,8 +517,8 @@ class ULibXCMGGA(LibXCEnergy):
                                             alloc=(grid.size, 6))
         if new:
             my_mgga_pot_alpha[:, 0] = dpot_both[:, 0]
-            my_mgga_pot_alpha[:, 1:4] = (2*spot_all[:, 0].reshape(-1, 1))*grad_alpha
-            my_mgga_pot_alpha[:, 1:4] += (spot_all[:, 1].reshape(-1, 1))*grad_beta
+            my_mgga_pot_alpha[:, 1:4] = (2 * spot_all[:, 0].reshape(-1, 1)) * grad_alpha
+            my_mgga_pot_alpha[:, 1:4] += (spot_all[:, 1].reshape(-1, 1)) * grad_beta
             my_mgga_pot_alpha[:, 4] = lpot_both[:, 0]
             my_mgga_pot_alpha[:, 5] = tpot_both[:, 0]
 
@@ -527,8 +526,8 @@ class ULibXCMGGA(LibXCEnergy):
                                            alloc=(grid.size, 6))
         if new:
             my_mgga_pot_beta[:, 0] = dpot_both[:, 1]
-            my_mgga_pot_beta[:, 1:4] = (2*spot_all[:, 2].reshape(-1, 1))*grad_beta
-            my_mgga_pot_beta[:, 1:4] += (spot_all[:, 1].reshape(-1, 1))*grad_alpha
+            my_mgga_pot_beta[:, 1:4] = (2 * spot_all[:, 2].reshape(-1, 1)) * grad_beta
+            my_mgga_pot_beta[:, 1:4] += (spot_all[:, 1].reshape(-1, 1)) * grad_alpha
             my_mgga_pot_beta[:, 4] = lpot_both[:, 1]
             my_mgga_pot_beta[:, 5] = tpot_both[:, 1]
 

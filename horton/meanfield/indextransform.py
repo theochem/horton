@@ -20,11 +20,11 @@
 # --
 """Utility functions for orbital modifications."""
 
-
 import numpy as np
 
 __all__ = ['four_index_transform', 'transform_integrals', 'split_core_active',
-           'four_index_transform_cholesky', 'transform_integrals_cholesky', 'split_core_active_cholesky']
+           'four_index_transform_cholesky', 'transform_integrals_cholesky',
+           'split_core_active_cholesky']
 
 
 def _parse_four_index_transform_orbs(orb0, orb1, orb2, orb3):
@@ -61,7 +61,8 @@ def _parse_four_index_transform_orbs(orb0, orb1, orb2, orb3):
         orb3 = orb2
     elif orb1 is None or orb2 is None or orb3 is None:
         # the only other allowed case is no symmetry.
-        raise TypeError('It is not clear how to interpret the optional arguments orb1, orb2 and orb3.')
+        raise TypeError(
+            'It is not clear how to interpret the optional arguments orb1, orb2 and orb3.')
     return orb0, orb1, orb2, orb3
 
 
@@ -70,7 +71,7 @@ def four_index_transform(ao_integrals, orb0, orb1=None, orb2=None, orb3=None, me
 
     Parameters
     ----------
-    oa_integrals
+    ao_integrals
         A four-index array with integrals over atomic orbitals.
     orb0
         A Orbitalas object with molecular orbitals
@@ -98,16 +99,16 @@ def four_index_transform(ao_integrals, orb0, orb1=None, orb2=None, orb3=None, me
     elif method == 'tensordot':
         # because the way tensordot works, the order of the dot products is
         # not according to literature conventions.
-        result[:] = np.tensordot(ao_integrals, orb0.coeffs, axes=([0],[0]))
-        result[:] = np.tensordot(result, orb1.coeffs, axes=([0],[0]))
-        result[:] = np.tensordot(result, orb2.coeffs, axes=([0],[0]))
-        result[:] = np.tensordot(result, orb3.coeffs, axes=([0],[0]))
+        result[:] = np.tensordot(ao_integrals, orb0.coeffs, axes=([0], [0]))
+        result[:] = np.tensordot(result, orb1.coeffs, axes=([0], [0]))
+        result[:] = np.tensordot(result, orb2.coeffs, axes=([0], [0]))
+        result[:] = np.tensordot(result, orb3.coeffs, axes=([0], [0]))
     else:
         raise ValueError('The method must either be \'einsum\' or \'tensordot\'.')
     # Symmetrize the result
-    result[:] = result + result.transpose(1,0,3,2)
-    result[:] = result + result.transpose(2,3,0,1)
-    result[:] = result + result.transpose(0,3,2,1)
+    result[:] = result + result.transpose(1, 0, 3, 2)
+    result[:] = result + result.transpose(2, 3, 0, 1)
+    result[:] = result + result.transpose(0, 3, 2, 1)
     result /= 8
     return result
 
@@ -131,9 +132,9 @@ def transform_integrals(one, two, method='tensordot', *orbs):
     list of transformed 1- and 2-electron integrals according to a list of Orbitals
     instances. We distinguish between:
 
-    * restricted orbitals: only one Ortbials instance (alpha=beta), returns
+    * restricted orbitals: only one Orbitals instance (alpha=beta), returns
       one set of 1- and 2-body integrals
-    * unrestricted orbitals: two Ortbials instances (alpha, beta), returns
+    * unrestricted orbitals: two Orbitals instances (alpha, beta), returns
       two sets of 1-body, and three sets of 2-body integrals:
 
       - one_{alpha,alpha} and
@@ -170,7 +171,7 @@ def split_core_active(one, two, ecore, orb, ncore, nactive, indextrans='tensordo
         molecular system, this is the nuclear nuclear repulsion.
     orb
         The MO expansion coefficients. An Expansion instance. If None,
-        integrals are assued to be already transformed into the mo basis
+        integrals are assumed to be already transformed into the mo basis
         and no transformation is carried out in this function.
     ncore
         The number of frozen core orbitals (int)
@@ -206,9 +207,9 @@ def split_core_active(one, two, ecore, orb, ncore, nactive, indextrans='tensordo
 
     # Core energy
     #   One body term
-    ecore += 2*np.trace(one_mo[:ncore, :ncore])
+    ecore += 2 * np.trace(one_mo[:ncore, :ncore])
     #   Direct part
-    ecore += 2*np.einsum('abab', two_mo[:ncore, :ncore, :ncore, :ncore])
+    ecore += 2 * np.einsum('abab', two_mo[:ncore, :ncore, :ncore, :ncore])
     #   Exchange part
     ecore -= np.einsum('abba', two_mo[:ncore, :ncore, :ncore, :ncore])
 
@@ -216,7 +217,7 @@ def split_core_active(one, two, ecore, orb, ncore, nactive, indextrans='tensordo
     norb = ncore + nactive
     one_mo_small = one_mo[ncore:norb, ncore:norb].copy()
     #   Direct part
-    one_mo_small += 2*np.einsum('abcb->ac', two_mo[ncore:norb, :ncore, ncore:norb, :ncore])
+    one_mo_small += 2 * np.einsum('abcb->ac', two_mo[ncore:norb, :ncore, ncore:norb, :ncore])
     #   Exchange part
     one_mo_small -= np.einsum('abbc->ac', two_mo[ncore:norb, :ncore, :ncore, ncore:norb])
 
@@ -231,7 +232,7 @@ def four_index_transform_cholesky(ao_integrals, orb0, orb1=None, method='tensord
 
     Parameters
     ----------
-    oa_integrals : np.ndarray, shape=(nvec, nbasis, nbasis)
+    ao_integrals : np.ndarray, shape=(nvec, nbasis, nbasis)
         Cholesky decomposition of four-index object in the AO basis.
     orb0
         A Orbitals object with molecular orbitals.
@@ -242,13 +243,12 @@ def four_index_transform_cholesky(ao_integrals, orb0, orb1=None, method='tensord
     """
     if orb1 is None:
         orb1 = orb0
-    result = np.zeros(ao_integrals.shape)
     if method == 'einsum':
         result = np.einsum('ai,kac->kic', orb0.coeffs, ao_integrals)
         result = np.einsum('cj,kic->kij', orb1.coeffs, result)
     elif method == 'tensordot':
-        result = np.tensordot(ao_integrals, orb0.coeffs, axes=([1],[0]))
-        result = np.tensordot(result, orb1.coeffs, axes=([1],[0]))
+        result = np.tensordot(ao_integrals, orb0.coeffs, axes=([1], [0]))
+        result = np.tensordot(result, orb1.coeffs, axes=([1], [0]))
     else:
         raise ValueError('The method must either be \'einsum\' or \'tensordot\'.')
     return result
@@ -273,7 +273,7 @@ def transform_integrals_cholesky(one, two, method='tensordot', *orbs):
     list of transformed 1- and 2-electron integrals according to a list of Orbitals
     instances.  We distinguish between:
 
-    * restricted orbitals: only one Ortbials instance (alpha=beta), returns
+    * restricted orbitals: only one Orbitals instance (alpha=beta), returns
       one set of 1- and 2-body integrals
     * unrestricted orbitals: two expansion instances (alpha, beta), returns
       two sets of 1-body, and two sets of 2-body integrals.
@@ -301,7 +301,7 @@ def split_core_active_cholesky(one, two, ecore, orb, ncore, nactive, indextrans=
         molecular system, this is the nuclear nuclear repulsion.
     orb
         The MO expansion coefficients. An Expansion instance. If None,
-        integrals are assued to be already transformed into the mo basis
+        integrals are assumed to be already transformed into the mo basis
         and no transformation is carried out in this function.
     ncore
         The number of frozen core orbitals (int)
@@ -337,9 +337,9 @@ def split_core_active_cholesky(one, two, ecore, orb, ncore, nactive, indextrans=
 
     # Core energy
     #   One body term
-    ecore += 2*np.trace(one_mo[:ncore, :ncore])
+    ecore += 2 * np.trace(one_mo[:ncore, :ncore])
     #   Direct part
-    ecore += 2*np.einsum('xaa,xbb', two_mo[:, :ncore, :ncore], two_mo[:, :ncore, :ncore])
+    ecore += 2 * np.einsum('xaa,xbb', two_mo[:, :ncore, :ncore], two_mo[:, :ncore, :ncore])
     #   Exchange part
     ecore -= np.einsum('xab,xba', two_mo[:, :ncore, :ncore], two_mo[:, :ncore, :ncore])
 
@@ -347,9 +347,11 @@ def split_core_active_cholesky(one, two, ecore, orb, ncore, nactive, indextrans=
     norb = ncore + nactive
     one_mo_small = one_mo[ncore:norb, ncore:norb].copy()
     #   Direct part
-    one_mo_small += 2*np.einsum('xac,xbb->ac', two_mo[:, ncore:norb, ncore:norb], two_mo[:, :ncore, :ncore])
+    one_mo_small += 2 * np.einsum('xac,xbb->ac', two_mo[:, ncore:norb, ncore:norb],
+                                  two_mo[:, :ncore, :ncore])
     #   Exchange part
-    one_mo_small -= np.einsum('xab,xbc->ac', two_mo[:, ncore:norb, :ncore], two_mo[:, :ncore, ncore:norb])
+    one_mo_small -= np.einsum('xab,xbc->ac', two_mo[:, ncore:norb, :ncore],
+                              two_mo[:, :ncore, ncore:norb])
 
     # Active space two-body integrals
     two_mo_small = two_mo[:, ncore:norb, ncore:norb]

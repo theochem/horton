@@ -20,7 +20,6 @@
 # --
 """Test horton/meanfield/gridgroup.py."""
 
-
 from nose.tools import assert_raises
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import

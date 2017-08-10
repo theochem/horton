@@ -20,14 +20,13 @@
 # --
 """Unit tests for horton/meanfield/observable.py."""
 
-
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from .common import check_dot_hessian, \
     check_dot_hessian_polynomial, check_dot_hessian_cache
 
 
 def setup_rhf_case(cholesky=False):
-    """Prepare datastructures for R-HF calculation on Water."""
+    """Prepare data structures for R-HF calculation on Water."""
     fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
     mol = IOData.from_file(fn_fchk)
     mol.dm_alpha = mol.orb_alpha.to_dm()
@@ -81,7 +80,7 @@ def test_cache_dot_hessian_rhf_cholesky():
 
 
 def setup_uhf_case(cholesky=False):
-    """Prepare datastructures for UHF calculation."""
+    """Prepare data structures for UHF calculation."""
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     mol = IOData.from_file(fn_fchk)
     mol.dm_alpha = mol.orb_alpha.to_dm()

@@ -18,25 +18,24 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''EDIIS+DIIS SCF algorithm'''
-
+"""EDIIS+DIIS SCF algorithm"""
 
 import numpy as np
 
-from .scf_diis import DIISHistory, DIISSCFSolver
-from .scf_cdiis import CDIISHistory
-from .scf_ediis import EDIISHistory
 from horton.utils import doc_inherit
-
+from .scf_cdiis import CDIISHistory
+from .scf_diis import DIISHistory, DIISSCFSolver
+from .scf_ediis import EDIISHistory
 
 __all__ = ['EDIIS2SCFSolver']
 
 
 class EDIIS2SCFSolver(DIISSCFSolver):
-    '''The EDIIS+DIIS SCF solver [kudin2002]_'''
+    """The EDIIS+DIIS SCF solver [kudin2002]_"""
 
-    def __init__(self, threshold=1e-6, maxiter=128, nvector=6, skip_energy=False, prune_old_states=False):
-        '''
+    def __init__(self, threshold=1e-6, maxiter=128, nvector=6, skip_energy=False,
+                 prune_old_states=False):
+        """
            **Optional arguments:**
 
            maxiter
@@ -56,22 +55,23 @@ class EDIIS2SCFSolver(DIISSCFSolver):
                 coefficient is zero. Pruning starts at the oldest state and stops
                 as soon as a state is encountered with a non-zero coefficient. Even
                 if some newer states have a zero coefficient.
-        '''
-        DIISSCFSolver.__init__(self, EDIIS2History, threshold, maxiter, nvector, skip_energy, prune_old_states)
+        """
+        DIISSCFSolver.__init__(self, EDIIS2History, threshold, maxiter, nvector, skip_energy,
+                               prune_old_states)
         self.biblio.append(['kudin2002', 'the EDIIS method.'])
 
 
 class EDIIS2History(EDIISHistory, CDIISHistory):
-    '''A EDIIS+DIIS history object that keeps track of previous SCF solutions
+    """A EDIIS+DIIS history object that keeps track of previous SCF solutions
 
        This method uses EDIIS for the first iterations and switches to CDIIS
        to as soon as some initial degree of convergence is achieved.
-    '''
+    """
     name = 'EDIIS+DIIS'
     need_energy = True
 
     def __init__(self, nvector, ndm, deriv_scale, overlap):
-        '''Initialize a EDIIS2History object.
+        """Initialize a EDIIS2History object.
 
         Parameters
         ----------
@@ -83,7 +83,7 @@ class EDIIS2History(EDIISHistory, CDIISHistory):
             The deriv_scale attribute of the Effective Hamiltonian
         overlap
             The overlap matrix.
-        '''
+        """
         # for the EDIIS part
         self.edots = np.empty((nvector, nvector))
         self.edots.fill(np.nan)
@@ -102,6 +102,6 @@ class EDIIS2History(EDIISHistory, CDIISHistory):
         else:
             energy1, coeffs1, cn1, method1, error = CDIISHistory.solve(self, None, None)
             energy2, coeffs2, cn2, method2, error = EDIISHistory.solve(self, None, None)
-            coeffs = 10*errmax*coeffs2 + (1-10*errmax)*coeffs1
+            coeffs = 10 * errmax * coeffs2 + (1 - 10 * errmax) * coeffs1
             error = self._build_combinations(coeffs, dms_output, focks_output)
             return None, coeffs, max(cn1, cn2), 'M', error

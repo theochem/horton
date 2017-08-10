@@ -18,13 +18,12 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Mean-field electronic structure code'''
-
+"""Mean-field electronic structure code"""
 
 from .bond_order import *
-from . builtin import *
-from .convergence import *
+from .builtin import *
 from .cext import *
+from .convergence import *
 from .gridgroup import *
 from .guess import *
 from .hamiltonian import *
@@ -34,11 +33,11 @@ from .observable import *
 from .occ import *
 from .orbitals import *
 from .project import *
-from .rotate import *
 from .response import *
+from .rotate import *
 from .scf import *
-from .scf_oda import *
 from .scf_cdiis import *
 from .scf_ediis import *
 from .scf_ediis2 import *
+from .scf_oda import *
 from .utils import *

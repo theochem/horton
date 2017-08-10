@@ -20,14 +20,12 @@
 # --
 """Built-in energy terms"""
 
-
 import numpy as np
 
-from .gridgroup import GridObservable, DF_LEVEL_LDA
 from horton.grid.molgrid import BeckeMolGrid
 from horton.grid.poisson import solve_poisson_becke
 from horton.utils import doc_inherit
-
+from .gridgroup import GridObservable, DF_LEVEL_LDA
 
 __all__ = ['RBeckeHartree', 'UBeckeHartree', 'RDiracExchange', 'UDiracExchange']
 
@@ -53,7 +51,8 @@ class BeckeHartree(GridObservable):
         """
         # This only works under a few circumstances
         if not isinstance(grid, BeckeMolGrid):
-            raise TypeError('The BeckeHatree term only works for Becke-Lebedev molecular integration grids')
+            raise TypeError(
+                'The BeckeHatree term only works for Becke-Lebedev molecular integration grids')
         if grid.mode != 'keep':
             raise TypeError('The mode option of the molecular grid must be \'keep\'.')
 
@@ -67,7 +66,9 @@ class BeckeHartree(GridObservable):
             for atgrid in grid.subgrids:
                 end = begin + atgrid.size
                 becke_weights = grid.becke_weights[begin:end]
-                density_decomposition = atgrid.get_spherical_decomposition(rho[begin:end], becke_weights, lmax=self.lmax)
+                density_decomposition = atgrid.get_spherical_decomposition(rho[begin:end],
+                                                                           becke_weights,
+                                                                           lmax=self.lmax)
                 hartree_decomposition = solve_poisson_becke(density_decomposition)
                 grid.eval_decomposition(hartree_decomposition, atgrid.center, pot)
                 begin = end
@@ -77,7 +78,7 @@ class BeckeHartree(GridObservable):
     def compute_energy(self, cache, grid):
         pot = self._update_pot(cache, grid)
         rho = cache['rho_full']
-        return 0.5*grid.integrate(pot, rho)
+        return 0.5 * grid.integrate(pot, rho)
 
 
 class RBeckeHartree(BeckeHartree):

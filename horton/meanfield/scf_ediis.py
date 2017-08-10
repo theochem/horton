@@ -18,24 +18,24 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Energy DIIS SCF algorithm'''
+"""Energy DIIS SCF algorithm"""
 
 import numpy as np
 
 from horton.exceptions import NoSCFConvergence
-from .scf_diis import DIISHistory, DIISSCFSolver
 from horton.quadprog import QPSolver
 from horton.utils import doc_inherit
-
+from .scf_diis import DIISHistory, DIISSCFSolver
 
 __all__ = ['EDIISSCFSolver']
 
 
 class EDIISSCFSolver(DIISSCFSolver):
-    '''The Energy DIIS SCF solver [kudin2002]_'''
+    """The Energy DIIS SCF solver [kudin2002]_"""
 
-    def __init__(self, threshold=1e-6, maxiter=128, nvector=6, skip_energy=False, prune_old_states=False):
-        '''
+    def __init__(self, threshold=1e-6, maxiter=128, nvector=6, skip_energy=False,
+                 prune_old_states=False):
+        """
            **Optional arguments:**
 
            maxiter
@@ -55,18 +55,19 @@ class EDIISSCFSolver(DIISSCFSolver):
                 coefficient is zero. Pruning starts at the oldest state and stops
                 as soon as a state is encountered with a non-zero coefficient. Even
                 if some newer states have a zero coefficient.
-        '''
-        DIISSCFSolver.__init__(self, EDIISHistory, threshold, maxiter, nvector, skip_energy, prune_old_states)
+        """
+        DIISSCFSolver.__init__(self, EDIISHistory, threshold, maxiter, nvector, skip_energy,
+                               prune_old_states)
         self.biblio.append(['kudin2002', 'the EDIIS method.'])
 
 
 class EDIISHistory(DIISHistory):
-    '''A Energy DIIS history object that keeps track of previous SCF solutions'''
+    """A Energy DIIS history object that keeps track of previous SCF solutions"""
     name = 'EDIIS'
     need_energy = True
 
     def __init__(self, nvector, ndm, deriv_scale, overlap):
-        '''Initialize a EDIISHistory object.
+        """Initialize a EDIISHistory object.
 
         Parameters
         ----------
@@ -78,7 +79,7 @@ class EDIISHistory(DIISHistory):
             The deriv_scale attribute of the Effective Hamiltonian
         overlap
             The overlap matrix.
-        '''
+        """
         # A matrix with dot products of all density and fock matrices
         # Note that the dots matrix is not symmetric!
         self.edots = np.empty((nvector, nvector))
@@ -86,36 +87,38 @@ class EDIISHistory(DIISHistory):
         DIISHistory.__init__(self, nvector, ndm, deriv_scale, overlap, [self.edots])
 
     def _complete_edots_matrix(self):
-        '''Complete the matrix of dot products between density and fock matrices
+        """Complete the matrix of dot products between density and fock matrices
 
            Even after multiple additions, this routine will fill up all the
            missing dot products in self.edots.
-        '''
+        """
         # This routine  even works after multiple additions.
-        for i0 in xrange(self.nused-1, -1, -1):
-            if np.isfinite(self.edots[i0,i0]):
+        for i0 in xrange(self.nused - 1, -1, -1):
+            if np.isfinite(self.edots[i0, i0]):
                 return
             # Compute off-diagonal coefficients
             state0 = self.stack[i0]
-            for i1 in xrange(i0+1):
+            for i1 in xrange(i0 + 1):
                 state1 = self.stack[i1]
-                self.edots[i0,i1] = 0.0
+                self.edots[i0, i1] = 0.0
                 for j in xrange(self.ndm):
-                    self.edots[i0,i1] += np.einsum('ab,ba', state0.focks[j], state1.dms[j])
+                    self.edots[i0, i1] += np.einsum('ab,ba', state0.focks[j], state1.dms[j])
                 if i0 != i1:
                     # Note that this matrix is not symmetric!
-                    self.edots[i1,i0] = 0.0
+                    self.edots[i1, i0] = 0.0
                     for j in xrange(self.ndm):
-                        self.edots[i1,i0] += np.einsum('ab,ba', state1.focks[j], state0.dms[j])
+                        self.edots[i1, i0] += np.einsum('ab,ba', state1.focks[j], state0.dms[j])
 
     def _setup_equations(self):
-        '''Compute the equations for the quadratic programming problem.'''
+        """Compute the equations for the quadratic programming problem."""
         b = np.zeros((self.nused, self.nused), float)
         e = np.zeros(self.nused, float)
         for i0 in xrange(self.nused):
             e[i0] = -self.stack[i0].energy
-            for i1 in xrange(i0+1):
-                b[i0, i1] = -0.5*self.deriv_scale*(self.edots[i0,i0] + self.edots[i1,i1] - self.edots[i0,i1] - self.edots[i1,i0])
+            for i1 in xrange(i0 + 1):
+                b[i0, i1] = -0.5 * self.deriv_scale * (
+                    self.edots[i0, i0] + self.edots[i1, i1] - self.edots[i0, i1] - self.edots[
+                        i1, i0])
                 if i0 != i1:
                     b[i1, i0] = b[i0, i1]
         return b, e
@@ -126,14 +129,14 @@ class EDIISHistory(DIISHistory):
         assert self.nused >= 2
         # Fill in the missing commutators
         self._complete_edots_matrix()
-        assert not np.isnan(self.edots[:self.nused,:self.nused]).any()
+        assert not np.isnan(self.edots[:self.nused, :self.nused]).any()
         # Setup the equations
         b, e = self._setup_equations()
         # Check if solving these equations makes sense.
         if b.max() - b.min() == 0 and e.max() - e.min() == 0:
             raise NoSCFConvergence('Convergence criteria too tight for EDIIS')
         # solve the quadratic programming problem
-        qps = QPSolver(b, e, np.ones((1,self.nused)), np.array([1.0]), eps=1e-6)
+        qps = QPSolver(b, e, np.ones((1, self.nused)), np.array([1.0]), eps=1e-6)
         if self.nused < 10:
             energy, coeffs = qps.find_brute()
             guess = None

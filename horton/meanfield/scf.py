@@ -20,13 +20,11 @@
 # --
 """Basic Self-Consistent Field (SCF) algorithm."""
 
-
 import numpy as np
 
 from horton.exceptions import NoSCFConvergence
 from .convergence import convergence_error_eigen
 from .utils import get_level_shift
-
 
 __all__ = ['PlainSCFSolver']
 
@@ -78,7 +76,8 @@ class PlainSCFSolver(object):
         """
         # Some type checking
         if ham.ndm != len(orbs):
-            raise TypeError('The number of initial orbital expansions does not match the Hamiltonian.')
+            raise TypeError(
+                'The number of initial orbital expansions does not match the Hamiltonian.')
         # Impose the requested occupation numbers
         occ_model.assign(*orbs)
         # Check the orthogonality of the orbitals
@@ -114,14 +113,14 @@ class PlainSCFSolver(object):
             if self.level_shift > 0:
                 for i in xrange(ham.ndm):
                     # The normal behavior is to shift down the occupied levels.
-                    focks[i] += -self.level_shift*get_level_shift(dms[i], overlap)
+                    focks[i] += -self.level_shift * get_level_shift(dms[i], overlap)
             # Diagonalize the fock operators to obtain new orbitals and
             for i in xrange(ham.ndm):
                 orbs[i].from_fock(focks[i], overlap)
                 # If requested, compensate for level-shift. This compensation
                 # is only correct when the SCF has converged.
                 if self.level_shift > 0:
-                    orbs[i].energies[:] += self.level_shift*orbs[i].occupations
+                    orbs[i].energies[:] += self.level_shift * orbs[i].occupations
             # Assign new occupation numbers.
             occ_model.assign(*orbs)
             # counter
@@ -139,5 +138,5 @@ class PlainSCFSolver(object):
         return counter
 
     def error(self, ham, overlap, *orbs):
-        '''See :py:func:`horton.meanfield.convergence.convergence_error_eigen`.'''
+        """See :py:func:`horton.meanfield.convergence.convergence_error_eigen`."""
         return convergence_error_eigen(ham, overlap, *orbs)

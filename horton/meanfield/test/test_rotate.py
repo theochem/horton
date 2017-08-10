@@ -41,9 +41,9 @@ def test_rotation_energy():
 def test_rotation_sp():
     mol = IOData.from_file(context.get_fn('test/he_sp_orbital.fchk'))
     rmat = np.array([[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]])
-    assert (mol.orb_alpha.coeffs[5:7,3:5] == [[0, 1], [1, 0]]).all()
+    assert (mol.orb_alpha.coeffs[5:7, 3:5] == [[0, 1], [1, 0]]).all()
     mol.orb_alpha.coeffs[:] = rotate_coeffs(mol.orb_alpha.coeffs, mol.obasis, rmat)
-    assert (mol.orb_alpha.coeffs[5:7,3:5] == [[-1, 0], [0, 1]]).all()
+    assert (mol.orb_alpha.coeffs[5:7, 3:5] == [[-1, 0], [0, 1]]).all()
 
 
 def test_rotation_orhonormal():
@@ -57,24 +57,24 @@ def test_rotation_orhonormal():
         orb = Orbitals(obasis.nbasis)
         orb.occupations[:norb] = 1
         # fill with random orbitals and lowdin orthogonalize
-        #orb.coeffs[begin:end,:norb] = np.random.normal(0, 1, (norb, norb))
-        orb.coeffs[begin:end,:norb] = np.identity(norb)
-        grammian = np.dot(orb.coeffs[:,:norb].T, np.dot(overlap, orb.coeffs[:,:norb]))
+        # orb.coeffs[begin:end,:norb] = np.random.normal(0, 1, (norb, norb))
+        orb.coeffs[begin:end, :norb] = np.identity(norb)
+        grammian = np.dot(orb.coeffs[:, :norb].T, np.dot(overlap, orb.coeffs[:, :norb]))
         evals, evecs = np.linalg.eigh(grammian)
-        orb.coeffs[:,:norb] = np.dot(orb.coeffs[:,:norb], evecs)/evals**0.5
-        assert (orb.coeffs[:begin,:norb] == 0.0).all()
-        assert (orb.coeffs[end:,:norb] == 0.0).all()
+        orb.coeffs[:, :norb] = np.dot(orb.coeffs[:, :norb], evecs) / evals ** 0.5
+        assert (orb.coeffs[:begin, :norb] == 0.0).all()
+        assert (orb.coeffs[end:, :norb] == 0.0).all()
         orb.check_normalization(overlap)
         # apply rotation and check normalization again
         rmat = get_random_rotation()
-        #rmat = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]])
-        #rmat = get_rotation_matrix(np.array([0, 0, 1]), np.pi/4)
-        orb.coeffs[:,:norb] = rotate_coeffs(orb.coeffs[:,:norb], obasis, rmat)
+        # rmat = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]])
+        # rmat = get_rotation_matrix(np.array([0, 0, 1]), np.pi/4)
+        orb.coeffs[:, :norb] = rotate_coeffs(orb.coeffs[:, :norb], obasis, rmat)
         orb.check_normalization(overlap)
 
-    helper( 0,  4) # all s-type basis functions
-    helper( 4, 13) # all p-type basis functions
-    helper(13, 14) # just one d-type basis function
-    helper(13, 19) # first set of d-type basis functions
-    helper(13, 25) # all d-type basis functions
-    helper(25, 35) # all f-type basis functions
+    helper(0, 4)  # all s-type basis functions
+    helper(4, 13)  # all p-type basis functions
+    helper(13, 14)  # just one d-type basis function
+    helper(13, 19)  # first set of d-type basis functions
+    helper(13, 25)  # all d-type basis functions
+    helper(25, 35)  # all f-type basis functions

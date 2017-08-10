@@ -29,7 +29,7 @@ from .common import check_interpolation, \
 
 
 def setup_gga_cs(name):
-    """Prepare datastructures for R-GGA calculation in CO."""
+    """Prepare data structures for R-GGA calculation in CO."""
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)
     mol.dm_alpha = mol.orb_alpha.to_dm()
@@ -59,7 +59,7 @@ def test_dot_hessian_c_pbe_cs():
 
 def test_dot_hessian_c_pbe_cs_polynomial():
     mol, olp, kin, na, ham = setup_gga_cs('c_pbe')
-    check_dot_hessian_polynomial(olp, kin+na, ham, [mol.orb_alpha], is_hf=False, extent=0.00005)
+    check_dot_hessian_polynomial(olp, kin + na, ham, [mol.orb_alpha], is_hf=False, extent=0.00005)
 
 
 def test_dot_hessian_c_pbe_cs_cache():
@@ -79,7 +79,7 @@ def test_dot_hessian_x_pbe_cs():
 
 def test_dot_hessian_x_pbe_cs_polynomial():
     mol, olp, kin, na, ham = setup_gga_cs('x_pbe')
-    check_dot_hessian_polynomial(olp, kin+na, ham, [mol.orb_alpha], is_hf=False, extent=0.00005)
+    check_dot_hessian_polynomial(olp, kin + na, ham, [mol.orb_alpha], is_hf=False, extent=0.00005)
 
 
 def test_dot_hessian_x_pbe_cs_cache():
@@ -88,7 +88,7 @@ def test_dot_hessian_x_pbe_cs_cache():
 
 
 def setup_hfs_cs():
-    """Prepare datastructures for R-HFS (x-functional-only) calculation on CO."""
+    """Prepare data structures for R-HFS (x-functional-only) calculation on CO."""
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)
     mol.dm_alpha = mol.orb_alpha.to_dm()
@@ -120,7 +120,7 @@ def test_dot_hessian_hfs_cs():
 
 def test_dot_hessian_hfs_cs_polynomial():
     mol, olp, kin, na, ham = setup_hfs_cs()
-    check_dot_hessian_polynomial(olp, kin+na, ham, [mol.orb_alpha], is_hf=False, extent=0.00005)
+    check_dot_hessian_polynomial(olp, kin + na, ham, [mol.orb_alpha], is_hf=False, extent=0.00005)
 
 
 def test_dot_hessian_hfs_cs_cache():
@@ -129,7 +129,7 @@ def test_dot_hessian_hfs_cs_cache():
 
 
 def setup_x_pbe_c_vwn_cs():
-    """Setup datastructure for mixed GGA+LDA calculation."""
+    """Setup data structure for mixed GGA+LDA calculation."""
     # mixing of GGA and LDA
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     mol = IOData.from_file(fn_fchk)
@@ -161,7 +161,7 @@ def test_dot_hessian_x_pbe_c_vwn_cs():
 
 def test_dot_hessian_x_pbe_c_vwn_cs_polynomial():
     mol, olp, kin, na, ham = setup_x_pbe_c_vwn_cs()
-    check_dot_hessian_polynomial(olp, kin+na, ham, [mol.orb_alpha], is_hf=False, extent=0.00005)
+    check_dot_hessian_polynomial(olp, kin + na, ham, [mol.orb_alpha], is_hf=False, extent=0.00005)
 
 
 def test_dot_hessian_x_pbe_c_vwn_cs_cache():
@@ -170,7 +170,7 @@ def test_dot_hessian_x_pbe_c_vwn_cs_cache():
 
 
 def setup_c_vwn_cs():
-    """Prepare datastructures for R-VWN (c-functional-only) calculation on water."""
+    """Prepare data structures for R-VWN (c-functional-only) calculation on water."""
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     mol = IOData.from_file(fn_fchk)
     mol.dm_alpha = mol.orb_alpha.to_dm()
@@ -200,7 +200,7 @@ def test_dot_hessian_c_vwn_cs():
 
 def test_dot_hessian_c_vwn_cs_polynomial():
     mol, olp, kin, na, ham = setup_c_vwn_cs()
-    check_dot_hessian_polynomial(olp, kin+na, ham, [mol.orb_alpha], is_hf=False, extent=0.00005)
+    check_dot_hessian_polynomial(olp, kin + na, ham, [mol.orb_alpha], is_hf=False, extent=0.00005)
 
 
 def test_dot_hessian_c_vwn_cs_cache():
@@ -209,7 +209,7 @@ def test_dot_hessian_c_vwn_cs_cache():
 
 
 def setup_o3lyp_cs():
-    """Prepare datastructures for R-O3LYP (xc-functional-only) calculation on water."""
+    """Prepare data structures for R-O3LYP (xc-functional-only) calculation on water."""
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     mol = IOData.from_file(fn_fchk)
     mol.dm_alpha = mol.orb_alpha.to_dm()
@@ -297,7 +297,7 @@ def test_cubic_interpolation_x_pbe_os():
 
 
 def setup_hfs_os():
-    """Prepare datastructures for U_HFS (x-functional-only) calculation in H3 radical."""
+    """Prepare data structures for U_HFS (x-functional-only) calculation in H3 radical."""
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     mol = IOData.from_file(fn_fchk)
     mol.dm_alpha = mol.orb_alpha.to_dm()
@@ -376,7 +376,7 @@ def test_cubic_interpolation_x_tpss_os():
 def test_functionals_present():
     t1 = RLibXCLDA('c_vwn')     # The VWN 5 functional
     assert t1._libxc_wrapper.key == 'lda_c_vwn'
-    t2 = RLibXCLDA('c_vwn_4')   # The VWN 4 functional
+    t2 = RLibXCLDA('c_vwn_4')  # The VWN 4 functional
     assert t2._libxc_wrapper.key == 'lda_c_vwn_4'
     t3 = RLibXCHybridGGA('xc_wb97x')
     assert t3._libxc_wrapper.key == 'hyb_gga_xc_wb97x'

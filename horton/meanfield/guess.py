@@ -18,14 +18,13 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Initial guesses for wavefunctions'''
-
+"""Initial guesses for wavefunctions"""
 
 __all__ = ['guess_core_hamiltonian']
 
 
 def guess_core_hamiltonian(overlap, core, *orbs):
-    '''Guess the orbitals by diagonalizing a core Hamiltonian.
+    """Guess the orbitals by diagonalizing a core Hamiltonian.
 
     Parameters
     ----------
@@ -38,7 +37,7 @@ def guess_core_hamiltonian(overlap, core, *orbs):
         A list of Orbitals objects (output arguments)
 
     This method only modifies the expansion coefficients and the orbital energies.
-    '''
+    """
     print('5: Performing a core Hamiltonian guess.')
 
     if len(orbs) == 0:

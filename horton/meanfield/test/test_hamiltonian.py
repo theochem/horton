@@ -92,17 +92,17 @@ def test_perturbation():
     assert mol.obasis.nbasis % 2 == 0
     nfirst = mol.obasis.nbasis / 2
     operator = mol.obasis.compute_overlap().copy()
-    operator[:nfirst,nfirst:] *= 0.5
-    operator[nfirst:,:nfirst] *= 0.5
-    operator[nfirst:,nfirst:] = 0.0
+    operator[:nfirst, nfirst:] *= 0.5
+    operator[nfirst:, :nfirst] *= 0.5
+    operator[nfirst:, nfirst:] = 0.0
 
-    # Apply the perturbation with oposite signs and check that, because of
+    # Apply the perturbation with opposite signs and check that, because of
     # symmetry, the energy of the perturbed wavefunction is the same in both
     # cases, and higher than the unperturbed.
     energy1_old = None
     for scale in 0.1, -0.1:
         # Perturbation
-        tmp = scale*operator
+        tmp = scale * operator
         perturbation = RTwoIndexTerm(tmp, 'pert')
         # Hamiltonian
         terms = [
