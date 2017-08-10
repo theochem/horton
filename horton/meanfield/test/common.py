@@ -27,7 +27,6 @@ from horton.context import context
 from horton.gbasis.gobasis import get_gobasis
 from horton.grid.molgrid import BeckeMolGrid
 from horton.io.iodata import IOData
-from horton.log import log
 from .. builtin import RDiracExchange, UDiracExchange
 from .. convergence import convergence_error_eigen
 from .. gridgroup import RGridGroup, UGridGroup
@@ -330,7 +329,6 @@ def helper_compute(ham, *orbs):
     return ham.cache['energy'], focks
 
 
-@log.with_level(log.high)
 def check_hf_cs_hf(scf_solver):
     fn_fchk = context.get_fn('test/hf_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)
@@ -367,7 +365,6 @@ def check_hf_cs_hf(scf_solver):
     assert abs(ham.cache['energy_nn'] - 4.7247965053) < 1e-8
 
 
-@log.with_level(log.high)
 def check_lih_os_hf(scf_solver):
     fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
     mol = IOData.from_file(fn_fchk)
@@ -410,7 +407,6 @@ def check_lih_os_hf(scf_solver):
     assert abs(ham.cache['energy_nn'] - 0.6731318487) < 1e-8
 
 
-@log.with_level(log.high)
 def check_water_cs_hfs(scf_solver):
     fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
     mol = IOData.from_file(fn_fchk)
@@ -468,7 +464,6 @@ def check_water_cs_hfs(scf_solver):
     assert abs(ham.cache['energy'] - -7.474134898935590E+01) < 2e-4
 
 
-@log.with_level(log.high)
 def check_n2_cs_hfs(scf_solver):
     fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)
@@ -537,7 +532,6 @@ def check_n2_cs_hfs(scf_solver):
     assert abs(ham2.cache['energy_hartree'] + ham2.cache['energy_x_dirac'] - 6.247259253877E+01) < 1e-4
 
 
-@log.with_level(log.high)
 def check_h3_os_hfs(scf_solver):
     fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
     mol = IOData.from_file(fn_fchk)
@@ -612,7 +606,6 @@ def check_h3_os_hfs(scf_solver):
     assert abs(ham2.cache['energy_hartree'] + ham2.cache['energy_x_dirac'] - 1.658810998195E+00) < 1e-6
 
 
-@log.with_level(log.high)
 def check_co_cs_pbe(scf_solver):
     fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
     mol = IOData.from_file(fn_fchk)
@@ -662,7 +655,6 @@ def check_co_cs_pbe(scf_solver):
     assert abs(ham.cache['energy_nn'] - 22.5181790889) < 1e-7
 
 
-@log.with_level(log.high)
 def check_h3_os_pbe(scf_solver):
     fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
     mol = IOData.from_file(fn_fchk)
@@ -719,7 +711,6 @@ def check_h3_os_pbe(scf_solver):
     assert abs(ham.cache['energy_nn'] - 1.8899186021) < 1e-8
 
 
-@log.with_level(log.high)
 def check_vanadium_sc_hf(scf_solver):
     """Try to converge the SCF for the neutral vanadium atom with fixe fractional occupations.
 
@@ -763,7 +754,6 @@ def check_vanadium_sc_hf(scf_solver):
     check_solve(ham, scf_solver, occ_model, olp, kin, na, orb_alpha)
 
 
-@log.with_level(log.high)
 def check_water_cs_m05(scf_solver):
     """Try to converge the SCF for the water molecule with the M05 functional.
 
@@ -821,7 +811,6 @@ def check_water_cs_m05(scf_solver):
     assert abs(ham.cache['energy_nn'] - 9.1571750414) < 1e-5
 
 
-@log.with_level(log.high)
 def check_methyl_os_tpss(scf_solver):
     """Try to converge the SCF for the methyl radical molecule with the TPSS functional.
 

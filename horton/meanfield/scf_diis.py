@@ -23,7 +23,7 @@
 
 import numpy as np
 
-from horton.log import log, timer
+from horton.log import timer
 from horton.exceptions import NoSCFConvergence
 from .convergence import convergence_error_commutator
 from .utils import compute_commutator, check_dm
@@ -110,11 +110,10 @@ class DIISSCFSolver(object):
         self._focks = [np.zeros(overlap.shape) for i in xrange(ham.ndm)]
         self._orbs = [Orbitals(overlap.shape[0]) for i in xrange(ham.ndm)]
 
-        if log.do_medium:
-            log('Starting restricted closed-shell %s-SCF' % self._history.name)
-            log.hline()
-            log('Iter         Error        CN         Last nv Method          Energy       Change')
-            log.hline()
+        print('5: Starting restricted closed-shell %s-SCF' % self._history.name)
+        print("5: " + "-" * 70)
+        print('5: Iter         Error        CN         Last nv Method          Energy       Change')
+        print("5: " + "-" * 70)
 
         converged = False
         counter = 0
@@ -132,20 +131,16 @@ class DIISSCFSolver(object):
                 error = self._history.add(energy, dms, self._focks)
 
                 # Screen logging
-                if log.do_high:
-                    log('          DIIS add')
+                print('7:          DIIS add')
                 if error < self.threshold:
                     converged = True
                     break
-                if log.do_high:
-                    log.blank()
-                if log.do_medium:
-                    energy_str = ' '*20 if energy is None else '% 20.13f' % energy
-                    log('%4i %12.5e                         %2i   %20s' % (
-                        counter, error, self._history.nused, energy_str
-                    ))
-                if log.do_high:
-                    log.blank()
+                print("7: ")
+                energy_str = ' '*20 if energy is None else '% 20.13f' % energy
+                print('5: %4i %12.5e                         %2i   %20s' % (
+                    counter, error, self._history.nused, energy_str
+                ))
+                print("7: ")
                 fock_interpolated = False
             else:
                 energy = None
@@ -163,8 +158,7 @@ class DIISSCFSolver(object):
             ham.compute_fock(*self._focks)
 
             # Add the current (dm, fock) pair to the history
-            if log.do_high:
-                log('          DIIS add')
+            print('7:          DIIS add')
             error = self._history.add(energy, dms, self._focks)
 
             # break when converged
@@ -173,15 +167,12 @@ class DIISSCFSolver(object):
                 break
 
             # Screen logging
-            if log.do_high:
-                log.blank()
-            if log.do_medium:
-                energy_str = ' '*20 if energy is None else '% 20.13f' % energy
-                log('%4i %12.5e                         %2i   %20s' % (
-                    counter, error, self._history.nused, energy_str
-                ))
-            if log.do_high:
-                log.blank()
+            print("7: ")
+            energy_str = ' '*20 if energy is None else '% 20.13f' % energy
+            print('5: %4i %12.5e                         %2i   %20s' % (
+                counter, error, self._history.nused, energy_str
+            ))
+            print("7: ")
 
             # get extra/intra-polated Fock matrix
             while True:
@@ -195,14 +186,12 @@ class DIISSCFSolver(object):
                     converged = True
                     break
                 #if coeffs[coeffs<0].sum() < -1:
-                #    if log.do_high:
-                #        log('          DIIS (coeffs too negative) -> drop %i and retry' % self._history.stack[0].identity)
+                #    print('7:          DIIS (coeffs too negative) -> drop %i and retry' % self._history.stack[0].identity)
                 #    self._history.shrink()
                 if self._history.nused <= 2:
                     break
                 if coeffs[-1] == 0.0:
-                    if log.do_high:
-                        log('          DIIS (last coeff zero) -> drop %i and retry' % self._history.stack[0].identity)
+                    print('7:          DIIS (last coeff zero) -> drop %i and retry' % self._history.stack[0].identity)
                     self._history.shrink()
                 else:
                     break
@@ -220,7 +209,7 @@ class DIISSCFSolver(object):
                     self._history._build_combinations(x_coeffs, dms_tmp, None)
                     ham.reset(*dms_tmp)
                     energies2.append(ham.compute_energy())
-                    print x, energies1[-1], energies2[-1]
+                    print(x, energies1[-1], energies2[-1])
                 pt.clf()
                 pt.plot(xs, energies1, label='est')
                 pt.plot(xs, energies2, label='ref')
@@ -234,25 +223,20 @@ class DIISSCFSolver(object):
                 energy_change = None
 
             # log
-            if log.do_high:
-                self._history.log(coeffs)
+            self._history.log(coeffs)
 
-            if log.do_medium:
-                change_str = ' '*10 if energy_change is None else '% 12.7f' % energy_change
-                log('%4i              %10.3e %12.7f %2i %s                      %12s' % (
-                    counter, cn, coeffs[-1], self._history.nused, method,
-                    change_str
-                ))
-
-            if log.do_high:
-                log.blank()
+            change_str = ' '*10 if energy_change is None else '% 12.7f' % energy_change
+            print('5: %4i              %10.3e %12.7f %2i %s                      %12s' % (
+                counter, cn, coeffs[-1], self._history.nused, method,
+                change_str
+            ))
+            print("7: ")
 
             if self.prune_old_states:
                 # get rid of old states with zero coeff
                 for i in xrange(self._history.nused):
                     if coeffs[i] == 0.0:
-                        if log.do_high:
-                            log('          DIIS insignificant -> drop %i' % self._history.stack[0].identity)
+                        print('7:          DIIS insignificant -> drop %i' % self._history.stack[0].identity)
                         self._history.shrink()
                     else:
                         break
@@ -260,16 +244,14 @@ class DIISSCFSolver(object):
             # counter
             counter += 1
 
-        if log.do_medium:
-            if converged:
-                log('%4i %12.5e (converged)' % (counter, error))
-            log.blank()
+        if converged:
+            print('5: %4i %12.5e (converged)' % (counter, error))
+        print("7: ")
 
         if not self.skip_energy or self._history.need_energy:
             if not self._history.need_energy:
                 ham.compute_energy()
-            if log.do_medium:
-                ham.log()
+            print(ham)
 
         if not converged:
             raise NoSCFConvergence
@@ -386,16 +368,16 @@ class DIISHistory(object):
     def log(self, coeffs):
         eref = min(state.energy for state in self.stack[:self.nused])
         if eref is None:
-            log('          DIIS history          normsq       coeff         id')
+            print('5:          DIIS history          normsq       coeff         id')
             for i in xrange(self.nused):
                 state = self.stack[i]
-                log('          DIIS history  %12.5e  %12.7f   %8i' % (state.normsq, coeffs[i], state.identity))
+                print('5:          DIIS history  %12.5e  %12.7f   %8i' % (state.normsq, coeffs[i], state.identity))
         else:
-            log('          DIIS history          normsq      energy         coeff         id')
+            print('5:          DIIS history          normsq      energy         coeff         id')
             for i in xrange(self.nused):
                 state = self.stack[i]
-                log('          DIIS history  %12.5e  %12.5e  %12.7f   %8i' % (state.normsq, state.energy-eref, coeffs[i], state.identity))
-        log.blank()
+                print('5:          DIIS history  %12.5e  %12.5e  %12.7f   %8i' % (state.normsq, state.energy-eref, coeffs[i], state.identity))
+        print("5: ")
 
     def solve(self, dms_output, focks_output):
         '''Inter- or extrapolate new density and/or fock matrices.

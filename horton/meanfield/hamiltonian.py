@@ -21,7 +21,6 @@
 """Mean-field DFT/HF Hamiltonian data structures"""
 
 
-from horton.log import log
 from horton.cache import Cache
 from horton.utils import doc_inherit
 
@@ -122,18 +121,18 @@ class EffHam(object):
 
     def log(self):
         """Write an overview of the last computation on screen."""
-        log('Contributions to the energy:')
-        log.hline()
-        log('                                              term                 Value')
-        log.hline()
+        print('5: Contributions to the energy:')
+        print("5: " + "-" * 70)
+        print('5:                                               term                 Value')
+        print("5: " + "-" * 70)
         for term in self.terms:
             energy = self.cache['energy_%s' % term.label]
-            log('%50s  %20.12f' % (term.label, energy))
+            print('5: %50s  %20.12f' % (term.label, energy))
         for key, energy in self.external.iteritems():
-            log('%50s  %20.12f' % (key, energy))
-        log('%50s  %20.12f' % ('total', self.cache['energy']))
-        log.hline()
-        log.blank()
+            print('5: %50s  %20.12f' % (key, energy))
+        print('5: %50s  %20.12f' % ('total', self.cache['energy']))
+        print("5: " + "-" * 70)
+        print("5: ")
 
     def compute_fock(self, *focks):
         """Compute the fock matrices.

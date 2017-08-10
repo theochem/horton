@@ -20,15 +20,13 @@
 # --
 '''Optimal Damping SCF algorithm'''
 
-
 import numpy as np
 
-from horton.log import log, timer
 from horton.exceptions import NoSCFConvergence
+from horton.log import timer
 from .convergence import convergence_error_commutator
 from .orbitals import Orbitals
 from .utils import check_dm, compute_commutator
-
 
 __all__ = ['ODASCFSolver', 'check_cubic']
 
@@ -50,37 +48,34 @@ def find_min_cubic(f0, f1, g0, g1):
     # coefficients of the polynomial a*x**3 + b*x**2 + c*x + d
     d = f0
     c = g0
-    a = g1 - 2*f1 + c + 2*d
+    a = g1 - 2 * f1 + c + 2 * d
     b = f1 - a - c - d
 
     # find the roots of the derivative
-    discriminant = b**2 - 3*a*c # simplified expression, not a mistake!
+    discriminant = b ** 2 - 3 * a * c  # simplified expression, not a mistake!
     if discriminant >= 0:
-        if b*b < abs(3*a*c)*1e5:
-            if log.do_high:
-                log('               cubic')
-            xa = (-b + np.sqrt(discriminant))/(3*a)
-            xb = (-b - np.sqrt(discriminant))/(3*a)
+        if b * b < abs(3 * a * c) * 1e5:
+            print('7:               cubic')
+            xa = (-b + np.sqrt(discriminant)) / (3 * a)
+            xb = (-b - np.sqrt(discriminant)) / (3 * a)
             # test the solutions
             for x in xa, xb:
                 if x >= 0 and x <= 1:
                     # compute the curvature at the solution
-                    curv = 6*a*x+2*b
+                    curv = 6 * a * x + 2 * b
                     if curv > 0:
                         # Only one of two solutions has the right curvature, no
                         # need to compare the energy of both solutions
                         return x
-        elif b > 0: # only b > 0 because b is also the curvature
-            if log.do_high:
-                log('               quadratic')
-            x = -0.5*c/b
+        elif b > 0:  # only b > 0 because b is also the curvature
+            print('7:               quadratic')
+            x = -0.5 * c / b
             if x >= 0 and x <= 1:
                 return x
 
     # If we get here, no solution was found in the interval. One of the
     # boundaries is then the minimum
-    if log.do_high:
-        log('               edge')
+    print('7:               edge')
     if f0 < f1:
         return 0.0
     else:
@@ -112,7 +107,7 @@ def find_min_quadratic(g0, g1):
 
 class ODASCFSolver(object):
     '''Optimal damping SCF algorithm (with cubic interpolation)'''
-    kind = 'dm' # input/output variable is the density matrix
+    kind = 'dm'  # input/output variable is the density matrix
 
     def __init__(self, threshold=1e-8, maxiter=128, skip_energy=False, debug=False):
         '''
@@ -158,18 +153,18 @@ class ODASCFSolver(object):
         '''
         # Some type checking
         if ham.ndm != len(dm0s):
-            raise TypeError('The number of initial density matrices does not match the Hamiltonian.')
+            raise TypeError(
+                'The number of initial density matrices does not match the Hamiltonian.')
 
         # Check input density matrices.
         for i in xrange(ham.ndm):
             check_dm(dm0s[i], overlap)
         occ_model.check_dms(overlap, *dm0s)
 
-        if log.do_medium:
-            log('Starting SCF with optimal damping. ham.ndm=%i' % ham.ndm)
-            log.hline()
-            log(' Iter               Energy         Error      Mixing')
-            log.hline()
+        print('5: Starting SCF with optimal damping. ham.ndm=%i' % ham.ndm)
+        print("5: " + "-" * 70)
+        print('5: Iter               Energy         Error      Mixing')
+        print("5: " + "-" * 70)
 
         fock0s = [np.zeros(overlap.shape) for i in xrange(ham.ndm)]
         fock1s = [np.zeros(overlap.shape) for i in xrange(ham.ndm)]
@@ -189,11 +184,10 @@ class ODASCFSolver(object):
             # Compute the energy in point 0
             energy0 = ham.compute_energy()
 
-            if log.do_medium:
-                if mixing is None:
-                    log('%5i %20.13f' % (counter, energy0))
-                else:
-                    log('%5i %20.13f  %12.5e  %10.5f' % (counter, energy0, error, mixing))
+            if mixing is None:
+                print('5: %5i %20.13f' % (counter, energy0))
+            else:
+                print('5: %5i %20.13f  %12.5e  %10.5f' % (counter, energy0, error, mixing))
 
             # go to point 1 by diagonalizing the fock matrices
             for i in xrange(ham.ndm):
@@ -224,9 +218,8 @@ class ODASCFSolver(object):
             deriv1 *= ham.deriv_scale
 
             # find the lambda that minimizes the cubic polynomial in the range [0,1]
-            if log.do_high:
-                log('           E0: % 10.5e     D0: % 10.5e' % (energy0, deriv0))
-                log('        E1-E0: % 10.5e     D1: % 10.5e' % (energy1-energy0, deriv1))
+            print('5:            E0: % 10.5e     D0: % 10.5e' % (energy0, deriv0))
+            print('5:         E1-E0: % 10.5e     D1: % 10.5e' % (energy1 - energy0, deriv1))
             mixing = find_min_cubic(energy0, energy1, deriv0, deriv1)
 
             if self.debug:
@@ -235,27 +228,27 @@ class ODASCFSolver(object):
             # compute the mixed density and fock matrices (in-place in dm0s and fock0s)
             for i in xrange(ham.ndm):
                 dm0s[i][:] *= 1 - mixing
-                dm0s[i][:] += dm1s[i]*mixing
+                dm0s[i][:] += dm1s[i] * mixing
                 fock0s[i][:] *= 1 - mixing
-                fock0s[i][:] += fock1s[i]*mixing
+                fock0s[i][:] += fock1s[i] * mixing
 
             # Compute the convergence criterion.
             errorsq = 0.0
             for i in xrange(ham.ndm):
                 commutator = compute_commutator(dm0s[i], fock0s[i], overlap)
                 errorsq += np.einsum('ab,ab', commutator, commutator)
-            error = errorsq**0.5
+            error = errorsq ** 0.5
             if error < self.threshold:
                 converged = True
                 break
             elif mixing == 0.0:
-                raise NoSCFConvergence('The ODA algorithm made a zero step without reaching convergence.')
+                raise NoSCFConvergence(
+                    'The ODA algorithm made a zero step without reaching convergence.')
 
             # counter
             counter += 1
 
-        if log.do_medium:
-            ham.log()
+        print(ham) # TODO: add __repr__ to ham
 
         if not converged:
             raise NoSCFConvergence
@@ -310,7 +303,7 @@ def check_cubic(ham, dm0s, dm1s, e0, e1, g0, g1, do_plot=True):
     # coefficients of the polynomial a*x**3 + b*x**2 + c*x + d
     d = e0
     c = g0
-    a = g1 - 2*e1 + c + 2*d
+    a = g1 - 2 * e1 + c + 2 * d
     b = e1 - a - c - d
 
     ndm = len(dm0s)
@@ -320,7 +313,7 @@ def check_cubic(ham, dm0s, dm1s, e0, e1, g0, g1, do_plot=True):
     energies = []
     for x in xs:
         for i in xrange(ndm):
-            dm2s[i][:] = dm0s[i]*(1-x) + dm1s[i]*x
+            dm2s[i][:] = dm0s[i] * (1 - x) + dm1s[i] * x
         ham.reset(*dm2s)
         e2 = ham.compute_energy()
         energies.append(e2)
@@ -329,28 +322,29 @@ def check_cubic(ham, dm0s, dm1s, e0, e1, g0, g1, do_plot=True):
     if do_plot:
         # make a nice figure
         xxs = np.concatenate([np.linspace(0, 0.006, 60), np.linspace(0.994, 1.0, 60)])
-        poly = a*xxs**3+b*xxs**2+c*xxs+d
+        poly = a * xxs ** 3 + b * xxs ** 2 + c * xxs + d
         import matplotlib.pyplot as pt
         pt.clf()
         pt.subplot(121)
         pt.plot(xxs, poly, 'k-', label='cubic')
         pt.plot(xs, energies, 'ro', label='ref')
-        pt.plot([0,1],[e0,e1], 'b--', label='linear')
+        pt.plot([0, 1], [e0, e1], 'b--', label='linear')
         pt.xlim(0, 0.006)
         pt.ylim(min(energies[:5].min(), poly[:60].min()), max(energies[:5].max(), poly[:60].max()))
         pt.legend(loc=0)
         pt.subplot(122)
         pt.plot(xxs, poly, 'k-', label='cubic')
         pt.plot(xs, energies, 'ro', label='ref')
-        pt.plot([0,1],[e0,e1], 'b--', label='linear')
+        pt.plot([0, 1], [e0, e1], 'b--', label='linear')
         pt.xlim(0.994, 1.0)
-        pt.ylim(min(energies[-5:].min(), poly[-60:].min()), max(energies[-5:].max(), poly[-60:].max()))
+        pt.ylim(min(energies[-5:].min(), poly[-60:].min()),
+                max(energies[-5:].max(), poly[-60:].max()))
         pt.legend(loc=0)
         pt.savefig('check_cubic_%+024.17f.png' % e0)
     else:
         # if not plotting, check that the errors are not too large
-        poly = a*xs**3+b*xs**2+c*xs+d
-        relative_errors = abs(poly[:5]-energies[:5])/(energies[:5] - e0)
+        poly = a * xs ** 3 + b * xs ** 2 + c * xs + d
+        relative_errors = abs(poly[:5] - energies[:5]) / (energies[:5] - e0)
         assert relative_errors.max() < 0.03
-        relative_errors = abs(poly[-5:]-energies[-5:])/(energies[-5:] - e1)
+        relative_errors = abs(poly[-5:] - energies[-5:]) / (energies[-5:] - e1)
         assert relative_errors.max() < 0.03

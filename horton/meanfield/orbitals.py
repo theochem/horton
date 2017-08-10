@@ -25,8 +25,6 @@ import numpy as np
 from scipy.linalg import eigh
 
 from horton.utils import check_type
-from horton.log import log
-
 
 __all__ = ['Orbitals']
 
@@ -478,8 +476,7 @@ class Orbitals(object):
             raise TypeError('The argument swaps has the wrong shape/type.')
         for iswap in range(len(swaps)):
             index0, index1 = swaps[iswap]
-            if log.do_medium:
-                log('  Swapping orbitals %i and %i' %(index0, index1))
+            print('5:  Swapping orbitals %i and %i' %(index0, index1))
             tmp = self.coeffs[:,index0].copy()
             self.coeffs[:,index0] = self.coeffs[:,index1]
             self.coeffs[:,index1] = tmp

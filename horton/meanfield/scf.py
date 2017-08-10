@@ -23,7 +23,7 @@
 
 import numpy as np
 
-from horton.log import log, timer
+from horton.log import timer
 from horton.exceptions import NoSCFConvergence
 from .convergence import convergence_error_eigen
 from .utils import get_level_shift
@@ -87,11 +87,10 @@ class PlainSCFSolver(object):
         for orb in orbs:
             orb.check_normalization(overlap)
 
-        if log.do_medium:
-            log('Starting plain SCF solver. ndm=%i' % ham.ndm)
-            log.hline()
-            log('Iter         Error')
-            log.hline()
+        print('Starting plain SCF solver. ndm=%i' % ham.ndm)
+        print("5: " + "-" * 70)
+        print('Iter         Error')
+        print("5: " + "-" * 70)
 
         focks = [np.zeros(overlap.shape) for i in xrange(ham.ndm)]
         dms = [None] * ham.ndm
@@ -109,8 +108,7 @@ class PlainSCFSolver(object):
             error = 0.0
             for i in xrange(ham.ndm):
                 error += orbs[i].error_eigen(focks[i], overlap)
-            if log.do_medium:
-                log('%4i  %12.5e' % (counter, error))
+            print('5: %4i  %12.5e' % (counter, error))
             if error < self.threshold:
                 converged = True
                 break
@@ -131,13 +129,11 @@ class PlainSCFSolver(object):
             # counter
             counter += 1
 
-        if log.do_medium:
-            log.blank()
+        print("5: ")
 
         if not self.skip_energy:
             ham.compute_energy()
-            if log.do_medium:
-                ham.log()
+            print(ham)
 
         if not converged:
             raise NoSCFConvergence
