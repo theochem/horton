@@ -23,7 +23,6 @@
 
 import numpy as np
 
-from horton.log import timer
 from horton.exceptions import NoSCFConvergence
 from .convergence import convergence_error_commutator
 from .utils import compute_commutator, check_dm
@@ -77,7 +76,6 @@ class DIISSCFSolver(object):
         self.commutator = None
 
 
-    @timer.with_section('SCF')
     def __call__(self, ham, overlap, occ_model, *dms):
         '''Find a self-consistent set of density matrices.
 

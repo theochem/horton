@@ -23,7 +23,6 @@
 import numpy as np
 
 from horton.exceptions import NoSCFConvergence
-from horton.log import timer
 from .convergence import convergence_error_commutator
 from .orbitals import Orbitals
 from .utils import check_dm, compute_commutator
@@ -132,7 +131,6 @@ class ODASCFSolver(object):
         self.skip_energy = skip_energy
         self.debug = debug
 
-    @timer.with_section('SCF')
     def __call__(self, ham, overlap, occ_model, *dm0s):
         '''Find a self-consistent set of density matrices.
 

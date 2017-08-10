@@ -23,7 +23,6 @@
 
 import numpy as np
 
-from horton.log import timer
 from horton.exceptions import NoSCFConvergence
 from .convergence import convergence_error_eigen
 from .utils import get_level_shift
@@ -62,7 +61,6 @@ class PlainSCFSolver(object):
             raise ValueError('The level_shift argument cannot be negative.')
         self.level_shift = level_shift
 
-    @timer.with_section('SCF')
     def __call__(self, ham, overlap, occ_model, *orbs):
         """Find a self-consistent set of orbitals.
 

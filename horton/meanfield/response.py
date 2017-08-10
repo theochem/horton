@@ -22,13 +22,10 @@
 
 import numpy as np
 
-from horton.log import timer
-
 
 __all__ = ['compute_noninteracting_response']
 
 
-@timer.with_section('KS Response')
 def compute_noninteracting_response(orb, operators, work=None):
     '''Compute the non-interacting response matrix for a given orbital expansion
 

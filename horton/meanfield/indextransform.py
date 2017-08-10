@@ -23,9 +23,6 @@
 
 import numpy as np
 
-from horton.log import timer
-
-
 __all__ = ['four_index_transform', 'transform_integrals', 'split_core_active',
            'four_index_transform_cholesky', 'transform_integrals_cholesky', 'split_core_active_cholesky']
 
@@ -115,7 +112,6 @@ def four_index_transform(ao_integrals, orb0, orb1=None, orb2=None, orb3=None, me
     return result
 
 
-@timer.with_section('Index Trans')
 def transform_integrals(one, two, method='tensordot', *orbs):
     """Transform integrals to MO basis.
 
@@ -258,7 +254,6 @@ def four_index_transform_cholesky(ao_integrals, orb0, orb1=None, method='tensord
     return result
 
 
-@timer.with_section('Index Trans')
 def transform_integrals_cholesky(one, two, method='tensordot', *orbs):
     """Transform integrals to MO basis.
 

@@ -21,7 +21,7 @@
 """Interface to LDA, GGA and hybrid functionals from LibXC"""
 
 
-from horton.log import timer, biblio
+from horton.log import biblio
 from horton.utils import doc_inherit
 from .gridgroup import GridObservable, DF_LEVEL_LDA, \
     DF_LEVEL_GGA, DF_LEVEL_MGGA
@@ -67,7 +67,6 @@ class RLibXCLDA(LibXCEnergy):
     prefix = 'lda'
     LibXCWrapper = RLibXCWrapper
 
-    @timer.with_section('LDA edens')
     @doc_inherit(LibXCEnergy)
     def compute_energy(self, cache, grid):
         # LibXC expects the following input:
@@ -80,7 +79,6 @@ class RLibXCLDA(LibXCEnergy):
             self._libxc_wrapper.compute_lda_exc(rho_full, edens)
         return grid.integrate(edens, rho_full)
 
-    @timer.with_section('LDA pot')
     @doc_inherit(LibXCEnergy)
     def add_pot(self, cache, grid, pots_alpha):
         # LibXC expects the following input:
@@ -92,7 +90,6 @@ class RLibXCLDA(LibXCEnergy):
             self._libxc_wrapper.compute_lda_vxc(cache['rho_full'], pot)
         pots_alpha[:, 0] += pot
 
-    @timer.with_section('LDA dot')
     @doc_inherit(LibXCEnergy)
     def add_dot(self, cache, grid, dots_alpha):
         # LibXC expects the following input:
@@ -115,7 +112,6 @@ class ULibXCLDA(LibXCEnergy):
     prefix = 'lda'
     LibXCWrapper = ULibXCWrapper
 
-    @timer.with_section('LDA edens')
     @doc_inherit(LibXCEnergy)
     def compute_energy(self, cache, grid):
         # LibXC expects the following input:
@@ -131,7 +127,6 @@ class ULibXCLDA(LibXCEnergy):
             self._libxc_wrapper.compute_lda_exc(cache['rho_both'], edens)
         return grid.integrate(edens, cache['rho_full'])
 
-    @timer.with_section('LDA pot')
     @doc_inherit(LibXCEnergy)
     def add_pot(self, cache, grid, pots_alpha, pots_beta):
         # LibXC expects the following input:
@@ -154,7 +149,6 @@ class RLibXCGGA(LibXCEnergy):
     prefix = 'gga'
     LibXCWrapper = RLibXCWrapper
 
-    @timer.with_section('GGA edens')
     @doc_inherit(LibXCEnergy)
     def compute_energy(self, cache, grid):
         # LibXC expects the following input:
@@ -189,7 +183,6 @@ class RLibXCGGA(LibXCEnergy):
             self._libxc_wrapper.compute_gga_vxc(rho_full, sigma_full, dpot, spot)
         return dpot, spot
 
-    @timer.with_section('GGA pot')
     @doc_inherit(LibXCEnergy)
     def add_pot(self, cache, grid, pots_alpha):
         # LibXC expects the following input:
@@ -213,7 +206,6 @@ class RLibXCGGA(LibXCEnergy):
         # Add to the output argument
         pots_alpha[:, :4] += my_gga_pot_alpha
 
-    @timer.with_section('GGA dot')
     @doc_inherit(LibXCEnergy)
     def add_dot(self, cache, grid, dots_alpha):
         # LibXC expects the following input:
@@ -292,7 +284,6 @@ class ULibXCGGA(LibXCEnergy):
     prefix = 'gga'
     LibXCWrapper = ULibXCWrapper
 
-    @timer.with_section('GGA edens')
     @doc_inherit(LibXCEnergy)
     def compute_energy(self, cache, grid):
         # LibXC expects the following input:
@@ -311,7 +302,6 @@ class ULibXCGGA(LibXCEnergy):
         rho_full = cache['rho_full']
         return grid.integrate(edens, rho_full)
 
-    @timer.with_section('GGA pot')
     @doc_inherit(LibXCEnergy)
     def add_pot(self, cache, grid, pots_alpha, pots_beta):
         # LibXC expects the following input:
@@ -394,7 +384,6 @@ class RLibXCMGGA(LibXCEnergy):
     prefix = 'mgga'
     LibXCWrapper = RLibXCWrapper
 
-    @timer.with_section('MGGA edens')
     @doc_inherit(LibXCEnergy)
     def compute_energy(self, cache, grid):
         # LibXC expects the following input:
@@ -414,7 +403,6 @@ class RLibXCMGGA(LibXCEnergy):
                                                  tau_full, edens)
         return grid.integrate(edens, rho_full)
 
-    @timer.with_section('MGGA pot')
     @doc_inherit(LibXCEnergy)
     def add_pot(self, cache, grid, pots_alpha):
         # LibXC expects the following input:
@@ -462,7 +450,6 @@ class ULibXCMGGA(LibXCEnergy):
     prefix = 'mgga'
     LibXCWrapper = ULibXCWrapper
 
-    @timer.with_section('MGGA edens')
     @doc_inherit(LibXCEnergy)
     def compute_energy(self, cache, grid):
         # LibXC expects the following input:
@@ -488,7 +475,6 @@ class ULibXCMGGA(LibXCEnergy):
         rho_full = cache['rho_full']
         return grid.integrate(edens, rho_full)
 
-    @timer.with_section('MGGA pot')
     @doc_inherit(LibXCEnergy)
     def add_pot(self, cache, grid, pots_alpha, pots_beta):
         # LibXC expects the following input:
