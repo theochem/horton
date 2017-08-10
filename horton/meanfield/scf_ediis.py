@@ -22,7 +22,6 @@
 
 import numpy as np
 
-from horton.log import biblio
 from horton.exceptions import NoSCFConvergence
 from .scf_diis import DIISHistory, DIISSCFSolver
 from horton.quadprog import QPSolver
@@ -57,8 +56,8 @@ class EDIISSCFSolver(DIISSCFSolver):
                 as soon as a state is encountered with a non-zero coefficient. Even
                 if some newer states have a zero coefficient.
         '''
-        biblio.cite('kudin2002', 'the EDIIS method.')
         DIISSCFSolver.__init__(self, EDIISHistory, threshold, maxiter, nvector, skip_energy, prune_old_states)
+        self.biblio.append(['kudin2002', 'the EDIIS method.'])
 
 
 class EDIISHistory(DIISHistory):

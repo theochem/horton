@@ -74,6 +74,7 @@ class DIISSCFSolver(object):
         self._focks = []
         self._orbs = []
         self.commutator = None
+        self.biblio = []
 
 
     def __call__(self, ham, overlap, occ_model, *dms):

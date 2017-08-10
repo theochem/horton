@@ -26,7 +26,6 @@ import numpy as np
 from horton.exceptions import ElectronCountError
 from horton.quadprog import find_1d_root
 from horton.constants import boltzmann
-from horton.log import biblio
 from horton.utils import doc_inherit
 
 
@@ -111,6 +110,7 @@ class AufbauOccModel(OccModel):
         if sum(noccs) == 0:
             raise ElectronCountError('At least one electron is required.')
         self.noccs = noccs
+        self.biblio = []
 
     @doc_inherit(OccModel)
     def assign(self, *orbs):
@@ -221,7 +221,7 @@ class FermiOccModel(AufbauOccModel):
         self.temperature = float(temperature)
         self.eps = eps
         AufbauOccModel.__init__(self, *noccs)
-        biblio.cite('rabuck1999', 'the Fermi broading method to assign orbital occupations')
+        self.biblio.append(['rabuck1999', 'the Fermi broading method to assign orbital occupations'])
 
     @doc_inherit(OccModel)
     def assign(self, *orbs):

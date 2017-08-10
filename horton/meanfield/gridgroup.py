@@ -531,6 +531,7 @@ class GridObservable(object):
             A unique label for this contribution.
         """
         self.label = label
+        self.biblio = []
 
     def compute_energy(self, cache, grid):
         """Compute the expectation value using numerical integration.

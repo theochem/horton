@@ -23,7 +23,6 @@
 
 import numpy as np
 
-from horton.log import biblio
 from .scf_diis import DIISHistory, DIISSCFSolver
 from .scf_cdiis import CDIISHistory
 from .scf_ediis import EDIISHistory
@@ -58,8 +57,8 @@ class EDIIS2SCFSolver(DIISSCFSolver):
                 as soon as a state is encountered with a non-zero coefficient. Even
                 if some newer states have a zero coefficient.
         '''
-        biblio.cite('kudin2002', 'the EDIIS method.')
         DIISSCFSolver.__init__(self, EDIIS2History, threshold, maxiter, nvector, skip_energy, prune_old_states)
+        self.biblio.append(['kudin2002', 'the EDIIS method.'])
 
 
 class EDIIS2History(EDIISHistory, CDIISHistory):

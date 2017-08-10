@@ -21,7 +21,6 @@
 """Interface to LDA, GGA and hybrid functionals from LibXC"""
 
 
-from horton.log import biblio
 from horton.utils import doc_inherit
 from .gridgroup import GridObservable, DF_LEVEL_LDA, \
     DF_LEVEL_GGA, DF_LEVEL_MGGA
@@ -56,8 +55,8 @@ class LibXCEnergy(GridObservable):
         name = '%s_%s' % (self.prefix, name)
         self._name = name
         self._libxc_wrapper = self.LibXCWrapper(name)
-        biblio.cite('marques2012', 'using LibXC, the library of exchange and correlation functionals')
         GridObservable.__init__(self, 'libxc_%s' % name)
+        self.biblio.append(['marques2012', 'using LibXC, the library of exchange and correlation functionals'])
 
 
 class RLibXCLDA(LibXCEnergy):
