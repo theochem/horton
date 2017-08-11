@@ -238,8 +238,8 @@ def test_dot_hessian_o3lyp_cs():
 
 def test_dot_hessian_o3lyp_cs_polynomial():
     raise SkipTest("We should use more robust tests for derivatives.")
-    #mol, olp, kin, na, ham = setup_o3lyp_cs()
-    #check_dot_hessian_polynomial(olp, kin+na, ham, [mol.orb_alpha], is_hf=False, extent=0.00001)
+    # mol, olp, kin, na, ham = setup_o3lyp_cs()
+    # check_dot_hessian_polynomial(olp, kin+na, ham, [mol.orb_alpha], is_hf=False, extent=0.00001)
 
 
 def test_dot_hessian_o3lyp_cs_cache():
