@@ -238,8 +238,8 @@ def test_dot_hessian_o3lyp_cs():
 
 def test_dot_hessian_o3lyp_cs_polynomial():
     raise SkipTest("We should use more robust tests for derivatives.")
-    mol, olp, kin, na, ham = setup_o3lyp_cs()
-    check_dot_hessian_polynomial(olp, kin+na, ham, [mol.orb_alpha], is_hf=False, extent=0.00001)
+    #mol, olp, kin, na, ham = setup_o3lyp_cs()
+    #check_dot_hessian_polynomial(olp, kin+na, ham, [mol.orb_alpha], is_hf=False, extent=0.00001)
 
 
 def test_dot_hessian_o3lyp_cs_cache():
@@ -373,18 +373,6 @@ def test_cubic_interpolation_x_tpss_os():
     check_interpolation(ham, olp, kin, na, [mol.orb_alpha, mol.orb_beta])
 
 
-def test_hyb_cam_exx_parameters():
-    # xc_pbeh = The PBE0 functional
-    t1 = RLibXCHybridGGA('xc_pbeh')
-    assert t1.get_exx_fraction() == 0.25
-    assert t1.get_cam_coeffs() == (0.0, 0.25, 0.0)
-    t2 = ULibXCHybridGGA('xc_pbeh')
-    assert t2.get_exx_fraction() == 0.25
-    assert t2.get_cam_coeffs() == (0.0, 0.25, 0.0)
-    t1 = RLibXCHybridGGA('xc_wb97x')
-    assert t1.get_cam_coeffs() == (0.3, 1.0, -0.842294)
-    assert t1.get_exx_fraction() == 1.0
-
 def test_functionals_present():
     t1 = RLibXCLDA('c_vwn')     # The VWN 5 functional
     assert t1._libxc_wrapper.key == 'lda_c_vwn'
@@ -412,7 +400,8 @@ ref_lda_x_1 = """\
 
 ref_lda_x_2 = """\
 @article{Bloch1929_545,
-  title = {Bemerkung zur Elektronentheorie des Ferromagnetismus und der elektrischen Leitf\xc3\xa4higkeit},
+  title = {Bemerkung zur Elektronentheorie des Ferromagnetismus und der elektrischen \
+Leitf\xc3\xa4higkeit},
   author = {F. Bloch},
   journal = {Z. Phys.},
   volume = {57},
@@ -425,6 +414,7 @@ ref_lda_x_2 = """\
   doi = {10.1007/BF01340281},
   url = {http://link.springer.com/article/10.1007\\%2FBF01340281}
 }"""
+
 
 def test_info():
     t = RLibXCWrapper('lda_x')
@@ -444,14 +434,24 @@ def test_info():
 
 def test_info_nonexisting():
     with assert_raises(ValueError):
-        t = RLibXCWrapper('lda_foobar')
+        RLibXCWrapper('lda_foobar')
 
 
 def test_hyb_cam_exx_parameters():
+    # xc_pbeh = The PBE0 functional
+    t1 = RLibXCHybridGGA('xc_pbeh')
+    assert t1.get_exx_fraction() == 0.25
+    assert t1.get_cam_coeffs() == (0.0, 0.25, 0.0)
+    t2 = ULibXCHybridGGA('xc_pbeh')
+    assert t2.get_exx_fraction() == 0.25
+    assert t2.get_cam_coeffs() == (0.0, 0.25, 0.0)
+    t3 = RLibXCHybridGGA('xc_wb97x')
+    assert t3.get_cam_coeffs() == (0.3, 1.0, -0.842294)
+    assert t3.get_exx_fraction() == 1.0
     # xc_tpssh = The TPSS functional with exact exchange
-    t1 = RLibXCHybridMGGA('xc_tpssh')
-    assert t1.get_exx_fraction() == 0.1
-    assert t1.get_cam_coeffs() == (0.0, 0.1, 0.0)
-    t2 = ULibXCHybridMGGA('xc_tpssh')
-    assert t2.get_exx_fraction() == 0.1
-    assert t2.get_cam_coeffs() == (0.0, 0.1, 0.0)
+    t4 = RLibXCHybridMGGA('xc_tpssh')
+    assert t4.get_exx_fraction() == 0.1
+    assert t4.get_cam_coeffs() == (0.0, 0.1, 0.0)
+    t5 = ULibXCHybridMGGA('xc_tpssh')
+    assert t5.get_exx_fraction() == 0.1
+    assert t5.get_cam_coeffs() == (0.0, 0.1, 0.0)

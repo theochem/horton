@@ -95,7 +95,7 @@ def main():
             w = ULibXCWrapper(key)
             print >> s, '**{}**: {}'.format(key, w.name)
             print >> s
-            for ref, doi, biblio in w.refs:
+            for ref, doi, _biblio in w.refs:
                 print >> s, ' | {}'.format(ref),
                 if len(doi) > 0:
                     print >> s, ' https://doi.org/{}'.format(doi)
