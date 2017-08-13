@@ -117,7 +117,7 @@ def test_gobasis_consistency():
 
 
 def test_load_basis():
-    for go_basis_family in go_basis_families.itervalues():
+    for go_basis_family in go_basis_families.values():
         assert os.path.basename(go_basis_family.filename).islower()
         go_basis_family.load()
 
@@ -144,7 +144,7 @@ def test_grid_lih_321g_hf_density_some_points():
     assert obasis.nprims[0] == 3
     scales = obasis.get_scales()
     total = 0.0
-    for i in xrange(3):
+    for i in range(3):
         alpha = obasis.alphas[i]
         coeff = obasis.con_coeffs[i]
         nrml = gob_cart_normalization(alpha, np.zeros(3, int))
@@ -612,7 +612,7 @@ def test_basis_atoms():
         assert (sub_obasis.centers[0] == obasis.centers[icenter]).all()
         icenter += 1
         ibasis_all.extend(ibasis_list)
-    assert ibasis_all == range(obasis.nbasis)
+    assert ibasis_all == list(range(obasis.nbasis))
 
 
 def check_normalization(number, basis):
@@ -639,5 +639,5 @@ def check_normalization(number, basis):
 
 
 def test_normalization_ccpvdz():
-    for number in xrange(1, 18 + 1):
+    for number in range(1, 18 + 1):
         check_normalization(number, 'cc-pvdz')

@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
+
 import json
 
 from os import mkdir
@@ -57,7 +60,7 @@ def grep_file():
                 i(mol, san_fn)
             except AttributeError:
                 pass
-        print "-" * 80
+        print("-" * 80)
 
     print("Processed:")
     for f in filenames:
@@ -86,7 +89,7 @@ def save_ints(mol, san_fn):
 
 def save_gobasis_params(mol, san_fn):
     obasis = mol.obasis
-    print san_fn + " = ",
+    print(san_fn + " = ", end=' ')
     print(obasis.centers, obasis.shell_map, obasis.nprims, obasis.shell_types, obasis.alphas, obasis.con_coeffs)
 
 
@@ -110,7 +113,7 @@ def save_moldata(mol, san_fn):
     d = {"coordinates": mol.coordinates,
          "numbers": mol.numbers,
          "pseudo_numbers": mol.pseudo_numbers}
-    print san_fn + "=",
+    print(san_fn + "=", end=' ')
     print(d)
 
 

@@ -28,8 +28,8 @@ from contextlib import contextmanager
 import numpy as np
 from os import path
 
-import gobasis_data as gdata
-import mol_data as mdata
+from . import gobasis_data as gdata
+from . import mol_data as mdata
 from .. import gobasis
 
 

@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from lightgrid import generate_molecular_grid
+from .lightgrid import generate_molecular_grid
 
 
 def test_gaussians_triatomic():
@@ -34,7 +34,7 @@ def test_gaussians_triatomic():
     # Put normalized Slaters on the nuclei
     rho = 0.0
     alphas = [2.0, 2.0, 1.8]
-    for iatom in xrange(3):
+    for iatom in range(3):
         deltas = points - coordinates[iatom]
         distances = np.sqrt(np.einsum('ij,ij->i', deltas, deltas))
         rho += (alphas[iatom]**3/(8*np.pi))*np.exp(-distances*alphas[iatom])

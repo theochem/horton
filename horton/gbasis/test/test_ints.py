@@ -32,7 +32,7 @@ from . lightgrid import *  # pylint: disable=wildcard-import,unused-wildcard-imp
 def test_gpt_coeff():
     def py_gpt_coeff(k, n0, n1, pa, pb):
         result = 0
-        for q in xrange(max(-k, k - 2 * n0), min(k, 2 * n1 - k) + 1, 2):
+        for q in range(max(-k, k - 2 * n0), min(k, 2 * n1 - k) + 1, 2):
             i0 = (k + q) / 2
             i1 = (k - q) / 2
             assert (k + q) % 2 == 0
@@ -42,12 +42,12 @@ def test_gpt_coeff():
 
     pa = 0.8769
     pb = 0.123
-    for k in xrange(5):
+    for k in range(5):
         check = py_gpt_coeff(k, 2, 2, pa, pb)
         result = gpt_coeff(k, 2, 2, pa, pb)
         assert abs(check - result) < 1e-10
 
-    for k in xrange(7):
+    for k in range(7):
         check = py_gpt_coeff(k, 3, 3, pa, pb)
         result = gpt_coeff(k, 3, 3, pa, pb)
         assert abs(check - result) < 1e-10
@@ -195,7 +195,7 @@ def test_nuclear_attraction_helper():
         else:
             raise NotImplementedError
 
-    for counter in xrange(100):
+    for counter in range(100):
         pa, pb, cp, gamma_inv = np.random.uniform(0.5, 2.0, 4)
         #
         work_g = np.zeros(1, float)

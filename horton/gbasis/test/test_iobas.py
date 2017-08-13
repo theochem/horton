@@ -166,7 +166,7 @@ def test_dump_basis_atom_map_gbs():
         dump_basis_atom_map_gbs(tmp_gbs, sto3g.name, sto3g.basis_atom_map)
         new_sto3g = GOBasisFamily('new STO-3G', filename=tmp_gbs)
         new_sto3g.load()
-        for atom, bca in new_sto3g.basis_atom_map.iteritems():
+        for atom, bca in new_sto3g.basis_atom_map.items():
             old_bca = sto3g.basis_atom_map[atom]
             for i, contraction in enumerate(bca.bcs):
                 old_contraction = old_bca.bcs[i]

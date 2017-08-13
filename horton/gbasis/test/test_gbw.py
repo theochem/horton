@@ -37,7 +37,6 @@ def test_select_2index():
     obasis, er = get_h2o_er()
 
     lookups = obasis.shell_lookup
-    print lookups, obasis.basis_offsets
     for index0 in np.arange(obasis.nbasis):
         for index2 in np.arange(obasis.nbasis):
             pbegin0, pend0, pbegin2, pend2 = select_2index(obasis, index0, index2)
@@ -54,7 +53,6 @@ def test_select_2index():
             assert pbegin0 == obasis.basis_offsets[shell0]
             if shell0 + 1 < obasis.nshell:
                 assert pend0 == obasis.basis_offsets[shell0 + 1], pend0
-                print pend0 + 1
             if shell2 + 1 < obasis.nshell:
                 assert pend2 == obasis.basis_offsets[shell2 + 1], pend2
 

@@ -22,6 +22,7 @@
 
 
 import numpy as np
+from functools import reduce
 
 
 __all__ = ['generate_molecular_grid', 'integrate']

@@ -456,9 +456,9 @@ def test_itergb4_idea():
     # a counter for each element of a four-index operator with 5 DOF:
     tboc = np.zeros((5, 5, 5, 5), int)
     # quadruple loop over all unique elements:
-    for i in xrange(5):
-        for j in xrange(i + 1):  # (i>=j)
-            for k in xrange(i + 1):  # (i>=k)
+    for i in range(5):
+        for j in range(i + 1):  # (i>=j)
+            for k in range(i + 1):  # (i>=k)
                 if i == j:
                     # this is a special case: when i==j, the permutation of the
                     # last two indexes is also a symmetry. Hence we have (k>=l)
@@ -466,7 +466,7 @@ def test_itergb4_idea():
                 else:
                     # this is the regular case: (j>=l)
                     lm = j
-                for l in xrange(lm + 1):
+                for l in range(lm + 1):
                     # add 1 to tboc element and all relevant symmetries
                     tboc[i, j, k, l] += 1
                     tboc[j, i, l, k] += 1
@@ -478,10 +478,10 @@ def test_itergb4_idea():
                     tboc[j, k, l, i] += 1
     # The counter should be equal to the number of relevant permutations that
     # leave the indices unchanged.
-    for i in xrange(5):
-        for j in xrange(5):
-            for k in xrange(5):
-                for l in xrange(5):
+    for i in range(5):
+        for j in range(5):
+            for k in range(5):
+                for l in range(5):
                     expected = 1 + sum([
                         (i, j, k, l) == (j, i, l, k),
                         (i, j, k, l) == (k, l, i, j),
@@ -531,10 +531,10 @@ def test_itergb4_idea_inc_shell():
             break
     # The counter should be equal to the number of relevant permutations that
     # leave the indices unchanged.
-    for i in xrange(N):
-        for j in xrange(N):
-            for k in xrange(N):
-                for l in xrange(N):
+    for i in range(N):
+        for j in range(N):
+            for k in range(N):
+                for l in range(N):
                     expected = 1 + sum([
                         (i, j, k, l) == (j, i, l, k),
                         (i, j, k, l) == (k, l, i, j),
@@ -553,7 +553,7 @@ def test_itergb4_inc_shell():
     i4, gobasis = get_itergb4()
     oprims = np.zeros(gobasis.nshell, int)
     basis_offsets = np.zeros(gobasis.nshell, int)
-    for i in xrange(1, gobasis.nshell):
+    for i in range(1, gobasis.nshell):
         oprims[i] = oprims[i - 1] + gobasis.nprims[i - 1]
         basis_offsets[i] = basis_offsets[i - 1] + get_shell_nbasis(gobasis.shell_types[i - 1])
 
@@ -648,7 +648,7 @@ def test_itergb4_inc_prim():
     i4, gobasis = get_itergb4()
     oprims = np.zeros(gobasis.nshell, int)
     basis_offsets = np.zeros(gobasis.nshell, int)
-    for i in xrange(1, gobasis.nshell):
+    for i in range(1, gobasis.nshell):
         oprims[i] = oprims[i - 1] + gobasis.nprims[i - 1]
         basis_offsets[i] = basis_offsets[i - 1] + get_shell_nbasis(gobasis.shell_types[i - 1])
 
@@ -682,7 +682,7 @@ def test_itergb4_inc_prim():
     i4.update_prim()
     check_fields(0, 0, 0, 0, 0, 0, 0, 0)
 
-    for i in xrange(10):
+    for i in range(10):
         assert i4.inc_shell() is True
     i4.update_prim()
     check_fields(2, 1, 0, 1, 0, 0, 0, 0)
@@ -696,7 +696,7 @@ def test_itergb4_inc_prim():
     assert i4.inc_prim() is True
     check_fields(2, 1, 0, 1, 0, 0, 1, 0)
 
-    for i in xrange(5 * 3 * 2 * 3 - 4):
+    for i in range(5 * 3 * 2 * 3 - 4):
         assert i4.inc_prim() is True
 
     assert i4.inc_prim() is False

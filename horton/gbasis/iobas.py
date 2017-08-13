@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from periodic import num2sym, sym2num
+from .periodic import num2sym, sym2num
 
 __all__ = [
     'str_to_shell_types', 'shell_type_to_str', 'fortran_float',
@@ -52,7 +52,7 @@ def fortran_float(s):
 
 def load_basis_atom_map_nwchem(filename):
     """Load the basis set family from an NWChem file."""
-    from gobasis import GOBasisAtom, GOBasisContraction
+    from .gobasis import GOBasisAtom, GOBasisContraction
 
     f = open(filename)
     basis_atom_map = {}
@@ -88,7 +88,7 @@ def load_basis_atom_map_nwchem(filename):
 
 def load_basis_atom_map_gbs(filename):
     """Load the basis set family from a GBS file."""
-    from gobasis import GOBasisAtom, GOBasisContraction
+    from .gobasis import GOBasisAtom, GOBasisContraction
 
     basis_atom_map = {}
     cur_atom = None
@@ -141,7 +141,7 @@ def dump_basis_atom_map_gbs(filename, name, basis_atom_map):
     with open(filename, 'w') as f:
         f.write('!Basis set, {0}, generated using HORTON\n\n'.format(name))
         f.write('****\n')
-        for atom, gobatom in sorted(basis_atom_map.iteritems()):
+        for atom, gobatom in sorted(basis_atom_map.items()):
             f.write('{0:<6}0\n'.format(num2sym[atom]))
             contractions = gobatom.bcs
             for contraction in contractions:
@@ -153,6 +153,6 @@ def dump_basis_atom_map_gbs(filename, name, basis_atom_map):
                 f.write('{0:<4}{1:<4}1.00\n'.format(
                     shell_type_to_str(contraction.shell_type).upper(), exponents.size))
                 for con_row in con_numbers:
-                    f.write(('{:>17}' * con_row.size).format(*con_row))
+                    f.write(('{:>17} ' * con_row.size).format(*con_row))
                     f.write('\n')
             f.write('****\n')

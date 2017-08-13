@@ -19,7 +19,10 @@
 #
 # --
 """Utility Functions"""
+
+
 from os import path
+import numpy as np
 
 
 def typecheck_geo(coordinates=None, numbers=None, pseudo_numbers=None,
@@ -70,7 +73,7 @@ def typecheck_geo(coordinates=None, numbers=None, pseudo_numbers=None,
         if need_coordinates:
             raise TypeError('Coordinates can not be None.')
     else:
-        if coordinates.shape != (natom, 3) or not issubclass(coordinates.dtype.type, float):
+        if coordinates.shape != (natom, 3) or not np.issubdtype(coordinates.dtype, np.float):
             raise TypeError('The argument centers must be a float array with shape (natom,3).')
 
     # Typecheck numbers
@@ -78,7 +81,7 @@ def typecheck_geo(coordinates=None, numbers=None, pseudo_numbers=None,
         if need_numbers:
             raise TypeError('Numbers can not be None.')
     else:
-        if numbers.shape != (natom,) or not issubclass(numbers.dtype.type, int):
+        if numbers.shape != (natom,) or not np.issubdtype(numbers.dtype, np.integer):
             raise TypeError('The argument numbers must be a vector with length natom.')
 
     # Typecheck pseudo_numbers
@@ -88,7 +91,7 @@ def typecheck_geo(coordinates=None, numbers=None, pseudo_numbers=None,
     else:
         if pseudo_numbers.shape != (natom,):
             raise TypeError('The argument pseudo_numbers must be a vector with length natom.')
-        if not issubclass(pseudo_numbers.dtype.type, float):
+        if not np.issubdtype(pseudo_numbers.dtype, np.float):
             pseudo_numbers = pseudo_numbers.astype(float)
 
     # Collect return values
