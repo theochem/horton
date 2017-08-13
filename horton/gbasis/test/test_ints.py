@@ -23,10 +23,14 @@
 import numpy as np
 from nose.tools import assert_raises
 
-from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
-
-from . common import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from . lightgrid import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from .common import (load_obasis, load_mdata, load_dm, load_er, load_quad, load_dipole, load_na,
+                     load_kin, load_olp, load_json)
+from .lightgrid import generate_molecular_grid, integrate
+from .. import (GB4RAlphaIntegralLibInt, GB4ErfIntegralLibInt, GB4GaussIntegralLibInt,
+                GB4ElectronRepulsionIntegralLibInt, GB2ErfAttractionIntegral, GB2KineticIntegral,
+                GB2GaussAttractionIntegral, GB2NuclearAttractionIntegral, GB2OverlapIntegral,
+                get_shell_nbasis, nuclear_attraction_helper, gpt_coeff, gb_overlap_int1d, binom,
+                gob_cart_normalization, iter_pow1_inc)
 
 
 def test_gpt_coeff():

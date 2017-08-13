@@ -23,7 +23,8 @@
 import numpy as np
 from nose.tools import assert_raises
 
-from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from .. import (GOBasis, IterGB1, IterGB2, IterGB4, IterPow1, IterPow2, iter_pow1_inc,
+                get_shell_nbasis)
 
 
 def test_iter_pow1_inc_l0():

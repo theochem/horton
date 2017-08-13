@@ -25,7 +25,7 @@ from __future__ import print_function
 import numpy as np
 
 from . mol_data import water_xyz as mdata
-from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from .. import get_gobasis
 
 
 def get_h2o_obasis():

@@ -24,9 +24,9 @@ import numpy as np
 from nose.tools import assert_raises
 from nose.plugins.attrib import attr
 
-from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
-
-from . common import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from .common import load_olp, load_kin, load_na
+from .. import (GB4ElectronRepulsionIntegralLibInt, GB2OverlapIntegral, get_shell_nbasis,
+                cart_to_pure_low, get_max_shell_type)
 
 
 tfs = {

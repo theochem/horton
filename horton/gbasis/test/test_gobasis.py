@@ -25,10 +25,12 @@ import os
 from nose.tools import assert_raises
 from nose.plugins.attrib import attr
 
-from .. import *  # pylint: disable=wildcard-import, unused-wildcard-import
-
-from .common import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from .lightgrid import generate_molecular_grid
+from .common import load_obasis, load_mdata, load_dm, load_orbsa_coeffs
+from .. import (GOBasisDesc, GOBasis, GB1DMGridDensityFn, get_shell_nbasis, get_gobasis,
+                gob_pure_normalization, gob_cart_normalization, go_basis_families,
+                get_max_shell_type)
+
 
 angstrom = 1.0e-10 / 0.5291772083e-10
 

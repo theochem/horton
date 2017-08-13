@@ -21,9 +21,8 @@
 
 import numpy as np
 
-from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
-
-from .common import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from .common import load_mdata
+from .. import get_gobasis, get_2index_slice, select_2index, compute_diagonal
 
 
 def get_h2o_er():

@@ -20,12 +20,12 @@
 # --
 
 
+import numpy as np
 from nose.tools import assert_raises
 
-from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
-
-from . common import *  # pylint: disable=wildcard-import,unused-wildcard-import
-
+from .common import tmpdir, load_mdata
+from .. import (GOBasisFamily, GOBasisContraction, go_basis_families, get_gobasis,
+                str_to_shell_types, dump_basis_atom_map_gbs, fortran_float, shell_type_to_str)
 from .. utils import to_basis_path
 
 

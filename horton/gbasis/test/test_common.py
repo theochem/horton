@@ -20,7 +20,7 @@
 # --
 
 
-from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from .. import fac, fac2, jfac, cit, binom
 
 
 def test_fac():

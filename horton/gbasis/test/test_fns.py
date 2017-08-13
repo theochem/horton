@@ -24,10 +24,11 @@ import numpy as np
 from nose.plugins.attrib import attr
 from nose.tools import assert_raises
 
-from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
-
-from . common import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from . lightgrid import generate_molecular_grid, integrate
+from .lightgrid import generate_molecular_grid, integrate
+from .common import (load_obasis, load_dm, load_mdata, load_orbsa_coeffs, load_orbsb_coeffs,
+                     load_orbsa_occs, load_orbsb_occs, load_orbsa_dms, load_orbsb_dms, check_delta)
+from .. import (GOBasis, GOBasisAtom, GOBasisContraction, GB1DMGridGradientFn, GB1DMGridDensityFn,
+                get_gobasis)
 
 
 def check_functional_deriv(fn, comp, dm_method, fock_method):

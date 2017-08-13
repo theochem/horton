@@ -23,7 +23,7 @@
 import numpy as np
 from nose.tools import assert_raises
 
-from .. import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from .. import boys_function, boys_function_array, get_max_shell_type
 
 
 def test_boys_functions():
