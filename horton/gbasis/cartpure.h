@@ -20,10 +20,10 @@
 
 // UPDATELIBDOCTITLE: Conversion of Cartesian to Pure Gaussian functions
 
-#ifndef HORTON_GBASIS_CARTPURE_H_
-#define HORTON_GBASIS_CARTPURE_H_
+#ifndef GBASIS_CARTPURE_H_
+#define GBASIS_CARTPURE_H_
 
 void cart_to_pure_low(double *work_cart, double *work_pure, long shell_type,
                       long nant, long npost);
 
-#endif  // HORTON_GBASIS_CARTPURE_H_
+#endif  // GBASIS_CARTPURE_H_

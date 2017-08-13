@@ -20,8 +20,8 @@
 
 // UPDATELIBDOCTITLE: Cholesky decomposition of (any) four-center integrals
 
-#ifndef HORTON_GBASIS_CHOLESKY_H_
-#define HORTON_GBASIS_CHOLESKY_H_
+#ifndef GBASIS_CHOLESKY_H_
+#define GBASIS_CHOLESKY_H_
 
 #include <vector>
 #include "gbw.h"
@@ -50,4 +50,4 @@
 long cholesky(GB4IntegralWrapper *gbw4, std::vector<double> *vectors,
               double threshold);
 
-#endif  // HORTON_GBASIS_CHOLESKY_H_
+#endif  // GBASIS_CHOLESKY_H_

@@ -20,8 +20,8 @@
 
 // UPDATELIBDOCTITLE: Iterators over Gaussian basis functions
 
-#ifndef HORTON_GBASIS_ITER_GB_H_
-#define HORTON_GBASIS_ITER_GB_H_
+#ifndef GBASIS_ITER_GB_H_
+#define GBASIS_ITER_GB_H_
 
 #include "gbasis.h"
 
@@ -134,4 +134,4 @@ class IterGB4 {
   long oprim0, oprim1, oprim2, oprim3;
 };
 
-#endif  // HORTON_GBASIS_ITER_GB_H_
+#endif  // GBASIS_ITER_GB_H_

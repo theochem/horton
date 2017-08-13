@@ -20,8 +20,8 @@
 
 // UPDATELIBDOCTITLE: Gaussian basis set classes
 
-#ifndef HORTON_GBASIS_GBASIS_H_
-#define HORTON_GBASIS_GBASIS_H_
+#ifndef GBASIS_GBASIS_H_
+#define GBASIS_GBASIS_H_
 
 #include "ints.h"
 #include "fns.h"
@@ -271,4 +271,4 @@ class GOBasis : public GBasis {
                           GB1DMGridFn *grid_fn, double *output);
 };
 
-#endif  // HORTON_GBASIS_GBASIS_H_
+#endif  // GBASIS_GBASIS_H_

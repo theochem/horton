@@ -20,8 +20,8 @@
 
 // UPDATELIBDOCTITLE: Evaluation of integrals of Gaussian basis functions
 
-#ifndef HORTON_GBASIS_INTS_H_
-#define HORTON_GBASIS_INTS_H_
+#ifndef GBASIS_INTS_H_
+#define GBASIS_INTS_H_
 
 #include "libint2.h"
 #include "calc.h"
@@ -654,4 +654,4 @@ class GB4RAlphaIntegralLibInt : public GB4IntegralLibInt {
   double alpha;  // !< The power of r.
 };
 
-#endif  // HORTON_GBASIS_INTS_H_
+#endif  // GBASIS_INTS_H_

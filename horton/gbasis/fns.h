@@ -116,8 +116,8 @@
     These rules are used on the `add` methods.
   */
 
-#ifndef HORTON_GBASIS_FNS_H_
-#define HORTON_GBASIS_FNS_H_
+#ifndef GBASIS_FNS_H_
+#define GBASIS_FNS_H_
 
 #include "calc.h"
 #include "common.h"
@@ -808,4 +808,4 @@ class GB2DMGridHartreeFn : public GB2DMGridFn {
   double *work_boys;  // !< Work array for Boys function values for different m values.
 };
 
-#endif  // HORTON_GBASIS_FNS_H_
+#endif  // GBASIS_FNS_H_

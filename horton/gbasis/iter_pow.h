@@ -20,8 +20,8 @@
 
 // UPDATELIBDOCTITLE: Iterators over Cartesian polynomials in one shell
 
-#ifndef HORTON_GBASIS_ITER_POW_H_
-#define HORTON_GBASIS_ITER_POW_H_
+#ifndef GBASIS_ITER_POW_H
+#define GBASIS_ITER_POW_H
 
 int iter_pow1_inc(long *n);
 

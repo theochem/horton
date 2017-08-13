@@ -20,8 +20,8 @@
 
 // UPDATELIBDOCTITLE: The Boys function
 
-#ifndef HORTON_GBASIS_BOYS_H_
-#define HORTON_GBASIS_BOYS_H_
+#ifndef GBASIS_BOYS_H_
+#define GBASIS_BOYS_H_
 
 #include "common.h"
 
@@ -54,4 +54,4 @@ double boys_function(long m, double t);
  */
 void boys_function_array(long mmax, double t, double *output);
 
-#endif  // HORTON_GBASIS_BOYS_H_
+#endif  // GBASIS_BOYS_H_

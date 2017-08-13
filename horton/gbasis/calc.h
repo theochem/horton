@@ -20,8 +20,8 @@
 
 // UPDATELIBDOCTITLE: Base class for any integral/evaluation of Gaussian functions
 
-#ifndef HORTON_GBASIS_CALC_H_
-#define HORTON_GBASIS_CALC_H_
+#ifndef GBASIS_CALC_H_
+#define GBASIS_CALC_H_
 
 /*
 
@@ -68,4 +68,4 @@ class GBCalculator {
   const double *get_work() const { return work_cart; }
 };
 
-#endif  // HORTON_GBASIS_CALC_H_
+#endif  // GBASIS_CALC_H_

@@ -20,8 +20,8 @@
 
 // UPDATELIBDOCTITLE: Auxiliary functions
 
-#ifndef HORTON_GBASIS_COMMON_H_
-#define HORTON_GBASIS_COMMON_H_
+#ifndef GBASIS_COMMON_H_
+#define GBASIS_COMMON_H_
 
 #define MAX_SHELL_TYPE 7
 #define MAX_NCART_CUMUL ((MAX_SHELL_TYPE+1)*(MAX_SHELL_TYPE+2)*(MAX_SHELL_TYPE+3))/6
@@ -82,4 +82,4 @@ long jfac(int j, int n);
 */
 double dtaylor(int n, double alpha, double t, double prefac);
 
-#endif  // HORTON_GBASIS_COMMON_H_
+#endif  // GBASIS_COMMON_H_

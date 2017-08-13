@@ -20,8 +20,8 @@
 
 // UPDATELIBDOCTITLE: A four-center integral wrapper for the Cholesky code
 
-#ifndef HORTON_GBASIS_GBW_H_
-#define HORTON_GBASIS_GBW_H_
+#ifndef GBASIS_GBW_H_
+#define GBASIS_GBW_H_
 
 #include "gbasis.h"
 #include "ints.h"
@@ -140,4 +140,4 @@ class GB4IntegralWrapper {
   double *get_2index_slice(long index0, long index2);
 };
 
-#endif  // HORTON_GBASIS_GBW_H_
+#endif  // GBASIS_GBW_H_
