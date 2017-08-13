@@ -15,8 +15,7 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     echo "--- Running trapdoors tests on PR branch"
     rm -rf $QAWORKDIR/*.pp
 
-    TRAPDOORS="trapdoor_cppcheck.py
-    trapdoor_cpplint.py
+    TRAPDOORS="trapdoor_cpplint.py
     trapdoor_doxygen.py
     trapdoor_import.py
     trapdoor_pycodestyle.py
@@ -25,6 +24,10 @@ if [ "$BUILDKITE_PULL_REQUEST" != "false" ]; then
     for i in ${TRAPDOORS}; do
         tools/qa/$i feature
     done
+
+    wget https://raw.githubusercontent.com/QuantumElephant/cardboardlint/master/scripts/cardboardlint
+    chmod +x cardboardlint
+    ./cardboardlint $ANCESTOR_SHA cpplint
 
     echo "--- Copy PR version of trapdoor scripts to QAWORKDIR"
     copy_trapdoor_scripts

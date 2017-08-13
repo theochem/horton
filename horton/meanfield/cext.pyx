@@ -35,12 +35,15 @@ cdef extern from "xc.h":
     enum: XC_UNPOLARIZED
     enum: XC_POLARIZED
 
+    ctypedef struct func_reference_type:
+        char *ref, *doi, *bibtex;
+
     ctypedef struct xc_func_info_type:
         int number
         int kind
         char* name
         int family
-        char* refs
+        func_reference_type *refs[5]
 
     ctypedef struct xc_func_type:
         xc_func_info_type* info
@@ -62,7 +65,7 @@ cdef extern from "xc.h":
                      double *lapl, double *tau, double* vrho, double* vsigma,
                      double* vlapl, double* vtau);
     double xc_hyb_exx_coef(xc_func_type *p)
-
+    double xc_hyb_cam_coef(const xc_func_type *p, double *omega, double *alpha, double *beta)
 
 cdef class LibXCWrapper(object):
     """Base class for restricted and unrestricted LibXC wrappers."""
@@ -114,7 +117,17 @@ cdef class LibXCWrapper(object):
 
     property refs:
         def __get__(self):
-            return self._func.info[0].refs
+            cdef int i
+            cdef func_reference_type* ref
+            result = []
+            for i in range(5):
+                ref = self._func.info[0].refs[i]
+                if ref != NULL:
+                    result.append([
+                        ref[0].ref.strip(),
+                        ref[0].doi.strip(),
+                        ref[0].bibtex.strip()])
+            return result
 
     ## HYB GGA
 
@@ -122,6 +135,23 @@ cdef class LibXCWrapper(object):
         """Return the amount of Hartree-Fock exchange to be used."""
         return xc_hyb_exx_coef(&self._func)
 
+    def get_hyb_cam_coefs(self):
+        """Return the omega, alpha and beta parameters for range-separated hybrids.
+
+        Returns
+        -------
+        omega : float
+            The range-separation parameter.
+        alpha : float
+            The fraction of HF exchange.
+        beta : float
+            The fraction of short-range HF exchange (correction to alpha).
+        """
+        cdef double omega;
+        cdef double alpha;
+        cdef double beta;
+        xc_hyb_cam_coef(&self._func, &omega, &alpha, &beta)
+        return omega, alpha, beta
 
 
 cdef class RLibXCWrapper(LibXCWrapper):
