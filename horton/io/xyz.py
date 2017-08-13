@@ -18,20 +18,20 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''XYZ file format'''
+"""XYZ file format"""
 
-
+from __future__ import print_function
 import numpy as np
+from numbers import Number
 
-from horton.units import angstrom
-from horton.periodic import periodic
-
+from .periodic import sym2num, num2sym
+from .utils import angstrom
 
 __all__ = ['load_xyz', 'dump_xyz']
 
 
 def load_xyz(filename):
-    '''Load a molecular geometry from a .xyz file.
+    """Load a molecular geometry from a .xyz file.
 
        **Argument:**
 
@@ -39,18 +39,21 @@ def load_xyz(filename):
             The file to load the geometry from
 
        **Returns:** dictionary with ``title`, ``coordinates`` and ``numbers``.
-    '''
-    f = file(filename)
-    size = int(f.next())
-    title = f.next().strip()
+    """
+    f = open(filename)
+    size = int(next(f))
+    title = next(f).strip()
     coordinates = np.empty((size, 3), float)
     numbers = np.empty(size, int)
-    for i in xrange(size):
-        words = f.next().split()
-        numbers[i] = periodic[words[0]].number
-        coordinates[i,0] = float(words[1])*angstrom
-        coordinates[i,1] = float(words[2])*angstrom
-        coordinates[i,2] = float(words[3])*angstrom
+    for i in range(size):
+        words = next(f).split()
+        try:
+            numbers[i] = sym2num[words[0].title()]
+        except KeyError:
+            numbers[i] = int(words[0])
+        coordinates[i, 0] = float(words[1]) * angstrom
+        coordinates[i, 1] = float(words[2]) * angstrom
+        coordinates[i, 2] = float(words[3]) * angstrom
     f.close()
     return {
         'title': title,
@@ -60,7 +63,7 @@ def load_xyz(filename):
 
 
 def dump_xyz(filename, data):
-    '''Write an ``.xyz`` file.
+    """Write an ``.xyz`` file.
 
        **Arguments:**
 
@@ -71,11 +74,11 @@ def dump_xyz(filename, data):
        data
             An IOData instance. Must contain ``coordinates`` and ``numbers``.
             May contain ``title``.
-    '''
+    """
     with open(filename, 'w') as f:
-        print >> f, data.natom
-        print >> f, getattr(data, 'title', 'Created with HORTON')
-        for i in xrange(data.natom):
-            n = periodic[data.numbers[i]].symbol
-            x, y, z = data.coordinates[i]/angstrom
-            print >> f, '%2s %15.10f %15.10f %15.10f' % (n, x, y, z)
+        print(data.natom, file=f)
+        print(getattr(data, 'title', 'Created with HORTON'), file=f)
+        for i in range(data.natom):
+            n = num2sym[data.numbers[i]]
+            x, y, z = data.coordinates[i] / angstrom
+            print('%2s %15.10f %15.10f %15.10f' % (n, x, y, z), file=f)

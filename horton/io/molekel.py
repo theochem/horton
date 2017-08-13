@@ -18,23 +18,17 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Molekel wavefunction input file format'''
-
-
+"""Molekel wavefunction input file format"""
 import numpy as np
 
-from horton.units import angstrom
-from horton.io.molden import _fix_molden_from_buggy_codes
-from horton.gbasis.iobas import str_to_shell_types
-from horton.gbasis.gobasis import GOBasis
-from horton.meanfield.orbitals import Orbitals
-
+from .molden import _fix_molden_from_buggy_codes
+from .utils import angstrom, str_to_shell_types, shells_to_nbasis
 
 __all__ = ['load_mkl']
 
 
 def load_mkl(filename):
-    '''Load data from a Molekel file.
+    """Load data from a Molekel file.
 
     Parameters
     ----------
@@ -46,11 +40,10 @@ def load_mkl(filename):
     results : dict
         Data loaded from file, with keys: ``coordinates``, ``numbers``, ``obasis``,
         ``orb_alpha``. It may also contain: ``orb_beta``, ``signs``.
-    '''
+    """
 
     def helper_char_mult(f):
         return [int(word) for word in f.readline().split()]
-
 
     def helper_coordinates(f):
         numbers = []
@@ -63,9 +56,8 @@ def load_mkl(filename):
             numbers.append(int(words[0]))
             coordinates.append([float(words[1]), float(words[2]), float(words[3])])
         numbers = np.array(numbers, int)
-        coordinates = np.array(coordinates)*angstrom
+        coordinates = np.array(coordinates) * angstrom
         return numbers, coordinates
-
 
     def helper_obasis(f, coordinates):
         shell_types = []
@@ -112,8 +104,12 @@ def load_mkl(filename):
         shell_types = np.array(shell_types)
         alphas = np.array(alphas)
         con_coeffs = np.array(con_coeffs)
-        return GOBasis(coordinates, shell_map, nprims, shell_types, alphas, con_coeffs)
 
+        obasis = {"centers": coordinates, "shell_map": shell_map, "nprims": nprims,
+                  "shell_types": shell_types, "alphas": alphas, "con_coeffs": con_coeffs}
+
+        nbasis = shells_to_nbasis(shell_types)
+        return obasis, nbasis
 
     def helper_coeffs(f, nbasis):
         coeffs = []
@@ -132,7 +128,7 @@ def load_mkl(filename):
                 assert ncol > 0
                 for word in words:
                     assert word == 'a1g'
-                cols = [np.zeros((nbasis,1), float) for icol in xrange(ncol)]
+                cols = [np.zeros((nbasis, 1), float) for icol in range(ncol)]
                 in_orb = 1
             elif in_orb == 1:
                 # read energies
@@ -146,7 +142,7 @@ def load_mkl(filename):
                 # read expansion coefficients
                 words = lstrip.split()
                 assert len(words) == ncol
-                for icol in xrange(ncol):
+                for icol in range(ncol):
                     cols[icol][ibasis] = float(words[icol])
                 ibasis += 1
                 if ibasis == nbasis:
@@ -154,7 +150,6 @@ def load_mkl(filename):
                     coeffs.extend(cols)
 
         return np.hstack(coeffs), np.array(energies)
-
 
     def helper_occ(f):
         occs = []
@@ -166,7 +161,6 @@ def load_mkl(filename):
             for word in lstrip.split():
                 occs.append(float(word))
         return np.array(occs)
-
 
     charge = None
     spinmult = None
@@ -190,13 +184,13 @@ def load_mkl(filename):
             elif line == '$COORD':
                 numbers, coordinates = helper_coordinates(f)
             elif line == '$BASIS':
-                obasis = helper_obasis(f, coordinates)
+                obasis, nbasis = helper_obasis(f, coordinates)
             elif line == '$COEFF_ALPHA':
-                coeff_alpha, ener_alpha = helper_coeffs(f, obasis.nbasis)
+                coeff_alpha, ener_alpha = helper_coeffs(f, nbasis)
             elif line == '$OCC_ALPHA':
                 occ_alpha = helper_occ(f)
             elif line == '$COEFF_BETA':
-                coeff_beta, ener_beta = helper_coeffs(f, obasis.nbasis)
+                coeff_beta, ener_beta = helper_coeffs(f, nbasis)
             elif line == '$OCC_BETA':
                 occ_beta = helper_occ(f)
 
@@ -215,36 +209,43 @@ def load_mkl(filename):
     if coeff_beta is None:
         assert nelec % 2 == 0
         assert abs(occ_alpha.sum() - nelec) < 1e-7
-        orb_alpha = Orbitals(obasis.nbasis, coeff_alpha.shape[1])
-        orb_alpha.coeffs[:] = coeff_alpha
-        orb_alpha.energies[:] = ener_alpha
-        orb_alpha.occupations[:] = occ_alpha/2
+        orb_alpha = (nbasis, coeff_alpha.shape[1])
+        orb_alpha_coeffs = coeff_alpha
+        orb_alpha_energies = ener_alpha
+        orb_alpha_occs = occ_alpha / 2
         orb_beta = None
     else:
         if occ_beta is None:
-            raise IOError('Beta occupation numbers not found in mkl file while beta orbitals were present.')
+            raise IOError(
+                'Beta occupation numbers not found in mkl file while beta orbitals were present.')
         nalpha = int(np.round(occ_alpha.sum()))
         nbeta = int(np.round(occ_beta.sum()))
-        assert nelec == nalpha+nbeta
+        assert nelec == nalpha + nbeta
         assert coeff_alpha.shape == coeff_beta.shape
         assert ener_alpha.shape == ener_beta.shape
         assert occ_alpha.shape == occ_beta.shape
-        orb_alpha = Orbitals(obasis.nbasis, coeff_alpha.shape[1])
-        orb_alpha.coeffs[:] = coeff_alpha
-        orb_alpha.energies[:] = ener_alpha
-        orb_alpha.occupations[:] = occ_alpha
-        orb_beta = Orbitals(obasis.nbasis, coeff_beta.shape[1])
-        orb_beta.coeffs[:] = coeff_beta
-        orb_beta.energies[:] = ener_beta
-        orb_beta.occupations[:] = occ_beta
+        orb_alpha = (nbasis, coeff_alpha.shape[1])
+        orb_alpha_coeffs = coeff_alpha
+        orb_alpha_energies = ener_alpha
+        orb_alpha_occs = occ_alpha
+        orb_beta = (nbasis, coeff_beta.shape[1])
+        orb_beta_coeffs = coeff_beta
+        orb_beta_energies = ener_beta
+        orb_beta_occs = occ_beta
 
     result = {
         'coordinates': coordinates,
         'orb_alpha': orb_alpha,
+        'orb_alpha_coeffs': orb_alpha_coeffs,
+        'orb_alpha_energies': orb_alpha_energies,
+        'orb_alpha_occs': orb_alpha_occs,
         'numbers': numbers,
         'obasis': obasis,
     }
     if orb_beta is not None:
         result['orb_beta'] = orb_beta
+        result['orb_beta_coeffs'] = orb_beta_coeffs
+        result['orb_beta_energies'] = orb_beta_energies
+        result['orb_beta_occs'] = orb_beta_occs
     _fix_molden_from_buggy_codes(result, filename)
     return result

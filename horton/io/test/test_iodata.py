@@ -23,17 +23,19 @@
 import numpy as np
 from nose.tools import assert_raises
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from . common import get_fn
+from .. iodata import IOData
+from .. overlap import compute_overlap
 
 
 def test_typecheck():
     m = IOData(coordinates=np.array([[1, 2, 3], [2, 3, 1]]))
-    assert issubclass(m.coordinates.dtype.type, float)
+    assert np.issubdtype(m.coordinates.dtype, np.float)
     assert not hasattr(m, 'numbers')
     m = IOData(numbers=np.array([2, 3]), coordinates=np.array([[1, 2, 3], [2, 3, 1]]))
     m = IOData(numbers=np.array([2.0, 3.0]), pseudo_numbers=np.array([1, 1]), coordinates=np.array([[1, 2, 3], [2, 3, 1]]))
-    assert issubclass(m.numbers.dtype.type, int)
-    assert issubclass(m.pseudo_numbers.dtype.type, float)
+    assert np.issubdtype(m.numbers.dtype, np.integer)
+    assert np.issubdtype(m.pseudo_numbers.dtype, np.float)
     assert hasattr(m, 'numbers')
     del m.numbers
     assert not hasattr(m, 'numbers')
@@ -58,20 +60,20 @@ def test_unknown_format():
 
 
 def test_copy():
-    fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
-    fn_log = context.get_fn('test/water_sto3g_hf_g03.log')
+    fn_fchk = get_fn('water_sto3g_hf_g03.fchk')
+    fn_log = get_fn('water_sto3g_hf_g03.log')
     mol1 = IOData.from_file(fn_fchk, fn_log)
     mol2 = mol1.copy()
     assert mol1 != mol2
     vars1 = vars(mol1)
     vars2 = vars(mol2)
     assert len(vars1) == len(vars2)
-    for key1, value1 in vars1.iteritems():
+    for key1, value1 in vars1.items():
         assert value1 is vars2[key1]
 
 
 def test_dm_water_sto3g_hf():
-    fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
+    fn_fchk = get_fn('water_sto3g_hf_g03.fchk')
     mol = IOData.from_file(fn_fchk)
     dm = mol.get_dm_full()
     assert abs(dm[0, 0] - 2.10503807) < 1e-7
@@ -84,7 +86,7 @@ def test_dm_water_sto3g_hf():
 
 
 def test_dm_lih_sto3g_hf():
-    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
+    fn_fchk = get_fn('li_h_3-21G_hf_g09.fchk')
     mol = IOData.from_file(fn_fchk)
 
     dm_full = mol.get_dm_full()
@@ -109,10 +111,10 @@ def test_dm_lih_sto3g_hf():
 
 
 def test_dm_ch3_rohf_g03():
-    fn_fchk = context.get_fn('test/ch3_rohf_sto3g_g03.fchk')
+    fn_fchk = get_fn('ch3_rohf_sto3g_g03.fchk')
     mol = IOData.from_file(fn_fchk)
 
-    olp = mol.obasis.compute_overlap()
+    olp = compute_overlap(**mol.obasis)
     dm = mol.get_dm_full()
     assert abs(np.einsum('ab,ba', olp, dm) - 9) < 1e-6
     dm = mol.get_dm_spin()

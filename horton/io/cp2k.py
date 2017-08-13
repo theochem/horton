@@ -19,13 +19,10 @@
 #
 # --
 """CP2K atomic wavefunctions"""
-
 import numpy as np
 
-from horton.gbasis.iobas import str_to_shell_types
-from horton.gbasis.cext import GOBasis, fac2
-from horton.meanfield.orbitals import Orbitals
-
+from .overlap_accel import fac2
+from .utils import shells_to_nbasis, str_to_shell_types
 
 __all__ = ['load_atom_cp2k']
 
@@ -112,7 +109,10 @@ def _read_cp2k_contracted_obasis(f):
     shell_types = np.array(shell_types)
     alphas = np.array(alphas)
     con_coeffs = np.array(con_coeffs)
-    obasis = GOBasis(coordinates, shell_map, nprims, shell_types, alphas, con_coeffs)
+
+    obasis = {"centers": coordinates, "shell_map": shell_map, "nprims": nprims,
+              "shell_types": shell_types, "alphas": alphas, "con_coeffs": con_coeffs}
+
     return obasis
 
 
@@ -166,14 +166,16 @@ def _read_cp2k_uncontracted_obasis(f):
     shell_types = np.array(shell_types)
     alphas = np.array(alphas)
     con_coeffs = np.array(con_coeffs)
-    obasis = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
+
+    obasis = {"centers": centers, "shell_map": shell_map, "nprims": nprims,
+              "shell_types": shell_types, "alphas": alphas, "con_coeffs": con_coeffs}
     return obasis
 
 
 def _read_cp2k_obasis(f):
     """Read a basis set from an open CP2K ATOM output file."""
-    f.next()         # Skip empty line
-    line = f.next()  # Check for contracted versus uncontracted
+    next(f)         # Skip empty line
+    line = next(f)  # Check for contracted versus uncontracted
     if line == ' ********************** Contracted Gaussian Type Orbitals '\
                '**********************\n':
         return _read_cp2k_contracted_obasis(f)
@@ -205,7 +207,7 @@ def _read_cp2k_occupations_energies(f, restricted):
     oe_beta = []
     empty = 0
     while empty < 2:
-        line = f.next()
+        line = next(f)
         words = line.split()
         if len(words) == 0:
             empty += 1
@@ -239,16 +241,16 @@ def _read_cp2k_orbital_coeffs(f, oe):
              Key is an (l, s) pair and value is an array with orbital coefficients.
     """
     coeffs = {}
-    f.next()
+    next(f)
     while len(coeffs) < len(oe):
-        line = f.next()
+        line = next(f)
         assert line.startswith("    ORBITAL      L =")
         words = line.split()
         l = int(words[3])
         s = int(words[6])
         c = []
         while True:
-            line = f.next()
+            line = next(f)
             if len(line.strip()) == 0:
                 break
             c.append(float(line))
@@ -273,7 +275,7 @@ def _get_norb_nel(oe):
     return norb, nel
 
 
-def _fill_orbitals(orb, oe, coeffs, shell_types, restricted):
+def _fill_orbitals(orb_coeffs, orb_energies, orb_occupations, oe, coeffs, shell_types, restricted):
     """Fill in orbital coefficients, energies and occupation numbers in ``orb``.
 
     Parameters
@@ -304,12 +306,12 @@ def _fill_orbitals(orb, oe, coeffs, shell_types, restricted):
     for l, s, occ, ener in oe:
         cs = coeffs.get((l, s))
         stride = 2*l + 1
-        for m in xrange(-l, l+1):
+        for m in range(-l, l+1):
             im = m + l
-            orb.energies[iorb] = ener
-            orb.occupations[iorb] = occ/float((restricted + 1)*(2*l + 1))
-            for ic in xrange(len(cs)):
-                orb.coeffs[offsets[l] + stride*ic + im, iorb] = cs[ic]
+            orb_energies[iorb] = ener
+            orb_occupations[iorb] = occ/float((restricted + 1)*(2*l + 1))
+            for ic in range(len(cs)):
+                orb_coeffs[offsets[l] + stride*ic + im, iorb] = cs[ic]
             iorb += 1
 
 
@@ -407,11 +409,11 @@ def load_atom_cp2k(filename):
         for line in f:
             if line.startswith(' Orbital energies'):
                 break
-        f.next()
+        next(f)
         oe_alpha, oe_beta = _read_cp2k_occupations_energies(f, restricted)
 
         # Read orbital expansion coefficients
-        line = f.next()
+        line = next(f)
         if (line != " Atomic orbital expansion coefficients [Alpha]\n") and \
            (line != " Atomic orbital expansion coefficients []\n"):
             raise IOError('Could not find orbital coefficients in CP2K ATOM output: '
@@ -419,36 +421,55 @@ def load_atom_cp2k(filename):
         coeffs_alpha = _read_cp2k_orbital_coeffs(f, oe_alpha)
 
         if not restricted:
-            line = f.next()
+            line = next(f)
             if line != " Atomic orbital expansion coefficients [Beta]\n":
                 raise IOError('Could not find beta orbital coefficient in CP2K ATOM '
                               'output: %s' % filename)
             coeffs_beta = _read_cp2k_orbital_coeffs(f, oe_beta)
 
         # Turn orbital data into a HORTON orbital expansions
+        nbasis = shells_to_nbasis(obasis['shell_types'])
         if restricted:
             norb, nel = _get_norb_nel(oe_alpha)
             assert nel % 2 == 0
-            orb_alpha = Orbitals(obasis.nbasis, norb)
+            orb_alpha = (nbasis, norb)
             orb_beta = None
-            _fill_orbitals(orb_alpha, oe_alpha, coeffs_alpha, obasis.shell_types, restricted)
+            orb_alpha_coeffs = np.zeros([nbasis, norb])
+            orb_alpha_energies = np.zeros(norb)
+            orb_alpha_occs = np.zeros(norb)
+            _fill_orbitals(orb_alpha_coeffs, orb_alpha_energies, orb_alpha_occs,
+                           oe_alpha, coeffs_alpha, obasis["shell_types"], restricted)
         else:
             norb_alpha = _get_norb_nel(oe_alpha)[0]
             norb_beta = _get_norb_nel(oe_beta)[0]
             assert norb_alpha == norb_beta
-            orb_alpha = Orbitals(obasis.nbasis, norb_alpha)
-            orb_beta = Orbitals(obasis.nbasis, norb_beta)
-            _fill_orbitals(orb_alpha, oe_alpha, coeffs_alpha, obasis.shell_types, restricted)
-            _fill_orbitals(orb_beta, oe_beta, coeffs_beta, obasis.shell_types, restricted)
+            orb_alpha = (nbasis, norb_alpha)
+            orb_alpha_coeffs = np.zeros([nbasis, norb_alpha])
+            orb_alpha_energies = np.zeros(norb_alpha)
+            orb_alpha_occs = np.zeros(norb_alpha)
+            orb_beta = (nbasis, norb_beta)
+            orb_beta_coeffs = np.zeros([nbasis, norb_beta])
+            orb_beta_energies = np.zeros(norb_beta)
+            orb_beta_occs = np.zeros(norb_beta)
+            _fill_orbitals(orb_alpha_coeffs, orb_alpha_energies, orb_alpha_occs,
+                           oe_alpha, coeffs_alpha, obasis["shell_types"], restricted)
+            _fill_orbitals(orb_beta_coeffs, orb_beta_energies, orb_beta_occs,
+                           oe_beta, coeffs_beta, obasis["shell_types"], restricted)
 
     result = {
         'obasis': obasis,
         'orb_alpha': orb_alpha,
-        'coordinates': obasis.centers,
+        'orb_alpha_coeffs': orb_alpha_coeffs,
+        'orb_alpha_energies': orb_alpha_energies,
+        'orb_alpha_occs': orb_alpha_occs,
+        'coordinates': obasis["centers"],
         'numbers': np.array([number]),
         'energy': energy,
         'pseudo_numbers': np.array([pseudo_number]),
     }
     if orb_beta is not None:
         result['orb_beta'] = orb_beta
+        result['orb_beta_coeffs'] = orb_beta_coeffs
+        result['orb_beta_energies'] = orb_beta_energies
+        result['orb_beta_occs'] = orb_beta_occs
     return result

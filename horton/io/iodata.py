@@ -18,23 +18,22 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Input/output dispatcher for different file formats
+"""Input/output dispatcher for different file formats
 
    The ``IOData.from_file`` and ``IOData.to_file`` methods read/write data
    from/to a file. The format is deduced from the prefix or extension of the
    filename.
-'''
+"""
 
-
-import h5py as h5, os, numpy as np
-
+import numpy as np
+import os
 
 __all__ = ['IOData']
 
 
 class ArrayTypeCheckDescriptor(object):
     def __init__(self, name, ndim=None, shape=None, dtype=None, matching=None, default=None):
-        '''
+        """
            Decorator to perform type checking an np.ndarray attributes
 
            **Arguments:**
@@ -63,7 +62,7 @@ class ArrayTypeCheckDescriptor(object):
            default
                 The name of another (type-checke) attribute to return as default
                 when this attribute is not set
-        '''
+        """
         if matching is not None and shape is None:
             raise TypeError('The matching argument requires the shape to be '
                             'specified.')
@@ -88,43 +87,43 @@ class ArrayTypeCheckDescriptor(object):
     def __set__(self, obj, value):
         # try casting to proper dtype:
         value = np.array(value, dtype=self._dtype, copy=False)
-        #if not isinstance(value, np.ndarray):
+        # if not isinstance(value, np.ndarray):
         #    raise TypeError('Attribute \'%s\' of \'%s\' must be a numpy '
         #                    'array.' % (self._name, type(obj)))
         if self._ndim is not None and value.ndim != self._ndim:
             raise TypeError('Attribute \'%s\' of \'%s\' must be a numpy array '
                             'with %i dimension(s).' % (self._name, type(obj),
-                            self._ndim))
+                                                       self._ndim))
         if self._shape is not None:
-            for i in xrange(len(self._shape)):
+            for i in range(len(self._shape)):
                 if self._shape[i] >= 0 and self._shape[i] != value.shape[i]:
                     raise TypeError('Attribute \'%s\' of \'%s\' must be a numpy'
                                     ' array %i elements in dimension %i.' % (
-                                    self._name, type(obj), self._shape[i], i))
+                                        self._name, type(obj), self._shape[i], i))
         if self._dtype is not None:
             if not issubclass(value.dtype.type, self._dtype.type):
                 raise TypeError('Attribute \'%s\' of \'%s\' must be a numpy '
                                 'array with dtype \'%s\'.' % (self._name,
-                                type(obj), self._dtype.type))
+                                                              type(obj), self._dtype.type))
         if self._matching is not None:
             for othername in self._matching:
-                other = getattr(obj, '_'+othername, None)
+                other = getattr(obj, '_' + othername, None)
                 if other is not None:
-                    for i in xrange(len(self._shape)):
+                    for i in range(len(self._shape)):
                         if self._shape[i] == -1 and \
-                           other.shape[i] != value.shape[i]:
+                                        other.shape[i] != value.shape[i]:
                             raise TypeError('shape[%i] of attribute \'%s\' of '
                                             '\'%s\' in is incompatible with '
                                             'that of \'%s\'.' % (i, self._name,
-                                            type(obj), othername))
-        setattr(obj, '_'+self._name, value)
+                                                                 type(obj), othername))
+        setattr(obj, '_' + self._name, value)
 
     def __delete__(self, obj):
-        delattr(obj, '_'+self._name)
+        delattr(obj, '_' + self._name)
 
 
 class IOData(object):
-    '''A container class for data loaded from (or to be written to) a file.
+    """A container class for data loaded from (or to be written to) a file.
 
        In principle, the constructor accepts any keyword argument, which is
        stored as an attribute. All attributes are optional. Attributes can be
@@ -204,7 +203,7 @@ class IOData(object):
             Natural charges.
 
        obasis
-            An instance of the GOBasis class.
+            An OrderedDict containing parameters to instantiate a GOBasis class.
 
        olp
             The overlap operator.
@@ -223,9 +222,10 @@ class IOData(object):
 
        two_mo
             Two-electron integrals in the (Hartree-Fock) molecular-orbital basis
-    '''
+    """
+
     def __init__(self, **kwargs):
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             setattr(self, key, value)
 
     # Numpy array attributes that may require orbital basis reordering or sign correction.
@@ -244,13 +244,15 @@ class IOData(object):
 
     # only perform type checking on minimal attributes
     numbers = ArrayTypeCheckDescriptor('numbers', 1, (-1,), int, ['coordinates', 'pseudo_numbers'])
-    coordinates = ArrayTypeCheckDescriptor('coordinates', 2, (-1, 3), float, ['numbers', 'pseudo_numbers'])
+    coordinates = ArrayTypeCheckDescriptor('coordinates', 2, (-1, 3), float,
+                                           ['numbers', 'pseudo_numbers'])
     cube_data = ArrayTypeCheckDescriptor('cube_data', 3)
     polar = ArrayTypeCheckDescriptor('polar', 2, (3, 3), float)
-    pseudo_numbers = ArrayTypeCheckDescriptor('pseudo_numbers', 1, (-1,), float, ['coordinates', 'numbers'], 'numbers')
+    pseudo_numbers = ArrayTypeCheckDescriptor('pseudo_numbers', 1, (-1,), float,
+                                              ['coordinates', 'numbers'], 'numbers')
 
     def _get_natom(self):
-        '''The number of atoms'''
+        """The number of atoms"""
         if hasattr(self, 'numbers'):
             return len(self.numbers)
         elif hasattr(self, 'coordinates'):
@@ -262,7 +264,7 @@ class IOData(object):
 
     @classmethod
     def from_file(cls, *filenames):
-        '''Load data from a file.
+        """Load data from a file.
 
            **Arguments:**
 
@@ -279,47 +281,44 @@ class IOData(object):
 
            For each file format, a specialized function is called that returns a
            dictionary with data from the file.
-        '''
+        """
         result = {}
         for filename in filenames:
-            if isinstance(filename, h5.Group) or filename.endswith('.h5'):
-                from horton.io.internal import load_h5
-                result.update(load_h5(filename))
-            elif filename.endswith('.xyz'):
-                from horton.io.xyz import load_xyz
+            if filename.endswith('.xyz'):
+                from .xyz import load_xyz
                 result.update(load_xyz(filename))
             elif filename.endswith('.fchk'):
-                from horton.io.gaussian import load_fchk
+                from .gaussian import load_fchk
                 result.update(load_fchk(filename))
             elif filename.endswith('.log'):
-                from horton.io.gaussian import load_operators_g09
+                from .gaussian import load_operators_g09
                 result.update(load_operators_g09(filename))
             elif filename.endswith('.mkl'):
-                from horton.io.molekel import load_mkl
+                from .molekel import load_mkl
                 result.update(load_mkl(filename))
             elif filename.endswith('.molden.input') or filename.endswith('.molden'):
-                from horton.io.molden import load_molden
+                from .molden import load_molden
                 result.update(load_molden(filename))
             elif filename.endswith('.cube'):
-                from horton.io.cube import load_cube
+                from .cube import load_cube
                 result.update(load_cube(filename))
             elif filename.endswith('.wfn'):
-                from horton.io.wfn import load_wfn
+                from .wfn import load_wfn
                 result.update(load_wfn(filename))
             elif os.path.basename(filename).startswith('POSCAR'):
-                from horton.io.vasp import load_poscar
+                from .vasp import load_poscar
                 result.update(load_poscar(filename))
             elif os.path.basename(filename)[:6] in ['CHGCAR', 'AECCAR']:
-                from horton.io.vasp import load_chgcar
+                from .vasp import load_chgcar
                 result.update(load_chgcar(filename))
             elif os.path.basename(filename).startswith('LOCPOT'):
-                from horton.io.vasp import load_locpot
+                from .vasp import load_locpot
                 result.update(load_locpot(filename))
             elif filename.endswith('.cp2k.out'):
-                from horton.io.cp2k import load_atom_cp2k
+                from .cp2k import load_atom_cp2k
                 result.update(load_atom_cp2k(filename))
             elif 'FCIDUMP' in os.path.basename(filename):
-                from horton.io.molpro import load_fcidump
+                from .molpro import load_fcidump
                 result.update(load_fcidump(filename))
             else:
                 raise ValueError('Unknown file format for reading: %s' % filename)
@@ -334,12 +333,12 @@ class IOData(object):
             er = result.get('er')
             if er is not None:
                 er[:] = er[permutation][:, permutation][:, :, permutation][:, :, :, permutation]
-            orb_alpha = result.get('orb_alpha')
-            if orb_alpha is not None:
-                orb_alpha.permute_basis(permutation)
-            orb_beta = result.get('orb_beta')
-            if orb_beta is not None:
-                orb_beta.permute_basis(permutation)
+            orb_alpha_coeffs = result.get('orb_alpha_coeffs')
+            if orb_alpha_coeffs is not None:
+                orb_alpha_coeffs[:] = orb_alpha_coeffs[permutation]
+            orb_beta_coeffs = result.get('orb_beta_coeffs')
+            if orb_beta_coeffs is not None:
+                orb_beta_coeffs[:] = orb_beta_coeffs[permutation]
             del result['permutation']
 
         # Apply changes in atomic orbital basis sign conventions
@@ -356,18 +355,18 @@ class IOData(object):
                 er *= signs.reshape(-1, 1)
                 er *= signs.reshape(-1, 1, 1)
                 er *= signs.reshape(-1, 1, 1, 1)
-            orb_alpha = result.get('orb_alpha')
-            if orb_alpha is not None:
-                orb_alpha.change_basis_signs(signs)
-            orb_beta = result.get('orb_beta')
-            if orb_beta is not None:
-                orb_beta.change_basis_signs(signs)
+            orb_alpha_coeffs = result.get('orb_alpha_coeffs')
+            if orb_alpha_coeffs is not None:
+                orb_alpha_coeffs *= signs.reshape(-1, 1)
+            orb_beta_coeffs = result.get('orb_beta_coeffs')
+            if orb_beta_coeffs is not None:
+                orb_beta_coeffs *= signs.reshape(-1, 1)
             del result['signs']
 
         return cls(**result)
 
     def to_file(self, filename):
-        '''Write data to a file
+        """Write data to a file
 
            **Arguments:**
 
@@ -377,47 +376,38 @@ class IOData(object):
            This routine uses the extension or prefix of the filename to determine
            the file format. For each file format, a specialized function is
            called that does the real work.
-        '''
+        """
 
-        if isinstance(filename, h5.Group) or filename.endswith('.h5'):
-            data = vars(self).copy()
-            # get rid of leading underscores
-            for key in data.keys():
-                if key[0] == '_':
-                    data[key[1:]] = data[key]
-                    del data[key]
-            from horton.io.internal import dump_h5
-            dump_h5(filename, data)
-        elif filename.endswith('.xyz'):
-            from horton.io.xyz import dump_xyz
+        if filename.endswith('.xyz'):
+            from .xyz import dump_xyz
             dump_xyz(filename, self)
         elif filename.endswith('.cube'):
-            from horton.io.cube import dump_cube
+            from .cube import dump_cube
             dump_cube(filename, self)
         elif filename.endswith('.molden.input') or filename.endswith('.molden'):
-            from horton.io.molden import dump_molden
+            from .molden import dump_molden
             dump_molden(filename, self)
         elif os.path.basename(filename).startswith('POSCAR'):
-            from horton.io.vasp import dump_poscar
+            from .vasp import dump_poscar
             dump_poscar(filename, self)
         elif 'FCIDUMP' in os.path.basename(filename):
-            from horton.io.molpro import dump_fcidump
+            from .molpro import dump_fcidump
             dump_fcidump(filename, self)
         else:
             raise ValueError('Unknown file format for writing: %s' % filename)
 
     def copy(self):
-        '''Return a shallow copy'''
+        """Return a shallow copy"""
         kwargs = vars(self).copy()
         # get rid of leading underscores
-        for key in kwargs.keys():
+        for key in list(kwargs.keys()):
             if key[0] == '_':
                 kwargs[key[1:]] = kwargs[key]
                 del kwargs[key]
         return self.__class__(**kwargs)
 
     def get_dm_full(self):
-        '''Return a spin-summed density matrix using availlable attributes'''
+        """Return a spin-summed density matrix using available attributes"""
         if hasattr(self, 'dm_full'):
             return self.dm_full
         if hasattr(self, 'dm_full_mp2'):
@@ -430,16 +420,16 @@ class IOData(object):
             return self.dm_full_cc
         elif hasattr(self, 'dm_full_scf'):
             return self.dm_full_scf
-        elif hasattr(self, 'orb_alpha'):
-            dm_full = self.orb_alpha.to_dm()
-            if hasattr(self, 'orb_beta'):
-                dm_full += self.orb_beta.to_dm()
+        elif hasattr(self, 'orb_alpha_coeffs'):
+            dm_full = self._alpha_orbs_to_dm()
+            if hasattr(self, 'orb_beta_coeffs'):
+                dm_full += self._beta_orbs_to_dm()
             else:
                 dm_full *= 2
             return dm_full
 
     def get_dm_spin(self):
-        '''Return a spin-difference density matrix using availlable attributes'''
+        """Return a spin-difference density matrix using available attributes"""
         if hasattr(self, 'dm_spin'):
             return self.dm_spin
         if hasattr(self, 'dm_spin_mp2'):
@@ -452,5 +442,11 @@ class IOData(object):
             return self.dm_spin_cc
         elif hasattr(self, 'dm_spin_scf'):
             return self.dm_spin_scf
-        elif hasattr(self, 'orb_alpha') and hasattr(self, 'orb_beta'):
-            return self.orb_alpha.to_dm() - self.orb_beta.to_dm()
+        elif hasattr(self, 'orb_alpha_coeffs') and hasattr(self, 'orb_beta_coeffs'):
+            return self._alpha_orbs_to_dm() - self._beta_orbs_to_dm()
+
+    def _alpha_orbs_to_dm(self):
+        return np.dot(self.orb_alpha_coeffs * self.orb_alpha_occs, self.orb_alpha_coeffs.T)
+
+    def _beta_orbs_to_dm(self):
+        return np.dot(self.orb_beta_coeffs * self.orb_beta_occs, self.orb_beta_coeffs.T)

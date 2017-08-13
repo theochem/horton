@@ -18,13 +18,12 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Gaussian cube file format'''
+"""Gaussian cube file format"""
 
+
+from __future__ import print_function
 
 import numpy as np
-from horton.cext import Cell
-from horton.grid.cext import UniformGrid
-
 
 __all__ = ['load_cube', 'dump_cube']
 
@@ -53,8 +52,8 @@ def _read_cube_header(f):
     shape = np.array([shape0, shape1, shape2], int)
     axes = np.array([axis0, axis1, axis2])
 
-    cell = Cell(axes*shape.reshape(-1,1))
-    ugrid = UniformGrid(origin, axes, shape, np.ones(3, int))
+    cell = axes * shape.reshape(-1, 1)
+    ugrid = {"origin": origin, 'grid_rvecs': axes, 'shape': shape, 'pbc': np.ones(3, int)}
 
     def read_coordinate_line(line):
         """Read an atom number and coordinate from the cube file"""
@@ -68,7 +67,7 @@ def _read_cube_header(f):
     numbers = np.zeros(natom, int)
     pseudo_numbers = np.zeros(natom, float)
     coordinates = np.zeros((natom, 3), float)
-    for i in xrange(natom):
+    for i in range(natom):
         numbers[i], pseudo_numbers[i], coordinates[i] = read_coordinate_line(f.readline())
         # If the pseudo_number field is zero, we assume that no effective core
         # potentials were used.
@@ -79,7 +78,7 @@ def _read_cube_header(f):
 
 
 def _read_cube_data(f, ugrid):
-    data = np.zeros(tuple(ugrid.shape), float)
+    data = np.zeros(tuple(ugrid["shape"]), float)
     tmp = data.ravel()
     counter = 0
     while True:
@@ -94,16 +93,16 @@ def _read_cube_data(f, ugrid):
 
 
 def load_cube(filename):
-    '''Load data from a cube file
+    """Load data from a cube file
 
        **Arguments:**
 
        filename
             The name of the cube file
 
-       **Returns** a dictionary with ``title``, ``coordinates``, ``numbers``,
+       **Returns** a dictionary with ``title``, ``coordinates``, ``numbers``, ``cell``,
        ``cube_data``, ``grid``, ``pseudo_numbers``.
-    '''
+    """
     with open(filename) as f:
         title, coordinates, numbers, cell, ugrid, pseudo_numbers = _read_cube_header(f)
         data = _read_cube_data(f, ugrid)
@@ -118,33 +117,33 @@ def load_cube(filename):
         }
 
 
-def _write_cube_header(f, title, coordinates, numbers, ugrid, pseudo_numbers):
-    print >> f, title
-    print >> f, 'OUTER LOOP: X, MIDDLE LOOP: Y, INNER LOOP: Z'
+def _write_cube_header(f, title, coordinates, numbers, ugrid_dict, pseudo_numbers):
+    print(title, file=f)
+    print('OUTER LOOP: X, MIDDLE LOOP: Y, INNER LOOP: Z', file=f)
     natom = len(numbers)
-    x, y, z = ugrid.origin
-    print >> f, '%5i % 11.6f % 11.6f % 11.6f' % (natom, x, y, z)
-    rvecs = ugrid.grid_rvecs
-    for i in xrange(3):
+    x, y, z = ugrid_dict["origin"]
+    print('%5i % 11.6f % 11.6f % 11.6f' % (natom, x, y, z), file=f)
+    rvecs = ugrid_dict["grid_rvecs"]
+    for i in range(3):
         x, y, z = rvecs[i]
-        print >> f, '%5i % 11.6f % 11.6f % 11.6f' % (ugrid.shape[i], x, y, z)
-    for i in xrange(natom):
+        print('%5i % 11.6f % 11.6f % 11.6f' % (ugrid_dict["shape"][i], x, y, z), file=f)
+    for i in range(natom):
         q = pseudo_numbers[i]
         x, y, z = coordinates[i]
-        print >> f, '%5i % 11.6f % 11.6f % 11.6f % 11.6f' % (numbers[i], q, x, y, z)
+        print('%5i % 11.6f % 11.6f % 11.6f % 11.6f' % (numbers[i], q, x, y, z), file=f)
 
 
 def _write_cube_data(f, cube_data):
     counter = 0
     for value in cube_data.flat:
         f.write(' % 12.5E' % value)
-        if counter%6 == 5:
+        if counter % 6 == 5:
             f.write('\n')
         counter += 1
 
 
 def dump_cube(filename, data):
-    '''Write a IOData to a .cube file.
+    """Write a IOData to a .cube file.
 
        **Arguments:**
 
@@ -155,10 +154,11 @@ def dump_cube(filename, data):
        data
             An IOData instance. Must contain ``coordinates``, ``numbers``,
             ``grid``, ``cube_data``. May contain ``title``, ``pseudo_numbers``.
-    '''
+    """
     with open(filename, 'w') as f:
-        if not isinstance(data.grid, UniformGrid):
-            raise ValueError('The system grid must be a UniformGrid instance.')
+        if not isinstance(data.grid, dict):
+            raise ValueError(
+                'The system grid must contain a dict to initialize a UniformGrid instance.')
         title = getattr(data, 'title', 'Created with HORTON')
         _write_cube_header(f, title, data.coordinates, data.numbers, data.grid, data.pseudo_numbers)
         _write_cube_data(f, data.cube_data)

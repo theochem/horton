@@ -419,6 +419,13 @@ ext_modules = [
         include_dirs=[np.get_include(), '.'],
         extra_compile_args=['-std=c++11'],
         language="c++"),
+    Extension(
+        "horton.io.overlap_accel",
+        sources=['horton/io/overlap_accel.pyx', ],
+        depends=['horton/io/overlap_accel.pxd', ],
+        include_dirs=['.'],
+        extra_compile_args=['-std=c++11'],
+        language="c++"),
 ]
 
 for e in ext_modules:
