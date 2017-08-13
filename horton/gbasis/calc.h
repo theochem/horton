@@ -20,9 +20,8 @@
 
 // UPDATELIBDOCTITLE: Base class for any integral/evaluation of Gaussian functions
 
-#ifndef HORTON_GBASIS_CALC_H
-#define HORTON_GBASIS_CALC_H
-
+#ifndef GBASIS_CALC_H_
+#define GBASIS_CALC_H_
 
 /*
 
@@ -33,25 +32,40 @@
 
 
 class GBCalculator {
-    protected:
-        long nwork, max_shell_type, max_nbasis;
-        double *work_pure, *work_cart; // contiguous work arrays sufficiently large for max_shell_type
-        void swap_work();
-    public:
-        /** @brief
-              Construct a GBCalculator object.
+ protected:
+  long nwork, max_shell_type, max_nbasis;
+  double *work_pure, *work_cart;  // contiguous work arrays sufficiently large for max_shell_type
+  void swap_work();
 
-            @param max_shell_type
-              The maximum shell type in the basis set. This is used to allocate
-              sufficiently large working arrays.
-          */
-        GBCalculator(long max_shell_type);
-        virtual ~GBCalculator();
-        const long get_nwork() const {return nwork;};
-        const long get_max_shell_type() const {return max_shell_type;};
-        const long get_max_nbasis() const {return max_nbasis;};
-        const double* get_work() const {return work_cart;};
-    };
+ public:
+  /** @brief
+        Construct a GBCalculator object.
 
+      This also allocates work arrays for manipulating and storing intermediate
+      results. The size of these work arrays is dim_work*max_nbasis**basis_work.
 
-#endif
+      @param max_shell_type
+        The maximum shell type in the basis set. This is used to allocate
+        sufficiently large working arrays.
+
+      @param dim_work
+        Prefactor for the size of the work arrays.
+
+      @param basis_work
+        The work array size is multiplied by max_nbasis**basis_work.
+    */
+  GBCalculator(long max_shell_type, long dim_work, int basis_work);
+  GBCalculator(const GBCalculator& other) = delete;
+
+  virtual ~GBCalculator();
+
+  const long get_nwork() const { return nwork; }
+
+  const long get_max_shell_type() const { return max_shell_type; }
+
+  const long get_max_nbasis() const { return max_nbasis; }
+
+  const double *get_work() const { return work_cart; }
+};
+
+#endif  // GBASIS_CALC_H_

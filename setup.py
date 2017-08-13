@@ -375,8 +375,8 @@ ext_modules = [
         language="c++"),
     Extension(
         "horton.gbasis.cext",
-        sources=get_sources('horton/gbasis') + ['horton/moments.cpp'],
-        depends=get_depends('horton/gbasis') + ['horton/moments.pxd', 'horton/moments.h'],
+        sources=get_sources('horton/gbasis'),
+        depends=get_depends('horton/gbasis'),
         include_dirs=[np.get_include(), '.'] +
                      libint2_config['include_dirs'],
         library_dirs=libint2_config['library_dirs'],
@@ -485,5 +485,5 @@ setup(
         'Programming Language :: Cython',
         'Programming Language :: C++',
         'Topic :: Science/Engineering :: Molecular Science'
-    ],
+    ], requires=['numpy', 'nose']
 )

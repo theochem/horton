@@ -20,16 +20,23 @@
 # --
 
 
-import json
 import numpy as np
 from nose.tools import assert_raises
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+
+from .common import (load_obasis, load_mdata, load_dm, load_er, load_quad, load_dipole, load_na,
+                     load_kin, load_olp, load_json)
+from .lightgrid import generate_molecular_grid, integrate
+from .. import (GB4RAlphaIntegralLibInt, GB4ErfIntegralLibInt, GB4GaussIntegralLibInt,
+                GB4ElectronRepulsionIntegralLibInt, GB2ErfAttractionIntegral, GB2KineticIntegral,
+                GB2GaussAttractionIntegral, GB2NuclearAttractionIntegral, GB2OverlapIntegral,
+                get_shell_nbasis, nuclear_attraction_helper, gpt_coeff, gb_overlap_int1d, binom,
+                gob_cart_normalization, iter_pow1_inc)
 
 
 def test_gpt_coeff():
     def py_gpt_coeff(k, n0, n1, pa, pb):
         result = 0
-        for q in xrange(max(-k, k - 2 * n0), min(k, 2 * n1 - k) + 1, 2):
+        for q in range(max(-k, k - 2 * n0), min(k, 2 * n1 - k) + 1, 2):
             i0 = (k + q) / 2
             i1 = (k - q) / 2
             assert (k + q) % 2 == 0
@@ -39,12 +46,12 @@ def test_gpt_coeff():
 
     pa = 0.8769
     pb = 0.123
-    for k in xrange(5):
+    for k in range(5):
         check = py_gpt_coeff(k, 2, 2, pa, pb)
         result = gpt_coeff(k, 2, 2, pa, pb)
         assert abs(check - result) < 1e-10
 
-    for k in xrange(7):
+    for k in range(7):
         check = py_gpt_coeff(k, 3, 3, pa, pb)
         result = gpt_coeff(k, 3, 3, pa, pb)
         assert abs(check - result) < 1e-10
@@ -174,14 +181,17 @@ def test_nuclear_attraction_helper():
             else:
                 raise ValueError
         elif n0 + n1 == 1:
-            if index == 0: return f[0]
+            if index == 0:
+                return f[0]
             if index == 1:
                 return -cp
             else:
                 raise ValueError
         elif n0 + n1 == 2:
-            if index == 0: return f[0] + 0.5 * f[2] * gamma_inv
-            if index == 1: return -f[1] * cp - f[2] * 0.5 * gamma_inv
+            if index == 0:
+                return f[0] + 0.5 * f[2] * gamma_inv
+            if index == 1:
+                return -f[1] * cp - f[2] * 0.5 * gamma_inv
             if index == 2:
                 return cp ** 2
             else:
@@ -189,7 +199,7 @@ def test_nuclear_attraction_helper():
         else:
             raise NotImplementedError
 
-    for counter in xrange(100):
+    for counter in range(100):
         pa, pb, cp, gamma_inv = np.random.uniform(0.5, 2.0, 4)
         #
         work_g = np.zeros(1, float)
@@ -220,7 +230,7 @@ def check_overlap(alphas0, alphas1, r0, r1, scales0, scales1, shell_type0, shell
     assert result0.shape == (nbasis0, nbasis1)
     # Clear the working memory
     gb2i.reset(shell_type0, shell_type1, r0, r1)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1 in zip(alphas0, alphas1):
         gb2i.add(1.0, alpha0, alpha1, scales0, scales1)
     result1 = gb2i.get_work(nbasis0, nbasis1)
@@ -585,7 +595,7 @@ def check_kinetic(alphas0, alphas1, r0, r1, scales0, scales1, shell_type0, shell
     assert result0.shape == (nbasis0, nbasis1)
     # Clear the working memory
     gb2i.reset(shell_type0, shell_type1, r0, r1)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1 in zip(alphas0, alphas1):
         gb2i.add(1.0, alpha0, alpha1, scales0, scales1)
     result1 = gb2i.get_work(nbasis0, nbasis1)
@@ -949,7 +959,7 @@ def check_nuclear_attraction(alphas0, alphas1, r0, r1, scales0, scales1, charges
     assert result0.shape == (nbasis0, nbasis1)
     # Clear the working memory
     gb2i.reset(shell_type0, shell_type1, r0, r1)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1 in zip(alphas0, alphas1):
         gb2i.add(1.0, alpha0, alpha1, scales0, scales1)
     result1 = gb2i.get_work(nbasis0, nbasis1)
@@ -1425,7 +1435,7 @@ def get_erf_attraction(alphas0, alphas1, r0, r1, scales0, scales1, charges, cent
         Exponents of the four primitive shells.
     r0, r1 : np.ndarray, shape=(3,), dtype=float
         Cartesian coordinates of the centers of the four primitive shells.
-    scales0, scales1 : float
+    scales0, scales1 : np.ndarray, dtype=float
         Normalization prefactors for the Gaussian shells.
     charges : np.darray, shape=(natoms,) dtype=float
         The charges of the nuclei.
@@ -1444,7 +1454,7 @@ def get_erf_attraction(alphas0, alphas1, r0, r1, scales0, scales1, charges, cent
     nbasis1 = get_shell_nbasis(shell_type1)
     # Clear the working memory
     gb2i.reset(shell_type0, shell_type1, r0, r1)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1 in zip(alphas0, alphas1):
         gb2i.add(1.0, alpha0, alpha1, scales0, scales1)
     return gb2i.get_work(nbasis0, nbasis1)
@@ -1462,7 +1472,7 @@ def check_erf_attraction(alphas0, alphas1, r0, r1, scales0, scales1, charges, ce
         Exponents of the four primitive shells.
     r0, r1 : np.ndarray, shape=(3,), dtype=float
         Cartesian coordinates of the centers of the four primitive shells.
-    scales0, scales1 : float
+    scales0, scales1 : np.ndarray, dtype=float
         Normalization prefactors for the Gaussian shells.
     charges : np.darray, shape=(natoms,) dtype=float
         The charges of the nuclei.
@@ -1986,7 +1996,7 @@ def check_gauss_attraction(alphas0, alphas1, r0, r1, scales0, scales1, charges, 
         Exponents of the four primitive shells.
     r0, r1 : np.ndarray, shape=(3,), dtype=float
         Cartesian coordinates of the centers of the four primitive shells.
-    scales0, scales1 : float
+    scales0, scales1 : np.ndarray, dtype=float
         Normalization prefactors for the Gaussian shells.
     charges : np.darray, shape=(natoms,) dtype=float
         The charges of the nuclei.
@@ -2011,7 +2021,7 @@ def check_gauss_attraction(alphas0, alphas1, r0, r1, scales0, scales1, charges, 
     assert result0.shape == (nbasis0, nbasis1)
     # Clear the working memory
     gb2i.reset(shell_type0, shell_type1, r0, r1)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1 in zip(alphas0, alphas1):
         gb2i.add(1.0, alpha0, alpha1, scales0, scales1)
     result1 = gb2i.get_work(nbasis0, nbasis1)
@@ -2682,10 +2692,6 @@ def test_gauss_attraction_4_4():
 def test_gb4_erilibint_class():
     max_shell_type = 4
     max_nbasis = get_shell_nbasis(max_shell_type)
-    r0 = np.array([2.645617, 0.377945, -0.188973])
-    r1 = np.array([0.000000, 0.000000, 0.188973])
-    r2 = np.array([1.456687, 0.132147, -0.13572])
-    r3 = np.array([0.798754, 0.456465, 0.465736])
 
     gb4i = GB4ElectronRepulsionIntegralLibInt(max_shell_type)
     assert gb4i.max_shell_type == max_shell_type
@@ -2711,7 +2717,7 @@ def check_electron_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3,
     assert result0.shape == (nbasis0, nbasis1, nbasis2, nbasis3)
     # Clear the working memory
     gb4i.reset(shell_type0, shell_type1, shell_type2, shell_type3, r0, r1, r2, r3)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1, alpha2, alpha3 in zip(alphas0, alphas1, alphas2, alphas3):
         gb4i.add(1.0, alpha0, alpha1, alpha2, alpha3, scales0, scales1, scales2, scales3)
     result1 = gb4i.get_work(nbasis0, nbasis1, nbasis2, nbasis3)
@@ -2976,8 +2982,8 @@ def test_electron_repulsion_0_2_1_0():
 
 
 def test_electron_repulsion_0_2_2_3():
-    with open(context.get_fn('test/electron_repulsion_0_2_2_3.json')) as f:
-        result0 = np.array(json.load(f))
+    fn = 'electron_repulsion_0_2_2_3_json'
+    result0 = load_json(fn)
     check_electron_repulsion(
         np.array([0.96867, 0.41743, 1.03509]), np.array([1.84594, 0.83035, 1.20242]),
         np.array([0.94861, 0.47292, 0.38655]), np.array([1.3009, 1.10486, 1.4979]),
@@ -2993,8 +2999,8 @@ def test_electron_repulsion_0_2_2_3():
 
 
 def test_electron_repulsion_4_3_2_1():
-    with open(context.get_fn('test/electron_repulsion_4_3_2_1.json')) as f:
-        result0 = np.array(json.load(f))
+    fn = 'electron_repulsion_4_3_2_1_json'
+    result0 = load_json(fn)
     check_electron_repulsion(
         np.array([0.94212, 1.71823, 0.3309]), np.array([0.94854, 0.12816, 0.42016]),
         np.array([0.46046, 0.43321, 1.0587]), np.array([1.0089, 0.52286, 1.83539]),
@@ -3021,7 +3027,7 @@ def get_erf_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3,
         Exponents of the four primitive shells.
     r0, r1, r2, r3 : np.ndarray, shape=(3,), dtype=float
         Cartesian coordinates of the centers of the four primitive shells.
-    scales0, scales1, scales2, scales3 : float
+    scales0, scales1, scales2, scales3 : np.ndarray, dtype=float
         Normalization prefactors for the Gaussian shells.
     shell_type0, shell_type1, shell_type2, shell_type3 : int
         Shell types of the four primitive shells.
@@ -3037,7 +3043,7 @@ def get_erf_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3,
     nbasis3 = get_shell_nbasis(shell_type3)
     # Clear the working memory
     gb4i.reset(shell_type0, shell_type1, shell_type2, shell_type3, r0, r1, r2, r3)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1, alpha2, alpha3 in zip(alphas0, alphas1, alphas2, alphas3):
         gb4i.add(1.0, alpha0, alpha1, alpha2, alpha3, scales0, scales1, scales2, scales3)
     return gb4i.get_work(nbasis0, nbasis1, nbasis2, nbasis3)
@@ -3057,7 +3063,7 @@ def check_erf_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, scal
         Exponents of the four primitive shells.
     r0, r1, r2, r3 : np.ndarray, shape=(3,), dtype=float
         Cartesian coordinates of the centers of the four primitive shells.
-    scales0, scales1, scales2, scales3 : float
+    scales0, scales1, scales2, scales3 : np.ndarray, dtype=float
         Normalization prefactors for the Gaussian shells.
     shell_type0, shell_type1, shell_type2, shell_type3 : int
         Shell types of the four primitive shells.
@@ -3336,8 +3342,8 @@ def test_erf_repulsion_0_2_1_0():
 
 
 def test_erf_repulsion_0_2_2_3():
-    with open(context.get_fn('test/erf_repulsion_0_2_2_3.json')) as f:
-        result0 = np.array(json.load(f))
+    fn = 'erf_repulsion_0_2_2_3_json'
+    result0 = load_json(fn)
     check_erf_repulsion(
         np.array([0.96867, 0.41743, 1.03509]), np.array([1.84594, 0.83035, 1.20242]),
         np.array([0.94861, 0.47292, 0.38655]), np.array([1.3009, 1.10486, 1.4979]),
@@ -3353,8 +3359,8 @@ def test_erf_repulsion_0_2_2_3():
 
 
 def test_erf_repulsion_4_3_2_1():
-    with open(context.get_fn('test/erf_repulsion_4_3_2_1.json')) as f:
-        result0 = np.array(json.load(f))
+    fn = 'erf_repulsion_4_3_2_1_json'
+    result0 = load_json(fn)
     check_erf_repulsion(
         np.array([0.94212, 1.71823, 0.3309]), np.array([0.94854, 0.12816, 0.42016]),
         np.array([0.46046, 0.43321, 1.0587]), np.array([1.0089, 0.52286, 1.83539]),
@@ -3370,33 +3376,34 @@ def test_erf_repulsion_4_3_2_1():
         result0, 10000)
 
 
-def test_erf_repulsion_h2_sto3g():
-    mol2 = IOData.from_file(context.get_fn('test/FCIDUMP.molpro.h2-erf'))
-
-    mol = IOData(title='h2')
-    mol.coordinates = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 1.4]])
-    mol.numbers = np.array([1, 1])
-
-    # Create a Gaussian basis set
-    obasis = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
-
-    # Compute Gaussian integrals
-    olp = obasis.compute_overlap()
-    kin = obasis.compute_kinetic()
-    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
-    er = obasis.compute_erf_repulsion(2.25)
-
-    # Create alpha orbitals
-    orb_alpha = Orbitals(obasis.nbasis)
-
-    # Initial guess
-    core = kin+na
-    guess_core_hamiltonian(olp, core, orb_alpha)
-    mol.orb_alpha = orb_alpha
-
-    # Transform orbitals
-    two_mo = transform_integrals(core, er, 'tensordot', mol.orb_alpha)[1][0]
-    assert abs(mol2.two_mo - two_mo).max() < 1e-10
+# TODO: Move to glue code test?
+# def test_erf_repulsion_h2_sto3g():
+#     mol2 = IOData.from_file('FCIDUMP.molpro.h2-erf'))
+#
+#     mol = IOData(title='h2')
+#     mol['coordinates'] = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 1.4]])
+#     mol['numbers'] = np.array([1, 1])
+#
+#     # Create a Gaussian basis set
+#     obasis = get_gobasis(mol['coordinates'], mol['numbers'], 'sto-3g')
+#
+#     # Compute Gaussian integrals
+#     olp = obasis.compute_overlap()
+#     kin = obasis.compute_kinetic()
+#     na = obasis.compute_nuclear_attraction(mol['coordinates'], mol['pseudo_numbers'])
+#     er = obasis.compute_erf_repulsion(2.25)
+#
+#     # Create alpha orbitals
+#     orb_alpha = Orbitals(obasis.nbasis)
+#
+#     # Initial guess
+#     core = kin + na
+#     guess_core_hamiltonian(olp, core, orb_alpha)
+#     mol.orb_alpha = orb_alpha
+#
+#     # Transform orbitals
+#     two_mo = transform_integrals(core, er, 'tensordot', mol.orb_alpha)[1][0]
+#     assert abs(mol2.two_mo - two_mo).max() < 1e-10
 
 
 def check_gauss_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, scales0,
@@ -3413,7 +3420,7 @@ def check_gauss_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, sc
         Exponents of the four primitive shells.
     r0, r1, r2, r3 : np.ndarray, shape=(3,), dtype=float
         Cartesian coordinates of the centers of the four primitive shells.
-    scales0, scales1, scales2, scales3 : float
+    scales0, scales1, scales2, scales3 : np.ndarray, dtype=float
         Normalization prefactors for the Gaussian shells.
     shell_type0, shell_type1, shell_type2, shell_type3 : int
         Shell types of the four primitive shells.
@@ -3439,7 +3446,7 @@ def check_gauss_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, sc
     assert result0.shape == (nbasis0, nbasis1, nbasis2, nbasis3)
     # Clear the working memory
     gb4i.reset(shell_type0, shell_type1, shell_type2, shell_type3, r0, r1, r2, r3)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1, alpha2, alpha3 in zip(alphas0, alphas1, alphas2, alphas3):
         gb4i.add(1.0, alpha0, alpha1, alpha2, alpha3, scales0, scales1, scales2, scales3)
     result1 = gb4i.get_work(nbasis0, nbasis1, nbasis2, nbasis3)
@@ -3938,7 +3945,7 @@ def check_ralpha_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, s
         Exponents of the four primitive shells.
     r0, r1, r2, r3 : np.ndarray, shape=(3,), dtype=float
         Cartesian coordinates of the centers of the four primitive shells.
-    scales0, scales1, scales2, scales3 : float
+    scales0, scales1, scales2, scales3 : np.ndarray, dtype=float
         Normalization prefactors for the Gaussian shells.
     shell_type0, shell_type1, shell_type2, shell_type3 : int
         Shell types of the four primitive shells.
@@ -3961,7 +3968,7 @@ def check_ralpha_repulsion(alphas0, alphas1, alphas2, alphas3, r0, r1, r2, r3, s
     assert result0.shape == (nbasis0, nbasis1, nbasis2, nbasis3)
     # Clear the working memory
     gb4i.reset(shell_type0, shell_type1, shell_type2, shell_type3, r0, r1, r2, r3)
-    # Add a few cobtributions:
+    # Add a few contributions:
     for alpha0, alpha1, alpha2, alpha3 in zip(alphas0, alphas1, alphas2, alphas3):
         gb4i.add(1.0, alpha0, alpha1, alpha2, alpha3, scales0, scales1, scales2, scales3)
     result1 = gb4i.get_work(nbasis0, nbasis1, nbasis2, nbasis3)
@@ -4260,8 +4267,8 @@ def test_ralpha_repulsion_0_2_1_0():
 
 
 def test_ralpha_repulsion_0_2_2_3():
-    with open(context.get_fn('test/electron_repulsion_0_2_2_3.json')) as f:
-        result0 = np.array(json.load(f))
+    fn = 'electron_repulsion_0_2_2_3_json'
+    result0 = load_json(fn)
     check_ralpha_repulsion(
         np.array([0.96867, 0.41743, 1.03509]), np.array([1.84594, 0.83035, 1.20242]),
         np.array([0.94861, 0.47292, 0.38655]), np.array([1.3009, 1.10486, 1.4979]),
@@ -4277,8 +4284,8 @@ def test_ralpha_repulsion_0_2_2_3():
 
 
 def test_ralpha_repulsion_4_3_2_1():
-    with open(context.get_fn('test/electron_repulsion_4_3_2_1.json')) as f:
-        result0 = np.array(json.load(f))
+    fn = 'electron_repulsion_4_3_2_1_json'
+    result0 = load_json(fn)
     check_ralpha_repulsion(
         np.array([0.94212, 1.71823, 0.3309]), np.array([0.94854, 0.12816, 0.42016]),
         np.array([0.46046, 0.43321, 1.0587]), np.array([1.0089, 0.52286, 1.83539]),
@@ -4294,11 +4301,10 @@ def test_ralpha_repulsion_4_3_2_1():
         result0, -1.0)
 
 
-def check_g09_overlap(fn_fchk):
-    fn_log = fn_fchk[:-5] + '.log'
-    mol = IOData.from_file(fn_fchk, fn_log)
-    olp1 = mol.obasis.compute_overlap()
-    olp2 = mol.olp
+def check_g09_overlap(fn):
+    obasis = load_obasis(fn)
+    olp1 = obasis.compute_overlap()
+    olp2 = load_olp(fn)
     mask = abs(olp1) > 1e-5
     delta = olp1 - olp2
     expect = olp1
@@ -4307,30 +4313,29 @@ def check_g09_overlap(fn_fchk):
 
 
 def test_overlap_water_sto3g_hf():
-    check_g09_overlap(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    check_g09_overlap('water_sto3g_hf_g03_fchk')
 
 
 def test_overlap_water_ccpvdz_pure_hf():
-    check_g09_overlap(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
+    check_g09_overlap('water_ccpvdz_pure_hf_g03_fchk')
 
 
 def test_overlap_water_ccpvdz_cart_hf():
-    check_g09_overlap(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
+    check_g09_overlap('water_ccpvdz_cart_hf_g03_fchk')
 
 
 def test_overlap_co_ccpv5z_pure_hf():
-    check_g09_overlap(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+    check_g09_overlap('co_ccpv5z_pure_hf_g03_fchk')
 
 
 def test_overlap_co_ccpv5z_cart_hf():
-    check_g09_overlap(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
+    check_g09_overlap('co_ccpv5z_cart_hf_g03_fchk')
 
 
-def check_g09_kinetic(fn_fchk):
-    fn_log = fn_fchk[:-5] + '.log'
-    mol = IOData.from_file(fn_fchk, fn_log)
-    kin1 = mol.obasis.compute_kinetic()
-    kin2 = mol.kin
+def check_g09_kinetic(fn):
+    obasis = load_obasis(fn)
+    kin1 = obasis.compute_kinetic()
+    kin2 = load_kin(fn)
     mask = abs(kin1) > 1e-5
     delta = kin1 - kin2
     expect = kin1
@@ -4339,30 +4344,30 @@ def check_g09_kinetic(fn_fchk):
 
 
 def test_kinetic_water_sto3g_hf():
-    check_g09_kinetic(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    check_g09_kinetic('water_sto3g_hf_g03_fchk')
 
 
 def test_kinetic_water_ccpvdz_pure_hf():
-    check_g09_kinetic(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
+    check_g09_kinetic('water_ccpvdz_pure_hf_g03_fchk')
 
 
 def test_kinetic_water_ccpvdz_cart_hf():
-    check_g09_kinetic(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
+    check_g09_kinetic('water_ccpvdz_cart_hf_g03_fchk')
 
 
 def test_kinetic_co_ccpv5z_pure_hf():
-    check_g09_kinetic(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+    check_g09_kinetic('co_ccpv5z_pure_hf_g03_fchk')
 
 
 def test_kinetic_co_ccpv5z_cart_hf():
-    check_g09_kinetic(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
+    check_g09_kinetic('co_ccpv5z_cart_hf_g03_fchk')
 
 
-def check_g09_nuclear_attraction(fn_fchk):
-    fn_log = fn_fchk[:-5] + '.log'
-    mol = IOData.from_file(fn_fchk, fn_log)
-    na1 = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
-    na2 = mol.na
+def check_g09_nuclear_attraction(fn):
+    mol = load_mdata(fn)
+    obasis = load_obasis(fn)
+    na1 = obasis.compute_nuclear_attraction(mol['coordinates'], mol['pseudo_numbers'])
+    na2 = load_na(fn)
     mask = abs(na1) > 1e-5
     expect = na1
     result = na2
@@ -4372,116 +4377,117 @@ def check_g09_nuclear_attraction(fn_fchk):
 
 
 def test_nuclear_attraction_water_sto3g_hf():
-    check_g09_nuclear_attraction(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    check_g09_nuclear_attraction('water_sto3g_hf_g03_fchk')
 
 
 def test_nuclear_attraction_water_ccpvdz_pure_hf():
-    check_g09_nuclear_attraction(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
+    check_g09_nuclear_attraction('water_ccpvdz_pure_hf_g03_fchk')
 
 
 def test_nuclear_attraction_water_ccpvdz_cart_hf():
-    check_g09_nuclear_attraction(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
+    check_g09_nuclear_attraction('water_ccpvdz_cart_hf_g03_fchk')
 
 
 def test_nuclear_attraction_co_ccpv5z_pure_hf():
-    check_g09_nuclear_attraction(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+    check_g09_nuclear_attraction('co_ccpv5z_pure_hf_g03_fchk')
 
 
 def test_nuclear_attraction_co_ccpv5z_cart_hf():
-    check_g09_nuclear_attraction(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
+    check_g09_nuclear_attraction('co_ccpv5z_cart_hf_g03_fchk')
 
 
-def check_g09_dipole(fn_fchk):
+def check_g09_dipole(fn):
     """Compare dipole moment computed from WFN and nuclei to reference value.
 
     Parameters
     ----------
-    fn_fchk : str
-        The FCHK filename.
+    fn : str
+        The sanitized FCHK filename with '.' and '-' substituted with '_'.
     """
-    mol = IOData.from_file(fn_fchk)
+    obasis = load_obasis(fn)
+    mol = load_mdata(fn)
     xyz_array = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
     center = np.zeros(3)
-    mol.dm_full = mol.get_dm_full()
+    dm_full = load_dm(fn)
     dipole = []
     for xyz in xyz_array:
-        dipole_ints = mol.obasis.compute_multipole_moment(xyz, center)
-        dipole_v = -np.einsum('ab,ba', dipole_ints, mol.dm_full)
-        for i, n in enumerate(mol.pseudo_numbers):
-            dipole_v += n * pow(mol.coordinates[i, 0], xyz[0]) * \
-                        pow(mol.coordinates[i, 1], xyz[1]) * \
-                        pow(mol.coordinates[i, 2], xyz[2])
+        dipole_ints = obasis.compute_multipole_moment(xyz, center)
+        dipole_v = -np.einsum('ab,ba', dipole_ints, dm_full)
+        for i, n in enumerate(mol['pseudo_numbers']):
+            dipole_v += n * pow(mol['coordinates'][i, 0], xyz[0]) * \
+                        pow(mol['coordinates'][i, 1], xyz[1]) * \
+                        pow(mol['coordinates'][i, 2], xyz[2])
         dipole.append(dipole_v)
-    np.testing.assert_almost_equal(dipole, mol.dipole_moment, decimal=6)
+    np.testing.assert_almost_equal(dipole, load_dipole(fn), decimal=6)
 
 
 def test_dipole_water_sto3g_hf():
-    check_g09_dipole(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    check_g09_dipole('water_sto3g_hf_g03_fchk')
 
 
 def test_dipole_water_ccpvdz_pure_hf():
-    check_g09_dipole(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
+    check_g09_dipole('water_ccpvdz_pure_hf_g03_fchk')
 
 
 def test_dipole_ccpvdz_cart_hf():
-    check_g09_dipole(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
+    check_g09_dipole('water_ccpvdz_cart_hf_g03_fchk')
 
 
 def test_dipole_co_ccpv5z_pure_hf():
-    check_g09_dipole(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+    check_g09_dipole('co_ccpv5z_pure_hf_g03_fchk')
 
 
 def test_dipole_co_ccpv5z_cart_hf():
-    check_g09_dipole(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
+    check_g09_dipole('co_ccpv5z_cart_hf_g03_fchk')
 
 
-def check_g09_quadrupole(fn_fchk):
+def check_g09_quadrupole(fn):
     """Compare quadrupole moment computed from WFN and nuclei to reference value.
 
     Parameters
     ----------
-    fn_fchk : str
-        The FCHK filename.
+    fn : str
+        The sanitized FCHK filename with '.' and '-' substituted with '_'.
     """
-    mol = IOData.from_file(fn_fchk)
+    obasis = load_obasis(fn)
+    mol = load_mdata(fn)
     # HORTON ordering: xx, xy, xz, yy, yz, zz (alphabetic)
     xyz_array = np.array([[2, 0, 0], [1, 1, 0], [1, 0, 1], [0, 2, 0], [0, 1, 1], [0, 0, 2]])
     center = np.zeros(3)
-    mol.dm_full = mol.get_dm_full()
+    dm_full = load_dm(fn)
     quadrupole = []
     for xyz in xyz_array:
-        quadrupole_ints = mol.obasis.compute_multipole_moment(xyz, center)
-        quad_v = -np.einsum('ab,ba', quadrupole_ints, mol.dm_full)
-        for i, n in enumerate(mol.pseudo_numbers):
-            quad_v += n * pow(mol.coordinates[i, 0], xyz[0]) * \
-                      pow(mol.coordinates[i, 1], xyz[1]) * \
-                      pow(mol.coordinates[i, 2], xyz[2])
+        quadrupole_ints = obasis.compute_multipole_moment(xyz, center)
+        quad_v = -np.einsum('ab,ba', quadrupole_ints, dm_full)
+        for i, n in enumerate(mol['pseudo_numbers']):
+            quad_v += n * pow(mol['coordinates'][i, 0], xyz[0]) * \
+                      pow(mol['coordinates'][i, 1], xyz[1]) * \
+                      pow(mol['coordinates'][i, 2], xyz[2])
         quadrupole.append(quad_v)
     # removing trace:
     mean = (quadrupole[0] + quadrupole[3] + quadrupole[5]) / 3.0
     quadrupole[0] -= mean
     quadrupole[3] -= mean
     quadrupole[5] -= mean
-    np.testing.assert_almost_equal(quadrupole, mol.quadrupole_moment, decimal=6)
+    np.testing.assert_almost_equal(quadrupole, load_quad(fn), decimal=6)
 
 
 def test_quadrupole_ch3_hf_sto3g():
-    check_g09_quadrupole(context.get_fn('test/ch3_hf_sto3g.fchk'))
+    check_g09_quadrupole('ch3_hf_sto3g_fchk')
 
 
 def test_quadrupole_li_h_321g_hf_g09():
-    check_g09_quadrupole(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+    check_g09_quadrupole('li_h_3_21G_hf_g09_fchk')
 
 
 def test_quadrupole_monosilicic_acid_hf_lan_g09():
-    check_g09_quadrupole(context.get_fn('test/monosilicic_acid_hf_lan.fchk'))
+    check_g09_quadrupole('monosilicic_acid_hf_lan_fchk')
 
 
-def check_g09_electron_repulsion(fn_fchk, check_g09_zeros=False):
-    fn_log = fn_fchk[:-5] + '.log'
-    mol = IOData.from_file(fn_fchk, fn_log)
-    er1 = mol.obasis.compute_electron_repulsion()
-    er2 = mol.er
+def check_g09_electron_repulsion(fn, check_g09_zeros=False):
+    obasis = load_obasis(fn)
+    er1 = obasis.compute_electron_repulsion()
+    er2 = load_er(fn)
     mask = abs(er1) > 1e-6
     expect = er1
     got = er2
@@ -4493,43 +4499,43 @@ def check_g09_electron_repulsion(fn_fchk, check_g09_zeros=False):
 
 
 def test_electron_repulsion_water_sto3g_hf():
-    check_g09_electron_repulsion(context.get_fn('test/water_sto3g_hf_g03.fchk'), True)
+    check_g09_electron_repulsion('water_sto3g_hf_g03_fchk', True)
 
 
 def test_electron_repulsion_water_ccpvdz_pure_hf():
-    check_g09_electron_repulsion(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
+    check_g09_electron_repulsion('water_ccpvdz_pure_hf_g03_fchk')
 
 
 def test_electron_repulsion_water_ccpvdz_cart_hf():
-    check_g09_electron_repulsion(context.get_fn('test/water_ccpvdz_cart_hf_g03.fchk'))
+    check_g09_electron_repulsion('water_ccpvdz_cart_hf_g03_fchk')
 
 
-def check_g09_grid_fn(fn_fchk):
-    mol = IOData.from_file(fn_fchk)
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, 'tv-13.7-4',
-                        random_rotate=False)
-    dm_full = mol.get_dm_full()
-    rhos = mol.obasis.compute_grid_density_dm(dm_full, grid.points)
-    pop = grid.integrate(rhos)
-    nel = np.einsum('ab,ba', mol.obasis.compute_overlap(), dm_full)
-    assert abs(pop - nel) < 2e-3
+def check_g09_grid_fn(fn):
+    obasis = load_obasis(fn)
+    mol = load_mdata(fn)
+    points, weights = generate_molecular_grid(mol['numbers'], mol['coordinates'], 10000)
+    dm_full = load_dm(fn)
+    rhos = obasis.compute_grid_density_dm(dm_full, points)
+    pop = integrate(weights, rhos)
+    nel = np.einsum('ab,ba', obasis.compute_overlap(), dm_full)
+    np.testing.assert_allclose(pop, nel, atol=1e-2)
 
 
 def test_grid_fn_h_sto3g():
-    check_g09_grid_fn(context.get_fn('test/h_sto3g.fchk'))
+    check_g09_grid_fn('h_sto3g_fchk')
 
 
 def test_grid_fn_lih_321g_hf():
-    check_g09_grid_fn(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+    check_g09_grid_fn('li_h_3_21G_hf_g09_fchk')
 
 
-def test_grid_fn_water_sto3g_hf_T():
-    check_g09_grid_fn(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+def test_grid_fn_water_sto3g_hf_t():
+    check_g09_grid_fn('water_sto3g_hf_g03_fchk')
 
 
-def test_grid_fn_co_ccpv5z_pure_hf_T():
-    check_g09_grid_fn(context.get_fn('test/co_ccpv5z_pure_hf_g03.fchk'))
+def test_grid_fn_co_ccpv5z_pure_hf_t():
+    check_g09_grid_fn('co_ccpv5z_pure_hf_g03_fchk')
 
 
-def test_grid_fn_co_ccpv5z_cart_hf_T():
-    check_g09_grid_fn(context.get_fn('test/co_ccpv5z_cart_hf_g03.fchk'))
+def test_grid_fn_co_ccpv5z_cart_hf_t():
+    check_g09_grid_fn('co_ccpv5z_cart_hf_g03_fchk')

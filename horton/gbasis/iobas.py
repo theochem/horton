@@ -18,12 +18,11 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Input/Output routines for gaussian basis sets'''
+"""Input/Output routines for gaussian basis sets"""
 
 import numpy as np
 
-from horton.periodic import periodic
-
+from .periodic import num2sym, sym2num
 
 __all__ = [
     'str_to_shell_types', 'shell_type_to_str', 'fortran_float',
@@ -47,17 +46,16 @@ def shell_type_to_str(shell_type):
 
 
 def fortran_float(s):
-    '''Convert a string to a float. Works also with D before the mantissa'''
+    """Convert a string to a float. Works also with D before the mantissa"""
     return float(s.replace('D', 'E').replace('d', 'e'))
 
 
 def load_basis_atom_map_nwchem(filename):
-    '''Load the basis set family from an NWChem file.'''
-    from horton.gbasis.gobasis import GOBasisAtom, GOBasisContraction
+    """Load the basis set family from an NWChem file."""
+    from .gobasis import GOBasisAtom, GOBasisContraction
 
     f = open(filename)
     basis_atom_map = {}
-    bc = None # The current contraction being loaded
     for line in f:
         # Strip off comments and white space.
         line = line[:line.find('#')].strip()
@@ -68,7 +66,7 @@ def load_basis_atom_map_nwchem(filename):
         words = line.split()
         if words[0].isalpha():
             # A new contraction begins, maybe even a new atom.
-            n = periodic[words[0]].number
+            n = sym2num[words[0]]
             ba = basis_atom_map.get(n)
             shell_types = str_to_shell_types(words[1])
             bcs = [GOBasisContraction(shell_type, [], []) for shell_type in shell_types]
@@ -90,10 +88,9 @@ def load_basis_atom_map_nwchem(filename):
 
 def load_basis_atom_map_gbs(filename):
     """Load the basis set family from a GBS file."""
-    from horton.gbasis.gobasis import GOBasisAtom, GOBasisContraction
+    from .gobasis import GOBasisAtom, GOBasisContraction
 
     basis_atom_map = {}
-    bc = None  # The current contraction being loaded
     cur_atom = None
     cur_shell_types = None
     with open(filename, 'r') as f:
@@ -109,11 +106,11 @@ def load_basis_atom_map_gbs(filename):
             # if first word is the angular momentum
             elif words[0].isalpha() and len(words) == 3:
                 # A new contraction begins, maybe even a new atom.
-                n = periodic[cur_atom].number
+                n = sym2num[cur_atom]
                 cur_shell_types = str_to_shell_types(words[0])
                 empty_contr = [GOBasisContraction(shell_type, [], [])
                                for shell_type in cur_shell_types]
-                # Try to get the atom and add emptry contraction, or create new atom.
+                # Try to get the atom and add empty contraction, or create new atom.
                 goba = basis_atom_map.get(n)
                 if goba is None:
                     basis_atom_map[n] = GOBasisAtom(empty_contr)
@@ -123,7 +120,7 @@ def load_basis_atom_map_gbs(filename):
                 # An extra primitive for the current contraction(s).
                 exponent = fortran_float(words[0])
                 coeffs = [fortran_float(w) for w in words[1:]]
-                for i, bc in enumerate(empty_contr):
+                for i, bc in enumerate(empty_contr):  # FIXME: empty_contr ref before assignment
                     bc.alphas.append(exponent)
                     bc.con_coeffs.append(coeffs[i::len(cur_shell_types)])
     return basis_atom_map
@@ -144,8 +141,8 @@ def dump_basis_atom_map_gbs(filename, name, basis_atom_map):
     with open(filename, 'w') as f:
         f.write('!Basis set, {0}, generated using HORTON\n\n'.format(name))
         f.write('****\n')
-        for atom, gobatom in sorted(basis_atom_map.iteritems()):
-            f.write('{0:<6}0\n'.format(periodic[atom].symbol))
+        for atom, gobatom in sorted(basis_atom_map.items()):
+            f.write('{0:<6}0\n'.format(num2sym[atom]))
             contractions = gobatom.bcs
             for contraction in contractions:
                 exponents = contraction.alphas.reshape(-1, 1)
@@ -156,6 +153,6 @@ def dump_basis_atom_map_gbs(filename, name, basis_atom_map):
                 f.write('{0:<4}{1:<4}1.00\n'.format(
                     shell_type_to_str(contraction.shell_type).upper(), exponents.size))
                 for con_row in con_numbers:
-                    f.write(('{:>17}'*con_row.size).format(*con_row))
+                    f.write(('{:>17} ' * con_row.size).format(*con_row))
                     f.write('\n')
             f.write('****\n')

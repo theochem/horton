@@ -23,9 +23,10 @@
 import numpy as np
 from nose.tools import assert_raises
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-
-from horton.test.common import tmpdir
+from .common import tmpdir, load_mdata
+from .. import (GOBasisFamily, GOBasisContraction, go_basis_families, get_gobasis,
+                str_to_shell_types, dump_basis_atom_map_gbs, fortran_float, shell_type_to_str)
+from .. utils import to_basis_path
 
 
 def test_str_to_shell_types_cart():
@@ -60,9 +61,8 @@ def test_fortran_float():
 
 
 def test_go_basis_desc_neon_sto3g():
-    gobasis_set = []
-    gobasis_set.append(GOBasisFamily('STO-3G', filename=context.get_fn('basis/sto-3g.nwchem')))
-    gobasis_set.append(GOBasisFamily('STO-3G', filename=context.get_fn('basis/sto-3g.gbs')))
+    gobasis_set = [GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.nwchem')),
+                   GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.gbs'))]
     for gobasis in gobasis_set:
         obasis = get_gobasis(np.array([[0.0, 0.0, 0.0]]), np.array([2]), gobasis)
         assert (obasis.shell_map == np.array([0])).all()
@@ -74,9 +74,8 @@ def test_go_basis_desc_neon_sto3g():
 
 
 def test_go_basis_desc_hydrogen_321g():
-    gobasis_set = []
-    gobasis_set.append(GOBasisFamily('3-21G', filename=context.get_fn('basis/3-21g.nwchem')))
-    gobasis_set.append(GOBasisFamily('3-21G', filename=context.get_fn('basis/3-21g.gbs')))
+    gobasis_set = [GOBasisFamily('3-21G', filename=to_basis_path('3-21g.nwchem')),
+                   GOBasisFamily('3-21G', filename=to_basis_path('3-21g.gbs'))]
     for gobasis in gobasis_set:
         obasis = get_gobasis(np.array([[0.0, 0.0, 0.0]]), np.array([1]), gobasis)
         assert (obasis.shell_map == np.array([0, 0])).all()
@@ -94,9 +93,8 @@ def test_go_basis_family_lithium_321g():
 
 
 def test_go_basis_desc_lithium_321g():
-    gobasis_set = []
-    gobasis_set.append(GOBasisFamily('3-21G', filename=context.get_fn('basis/3-21g.nwchem')))
-    gobasis_set.append(GOBasisFamily('3-21G', filename=context.get_fn('basis/3-21g.gbs')))
+    gobasis_set = [GOBasisFamily('3-21G', filename=to_basis_path('3-21g.nwchem')),
+                   GOBasisFamily('3-21G', filename=to_basis_path('3-21g.gbs'))]
     for gobasis in gobasis_set:
         obasis = get_gobasis(np.array([[0.0, 0.0, 0.0]]), np.array([3]), gobasis)
         assert (obasis.shell_map == np.array([0, 0, 0, 0, 0])).all()
@@ -117,13 +115,11 @@ def test_go_basis_desc_lithium_321g():
 
 
 def test_go_basis_desc_water_sto3g():
-    fn = context.get_fn('test/water_element.xyz')
-    mol = IOData.from_file(fn)
-    gobasis_set = []
-    gobasis_set.append(GOBasisFamily('STO-3G', filename=context.get_fn('basis/sto-3g.nwchem')))
-    gobasis_set.append(GOBasisFamily('STO-3G', filename=context.get_fn('basis/sto-3g.gbs')))
+    mol = load_mdata('water_element_xyz')
+    gobasis_set = [GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.nwchem')),
+                   GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.gbs'))]
     for gobasis in gobasis_set:
-        obasis = get_gobasis(mol.coordinates, mol.numbers, gobasis)
+        obasis = get_gobasis(mol['coordinates'], mol['numbers'], gobasis)
         assert (obasis.shell_map == np.array([0, 1, 1, 1, 2])).all()
         assert (obasis.nprims == np.array([3, 3, 3, 3, 3])).all()
         assert (obasis.shell_types == np.array([0, 0, 0, 1, 0])).all()
@@ -163,14 +159,14 @@ def test_gobasis_contraction():
 
 
 def test_dump_basis_atom_map_gbs():
-    sto3g = GOBasisFamily('original STO-3G', filename=context.get_fn('basis/sto-3g.gbs'))
+    sto3g = GOBasisFamily('original STO-3G', filename=to_basis_path('sto-3g.gbs'))
     sto3g.load()
-    with tmpdir('horton.gbasis.test.test_iobas.test_dump_basis_atom_map_gbs') as tmp:
+    with tmpdir('gbasis.test.test_iobas.test_dump_basis_atom_map_gbs') as tmp:
         tmp_gbs = '{0}/test.gbs'.format(tmp)
         dump_basis_atom_map_gbs(tmp_gbs, sto3g.name, sto3g.basis_atom_map)
         new_sto3g = GOBasisFamily('new STO-3G', filename=tmp_gbs)
         new_sto3g.load()
-        for atom, bca in new_sto3g.basis_atom_map.iteritems():
+        for atom, bca in new_sto3g.basis_atom_map.items():
             old_bca = sto3g.basis_atom_map[atom]
             for i, contraction in enumerate(bca.bcs):
                 old_contraction = old_bca.bcs[i]

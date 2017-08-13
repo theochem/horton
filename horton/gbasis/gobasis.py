@@ -23,14 +23,10 @@
 
 import numpy as np
 
-from horton.context import context
-from horton.gbasis.cext import GOBasis
-from horton.gbasis.iobas import load_basis_atom_map_nwchem, load_basis_atom_map_gbs, \
-    dump_basis_atom_map_gbs
-from horton.log import log
-from horton.periodic import periodic
-from horton.utils import typecheck_geo
-
+from .cext import GOBasis
+from .iobas import load_basis_atom_map_nwchem, load_basis_atom_map_gbs, dump_basis_atom_map_gbs
+from .periodic import sym2num
+from .utils import typecheck_geo, to_basis_path
 
 __all__ = [
     'get_gobasis', 'GOBasisDesc', 'GOBasisFamily', 'go_basis_families',
@@ -39,7 +35,7 @@ __all__ = [
 
 
 def get_gobasis(coordinates, numbers, default, element_map=None, index_map=None, pure=True):
-    '''Return GOBasis for a given molecule
+    """Return GOBasis for a given molecule
 
        **Arguments:**
 
@@ -74,7 +70,7 @@ def get_gobasis(coordinates, numbers, default, element_map=None, index_map=None,
 
        Note that the geometry specified by the arguments can also contain ghost
        atoms.
-    '''
+    """
     gobasis_desc = GOBasisDesc(default, element_map, index_map, pure)
     return gobasis_desc.apply_to(coordinates, numbers)
 
@@ -118,9 +114,9 @@ class GOBasisDesc(object):
         self.pure = pure
 
         # Update the element map such that it only contains numbers as keys.
-        for key in self.element_map.keys():
-            if isinstance(key, basestring):
-                number = periodic[key].number
+        for key in list(self.element_map.keys()):
+            if isinstance(key, str):
+                number = sym2num[key]
                 self.element_map[number] = element_map[key]
                 del element_map[key]
 
@@ -162,7 +158,7 @@ class GOBasisDesc(object):
 
         def translate_basis(basis_x, n):
             """Translate the first argument into a GOBasisAtom instance"""
-            if isinstance(basis_x, basestring):
+            if isinstance(basis_x, str):
                 basis_fam = go_basis_families.get(basis_x.lower())
                 if basis_fam is None:
                     raise ValueError('Unknown basis family: %s' % basis_x)
@@ -181,7 +177,7 @@ class GOBasisDesc(object):
                 raise ValueError('Can not interpret %s as an atomic basis function.' % basis_x)
 
         # Loop over the atoms and fill in all the lists
-        for i in xrange(natom):
+        for i in range(natom):
             n = numbers[i]
             basis_x = get_basis(i, n)
             basis_atom = translate_basis(basis_x, n)
@@ -264,14 +260,14 @@ class GOBasisFamily(object):
 
     def _to_arrays(self):
         """Convert all contraction attributes to numpy arrays."""
-        for ba in self.basis_atom_map.itervalues():
+        for ba in self.basis_atom_map.values():
             for bc in ba.bcs:
                 bc.to_arrays()
 
     def _to_segmented(self):
-        '''Convert all contractions from generalized to segmented'''
+        """Convert all contractions from generalized to segmented"""
         new_basis_atom_map = {}
-        for n, ba in self.basis_atom_map.iteritems():
+        for n, ba in self.basis_atom_map.items():
             new_bcs = []
             for bc in ba.bcs:
                 new_bcs.extend(bc.get_segmented_bcs())
@@ -281,44 +277,44 @@ class GOBasisFamily(object):
 
     def _normalize_contractions(self):
         """Renormalize all contractions."""
-        for ba in self.basis_atom_map.itervalues():
+        for ba in self.basis_atom_map.values():
             for bc in ba.bcs:
                 bc.normalize()
 
 
 go_basis_families_list = [
-    GOBasisFamily('STO-3G', filename=context.get_fn('basis/sto-3g.nwchem')),
-    GOBasisFamily('STO-6G', filename=context.get_fn('basis/sto-6g.nwchem')),
-    GOBasisFamily('3-21G', filename=context.get_fn('basis/3-21g.nwchem')),
-    GOBasisFamily('3-21G(d)', filename=context.get_fn('basis/3-21g(d).nwchem')),
-    GOBasisFamily('3-21++G(d)', filename=context.get_fn('basis/3-21++g(d).nwchem')),
-    GOBasisFamily('4-31G', filename=context.get_fn('basis/4-31g.nwchem')),
-    GOBasisFamily('6-31G', filename=context.get_fn('basis/6-31g.nwchem')),
-    GOBasisFamily('6-31G(d)', filename=context.get_fn('basis/6-31g(d).nwchem')),
-    GOBasisFamily('6-31G(d,p)', filename=context.get_fn('basis/6-31g(d,p).nwchem')),
-    GOBasisFamily('6-31+G', filename=context.get_fn('basis/6-31+g.nwchem')),
-    GOBasisFamily('6-31+G(d)', filename=context.get_fn('basis/6-31+g(d).nwchem')),
-    GOBasisFamily('6-31++G(d,p)', filename=context.get_fn('basis/6-31++g(d,p).nwchem')),
-    GOBasisFamily('cc-pVDZ', filename=context.get_fn('basis/cc-pvdz.nwchem')),
-    GOBasisFamily('cc-pVTZ', filename=context.get_fn('basis/cc-pvtz.nwchem')),
-    GOBasisFamily('cc-pVQZ', filename=context.get_fn('basis/cc-pvqz.nwchem')),
-    GOBasisFamily('cc-pCVDZ', filename=context.get_fn('basis/cc-pcvdz.nwchem')),
-    GOBasisFamily('cc-pCVTZ', filename=context.get_fn('basis/cc-pcvtz.nwchem')),
-    GOBasisFamily('cc-pCVQZ', filename=context.get_fn('basis/cc-pcvqz.nwchem')),
-    GOBasisFamily('aug-cc-pVDZ', filename=context.get_fn('basis/aug-cc-pvdz.nwchem')),
-    GOBasisFamily('aug-cc-pVTZ', filename=context.get_fn('basis/aug-cc-pvtz.nwchem')),
-    GOBasisFamily('aug-cc-pVQZ', filename=context.get_fn('basis/aug-cc-pvqz.nwchem')),
-    GOBasisFamily('aug-cc-pV5Z', filename=context.get_fn('basis/aug-cc-pv5z.nwchem')),
-    GOBasisFamily('aug-cc-pV6Z', filename=context.get_fn('basis/aug-cc-pv6z.nwchem')),
-    GOBasisFamily('aug-cc-pCVDZ', filename=context.get_fn('basis/aug-cc-pcvdz.nwchem')),
-    GOBasisFamily('aug-cc-pCVTZ', filename=context.get_fn('basis/aug-cc-pcvtz.nwchem')),
-    GOBasisFamily('aug-cc-pCVQZ', filename=context.get_fn('basis/aug-cc-pcvqz.nwchem')),
-    GOBasisFamily('def2-svpd', filename=context.get_fn('basis/def2-svpd.nwchem')),
-    GOBasisFamily('def2-tzvp', filename=context.get_fn('basis/def2-tzvp.nwchem')),
-    GOBasisFamily('def2-tzvpd', filename=context.get_fn('basis/def2-tzvpd.nwchem')),
-    GOBasisFamily('def2-qzvp', filename=context.get_fn('basis/def2-qzvp.nwchem')),
-    GOBasisFamily('def2-qzvpd', filename=context.get_fn('basis/def2-qzvpd.nwchem')),
-    GOBasisFamily('ANO-RCC', filename=context.get_fn('basis/ano-rcc.nwchem')),
+    GOBasisFamily('STO-3G', filename=to_basis_path('sto-3g.nwchem')),
+    GOBasisFamily('STO-6G', filename=to_basis_path('sto-6g.nwchem')),
+    GOBasisFamily('3-21G', filename=to_basis_path('3-21g.nwchem')),
+    GOBasisFamily('3-21G(d)', filename=to_basis_path('3-21g(d).nwchem')),
+    GOBasisFamily('3-21++G(d)', filename=to_basis_path('3-21++g(d).nwchem')),
+    GOBasisFamily('4-31G', filename=to_basis_path('4-31g.nwchem')),
+    GOBasisFamily('6-31G', filename=to_basis_path('6-31g.nwchem')),
+    GOBasisFamily('6-31G(d)', filename=to_basis_path('6-31g(d).nwchem')),
+    GOBasisFamily('6-31G(d,p)', filename=to_basis_path('6-31g(d,p).nwchem')),
+    GOBasisFamily('6-31+G', filename=to_basis_path('6-31+g.nwchem')),
+    GOBasisFamily('6-31+G(d)', filename=to_basis_path('6-31+g(d).nwchem')),
+    GOBasisFamily('6-31++G(d,p)', filename=to_basis_path('6-31++g(d,p).nwchem')),
+    GOBasisFamily('cc-pVDZ', filename=to_basis_path('cc-pvdz.nwchem')),
+    GOBasisFamily('cc-pVTZ', filename=to_basis_path('cc-pvtz.nwchem')),
+    GOBasisFamily('cc-pVQZ', filename=to_basis_path('cc-pvqz.nwchem')),
+    GOBasisFamily('cc-pCVDZ', filename=to_basis_path('cc-pcvdz.nwchem')),
+    GOBasisFamily('cc-pCVTZ', filename=to_basis_path('cc-pcvtz.nwchem')),
+    GOBasisFamily('cc-pCVQZ', filename=to_basis_path('cc-pcvqz.nwchem')),
+    GOBasisFamily('aug-cc-pVDZ', filename=to_basis_path('aug-cc-pvdz.nwchem')),
+    GOBasisFamily('aug-cc-pVTZ', filename=to_basis_path('aug-cc-pvtz.nwchem')),
+    GOBasisFamily('aug-cc-pVQZ', filename=to_basis_path('aug-cc-pvqz.nwchem')),
+    GOBasisFamily('aug-cc-pV5Z', filename=to_basis_path('aug-cc-pv5z.nwchem')),
+    GOBasisFamily('aug-cc-pV6Z', filename=to_basis_path('aug-cc-pv6z.nwchem')),
+    GOBasisFamily('aug-cc-pCVDZ', filename=to_basis_path('aug-cc-pcvdz.nwchem')),
+    GOBasisFamily('aug-cc-pCVTZ', filename=to_basis_path('aug-cc-pcvtz.nwchem')),
+    GOBasisFamily('aug-cc-pCVQZ', filename=to_basis_path('aug-cc-pcvqz.nwchem')),
+    GOBasisFamily('def2-svpd', filename=to_basis_path('def2-svpd.nwchem')),
+    GOBasisFamily('def2-tzvp', filename=to_basis_path('def2-tzvp.nwchem')),
+    GOBasisFamily('def2-tzvpd', filename=to_basis_path('def2-tzvpd.nwchem')),
+    GOBasisFamily('def2-qzvp', filename=to_basis_path('def2-qzvp.nwchem')),
+    GOBasisFamily('def2-qzvpd', filename=to_basis_path('def2-qzvpd.nwchem')),
+    GOBasisFamily('ANO-RCC', filename=to_basis_path('ano-rcc.nwchem')),
 ]
 go_basis_families = dict((bf.name.lower(), bf) for bf in go_basis_families_list)
 
@@ -395,7 +391,7 @@ class GOBasisContraction(object):
         self.con_coeffs = con_coeffs
 
     def to_arrays(self):
-        '''Convert the alphas and con_coeffs attributes to numpy arrays.'''
+        """Convert the alphas and con_coeffs attributes to numpy arrays."""
         self.alphas = np.array(self.alphas)
         self.con_coeffs = np.array(self.con_coeffs)
 
@@ -410,17 +406,16 @@ class GOBasisContraction(object):
                             'generalized contractions.')
         return [
             GOBasisContraction(self.shell_type, self.alphas, self.con_coeffs[:, i])
-            for i in xrange(self.con_coeffs.shape[1])
+            for i in range(self.con_coeffs.shape[1])
         ]
 
-    @log.with_level(log.silent)
     def normalize(self):
         """Normalize the contraction."""
         if self.is_generalized():
             raise NotImplementedError("Only segmented contractions can be normalized.")
         # Warning! Ugly code ahead to avoid re-implementing the norm of contraction. The
         # code below (ab)uses the GOBasis machinery to get that result.
-        # 1) Constract a GOBasis object with only this contraction.
+        # 1) Construct a GOBasis object with only this contraction.
         centers = np.array([[0.0, 0.0, 0.0]])
         shell_map = np.array([0])
         nprims = np.array([len(self.alphas)])

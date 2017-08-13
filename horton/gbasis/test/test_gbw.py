@@ -20,15 +20,15 @@
 # --
 
 import numpy as np
-from nose.tools import assert_raises
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from .common import load_mdata
+from .. import get_gobasis, get_2index_slice, select_2index, compute_diagonal
 
 
 def get_h2o_er():
-    fn = context.get_fn('test/water.xyz')
-    mol = IOData.from_file(fn)
-    obasis = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
+    fn = "water_xyz"
+    mol = load_mdata(fn)
+    obasis = get_gobasis(mol["coordinates"], mol["numbers"], 'sto-3g')
     return obasis, obasis.compute_electron_repulsion()
 
 
@@ -36,7 +36,6 @@ def test_select_2index():
     obasis, er = get_h2o_er()
 
     lookups = obasis.shell_lookup
-    print lookups, obasis.basis_offsets
     for index0 in np.arange(obasis.nbasis):
         for index2 in np.arange(obasis.nbasis):
             pbegin0, pend0, pbegin2, pend2 = select_2index(obasis, index0, index2)
@@ -44,18 +43,17 @@ def test_select_2index():
             shell0 = lookups[index0]
             shell2 = lookups[index2]
 
-            assert pbegin0 <= index0 and index0 < pend0, (pbegin0, index0, pend0)
-            assert pbegin2 <= index2 and index2 < pend2, (pbegin2, index2, pend2)
+            assert pbegin0 <= index0 < pend0, (pbegin0, index0, pend0)
+            assert pbegin2 <= index2 < pend2, (pbegin2, index2, pend2)
 
-            assert shell0 == lookups[pbegin0] == lookups[pend0-1]
-            assert shell2 == lookups[pbegin2] == lookups[pend2-1]
+            assert shell0 == lookups[pbegin0] == lookups[pend0 - 1]
+            assert shell2 == lookups[pbegin2] == lookups[pend2 - 1]
 
             assert pbegin0 == obasis.basis_offsets[shell0]
-            if shell0+1 < obasis.nshell:
-                assert pend0 == obasis.basis_offsets[shell0+1], pend0
-                print pend0+1
-            if shell2+1 < obasis.nshell:
-                assert pend2 == obasis.basis_offsets[shell2+1], pend2
+            if shell0 + 1 < obasis.nshell:
+                assert pend0 == obasis.basis_offsets[shell0 + 1], pend0
+            if shell2 + 1 < obasis.nshell:
+                assert pend2 == obasis.basis_offsets[shell2 + 1], pend2
 
 
 def test_compute_diagonal():
@@ -73,8 +71,8 @@ def test_get_2index_slice():
 
     for index0 in np.arange(obasis.nbasis):
         for index2 in np.arange(obasis.nbasis):
-            ref_slice = er[index0,:,index2,:]
+            ref_slice = er[index0, :, index2, :]
             test_slice = np.zeros_like(ref_slice)
             get_2index_slice(obasis, index0, index2, test_slice)
             assert np.allclose(ref_slice, test_slice), (index0, index2,
-                    ref_slice,test_slice)
+                                                        ref_slice, test_slice)
