@@ -19,10 +19,12 @@
 #
 # --
 
+from nose.plugins.skip import SkipTest
 
 import numpy as np
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from .. utils import get_ncart_cumul, get_cartesian_powers
 
 
 def check_spin(fn_fchk, sz0, ssq0, eps):
@@ -99,3 +101,34 @@ def test_level_shift():
     mol.orb_alpha.from_fock(ls_alpha, overlap)
     dm_alpha2 = mol.orb_alpha.to_dm()
     np.testing.assert_allclose(dm_alpha1, dm_alpha2)
+
+
+def test_get_ncart_cumul():
+    assert get_ncart_cumul(0) == 1
+    assert get_ncart_cumul(1) == 4
+    assert get_ncart_cumul(2) == 10
+    assert get_ncart_cumul(3) == 20
+
+
+def test_get_cartesian_powers():
+    lmax = 4
+    cartesian_powers = get_cartesian_powers(lmax)
+    assert issubclass(cartesian_powers.dtype.type, int)
+    assert cartesian_powers.shape == (get_ncart_cumul(lmax), 3)
+    assert (cartesian_powers[0] == [0, 0, 0]).all()
+    assert (cartesian_powers[1] == [1, 0, 0]).all()
+    assert (cartesian_powers[4] == [2, 0, 0]).all()
+    assert (cartesian_powers[5] == [1, 1, 0]).all()
+    assert (cartesian_powers[6] == [1, 0, 1]).all()
+    assert (cartesian_powers[10] == [3, 0, 0]).all()
+    assert (cartesian_powers[11] == [2, 1, 0]).all()
+    assert (cartesian_powers[19] == [0, 0, 3]).all()
+    assert (cartesian_powers[-1] == [0, 0, 4]).all()
+
+    for lmax in xrange(4):
+        tmp = get_cartesian_powers(lmax)
+        assert tmp.shape == (get_ncart_cumul(lmax), 3)
+        assert (tmp == cartesian_powers[:len(tmp)]).all()
+
+def test_rotate_cartesian_moments():
+    raise SkipTest("Need a rotate cartesian moment test")

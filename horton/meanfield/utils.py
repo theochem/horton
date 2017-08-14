@@ -31,6 +31,7 @@ __all__ = [
 
 boltzmann = 3.1668154051341965e-06
 
+
 def check_dm(dm, overlap, eps=1e-4, occ_max=1.0):
     """Check if the density matrix has eigenvalues in the proper range.
 
@@ -180,3 +181,84 @@ def doc_inherit(base_class):
         return method
 
     return decorator
+
+
+# from horton.moments
+def get_ncart_cumul(lmax):
+    """The number of cartesian powers up to a given angular momentum, lmax."""
+    return ((lmax+1)*(lmax+2)*(lmax+3))/6
+
+
+# from horton.moments
+def get_cartesian_powers(lmax):
+    """Return an ordered list of power for x, y and z up to angular moment lmax
+
+       **Arguments:**
+
+       lmax
+            The maximum angular momentum (0=s, 1=p, 2=d, ...)
+
+       **Returns:** an array where each row corresponds to a multipole moment
+       and each column corresponds to a power of x, y and z respectively. The
+       rows are grouped per angular momentum, first s, them p, then d, and so
+       on. Within one angular momentum the rows are sorted 'alphabetically',
+       e.g. for l=2: xxx, xxy, xxz, xyy, xyz, xzz, yyy, yyz, yzz, zzz.
+    """
+    cartesian_powers = np.zeros((get_ncart_cumul(lmax), 3), dtype=int)
+    counter = 0
+    for l in xrange(0, lmax + 1):
+        for nx in xrange(l + 1, -1, -1):
+            for ny in xrange(l - nx, -1, -1):
+                nz = l - ny - nx
+                cartesian_powers[counter] = [nx, ny, nz]
+                counter += 1
+    return cartesian_powers
+
+
+# from horton.moments
+def rotate_cartesian_multipole(rmat, moments, mode):
+    """Compute rotated Cartesian multipole moment/expansion.
+
+       **Arguments:**
+
+       rmat
+            A (3,3) rotation matrix.
+
+       moments
+            A multipole moment/coeffs. The angular momentum is derived from the
+            length of this vector.
+
+       mode
+            A string containing either 'moments' or 'coeffs'. In case if
+            'moments', a Cartesian multipole moment rotation is carried out. In
+            case of 'coeffs', the coefficients of a Cartesian multipole basis
+            are rotated.
+
+       **Returns:** rotated multipole.
+    """
+    l = ((9 + 8 * (len(moments) - 1)) ** 0.5 - 3) / 2
+    if l - np.round(l) > 1e-10:
+        raise ValueError('Could not determine l from number of moments.')
+    l = int(np.round(l))
+
+    if mode == 'coeffs':
+        rcoeffs = rmat.T.ravel()
+    elif mode == 'moments':
+        rcoeffs = rmat.ravel()
+    else:
+        raise NotImplementedError
+    result = np.zeros(len(moments))
+    for i0 in xrange(len(moments)):
+        rules = cartesian_transforms[l][i0]
+        for rule in rules:
+            i1 = rule[0]
+            factor = rule[1]
+            for j in rule[2:]:
+                factor *= rcoeffs[j]
+            if mode == 'coeffs':
+                result[i1] += moments[i0] * factor
+            elif mode == 'moments':
+                result[i0] += moments[i1] * factor
+            else:
+                raise NotImplementedError
+    return result
