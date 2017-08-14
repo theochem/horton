@@ -24,6 +24,7 @@ from .bond_order import *
 from .builtin import *
 from .cext import *
 from .convergence import *
+from .exceptions import *
 from .gridgroup import *
 from .guess import *
 from .hamiltonian import *
