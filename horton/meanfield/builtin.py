@@ -24,8 +24,8 @@ import numpy as np
 
 from horton.grid.molgrid import BeckeMolGrid
 from horton.grid.poisson import solve_poisson_becke
-from . utils import doc_inherit
 from .gridgroup import GridObservable, DF_LEVEL_LDA
+from .utils import doc_inherit
 
 __all__ = ['RBeckeHartree', 'UBeckeHartree', 'RDiracExchange', 'UDiracExchange']
 

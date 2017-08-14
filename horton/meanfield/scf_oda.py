@@ -319,7 +319,6 @@ def check_cubic(ham, dm0s, dm1s, e0, e1, g0, g1, do_plot=True):
         # make a nice figure
         xxs = np.concatenate([np.linspace(0, 0.006, 60), np.linspace(0.994, 1.0, 60)])
         poly = a * xxs ** 3 + b * xxs ** 2 + c * xxs + d
-        import matplotlib.pyplot as pt
         pt.clf()
         pt.subplot(121)
         pt.plot(xxs, poly, 'k-', label='cubic')

@@ -195,7 +195,6 @@ class DIISSCFSolver(object):
 
             if False and len(coeffs) == 2:
                 dms_tmp = [dm.copy() for dm in dms]
-                import matplotlib.pyplot as pt
                 xs = np.linspace(0.0, 1.0, 25)
                 a, b = self._history._setup_equations()
                 energies1 = []

@@ -23,8 +23,8 @@
 import numpy as np
 
 from horton.quadprog import solve_safe
-from . utils import doc_inherit
 from .scf_diis import DIISHistory, DIISSCFSolver
+from .utils import doc_inherit
 
 __all__ = ['CDIISSCFSolver']
 

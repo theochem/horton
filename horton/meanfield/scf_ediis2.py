@@ -22,10 +22,10 @@
 
 import numpy as np
 
-from . utils import doc_inherit
 from .scf_cdiis import CDIISHistory
 from .scf_diis import DIISHistory, DIISSCFSolver
 from .scf_ediis import EDIISHistory
+from .utils import doc_inherit
 
 __all__ = ['EDIIS2SCFSolver']
 

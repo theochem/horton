@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from . utils import doc_inherit
+from .utils import doc_inherit
 
 __all__ = [
     'compute_dm_full',

@@ -117,7 +117,7 @@ cdef class LibXCWrapper(object):
     property refs:
         def __get__(self):
             cdef int i
-            cdef func_reference_type* ref
+            cdef func_reference_type*ref
             result = []
             for i in range(5):
                 ref = self._func.info[0].refs[i]
@@ -151,7 +151,6 @@ cdef class LibXCWrapper(object):
         cdef double beta;
         xc_hyb_cam_coef(&self._func, &omega, &alpha, &beta)
         return omega, alpha, beta
-
 
 cdef class RLibXCWrapper(LibXCWrapper):
     def __cinit__(self, bytes key):

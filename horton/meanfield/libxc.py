@@ -20,10 +20,10 @@
 # --
 """Interface to LDA, GGA and hybrid functionals from LibXC"""
 
-from . utils import doc_inherit
 from .cext import RLibXCWrapper, ULibXCWrapper
 from .gridgroup import GridObservable, DF_LEVEL_LDA, \
     DF_LEVEL_GGA, DF_LEVEL_MGGA
+from .utils import doc_inherit
 
 __all__ = [
     'LibXCEnergy',

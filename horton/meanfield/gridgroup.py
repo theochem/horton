@@ -20,8 +20,8 @@
 # --
 """Container for observables involving numerical integration"""
 
-from . utils import doc_inherit
 from .observable import Observable
+from .utils import doc_inherit
 
 __all__ = [
     'DF_LEVEL_LDA', 'DF_LEVEL_GGA', 'DF_LEVEL_MGGA',

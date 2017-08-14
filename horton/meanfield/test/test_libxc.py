@@ -20,8 +20,8 @@
 # --
 
 
-from nose.tools import assert_raises
 from nose.plugins.skip import SkipTest
+from nose.tools import assert_raises
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from .common import check_interpolation, \
@@ -374,7 +374,7 @@ def test_cubic_interpolation_x_tpss_os():
 
 
 def test_functionals_present():
-    t1 = RLibXCLDA('c_vwn')     # The VWN 5 functional
+    t1 = RLibXCLDA('c_vwn')  # The VWN 5 functional
     assert t1._libxc_wrapper.key == 'lda_c_vwn'
     t2 = RLibXCLDA('c_vwn_4')  # The VWN 4 functional
     assert t2._libxc_wrapper.key == 'lda_c_vwn_4'
@@ -396,7 +396,6 @@ ref_lda_x_1 = """\
   doi = {10.1017/S0305004100016108},
   URL = {http://journals.cambridge.org/article_S0305004100016108}
 }"""
-
 
 ref_lda_x_2 = """\
 @article{Bloch1929_545,

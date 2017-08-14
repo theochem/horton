@@ -238,7 +238,6 @@ def check_dot_hessian_polynomial(olp, core, ham, orbs, is_hf=True, extent=1.0,
             # print '%5.2f %15.8f %15.8f' % (x, energies_x[ipoint], energies_2nd_order[ipoint])
 
         if do_plot:  # pragma: no cover
-            import matplotlib.pyplot as pt
             pt.clf()
             pt.plot(xs, energies_x, 'ro')
             pt.plot(xs, energies_2nd_order, 'k-')
