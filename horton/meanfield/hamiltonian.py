@@ -21,7 +21,7 @@
 """Mean-field DFT/HF Hamiltonian data structures"""
 
 from horton.cache import Cache
-from horton.utils import doc_inherit
+from . utils import doc_inherit
 
 __all__ = [
     'REffHam', 'UEffHam'

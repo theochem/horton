@@ -20,7 +20,7 @@
 # --
 """Container for observables involving numerical integration"""
 
-from horton.utils import doc_inherit
+from . utils import doc_inherit
 from .observable import Observable
 
 __all__ = [

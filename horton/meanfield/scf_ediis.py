@@ -24,7 +24,7 @@ import numpy as np
 
 from horton.exceptions import NoSCFConvergence
 from horton.quadprog import QPSolver
-from horton.utils import doc_inherit
+from . utils import doc_inherit
 from .scf_diis import DIISHistory, DIISSCFSolver
 
 __all__ = ['EDIISSCFSolver']

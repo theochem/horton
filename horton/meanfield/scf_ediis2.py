@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from horton.utils import doc_inherit
+from . utils import doc_inherit
 from .scf_cdiis import CDIISHistory
 from .scf_diis import DIISHistory, DIISSCFSolver
 from .scf_ediis import EDIISHistory
