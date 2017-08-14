@@ -29,6 +29,7 @@ __all__ = [
     'compute_commutator',
 ]
 
+boltzmann = 3.1668154051341965e-06
 
 def check_dm(dm, overlap, eps=1e-4, occ_max=1.0):
     """Check if the density matrix has eigenvalues in the proper range.

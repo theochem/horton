@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from horton.constants import boltzmann
+from .utils import boltzmann
 from .exceptions import ElectronCountError
 from horton.quadprog import find_1d_root
 from .utils import doc_inherit
