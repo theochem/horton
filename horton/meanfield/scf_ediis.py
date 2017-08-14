@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from horton.exceptions import NoSCFConvergence
+from .exceptions import NoSCFConvergence
 from horton.quadprog import QPSolver
 from .scf_diis import DIISHistory, DIISSCFSolver
 from .utils import doc_inherit

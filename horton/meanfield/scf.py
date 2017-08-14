@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from horton.exceptions import NoSCFConvergence
+from .exceptions import NoSCFConvergence
 from .convergence import convergence_error_eigen
 from .utils import get_level_shift
 
