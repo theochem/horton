@@ -20,7 +20,7 @@
 # --
 """Mean-field DFT/HF Hamiltonian data structures"""
 
-from horton.cache import Cache
+from .cache import Cache
 from .utils import doc_inherit
 
 __all__ = [
