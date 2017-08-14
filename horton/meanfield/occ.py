@@ -22,9 +22,9 @@
 
 import numpy as np
 
-from .utils import boltzmann
+from .quadprog import find_1d_root
 from .exceptions import ElectronCountError
-from horton.quadprog import find_1d_root
+from .utils import boltzmann
 from .utils import doc_inherit
 
 __all__ = [

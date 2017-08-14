@@ -22,8 +22,8 @@
 
 import numpy as np
 
+from .quadprog import QPSolver
 from .exceptions import NoSCFConvergence
-from horton.quadprog import QPSolver
 from .scf_diis import DIISHistory, DIISSCFSolver
 from .utils import doc_inherit
 

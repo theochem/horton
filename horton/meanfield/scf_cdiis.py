@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from horton.quadprog import solve_safe
+from .quadprog import solve_safe
 from .scf_diis import DIISHistory, DIISSCFSolver
 from .utils import doc_inherit
 

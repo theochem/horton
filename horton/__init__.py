@@ -24,13 +24,11 @@
 __version__ = '2.1.0'
 
 
+from horton.cache import *
 # Extensions are imported first to call fpufix as early as possible
 from horton.cext import *
-
-from horton.cache import *
 from horton.constants import *
 from horton.context import *
-from horton.part import *
 from horton.espfit import *
 from horton.exceptions import *
 from horton.gbasis import *
@@ -38,9 +36,10 @@ from horton.grid import *
 from horton.io import *
 from horton.log import *
 from horton.meanfield import *
+from horton.meanfield.quadprog import *
+from horton.modelhamiltonians import *
 from horton.moments import *
+from horton.part import *
 from horton.periodic import *
-from horton.quadprog import *
 from horton.units import *
 from horton.utils import *
-from horton.modelhamiltonians import *
