@@ -23,7 +23,6 @@
 
 import numpy as np
 
-from horton.log import log
 from horton.grid.cext import CubicSpline
 from base import WPart
 from horton.grid.poisson import solve_poisson_becke
@@ -61,9 +60,7 @@ class StockHolderMixin(object):
             rho[rho < 0] = 0.0
             deriv = None
             error = rgrid.integrate(rho) - original
-            if log.do_medium:
-                log('                    Pro-atom not positive everywhere. Lost %.1e electrons' % error)
-
+            print('5:                Pro-atom not positive everywhere. Lost %.1e electrons' % error)
         return rho, deriv
 
     def get_proatom_spline(self, index, *args, **kwargs):
@@ -79,9 +76,6 @@ class StockHolderMixin(object):
 
     def eval_spline(self, index, spline, output, grid, label='noname'):
         center = self.coordinates[index]
-        if log.do_debug:
-            number = self.numbers[index]
-            log('  Evaluating spline (%s) for atom %i (n=%i) on %i grid points' % (label, index, number, grid.size))
         grid.eval_spline(spline, center, output)
 
     def eval_proatom(self, index, output, grid):
@@ -119,15 +113,13 @@ class StockHolderMixin(object):
             # density
             key = ('spline_prodensity', index)
             if key not in self.cache:
-                if log.medium:
-                    log('Storing proatom density spline for atom %i.' % index)
+                print('5:Storing proatom density spline for atom %i.' % index)
                 spline = self.get_proatom_spline(index)
                 self.cache.dump(key, spline, tags='o')
             # hartree potential
             key = ('spline_prohartree', index)
             if key not in self.cache:
-                if log.medium:
-                    log('Computing proatom hartree potential spline for atom %i.' % index)
+                print('5:Computing proatom hartree potential spline for atom %i.' % index)
                 rho_spline = self.cache.load('spline_prodensity', index)
                 v_spline = solve_poisson_becke([rho_spline])[0]
                 self.cache.dump(key, v_spline, tags='o')

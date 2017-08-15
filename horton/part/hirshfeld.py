@@ -22,7 +22,7 @@
 
 
 from cache import just_once
-from horton.log import log, biblio
+from horton.log import biblio
 from stockholder import StockholderWPart
 
 
@@ -51,12 +51,12 @@ class HirshfeldMixin(object):
         self._proatomdb = proatomdb
 
     def _init_log_scheme(self):
-        if log.do_medium:
-            log.deflist([
-                ('Scheme', 'Hirshfeld'),
-                ('Proatomic DB', self.proatomdb),
-            ])
-            biblio.cite('hirshfeld1977', 'the use of Hirshfeld partitioning')
+        print('5: Initialized: %s' % self)
+        print([
+            ('5: Scheme', 'Hirshfeld'),
+            ('5: Proatomic DB', self.proatomdb),
+        ])
+        biblio.cite('hirshfeld1977', 'the use of Hirshfeld partitioning')
 
     def _get_proatomdb(self):
         return self._proatomdb
@@ -73,11 +73,9 @@ class HirshfeldMixin(object):
     @just_once
     def do_dispersion(self):
         if self.lmax < 3:
-            if log.do_warning:
-                log.warn('Skipping the computation of dispersion coefficients because lmax=%i<3' % self.lmax)
+            print('5:!WARNING! Skip computing dispersion coefficients because lmax=%i<3' % self.lmax)
             return
 
-        if log.do_medium:
             biblio.cite('tkatchenko2009', 'the method to evaluate atoms-in-molecules C6 parameters')
             biblio.cite('chu2004', 'the reference C6 parameters of isolated atoms')
             biblio.cite('yan1996', 'the isolated hydrogen C6 parameter')
@@ -101,8 +99,7 @@ class HirshfeldMixin(object):
             self.do_moments()
             radial_moments = self._cache.load('radial_moments')
 
-            if log.do_medium:
-                log('Computing atomic dispersion coefficients.')
+            print('5:Computing atomic dispersion coefficients.')
 
             for i in xrange(self.natom):
                 n = self.numbers[i]

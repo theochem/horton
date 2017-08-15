@@ -23,7 +23,7 @@
 
 import numpy as np
 from cache import just_once
-from horton.log import log, biblio
+from horton.log import biblio
 from stockholder import StockholderWPart
 
 
@@ -79,10 +79,7 @@ class IterativeProatomMixin():
         new |= 'change'not in self.cache
         if new:
             propars = self._init_propars()
-            if log.medium:
-                log.hline()
-                log('Iteration       Change')
-                log.hline()
+            print('5:Iteration       Change')
 
             counter = 0
             change = 1e100
@@ -96,13 +93,10 @@ class IterativeProatomMixin():
 
                 # Check for convergence
                 change = self.compute_change(propars, old_propars)
-                if log.medium:
-                    log('%9i   %10.5e' % (counter, change))
+                print('5:%9i   %10.5e' % (counter, change))
                 if change < self._threshold or counter >= self._maxiter:
                     break
-
-            if log.medium:
-                log.hline()
+            print()
 
             self._finalize_propars()
             self.cache.dump('niter', counter, tags='o')
@@ -136,13 +130,13 @@ class IterativeStockholderWPart(IterativeProatomMixin, StockholderWPart):
                                   grid, moldens, spindens, True, lmax)
 
     def _init_log_scheme(self):
-        if log.do_medium:
-            log.deflist([
-                ('Scheme', 'Iterative Stockholder'),
-                ('Convergence threshold', '%.1e' % self._threshold),
-                ('Maximum iterations', self._maxiter),
-            ])
-            biblio.cite('lillestolen2008', 'the use of Iterative Stockholder partitioning')
+        print('5: Initialized: %s' % self)
+        print([
+            ('5: Scheme', 'Iterative Stockholder'),
+            ('5: Convergence threshold', '%.1e' % self._threshold),
+            ('5: Maximum iterations', self._maxiter),
+        ])
+        biblio.cite('lillestolen2008', 'the use of Iterative Stockholder partitioning')
 
     def get_rgrid(self, index):
         return self.get_grid(index).rgrid

@@ -24,7 +24,7 @@
 import numpy as np
 
 from horton.grid.cext import becke_helper_atom
-from horton.log import log, biblio
+from horton.log import biblio
 from base import WPart
 from utils import radius_becke, radius_covalent
 from utils import angstrom
@@ -53,17 +53,16 @@ class BeckeWPart(WPart):
                        moldens, spindens, local, lmax)
 
     def _init_log_scheme(self):
-        if log.do_medium:
-            log.deflist([
-                ('Scheme', 'Becke'),
-                ('Switching function', 'k=%i' % self._k),
-            ])
-            biblio.cite('becke1988_multicenter', 'the use of Becke partitioning')
-            biblio.cite('slater1964', 'the Brag-Slater radii used in the Becke partitioning')
+        print('5: Initialized: %s' % self)
+        print([
+            ('5: Scheme', 'Becke'),
+            ('5: Switching function', 'k=%i' % self._k),
+        ])
+        biblio.cite('becke1988_multicenter', 'the use of Becke partitioning')
+        biblio.cite('slater1964', 'the Brag-Slater radii used in the Becke partitioning')
 
     def update_at_weights(self):
-        if log.do_medium:
-            log('Computing Becke weights.')
+        print('5:Computing Becke weights.')
 
         # The list of radii is constructed to be as close as possible to
         # the original values used by Becke.
@@ -81,13 +80,11 @@ class BeckeWPart(WPart):
         radii = np.array(radii)
 
         # Actual work
-        pb = log.progress(self.natom)
         for index in xrange(self.natom):
             grid = self.get_grid(index)
             at_weights = self.cache.load('at_weights', index, alloc=grid.shape)[0]
             at_weights[:] = 1
             becke_helper_atom(grid.points, at_weights, radii, self.coordinates, index, self._k)
-            pb()
 
     def _get_k(self):
         """The order of the Becke switching function."""

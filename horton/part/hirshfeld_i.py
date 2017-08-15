@@ -23,7 +23,7 @@
 
 import numpy as np
 
-from horton.log import log, biblio
+from horton.log import biblio
 from hirshfeld import HirshfeldWPart
 from iterstock import IterativeProatomMixin
 
@@ -41,14 +41,14 @@ class HirshfeldIMixin(IterativeProatomMixin):
         self._maxiter = maxiter
 
     def _init_log_scheme(self):
-        if log.do_medium:
-            log.deflist([
-                ('Scheme', 'Hirshfeld-I'),
-                ('Convergence threshold', '%.1e' % self._threshold),
-                ('Maximum iterations', self._maxiter),
-                ('Proatomic DB', self._proatomdb),
-            ])
-            biblio.cite('bultinck2007', 'the use of Hirshfeld-I partitioning')
+        print('5: Initialized: %s' % self)
+        print([
+            ('5: Scheme', 'Hirshfeld-I'),
+            ('5: Convergence threshold', '%.1e' % self._threshold),
+            ('5: Maximum iterations', self._maxiter),
+            ('5: Proatomic DB', self._proatomdb),
+        ])
+        biblio.cite('bultinck2007', 'the use of Hirshfeld-I partitioning')
 
     def get_memory_estimates(self):
         # This is a conservative estimate.

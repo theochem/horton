@@ -30,7 +30,6 @@ from horton.grid.atgrid import AtomicGrid, AtomicGridSpec
 from horton.grid.cext import RTransform, CubicSpline
 from horton.grid.radial import RadialGrid
 from horton.io.lockedh5 import LockedH5File
-from horton.log import log
 from horton.io.iodata import IOData
 
 
@@ -349,13 +348,12 @@ class ProAtomDB(object):
         self._log_init()
 
     def _log_init(self):
-        if log.do_medium:
-            log('Initialized: %s' % self)
-            log.deflist([
-                ('Numbers', self._rgrid_map.keys()),
-                ('Records', self._map.keys()),
-            ])
-            log.blank()
+        print('5: Initialized: %s' % self)
+        print([
+            ('5: Numbers', self._rgrid_map.keys()),
+            ('5: Records', self._map.keys()),
+        ])
+        print()
 
     def get_record(self, number, charge):
         return self._map[(number, charge)]
@@ -401,9 +399,9 @@ class ProAtomDB(object):
         records = []
         for fn in fns:
             # Load atomic data
-            print('Load proatom')
+            print('5:Load proatom')
             mol = IOData.from_file(fn)
-            print('Proatom grid')
+            print('5:Proatom grid')
             records.append(ProAtomRecord.from_iodata(mol, agspec))
         return cls(records)
 
@@ -613,10 +611,8 @@ class ProAtomDB(object):
            Note that only 'safe' atoms are considered to determine the cutoff
            radius.
         """
-        if log.do_medium:
-            log('Reducing extents of the pro-atoms')
-            log('   Z     npiont           radius')
-            log.hline()
+        print('5:Reducing extents of the pro-atoms')
+        print('5:   Z     npiont           radius')
         for number in self.get_numbers():
             rgrid = self.get_rgrid(number)
             npoint = 0
@@ -629,19 +625,14 @@ class ProAtomDB(object):
                 r.chop(npoint)
             new_rgrid = self._rgrid_map[number].chop(npoint)
             self._rgrid_map[number] = new_rgrid
-            if log.do_medium:
-                log('%4i   %5i -> %5i    %10.3e -> %10.3e' % (
-                    number, rgrid.size, new_rgrid.size, rgrid.radii[-1],
-                    new_rgrid.radii[-1]
-                ))
-        if log.do_medium:
-            log.hline()
+            print('5:%4i   %5i -> %5i    %10.3e -> %10.3e' % (
+                number, rgrid.size, new_rgrid.size, rgrid.radii[-1], new_rgrid.radii[-1]))
+        print()
 
     def normalize(self):
-        if log.do_medium:
-            log('Normalizing proatoms to integer populations')
-            log('   Z  charge             before             after')
-            log.hline()
+        print('5:Normalizing proatoms to integer populations')
+        print('5:   Z  charge             before             after')
+        print()
         for number in self.get_numbers():
             rgrid = self.get_rgrid(number)
             for charge in self.get_charges(number):
@@ -650,10 +641,7 @@ class ProAtomDB(object):
                 nel_integer = r.pseudo_number - charge
                 r.rho[:] *= nel_integer / nel_before
                 nel_after = rgrid.integrate(r.rho)
-                if log.do_medium:
-                    log('%4i     %+3i    %15.8e   %15.8e' % (
-                        number, charge, nel_before, nel_after
-                    ))
+                print('5:%4i     %+3i    %15.8e   %15.8e' % (number, charge, nel_before, nel_after))
 
 
 def load_proatom_records_h5_group(f):
