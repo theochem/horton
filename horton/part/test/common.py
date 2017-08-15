@@ -74,7 +74,7 @@ def check_names(names, part):
 
 
 def check_proatom_splines(part):
-    for index in xrange(part.natom):
+    for index in range(part.natom):
         spline = part.get_proatom_spline(index)
         grid = part.get_grid(index)
         array1 = grid.zeros()

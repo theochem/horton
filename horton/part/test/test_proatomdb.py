@@ -23,7 +23,7 @@
 import numpy as np, h5py as h5
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from common import get_fn, get_proatomdb_cp2k, tmpdir
+from .common import get_fn, get_proatomdb_cp2k, tmpdir
 
 
 def test_db_basics():

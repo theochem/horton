@@ -21,7 +21,7 @@
 # --
 
 
-from common import get_fn
+from .common import get_fn
 
 from nose.tools import assert_raises
 

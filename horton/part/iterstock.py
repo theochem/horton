@@ -21,9 +21,12 @@
 """Iterative Stockholder Analysis (ISA) partitioning"""
 
 
+from __future__ import print_function
+
 import numpy as np
-from cache import just_once
-from stockholder import StockholderWPart
+
+from .cache import just_once
+from .stockholder import StockholderWPart
 
 
 __all__ = ["IterativeProatomMixin", "IterativeStockholderWPart"]
@@ -34,7 +37,7 @@ class IterativeProatomMixin():
         """Compute the difference between an old and a new proatoms"""
         # Compute mean-square deviation
         msd = 0.0
-        for index in xrange(self.natom):
+        for index in range(self.natom):
             rgrid = self.get_rgrid(index)
             rho1, deriv1 = self.get_proatom_rho(index, propars1)
             rho2, deriv2 = self.get_proatom_rho(index, propars2)
@@ -54,7 +57,7 @@ class IterativeProatomMixin():
         self.update_at_weights()
 
         # Update the proatoms
-        for index in xrange(self.natom):
+        for index in range(self.natom):
             self._update_propars_atom(index)
 
         # Keep track of history
@@ -73,7 +76,7 @@ class IterativeProatomMixin():
     @just_once
     def do_partitioning(self):
         # Perform one general check in the beginning to avoid recomputation
-        new = any(('at_weights', i) not in self.cache for i in xrange(self.natom))
+        new = any(('at_weights', i) not in self.cache for i in range(self.natom))
         new |= 'niter' not in self.cache
         new |= 'change'not in self.cache
         if new:
@@ -148,7 +151,7 @@ class IterativeStockholderWPart(IterativeProatomMixin, StockholderWPart):
     def _init_propars(self):
         IterativeProatomMixin._init_propars(self)
         self._ranges = [0]
-        for index in xrange(self.natom):
+        for index in range(self.natom):
             npoint = self.get_rgrid(index).size
             self._ranges.append(self._ranges[-1] + npoint)
         ntotal = self._ranges[-1]

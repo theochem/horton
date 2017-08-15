@@ -21,10 +21,12 @@
 """Iterative Hirshfeld (HI) partitioning"""
 
 
+from __future__ import print_function
+
 import numpy as np
 
-from hirshfeld import HirshfeldWPart
-from iterstock import IterativeProatomMixin
+from .hirshfeld import HirshfeldWPart
+from .iterstock import IterativeProatomMixin
 
 
 __all__ = ["HirshfeldIWPart"]

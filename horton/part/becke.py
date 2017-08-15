@@ -21,12 +21,13 @@
 """Becke partitioning"""
 
 
+from __future__ import print_function
+
 import numpy as np
 
 from horton.grid.cext import becke_helper_atom
-from base import WPart
-from utils import radius_becke, radius_covalent
-from utils import angstrom
+from .base import WPart
+from .utils import angstrom, radius_becke, radius_covalent
 
 
 __all__ = ['BeckeWPart']
@@ -79,7 +80,7 @@ class BeckeWPart(WPart):
         radii = np.array(radii)
 
         # Actual work
-        for index in xrange(self.natom):
+        for index in range(self.natom):
             grid = self.get_grid(index)
             at_weights = self.cache.load('at_weights', index, alloc=grid.shape)[0]
             at_weights[:] = 1

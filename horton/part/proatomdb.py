@@ -21,6 +21,8 @@
 """Pro-atom databases"""
 
 
+from __future__ import print_function
+
 import os
 import h5py as h5
 import numpy as np
@@ -261,7 +263,7 @@ class ProAtomRecord(object):
         # find the radii
         indexes = popint.searchsorted(populations)
         result = []
-        for i in xrange(len(populations)):
+        for i in range(len(populations)):
             index = indexes[i]
             if index == len(popint):
                 result.append(radii[-1])
@@ -315,9 +317,9 @@ class ProAtomDB(object):
         for r in records:
             l = _map.setdefault((r.number, r.charge), [])
             l.append(r)
-        for key, l in _map.iteritems():
+        for key, l in _map.items():
             l.sort(key=(lambda r: r.energy))
-        records = [l[0] for l in _map.itervalues()]
+        records = [l[0] for l in _map.values()]
 
         # Store attribtues
         self._records = records
@@ -360,7 +362,7 @@ class ProAtomDB(object):
 
     def get_numbers(self):
         """Return the element numbers present in the database"""
-        result = self._rgrid_map.keys()
+        result = list(self._rgrid_map.keys())
         result.sort()
         return result
 
@@ -464,7 +466,7 @@ class ProAtomDB(object):
         """
         if isinstance(filename, h5.Group):
             records = load_proatom_records_h5_group(filename)
-        elif isinstance(filename, basestring):
+        elif isinstance(filename, str):
             if filename.endswith('.h5'):
                 records = load_proatom_records_h5_file(filename)
             elif filename.endswith('.atdens'):
@@ -487,7 +489,7 @@ class ProAtomDB(object):
                 h5.Group object.
         """
         # parse the argument
-        if isinstance(filename, basestring):
+        if isinstance(filename, str):
             f = LockedH5File(filename, 'w')
             do_close = True
         elif isinstance(filename, h5.Group):
@@ -557,7 +559,7 @@ class ProAtomDB(object):
             else:
                 deriv = None
             if combine == 'linear':
-                for charge, coeff in parameters.iteritems():
+                for charge, coeff in parameters.items():
                     if coeff != 0.0:
                         record = self.get_record(number, charge)
                         rho += coeff * record.rho
@@ -566,7 +568,7 @@ class ProAtomDB(object):
                         else:
                             deriv = None
             elif combine == 'geometric':
-                for charge, coeff in parameters.iteritems():
+                for charge, coeff in parameters.items():
                     if coeff != 0.0:
                         record = self.get_record(number, charge)
                         rho += coeff * np.log(record.rho)
@@ -647,7 +649,7 @@ class ProAtomDB(object):
 def load_proatom_records_h5_group(f):
     """Load proatom records from the given HDF5 group"""
     records = []
-    for grp in f.itervalues():
+    for grp in f.values():
         assert isinstance(grp, h5.Group)
         if 'deriv' in grp:
             deriv = grp['deriv'][:]
