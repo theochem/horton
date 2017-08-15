@@ -30,7 +30,7 @@ from horton.grid.atgrid import AtomicGrid, AtomicGridSpec
 from horton.grid.cext import RTransform, CubicSpline
 from horton.grid.radial import RadialGrid
 from horton.io.lockedh5 import LockedH5File
-from horton.log import log, timer
+from horton.log import log
 from horton.io.iodata import IOData
 
 
@@ -401,10 +401,10 @@ class ProAtomDB(object):
         records = []
         for fn in fns:
             # Load atomic data
-            with timer.section('Load proatom'):
-                mol = IOData.from_file(fn)
-            with timer.section('Proatom grid'):
-                records.append(ProAtomRecord.from_iodata(mol, agspec))
+            print('Load proatom')
+            mol = IOData.from_file(fn)
+            print('Proatom grid')
+            records.append(ProAtomRecord.from_iodata(mol, agspec))
         return cls(records)
 
     @classmethod
