@@ -66,7 +66,6 @@ class Part(JustOnceClass):
            lmax
                 The maximum angular momentum in multipole expansions.
         """
-
         # Init base class
         JustOnceClass.__init__(self)
 
@@ -91,8 +90,8 @@ class Part(JustOnceClass):
         # Initialize the subgrids
         if local:
             self._init_subgrids()
-
         # Some screen logging
+        self.biblio = []
         self._init_log_base()
         self._init_log_scheme()
         self._init_log_memory()

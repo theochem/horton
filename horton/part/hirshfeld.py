@@ -22,7 +22,6 @@
 
 
 from cache import just_once
-from horton.log import biblio
 from stockholder import StockholderWPart
 
 
@@ -56,7 +55,7 @@ class HirshfeldMixin(object):
             ('5: Scheme', 'Hirshfeld'),
             ('5: Proatomic DB', self.proatomdb),
         ])
-        biblio.cite('hirshfeld1977', 'the use of Hirshfeld partitioning')
+        self.biblio.append(['hirshfeld1977', 'the use of Hirshfeld partitioning'])
 
     def _get_proatomdb(self):
         return self._proatomdb
@@ -76,9 +75,9 @@ class HirshfeldMixin(object):
             print('5:!WARNING! Skip computing dispersion coefficients because lmax=%i<3' % self.lmax)
             return
 
-            biblio.cite('tkatchenko2009', 'the method to evaluate atoms-in-molecules C6 parameters')
-            biblio.cite('chu2004', 'the reference C6 parameters of isolated atoms')
-            biblio.cite('yan1996', 'the isolated hydrogen C6 parameter')
+            self.biblio.append(['tkatchenko2009', 'the method to evaluate atoms-in-molecules C6 parameters'])
+            self.biblio.append(['chu2004', 'the reference C6 parameters of isolated atoms'])
+            self.biblio.append(['yan1996', 'the isolated hydrogen C6 parameter'])
 
         # reference C6 values in atomic units
         ref_c6s = {

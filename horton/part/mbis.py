@@ -22,7 +22,6 @@
 
 
 import numpy as np
-from horton.log import biblio
 from stockholder import StockholderWPart
 from iterstock import IterativeProatomMixin
 
@@ -118,7 +117,7 @@ class MBISWPart(IterativeProatomMixin, StockholderWPart):
             ('5: Convergence threshold', '%.1e' % self._threshold),
             ('5: Maximum iterations', self._maxiter),
         ])
-        biblio.cite('verstraelen2016', 'the use of MBIS partitioning')
+        self.biblio.append(['verstraelen2016', 'the use of MBIS partitioning'])
 
     def get_rgrid(self, iatom):
         return self.get_grid(iatom).rgrid

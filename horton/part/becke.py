@@ -24,7 +24,6 @@
 import numpy as np
 
 from horton.grid.cext import becke_helper_atom
-from horton.log import biblio
 from base import WPart
 from utils import radius_becke, radius_covalent
 from utils import angstrom
@@ -58,8 +57,8 @@ class BeckeWPart(WPart):
             ('5: Scheme', 'Becke'),
             ('5: Switching function', 'k=%i' % self._k),
         ])
-        biblio.cite('becke1988_multicenter', 'the use of Becke partitioning')
-        biblio.cite('slater1964', 'the Brag-Slater radii used in the Becke partitioning')
+        self.biblio.append(['becke1988_multicenter', 'the use of Becke partitioning'])
+        self.biblio.append(['slater1964', 'the Brag-Slater radii used in the Becke partitioning'])
 
     def update_at_weights(self):
         print('5:Computing Becke weights.')
