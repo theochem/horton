@@ -25,7 +25,7 @@ import numpy as np
 
 from horton.grid.cext import UniformGrid
 from cext import setup_esp_cost_cube, multiply_dens_mask, multiply_near_mask, multiply_far_mask
-from utils import angstrom, typecheck_geo
+from .utils import angstrom, typecheck_geo
 
 
 __all__ = ['ESPCost', 'setup_weights']
@@ -186,7 +186,7 @@ def setup_weights(coordinates, numbers, grid, dens=None, near=None, far=None):
         assert (rho.shape == grid.shape).all()
         multiply_dens_mask(rho, lnrho0, sigma, weights)
     if near is not None:
-        for i in xrange(natom):
+        for i in range(natom):
             pair = near.get(numbers[i])
             if pair is None:
                 pair = near.get(0)

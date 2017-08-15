@@ -23,7 +23,7 @@
 import numpy as np
 from nose.plugins.attrib import attr
 from .. cext import pair_ewald
-from common import get_random_cell
+from .common import get_random_cell
 
 
 @attr('slow')

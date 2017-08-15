@@ -22,4 +22,4 @@
 
 
 from cext import *
-from cost import *
+from .cost import *
