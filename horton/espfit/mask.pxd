@@ -21,7 +21,7 @@
 
 cimport horton.grid.uniform
 
-cdef extern from "horton/espfit/mask.h":
+cdef extern from "mask.h":
     void multiply_dens_mask(double* rho, double lnrho0, double sigma,
         double* weights, long npoint)
 
