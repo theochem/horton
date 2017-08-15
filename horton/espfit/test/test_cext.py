@@ -22,10 +22,8 @@
 
 import numpy as np
 from nose.plugins.attrib import attr
-
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-
-from horton.test.common import get_random_cell
+from .. cext import pair_ewald
+from common import get_random_cell
 
 
 @attr('slow')

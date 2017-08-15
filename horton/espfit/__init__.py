@@ -21,5 +21,5 @@
 '''Electrostatic potential fitting'''
 
 
-from horton.espfit.cext import *
-from horton.espfit.cost import *
+from cext import *
+from cost import *

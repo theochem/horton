@@ -24,9 +24,11 @@ import numpy as np
 import h5py as h5
 from nose.plugins.attrib import attr
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-
-from horton.test.common import check_delta, numpy_seed
+from .. utils import angstrom
+from .. cost import ESPCost, setup_weights
+from .. cext import compute_esp_grid_cube, multiply_near_mask
+from horton.grid import UniformGrid
+from common import check_delta, numpy_seed
 
 
 nrep = 10  # The number of times random tests are repeated
@@ -312,9 +314,17 @@ def test_esp_cost_solve_regularized():
 
 @attr('slow')
 def test_compare_cubetools():
-    # Load structure from cube file
-    fn_cube = context.get_fn('test/jbw_coarse_aedens.cube')
-    mol = IOData.from_file(fn_cube)
+    # Copy atomic number and coordinates from jbw_coarse_aedens.cube
+    numbers = np.array([8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 14, 14, 14, 14, 14, 14])
+    coordinates = np.array([[0.000000,  3.677294,  0.000000], [4.966200, 10.401166,  0.000000],
+                            [0.000000, 10.401166,  0.000000], [4.966200,  3.677294,  0.000000],
+                            [2.483100,  0.000000,  2.243359], [7.449300,  0.000000, 13.174916],
+                            [2.483100,  4.554382,  4.206106], [2.483100,  9.524078,  4.206106],
+                            [7.449300,  9.524078, 11.212170], [7.449300,  4.554382, 11.212170],
+                            [4.966200,  7.039230,  7.709138], [0.000000,  7.039230,  7.709138],
+                            [2.483100,  2.971963,  1.606584], [2.483100, 11.106497,  1.606584],
+                            [7.449300, 11.106497, 13.811691], [7.449300,  2.971963, 13.811691],
+                            [2.483100,  7.039230,  5.959163], [7.449300,  7.039230,  9.459112]])
 
     # Use a different grid
     origin = np.array([0.0, 0.0, 0.0])
@@ -324,7 +334,7 @@ def test_compare_cubetools():
     ugrid = UniformGrid(origin, grid_rvecs, shape, pbc)
 
     # Generate weights
-    weights = setup_weights(mol.coordinates, mol.numbers, ugrid,
+    weights = setup_weights(coordinates, numbers, ugrid,
                             near={8: (1.8*angstrom, 0.5*angstrom),
                                   14: (1.8*angstrom, 0.5*angstrom)})
     weights /= weights.sum()
@@ -334,7 +344,7 @@ def test_compare_cubetools():
     esp = np.random.uniform(-1, 1, shape)
 
     # Cost function
-    cost = ESPCost.from_grid_data(mol.coordinates, ugrid, esp, weights)
+    cost = ESPCost.from_grid_data(coordinates, ugrid, esp, weights)
 
     # Sanity checks
     gvol = ugrid.get_grid_cell().volume
