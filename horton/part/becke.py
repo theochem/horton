@@ -26,7 +26,7 @@ import numpy as np
 from horton.grid.cext import becke_helper_atom
 from horton.log import log, timer, biblio
 from base import WPart
-from horton.periodic import periodic
+from utils import radius_becke, radius_covalent
 from utils import angstrom
 
 
@@ -74,10 +74,10 @@ class BeckeWPart(WPart):
                 # exception defined in Becke's paper
                 radius = 0.35 * angstrom
             else:
-                radius = periodic[number].becke_radius
+                radius = radius_becke[number]
                 if radius is None:
                     # for cases not covered by Brag-Slater
-                    radius = periodic[number].cov_radius
+                    radius = radius_covalent[number]
             radii.append(radius)
         radii = np.array(radii)
 
