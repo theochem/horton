@@ -25,7 +25,6 @@ import numpy as np
 
 from cache import JustOnceClass, just_once, Cache
 from horton.log import log
-from horton.moments import get_ncart_cumul, get_npure_cumul
 from utils import typecheck_geo
 from horton.grid.atgrid import AtomicGrid
 from horton.grid.poisson import solve_poisson_becke
@@ -433,3 +432,13 @@ class WPart(Part):
                 splines = solve_poisson_becke(rho_splines)
                 hartree_decomp = dict(('spline_%05i' % j, spl) for j, spl in enumerate(splines))
                 self.cache.dump(key, hartree_decomp, tags='o')
+
+
+def get_ncart_cumul(lmax):
+    """The number of cartesian powers up to a given angular momentum, lmax."""
+    return (lmax + 1) * (lmax + 2) * (lmax + 3) / 6
+
+
+def get_npure_cumul(lmax):
+    """The number of pure functions up to a given angular momentum, lmax."""
+    return (lmax + 1)**2

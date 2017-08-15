@@ -21,7 +21,7 @@
 """Utility Functions"""
 
 
-__all__ = ["typecheck_geo"]
+__all__ = ["typecheck_geo", "radius_becke", "radius_covalent"]
 
 
 angstrom = 1.0e-10 / 0.5291772083e-10
