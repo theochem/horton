@@ -23,7 +23,6 @@
 
 import numpy as np
 
-from horton.log import biblio
 from horton.grid.cext import UniformGrid
 from cext import setup_esp_cost_cube, multiply_dens_mask, multiply_near_mask, multiply_far_mask
 from utils import angstrom, typecheck_geo
@@ -182,7 +181,7 @@ def setup_weights(coordinates, numbers, grid, dens=None, near=None, far=None):
 
     # combine three possible mask functions
     if dens is not None:
-        biblio.cite('hu2007', 'for the ESP fitting weight function')
+        # biblio.cite('hu2007', 'for the ESP fitting weight function')
         rho, lnrho0, sigma = dens
         assert (rho.shape == grid.shape).all()
         multiply_dens_mask(rho, lnrho0, sigma, weights)
