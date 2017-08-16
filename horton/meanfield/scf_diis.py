@@ -24,8 +24,8 @@ import numpy as np
 
 from .exceptions import NoSCFConvergence
 from .convergence import convergence_error_commutator
-from .orbitals import Orbitals
-from .utils import compute_commutator, check_dm
+from .orbitals import Orbitals, check_dm
+from .utils import compute_commutator
 
 __all__ = []
 

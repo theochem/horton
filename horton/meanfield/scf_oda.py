@@ -24,8 +24,8 @@ import numpy as np
 
 from .exceptions import NoSCFConvergence
 from .convergence import convergence_error_commutator
-from .orbitals import Orbitals
-from .utils import check_dm, compute_commutator
+from .orbitals import Orbitals, check_dm
+from .utils import compute_commutator
 
 __all__ = ['ODASCFSolver', 'check_cubic']
 

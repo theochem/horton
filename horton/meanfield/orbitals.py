@@ -23,9 +23,9 @@
 import numpy as np
 from scipy.linalg import eigh
 
-from horton.utils import check_type
+from .utils import check_type
 
-__all__ = ['Orbitals']
+__all__ = ['Orbitals', 'check_dm']
 
 
 class Orbitals(object):
@@ -486,3 +486,33 @@ class Orbitals(object):
                 self.energies[index1], self.energies[index0]
             self.occupations[index0], self.occupations[index1] = \
                 self.occupations[index1], self.occupations[index0]
+
+
+def check_dm(dm, overlap, eps=1e-4, occ_max=1.0):
+    """Check if the density matrix has eigenvalues in the proper range.
+
+    Parameters
+    ----------
+    dm : np.ndarray, shape=(nbasis, nbasis), dtype=float
+        The density matrix
+    overlap : np.ndarray, shape=(nbasis, nbasis), dtype=float
+        The overlap matrix
+    eps : float
+        The threshold on the eigenvalue inequalities.
+    occ_max : float
+        The maximum occupation.
+
+    Raises
+    ------
+    ValueError
+        When the density matrix has wrong eigenvalues.
+    """
+    # construct natural orbitals
+    orb = Orbitals(dm.shape[0])
+    orb.derive_naturals(dm, overlap)
+    if orb.occupations.min() < -eps:
+        raise ValueError('The density matrix has eigenvalues considerably smaller than '
+                         'zero. error=%e' % (orb.occupations.min()))
+    if orb.occupations.max() > occ_max + eps:
+        raise ValueError('The density matrix has eigenvalues considerably larger than '
+                         'max. error=%e' % (orb.occupations.max() - 1))
