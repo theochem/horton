@@ -23,11 +23,10 @@
 import numpy as np
 from nose.plugins.attrib import attr
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from .common import (get_fn, check_names, check_proatom_splines,
+from horton.grid import ExpRTransform, RadialGrid, BeckeMolGrid
+from .. utils import wpart_schemes
+from .common import (load_molecule_npz, check_names, check_proatom_splines,
                      get_proatomdb_hf_sto3g, get_proatomdb_hf_lan)
-
-from horton.scripts.wpart import wpart_schemes
 
 
 def check_water_hf_sto3g(scheme, expecting, needs_padb=True, **kwargs):
@@ -35,21 +34,18 @@ def check_water_hf_sto3g(scheme, expecting, needs_padb=True, **kwargs):
         proatomdb = get_proatomdb_hf_sto3g()
         kwargs['proatomdb'] = proatomdb
 
-    # Get the IOData
-    fn_fchk = get_fn('water_sto3g_hf_g03.fchk')
-    mol = IOData.from_file(fn_fchk)
-    dm_full = mol.get_dm_full()
-
+    # load molecule data
+    coords, nums, pseudo_nums, dens, points = load_molecule_npz('water_sto3g_hf_g03_fchk_exp:5e-4:2e1:120:110.npz')
     # Create a grid for the partitioning
     rtf = ExpRTransform(5e-4, 2e1, 120)
     rgrid = RadialGrid(rtf)
-
-    # Do the partitioning
     mode = 'only' if kwargs.get('local', True) else 'discard'
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False, mode=mode)
-    moldens = mol.obasis.compute_grid_density_dm(dm_full, grid.points)
-    WPartClass = wpart_schemes[scheme]
-    wpart = WPartClass(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens,  **kwargs)
+    grid = BeckeMolGrid(coords, nums, pseudo_nums, (rgrid, 110), random_rotate=False, mode=mode)
+    # check the grid points against stored points on which density is evaluated
+    assert (abs(points - grid.points) < 1.e-6).all()
+    # Do the partitioning
+    WPartClass = wpart_schemes(scheme)
+    wpart = WPartClass(coords, nums, pseudo_nums, grid, dens,  **kwargs)
     names = wpart.do_all()
     check_names(names, wpart)
     assert abs(wpart['charges'] - expecting).max() < 2e-3
@@ -99,21 +95,19 @@ def check_msa_hf_lan(scheme, expecting, needs_padb=True, **kwargs):
         proatomdb = get_proatomdb_hf_lan()
         kwargs['proatomdb'] = proatomdb
 
-    # Get the IOData
-    fn_fchk = get_fn('monosilicic_acid_hf_lan.fchk')
-    mol = IOData.from_file(fn_fchk)
-    dm_full = mol.get_dm_full()
-
+    # load molecule data
+    coords, nums, pseudo_nums, dens, points = load_molecule_npz('monosilicic_acid_hf_lan_fchk_exp:5e-4:2e1:120:110.npz')
     # Create a grid for the partitioning
     rtf = ExpRTransform(5e-4, 2e1, 120)
     rgrid = RadialGrid(rtf)
-
     # Do the partitioning, both with local and global grids
     mode = 'only' if kwargs.get('local', True) else 'discard'
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False, mode=mode)
-    moldens = mol.obasis.compute_grid_density_dm(dm_full, grid.points)
-    WPartClass = wpart_schemes[scheme]
-    wpart = WPartClass(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens, **kwargs)
+    grid = BeckeMolGrid(coords, nums, pseudo_nums, (rgrid, 110), random_rotate=False, mode=mode)
+    # check the grid points against stored points on which density is evaluated
+    assert (abs(points - grid.points) < 1.e-6).all()
+    # Do the partitioning
+    WPartClass = wpart_schemes(scheme)
+    wpart = WPartClass(coords, nums, pseudo_nums, grid, dens, **kwargs)
     wpart.do_charges()
     assert abs(wpart['charges'] - expecting).max() < 4e-3
 

@@ -148,11 +148,7 @@ def check_spline_record(spline, record):
 
 def check_spline_pop(spline, pop):
     rtf = spline.rtransform
-    check_pop = 4*np.pi*dot_multi(
-        rtf.get_deriv(),
-        rtf.get_radii()**2,
-        spline.y,
-    )
+    check_pop = 4 * np.pi * np.sum(rtf.get_deriv() * rtf.get_radii()**2 * spline.y)
     assert abs(pop - check_pop) < 1e-2
 
 

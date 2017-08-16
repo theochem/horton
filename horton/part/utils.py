@@ -21,10 +21,29 @@
 """Utility Functions"""
 
 
-__all__ = ["typecheck_geo", "radius_becke", "radius_covalent"]
+__all__ = ["typecheck_geo", "radius_becke", "radius_covalent", "wpart_schemes"]
 
 
 angstrom = 1.0e-10 / 0.5291772083e-10
+
+
+def wpart_schemes(scheme):
+    if scheme == 'h':
+        from .hirshfeld import HirshfeldWPart
+        wpart = HirshfeldWPart
+    elif scheme == 'hi':
+        from .hirshfeld_i import HirshfeldIWPart
+        wpart = HirshfeldIWPart
+    elif scheme == 'is':
+        from .iterstock import IterativeStockholderWPart
+        wpart = IterativeStockholderWPart
+    elif scheme == 'mbis':
+        from .mbis import MBISWPart
+        wpart = MBISWPart
+    elif scheme == 'b':
+        from .becke import BeckeWPart
+        wpart = BeckeWPart
+    return wpart
 
 
 def typecheck_geo(coordinates=None, numbers=None, pseudo_numbers=None,

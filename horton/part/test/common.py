@@ -23,6 +23,7 @@
 import os
 import shutil
 import tempfile
+import numpy as np
 
 from glob import glob
 from contextlib import contextmanager
@@ -31,7 +32,7 @@ from .. proatomdb import ProAtomDB
 
 
 __all__ = [
-    'get_fn', 'get_proatomdb_cp2k', 'get_proatomdb_hf_sto3g',
+    'get_fn', 'load_molecule_npz', 'get_proatomdb_cp2k', 'get_proatomdb_hf_sto3g',
     'get_proatomdb_hf_lan', 'check_names', 'check_proatom_splines',
 ]
 
@@ -39,6 +40,22 @@ __all__ = [
 def get_fn(fn):
     cur_pth = os.path.split(__file__)[0]
     return "{0}/cached/{1}".format(cur_pth, fn)
+
+
+def load_molecule_npz(filename, spin_dens=False):
+    # get file path
+    filepath = get_fn(filename)
+    # load npz file
+    with np.load(filepath, mmap_mode=None) as npz:
+        dens = npz['dens']
+        points = npz['points']
+        numbers = npz['numbers']
+        coordinates = npz['coordinates']
+        pseudo_numbers = npz['pseudo_numbers']
+        if spin_dens:
+            spindens = npz['spin_dens']
+            return coordinates, numbers, pseudo_numbers, dens, spindens, points
+    return coordinates, numbers, pseudo_numbers, dens, points
 
 
 @contextmanager

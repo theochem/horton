@@ -21,22 +21,24 @@
 # --
 
 
-from .common import get_fn
-
 from nose.tools import assert_raises
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from .common import load_molecule_npz, get_fn
+from .. becke import BeckeWPart
+from horton.grid import ExpRTransform, RadialGrid, BeckeMolGrid
 
 
 def test_becke_n2_hfs_sto3g():
-    fn_fchk = get_fn('n2_hfs_sto3g.fchk')
-    mol = IOData.from_file(fn_fchk)
+    # load molecule data
+    coords, nums, pseudo_nums, dens, points = load_molecule_npz('n2_hfs_sto3g_fchk_exp:1e-3:1e1:100:110.npz')
+    # make grid
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False, mode='only')
-    dm_full = mol.get_dm_full()
-    moldens = mol.obasis.compute_grid_density_dm(dm_full, grid.points)
-    bp = BeckeWPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens)
+    grid = BeckeMolGrid(coords, nums, pseudo_nums, (rgrid, 110), random_rotate=False, mode='only')
+    # check the grid points against stored points on which density is evaluated
+    assert (abs(points - grid.points) < 1.e-6).all()
+    # Becke partitioning
+    bp = BeckeWPart(coords, nums, pseudo_nums, grid, dens)
     bp.do_populations()
     assert abs(bp['populations'] - 7).max() < 1e-4
     bp.do_charges()
@@ -50,19 +52,21 @@ def test_becke_n2_hfs_sto3g():
 
 
 def test_becke_nonlocal_lih_hf_321g():
-    fn_fchk = get_fn('li_h_3-21G_hf_g09.fchk')
-    mol = IOData.from_file(fn_fchk)
+    # load molecule data
+    coords, nums, pnums, dens, points = load_molecule_npz('li_h_3-21G_hf_g09_fchk_exp:1e-3:1e1:100:110.npz')
+
     rtf = ExpRTransform(1e-3, 1e1, 100)
     rgrid = RadialGrid(rtf)
-    dm_full = mol.get_dm_full()
 
-    grid1 = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False, mode='only')
-    moldens = mol.obasis.compute_grid_density_dm(dm_full, grid1.points)
-    bp1 = BeckeWPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid1, moldens)
+    grid1 = BeckeMolGrid(coords, nums, pnums, (rgrid, 110), random_rotate=False, mode='only')
+    bp1 = BeckeWPart(coords, nums, pnums, grid1, dens)
+    # check the grid points against stored points on which density is evaluated
+    assert (abs(points - grid1.points) < 1.e-6).all()
 
-    grid2 = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, (rgrid, 110), random_rotate=False, mode='discard')
-    moldens = mol.obasis.compute_grid_density_dm(dm_full, grid2.points)
-    bp2 = BeckeWPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid2, moldens, local=False)
+    grid2 = BeckeMolGrid(coords, nums, pnums, (rgrid, 110), random_rotate=False, mode='discard')
+    bp2 = BeckeWPart(coords, nums, pnums, grid2, dens, local=False)
+    # check the grid points against stored points on which density is evaluated
+    assert (abs(points - grid2.points) < 1.e-6).all()
 
     bp1.do_charges()
     bp2.do_charges()
@@ -70,12 +74,14 @@ def test_becke_nonlocal_lih_hf_321g():
 
 
 def check_becke_azirine(key, expected):
-    fn_fchk = get_fn('2h-azirine-%s.fchk' % key)
-    mol = IOData.from_file(fn_fchk)
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False, mode='only')
-    dm_full = mol.get_dm_full()
-    moldens = mol.obasis.compute_grid_density_dm(dm_full, grid.points)
-    bp = BeckeWPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens)
+    # load molecule data
+    coords, nums, pseudo_nums, dens, points = load_molecule_npz('2h-azirine-%s-fchk-medium.npz' % key)
+    # make grid
+    grid = BeckeMolGrid(coords, nums, pseudo_nums, random_rotate=False, mode='only', agspec='medium')
+    # check the grid points against stored points on which density is evaluated
+    assert (abs(points - grid.points) < 1.e-6).all()
+    # Becke partitioning
+    bp = BeckeWPart(coords, nums, pseudo_nums, grid, dens)
     bp.do_charges()
     c = bp['charges']
     assert abs(c[0] - expected[0]) < 1e-3
@@ -100,14 +106,10 @@ def test_becke_azirine_mp3():
 
 
 def test_becke_ch3_hf_sto3g():
-    fn_fchk = get_fn('ch3_hf_sto3g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False, mode='only')
-    dm_full = mol.get_dm_full()
-    dm_spin = mol.get_dm_spin()
-    moldens = mol.obasis.compute_grid_density_dm(dm_full, grid.points)
-    spindens = mol.obasis.compute_grid_density_dm(dm_spin, grid.points)
-    bp = BeckeWPart(mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens, spindens)
+    # load molecule data
+    coords, nums, pnums, dens, spindens, points = load_molecule_npz('ch3_hf_sto3g_fchk_medium.npz', True)
+    grid = BeckeMolGrid(coords, nums, pnums, random_rotate=False, mode='only', agspec='medium')
+    bp = BeckeWPart(coords, nums, pnums, grid, dens, spindens)
     bp.do_all()
     sc = bp['spin_charges']
     assert abs(sc - [1.08458698, -0.02813376, -0.02813376, -0.02815979]).max() < 1e-3
