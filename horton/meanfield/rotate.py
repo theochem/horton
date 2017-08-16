@@ -22,8 +22,7 @@
 
 import numpy as np
 
-from horton.gbasis.cext import fac2
-from .utils import rotate_cartesian_multipole, get_cartesian_powers
+from .utils import rotate_cartesian_multipole, get_cartesian_powers, fac2
 
 __all__ = ['rotate_coeffs']
 

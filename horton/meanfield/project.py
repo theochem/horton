@@ -20,6 +20,8 @@
 # --
 """Projection of 1-electron orbitals to a new basis set"""
 
+# TODO: Move to gobasis?
+
 import numpy as np
 from scipy.linalg import sqrtm
 

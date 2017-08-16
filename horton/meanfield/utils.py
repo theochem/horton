@@ -183,6 +183,14 @@ def check_type(name, instance, *Classes):
         ))
 
 
+def fac2(n):
+    result = 1
+    while n > 1:
+        result *= n
+        n -= 2
+    return result
+
+
 # from horton.moments
 def get_ncart_cumul(lmax):
     """The number of cartesian powers up to a given angular momentum, lmax."""
