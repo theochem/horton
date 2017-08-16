@@ -24,7 +24,7 @@ from nose.plugins.skip import SkipTest
 import numpy as np
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from .. utils import get_ncart_cumul, get_cartesian_powers
+from horton.meanfield.moments import get_ncart_cumul, get_cartesian_powers
 
 
 def check_spin(fn_fchk, sz0, ssq0, eps):

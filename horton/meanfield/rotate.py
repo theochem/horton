@@ -22,7 +22,8 @@
 
 import numpy as np
 
-from .utils import rotate_cartesian_multipole, get_cartesian_powers, fac2
+from .utils import fac2
+from horton.meanfield.moments import get_cartesian_powers, rotate_cartesian_multipole
 
 __all__ = ['rotate_coeffs']
 
