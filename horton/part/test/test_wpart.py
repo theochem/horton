@@ -24,16 +24,15 @@ import numpy as np
 from nose.plugins.attrib import attr
 
 from horton.grid import ExpRTransform, RadialGrid, BeckeMolGrid
+from .. proatomdb import ProAtomDB
 from .. utils import wpart_schemes
-from .common import (load_molecule_npz, check_names, check_proatom_splines,
-                     get_proatomdb_hf_sto3g, get_proatomdb_hf_lan)
+from .common import load_molecule_npz, load_atoms_npz, check_names, check_proatom_splines
 
 
 def check_water_hf_sto3g(scheme, expecting, needs_padb=True, **kwargs):
     if needs_padb:
-        proatomdb = get_proatomdb_hf_sto3g()
-        kwargs['proatomdb'] = proatomdb
-
+        records = load_atoms_npz(numbers=[8, 6, 1], max_cation=1, max_anion=-1, level='hf_sto3g')
+        kwargs['proatomdb'] = ProAtomDB(records)
     # load molecule data
     coords, nums, pseudo_nums, dens, points = load_molecule_npz('water_sto3g_hf_g03_fchk_exp:5e-4:2e1:120:110.npz')
     # Create a grid for the partitioning
@@ -92,9 +91,8 @@ def test_mbis_water_hf_sto3g():
 
 def check_msa_hf_lan(scheme, expecting, needs_padb=True, **kwargs):
     if needs_padb:
-        proatomdb = get_proatomdb_hf_lan()
-        kwargs['proatomdb'] = proatomdb
-
+        records = load_atoms_npz(numbers=[14, 8, 1], max_cation=4, max_anion=-2, level='hf_lan')
+        kwargs['proatomdb'] = ProAtomDB(records)
     # load molecule data
     coords, nums, pseudo_nums, dens, points = load_molecule_npz('monosilicic_acid_hf_lan_fchk_exp:5e-4:2e1:120:110.npz')
     # Create a grid for the partitioning
