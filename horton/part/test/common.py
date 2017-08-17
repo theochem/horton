@@ -85,7 +85,7 @@ def load_atoms_npz(numbers, max_cation, max_anion, rtf_type='pow', level=None):
             number, charge, energy = int(npz['number']), int(npz['charge']), float(npz['energy'])
             dens, deriv = npz['dens'], npz['deriv']
             rgrid = RadialGrid(rtfclass(*npz['rgrid']))
-            if 'pseudo_number' in npz.keys():
+            if 'pseudo_number' in list(npz.keys()):
                 pseudo_number = npz['pseudo_number']
             else:
                 pseudo_number = None

@@ -234,9 +234,9 @@ class ProAtomDB(object):
         for r in records:
             l = _map.setdefault((r.number, r.charge), [])
             l.append(r)
-        for key, l in _map.items():
+        for key, l in list(_map.items()):
             l.sort(key=(lambda r: r.energy))
-        records = [l[0] for l in _map.values()]
+        records = [l[0] for l in list(_map.values())]
 
         # Store attribtues
         self._records = records
@@ -269,8 +269,8 @@ class ProAtomDB(object):
     def _log_init(self):
         print('5: Initialized: %s' % self)
         print([
-            ('5: Numbers', self._rgrid_map.keys()),
-            ('5: Records', self._map.keys()),
+            ('5: Numbers', list(self._rgrid_map.keys())),
+            ('5: Records', list(self._map.keys())),
         ])
         print()
 
@@ -338,7 +338,7 @@ class ProAtomDB(object):
             else:
                 deriv = None
             if combine == 'linear':
-                for charge, coeff in parameters.items():
+                for charge, coeff in list(parameters.items()):
                     if coeff != 0.0:
                         record = self.get_record(number, charge)
                         rho += coeff * record.rho
@@ -347,7 +347,7 @@ class ProAtomDB(object):
                         else:
                             deriv = None
             elif combine == 'geometric':
-                for charge, coeff in parameters.items():
+                for charge, coeff in list(parameters.items()):
                     if coeff != 0.0:
                         record = self.get_record(number, charge)
                         rho += coeff * np.log(record.rho)

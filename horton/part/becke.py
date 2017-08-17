@@ -25,9 +25,9 @@ from __future__ import print_function
 
 import numpy as np
 
-from horton.grid.cext import becke_helper_atom
 from .base import WPart
 from .utils import angstrom, radius_becke, radius_covalent
+from horton.grid import becke_helper_atom
 
 
 __all__ = ['BeckeWPart']

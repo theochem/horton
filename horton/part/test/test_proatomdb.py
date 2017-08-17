@@ -20,10 +20,10 @@
 # --
 
 
-import numpy as np, h5py as h5
+import numpy as np
 
 from .. proatomdb import ProAtomDB
-from .common import get_fn, tmpdir, load_atoms_npz
+from .common import get_fn, load_atoms_npz
 
 
 def test_db_basics():
@@ -123,7 +123,7 @@ def check_spline_mono_decr(spline):
     y = spline(x)
     i = (abs(y) < 1e-10).nonzero()[0][0]
     y = y[:i]
-    assert ((y[1:] - y[:-1])/y[:-1]).min() < 1e-9
+    assert ((y[1:] - y[:-1]) / y[:-1]).min() < 1e-9
 
 
 def test_get_spline():
@@ -140,11 +140,11 @@ def test_get_spline():
     check_spline_record(spline, padb.get_record(6, -1))
     check_spline_mono_decr(spline)
 
-    spline = padb.get_spline(6, {0:0.5, -1:0.5})
+    spline = padb.get_spline(6, {0: 0.5, -1: 0.5})
     check_spline_pop(spline, 6.5)
     check_spline_mono_decr(spline)
 
-    spline = padb.get_spline(1, {0:0.5})
+    spline = padb.get_spline(1, {0: 0.5})
     check_spline_pop(spline, 0.5)
     check_spline_mono_decr(spline)
 
@@ -161,7 +161,7 @@ def test_get_spline_pseudo():
     check_spline_pop(spline, 9.0)
     check_spline_record(spline, padb.get_record(8, -1))
 
-    spline = padb.get_spline(8, {0:0.5, -1:0.5})
+    spline = padb.get_spline(8, {0: 0.5, -1: 0.5})
     check_spline_pop(spline, 8.5)
 
     spline = padb.get_spline(14)

@@ -142,7 +142,7 @@ radius_becke = {
     108: None, 109: None, 110: None, 111: None, 112: None, 113: None, 114: None, 115: None,
     116: None, 117: None, 118: None
     }
-radius_becke = dict([(k, v if v is None else v * angstrom) for k, v in radius_becke.items()])
+radius_becke = dict([(k, v if v is None else v * angstrom) for k, v in list(radius_becke.items())])
 
 
 # cov_radius_cordero
@@ -161,4 +161,4 @@ radius_covalent = {
     103: None, 104: None, 105: None, 106: None, 107: None, 108: None, 109: None, 110: None,
     111: None, 112: None, 113: None, 114: None, 115: None, 116: None, 117: None, 118: None
     }
-radius_covalent = dict([(k, v if v is None else v * angstrom) for k, v in radius_covalent.items()])
+radius_covalent = dict([(k, v if v is None else v * angstrom) for k, v in list(radius_covalent.items())])
