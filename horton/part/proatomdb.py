@@ -38,34 +38,25 @@ class ProAtomRecord(object):
 
     def __init__(self, number, charge, energy, rgrid, rho, deriv=None, pseudo_number=None, ipot_energy=None):
         """
-           **Arguments:**
-
-           number
-                The element number of the proatom.
-
-           charge
-                The net charge of the proatom. (integer)
-
-           energy
-                The total energy of the proatom.
-
-           rgrid
-                The radial grid on which the density (and optional radial
-                density derivatives) are tabulated.
-
-           rho
-                The electron density on the grid.
-
-           **Optional arguments:**
-
-           deriv
-                The radial derivative of the electron density.
-
-           pseudo_number
-                The effective core charge (defaults to number).
-
-           ipot_energy
-                The ionization potential.
+        Parameters
+        ----------
+        number : int
+            The atomic number of the proatom.
+        charge : int
+            The net charge of the proatom.
+        energy : float
+            The total energy of the proatom.
+        rgrid : instance RadialGrid
+            The radial grid on which the density (and optional radial
+            density derivatives) are tabulated.
+        rho : np.ndarray
+            The electron density on the grid.
+        deriv : np.ndarray
+            The radial derivative of the electron density.
+        pseudo_number : int, default=None
+            The effective core charge. If None, it is set to number.
+        ipot_energy : float, default=None
+            The ionization potential.
         """
         self._number = number
         self._charge = charge
@@ -83,74 +74,63 @@ class ProAtomRecord(object):
             self._ipot_energy = ipot_energy
         self._safe = True
 
-    def _get_number(self):
-        """The element number"""
+    @property
+    def number(self):
+        """The atomic number."""
         return self._number
 
-    number = property(_get_number)
-
-    def _get_charge(self):
-        """The charge"""
-        return self._charge
-
-    charge = property(_get_charge)
-
-    def _get_energy(self):
-        """The total electronic energy"""
-        return self._energy
-
-    energy = property(_get_energy)
-
-    def _get_ipot_energy(self):
-        """The ionization potential"""
-        return self._ipot_energy
-
-    ipot_energy = property(_get_ipot_energy)
-
-    def _get_rho(self):
-        """The density on a radial grid"""
-        return self._rho
-
-    rho = property(_get_rho)
-
-    def _get_deriv(self):
-        """The radial derivative of the density on a radial grid"""
-        return self._deriv
-
-    deriv = property(_get_deriv)
-
-    def _get_rgrid(self):
-        """The radial grid"""
-        return self._rgrid
-
-    rgrid = property(_get_rgrid)
-
-    def _get_pseudo_number(self):
-        """The pseudo element number (effective core charge)"""
+    @property
+    def pseudo_number(self):
+        """The pseudo atomic number (effective core charge)"""
         return self._pseudo_number
 
-    pseudo_number = property(_get_pseudo_number)
+    @property
+    def charge(self):
+        """The atomic charge."""
+        return self._charge
 
-    def _get_population(self):
-        """The total number of electrons"""
+    @property
+    def energy(self):
+        """The total electronic energy."""
+        return self._energy
+
+    @property
+    def ipot_energy(self):
+        """The ionization potential."""
+        return self._ipot_energy
+
+    @property
+    def rho(self):
+        """The density on a radial grid."""
+        return self._rho
+
+    @property
+    def deriv(self):
+        """The radial derivative of the density on a radial grid."""
+        return self._deriv
+
+    @property
+    def rgrid(self):
+        """The radial grid."""
+        return self._rgrid
+
+    @property
+    def population(self):
+        """The total number of electrons."""
         return self._number - self._charge
 
-    population = property(_get_population)
-
-    def _get_pseudo_population(self):
-        """The total effective number of electrons"""
+    @property
+    def pseudo_population(self):
+        """The total effective number of electrons."""
         return self._pseudo_number - self._charge
 
-    pseudo_population = property(_get_pseudo_population)
-
-    def _get_safe(self):
+    @property
+    def safe(self):
         """When safe is True, this pro atom is safe to use, i.e. not know to be basis-set bound"""
         return self._safe
 
-    safe = property(_get_safe)
-
     def update_safe(self, other):
-        """Updates the safe attribute based on a comparison with other records
+        """Update the safe attribute based on a comparison with other records.
 
            **Arguments:**
 
@@ -218,12 +198,12 @@ class ProAtomRecord(object):
 class ProAtomDB(object):
     def __init__(self, records):
         """
-           **Arguments:**
-
-           records
-                A list of ProAtomRecord instances. If two or more records have
-                the same number and charge, only the lowest in energy is
-                retained.
+        Parameters
+        ----------
+        records : sequence of ProAtomRecord instances
+            A sequence of ProAtomRecord instances. If two or more records have
+            the same number and charge, only the lowest in energy is
+            retained.
 
            Based on the records present it is determined which records are
            safe to use, i.e. apparently not bound by the basis set.
@@ -291,10 +271,10 @@ class ProAtomDB(object):
     def get_rgrid(self, number):
         return self._rgrid_map[number]
 
-    def _get_size(self):
+    @property
+    def size(self):
+        """Number of proatoms in the database."""
         return len(self._records)
-
-    size = property(_get_size)
 
     def get_rho(self, number, parameters=0, combine='linear', do_deriv=False):
         """Construct a proatom density on a grid.
