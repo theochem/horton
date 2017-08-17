@@ -156,7 +156,7 @@ def test_core_active_water():
 
 
 def test_core_active_2h_azirine():
-    mol = IOData.from_file(context.get_fn('test/2h-azirine.xyz'))
+    mol = IOData.from_file(context.get_fn('test/h2-azirine.xyz'))
     check_core_active_blank(mol, '3-21g')
     check_core_active(mol, '3-21g', 3, 15)
 
@@ -261,6 +261,6 @@ def test_core_active_water_cholesky():
 
 
 def test_core_active_2h_azirine_cholesky():
-    mol = IOData.from_file(context.get_fn('test/2h-azirine.xyz'))
+    mol = IOData.from_file(context.get_fn('test/h2-azirine.xyz'))
     check_core_active_cholesky_blank(mol, '3-21g')
     check_core_active_cholesky(mol, '3-21g', 3, 15)
