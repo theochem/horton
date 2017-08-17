@@ -18,20 +18,18 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Base classes for all stockholder partitioning schemes'''
+"""Base classes for all stockholder partitioning schemes"""
 
+
+from __future__ import print_function
 
 import numpy as np
 
-from horton.log import log
-from horton.grid.cext import CubicSpline
-from horton.part.base import WPart
-from horton.grid.poisson import solve_poisson_becke
+from .base import WPart
+from horton.grid import CubicSpline, solve_poisson_becke
 
 
-__all__ = [
-    'StockholderWPart',
-]
+__all__ = ["StockholderWPart"]
 
 
 class StockHolderMixin(object):
@@ -42,7 +40,7 @@ class StockHolderMixin(object):
         raise NotImplementedError
 
     def fix_proatom_rho(self, index, rho, deriv):
-        '''Check if the radial density for the proatom is correct and fix as needed.
+        """Check if the radial density for the proatom is correct and fix as needed.
 
            **Arguments:**
 
@@ -54,18 +52,16 @@ class StockHolderMixin(object):
 
            deriv
                 the derivative of the radial density or None.
-        '''
+        """
         rgrid = self.get_rgrid(index)
 
         # Check for negative parts
         original = rgrid.integrate(rho)
         if rho.min() < 0:
-            rho[rho<0] = 0.0
+            rho[rho < 0] = 0.0
             deriv = None
             error = rgrid.integrate(rho) - original
-            if log.do_medium:
-                log('                    Pro-atom not positive everywhere. Lost %.1e electrons' % error)
-
+            print('5:                Pro-atom not positive everywhere. Lost %.1e electrons' % error)
         return rho, deriv
 
     def get_proatom_spline(self, index, *args, **kwargs):
@@ -81,9 +77,6 @@ class StockHolderMixin(object):
 
     def eval_spline(self, index, spline, output, grid, label='noname'):
         center = self.coordinates[index]
-        if log.do_debug:
-            number = self.numbers[index]
-            log('  Evaluating spline (%s) for atom %i (n=%i) on %i grid points' % (label, index, number, grid.size))
         grid.eval_spline(spline, center, output)
 
     def eval_proatom(self, index, output, grid):
@@ -101,14 +94,14 @@ class StockHolderMixin(object):
 
         # update the promolecule density and store the proatoms in the at_weights
         # arrays for later.
-        for index in xrange(self.natom):
+        for index in range(self.natom):
             grid = self.get_grid(index)
             at_weights = self.cache.load('at_weights', index, alloc=grid.shape)[0]
             self.update_pro(index, at_weights, promoldens)
 
         # Compute the atomic weights by taking the ratios between proatoms and
         # promolecules.
-        for index in xrange(self.natom):
+        for index in range(self.natom):
             at_weights = self.cache.load('at_weights', index)
             at_weights /= self.to_atomic_grid(index, promoldens)
             np.clip(at_weights, 0, 1, out=at_weights)
@@ -117,19 +110,17 @@ class StockHolderMixin(object):
         raise NotImplementedError
 
     def do_prosplines(self):
-        for index in xrange(self.natom):
+        for index in range(self.natom):
             # density
             key = ('spline_prodensity', index)
             if key not in self.cache:
-                if log.medium:
-                    log('Storing proatom density spline for atom %i.' % index)
+                print('5:Storing proatom density spline for atom %i.' % index)
                 spline = self.get_proatom_spline(index)
                 self.cache.dump(key, spline, tags='o')
             # hartree potential
             key = ('spline_prohartree', index)
             if key not in self.cache:
-                if log.medium:
-                    log('Computing proatom hartree potential spline for atom %i.' % index)
+                print('5:Computing proatom hartree potential spline for atom %i.' % index)
                 rho_spline = self.cache.load('spline_prodensity', index)
                 v_spline = solve_poisson_becke([rho_spline])[0]
                 self.cache.dump(key, v_spline, tags='o')

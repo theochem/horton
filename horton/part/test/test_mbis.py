@@ -21,8 +21,7 @@
 # --
 
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from horton.part.mbis import _get_nshell, _get_initial_mbis_propars
+from .. mbis import _get_nshell, _get_initial_mbis_propars
 
 
 def test_get_nshell():

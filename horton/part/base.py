@@ -18,28 +18,27 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Base classes for (atoms-in-molecules) partitioning algorithms'''
+"""Base classes for (atoms-in-molecules) partitioning algorithms"""
 
+
+from __future__ import print_function
 
 import numpy as np
 
-from horton.cache import JustOnceClass, just_once, Cache
-from horton.log import log
-from horton.moments import get_ncart_cumul, get_npure_cumul
-from horton.utils import typecheck_geo
-from horton.grid.atgrid import AtomicGrid
-from horton.grid.poisson import solve_poisson_becke
+from .cache import JustOnceClass, just_once, Cache
+from .utils import typecheck_geo
+from horton.grid import AtomicGrid, solve_poisson_becke
 
 
-__all__ = ['Part', 'WPart']
+__all__ = ["Part", "WPart"]
 
 
 class Part(JustOnceClass):
     name = None
-    linear = False # whether the populations are linear in the density matrix.
+    linear = False  # whether the populations are linear in the density matrix.
 
     def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens, spindens, local, lmax):
-        '''
+        """
            **Arguments:**
 
            coordinates
@@ -67,13 +66,13 @@ class Part(JustOnceClass):
 
            lmax
                 The maximum angular momentum in multipole expansions.
-        '''
-
+        """
         # Init base class
         JustOnceClass.__init__(self)
 
         # Some type checking for first three arguments
-        natom, coordinates, numbers, pseudo_numbers = typecheck_geo(coordinates, numbers, pseudo_numbers)
+        natom, coordinates, numbers, pseudo_numbers = typecheck_geo(coordinates, numbers,
+                                                                    pseudo_numbers)
         self._natom = natom
         self._coordinates = coordinates
         self._numbers = numbers
@@ -92,13 +91,11 @@ class Part(JustOnceClass):
         # Initialize the subgrids
         if local:
             self._init_subgrids()
-
         # Some screen logging
+        self.biblio = []
         self._init_log_base()
         self._init_log_scheme()
         self._init_log_memory()
-        if log.do_medium:
-            log.blank()
 
     def __getitem__(self, key):
         return self.cache.load(key)
@@ -147,12 +144,12 @@ class Part(JustOnceClass):
         self.clear()
 
     def clear(self):
-        '''Discard all cached results, e.g. because wfn changed'''
+        """Discard all cached results, e.g. because wfn changed"""
         JustOnceClass.clear(self)
         self.cache.clear()
 
     def get_grid(self, index=None):
-        '''Return an integration grid
+        """Return an integration grid
 
            **Optional arguments:**
 
@@ -160,7 +157,7 @@ class Part(JustOnceClass):
                 The index of the atom. If not given, a grid for the entire
                 system is returned. If self.local is False, a full system grid
                 is always returned.
-        '''
+        """
         if index is None or not self.local:
             return self._grid
         else:
@@ -179,10 +176,10 @@ class Part(JustOnceClass):
         return result
 
     def get_wcor(self, index):
-        '''Return the weight corrections on a grid
+        """Return the weight corrections on a grid
 
            See get_grid for the meaning of the optional arguments
-        '''
+        """
         raise NotImplementedError
 
     def _init_subgrids(self):
@@ -195,24 +192,23 @@ class Part(JustOnceClass):
         raise NotImplementedError
 
     def _init_log_memory(self):
-        if log.do_medium:
-            # precompute arrays sizes for certain grids
-            nbyte_global = self.grid.size*8
-            nbyte_locals = np.array([self.get_grid(i).size*8 for i in xrange(self.natom)])
+        # precompute arrays sizes for certain grids
+        nbyte_global = self.grid.size * 8
+        nbyte_locals = np.array([self.get_grid(i).size * 8 for i in range(self.natom)])
 
-            # compute and report usage
-            estimates = self.get_memory_estimates()
-            nbyte_total = 0
-            log('Coarse estimate of memory usage for the partitioning:')
-            log('                         Label  Memory[GB]')
-            log.hline()
-            for label, nlocals, nglobal in estimates:
-                nbyte = np.dot(nlocals, nbyte_locals) + nglobal*nbyte_global
-                log('%30s  %10.3f' % (label, nbyte/1024.0**3))
-                nbyte_total += nbyte
-            log('%30s  %10.3f' % ('Total', nbyte_total/1024.0**3))
-            log.hline()
-            log.blank()
+        # compute and report usage
+        estimates = self.get_memory_estimates()
+        nbyte_total = 0
+        print('5:Coarse estimate of memory usage for the partitioning:')
+        print('5:                         Label  Memory[GB]')
+        print()
+        for label, nlocals, nglobal in estimates:
+            nbyte = np.dot(nlocals, nbyte_locals) + nglobal * nbyte_global
+            print('5:%30s  %10.3f' % (label, nbyte / 1024.0**3))
+            nbyte_total += nbyte
+        print('5:%30s  %10.3f' % ('Total', nbyte_total / 1024.0**3))
+        print('5:' + '~' * 100)
+        print()
 
     def get_memory_estimates(self):
         return [
@@ -237,7 +233,7 @@ class Part(JustOnceClass):
     do_partitioning.names = []
 
     def update_at_weights(self):
-        '''Updates the at_weights arrays in the case (and all related arrays)'''
+        """Updates the at_weights arrays in the case (and all related arrays)"""
         raise NotImplementedError
 
     @just_once
@@ -246,9 +242,8 @@ class Part(JustOnceClass):
         if new:
             self.do_partitioning()
             pseudo_populations = self.cache.load('pseudo_populations', alloc=self.natom, tags='o')[0]
-            if log.do_medium:
-                log('Computing atomic populations.')
-            for i in xrange(self.natom):
+            print('5:Computing atomic populations.')
+            for i in range(self.natom):
                 pseudo_populations[i] = self.compute_pseudo_population(i)
             populations[:] = pseudo_populations
             populations += self.numbers - self.pseudo_numbers
@@ -259,8 +254,7 @@ class Part(JustOnceClass):
         if new:
             self.do_populations()
             populations = self._cache.load('populations')
-            if log.do_medium:
-                log('Computing atomic charges.')
+            print('5:Computing atomic charges.')
             charges[:] = self.numbers - populations
 
     @just_once
@@ -268,9 +262,8 @@ class Part(JustOnceClass):
         if self._spindens is not None:
             spin_charges, new = self._cache.load('spin_charges', alloc=self.natom, tags='o')
             self.do_partitioning()
-            if log.do_medium:
-                log('Computing atomic spin charges.')
-            for index in xrange(self.natom):
+            print('5:Computing atomic spin charges.')
+            for index in range(self.natom):
                 grid = self.get_grid(index)
                 spindens = self.get_spindens(index)
                 at_weights = self.cache.load('at_weights', index)
@@ -285,21 +278,20 @@ class Part(JustOnceClass):
         npure = get_npure_cumul(self.lmax)
         pure_multipoles, new1 = self._cache.load('pure_multipoles', alloc=(self.natom, npure), tags='o')
 
-        nrad = self.lmax+1
+        nrad = self.lmax + 1
         radial_moments, new2 = self._cache.load('radial_moments', alloc=(self.natom, nrad), tags='o')
 
         if new1 or new2:
             self.do_partitioning()
-            if log.do_medium:
-                log('Computing cartesian and pure AIM multipoles and radial AIM moments.')
+            print('5:Computing cartesian and pure AIM multipoles and radial AIM moments.')
 
-            for i in xrange(self.natom):
+            for i in range(self.natom):
                 # 1) Define a 'window' of the integration grid for this atom
                 center = self.coordinates[i]
                 grid = self.get_grid(i)
 
                 # 2) Compute the AIM
-                aim = self.get_moldens(i)*self.cache.load('at_weights', i)
+                aim = self.get_moldens(i) * self.cache.load('at_weights', i)
 
                 # 3) Compute weight corrections
                 wcor = self.get_wcor(i)
@@ -322,7 +314,7 @@ class Part(JustOnceClass):
                 radial_moments[i] = grid.integrate(aim, wcor, center=center, lmax=self.lmax, mtype=3)
 
     def do_all(self):
-        '''Computes all properties and return a list of their keys.'''
+        """Computes all properties and return a list of their keys."""
         for attr_name in dir(self):
             attr = getattr(self, attr_name)
             if callable(attr) and attr_name.startswith('do_') and attr_name != 'do_all':
@@ -331,10 +323,10 @@ class Part(JustOnceClass):
 
 
 class WPart(Part):
-    '''Base class for density partitioning schemes'''
+    """Base class for density partitioning schemes"""
     def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens,
                  spindens=None, local=True, lmax=3):
-        '''
+        """
            **Arguments:**
 
            coordinates
@@ -365,18 +357,19 @@ class WPart(Part):
 
            lmax
                 The maximum angular momentum in multipole expansions.
-        '''
+        """
         if local and grid.subgrids is None:
-            raise ValueError('Atomic grids are discarded from molecular grid object, but are needed for local integrations.')
-        Part.__init__(self, coordinates, numbers, pseudo_numbers, grid, moldens, spindens, local, lmax)
+            raise ValueError('Atomic grids are discarded from molecular grid object, '
+                             'but are needed for local integrations.')
+        Part.__init__(self, coordinates, numbers, pseudo_numbers,
+                      grid, moldens, spindens, local, lmax)
 
     def _init_log_base(self):
-        if log.do_medium:
-            log('Performing a density-based AIM analysis with a wavefunction as input.')
-            log.deflist([
-                ('Molecular grid', self._grid),
-                ('Using local grids', self._local),
-            ])
+        print('5:Performing a density-based AIM analysis with a wavefunction as input.')
+        print([
+            ('5: Molecular grid', self._grid),
+            ('5: Using local grids', self._local),
+        ])
 
     def _init_subgrids(self):
         self._subgrids = self._grid.subgrids
@@ -394,39 +387,45 @@ class WPart(Part):
     @just_once
     def do_density_decomposition(self):
         if not self.local:
-            if log.do_warning:
-                log.warn('Skipping density decomposition because no local grids were found.')
+            print('5:!WARNING! Skip density decomposition because no local grids were found.')
             return
 
-        for index in xrange(self.natom):
+        for index in range(self.natom):
             atgrid = self.get_grid(index)
             assert isinstance(atgrid, AtomicGrid)
             key = ('density_decomposition', index)
             if key not in self.cache:
                 moldens = self.get_moldens(index)
                 self.do_partitioning()
-                if log.do_medium:
-                    log('Computing density decomposition for atom %i' % index)
+                print('5:Computing density decomposition for atom %i' % index)
                 at_weights = self.cache.load('at_weights', index)
                 splines = atgrid.get_spherical_decomposition(moldens, at_weights, lmax=self.lmax)
-                density_decomposition = dict(('spline_%05i' % j, spline) for j, spline in enumerate(splines))
-                self.cache.dump(key, density_decomposition, tags='o')
+                density_decomp = dict(('spline_%05i' % j, spl) for j, spl in enumerate(splines))
+                self.cache.dump(key, density_decomp, tags='o')
 
     @just_once
     def do_hartree_decomposition(self):
         if not self.local:
-            if log.do_warning:
-                log.warn('Skipping hartree decomposition because no local grids were found.')
+            print('5:!WARNING! Skip hartree decomposition because no local grids were found.')
             return
 
-        for index in xrange(self.natom):
+        for index in range(self.natom):
             key = ('hartree_decomposition', index)
             if key not in self.cache:
                 self.do_density_decomposition()
-                if log.do_medium:
-                    log('Computing hartree decomposition for atom %i' % index)
+                print('5:Computing hartree decomposition for atom %i' % index)
                 density_decomposition = self.cache.load('density_decomposition', index)
-                rho_splines = [spline for foo, spline in sorted(density_decomposition.iteritems())]
-                v_splines = solve_poisson_becke(rho_splines)
-                hartree_decomposition = dict(('spline_%05i' % j, spline) for j, spline in enumerate(v_splines))
-                self.cache.dump(key, hartree_decomposition, tags='o')
+                rho_splines = [spline for foo, spline in sorted(density_decomposition.items())]
+                splines = solve_poisson_becke(rho_splines)
+                hartree_decomp = dict(('spline_%05i' % j, spl) for j, spl in enumerate(splines))
+                self.cache.dump(key, hartree_decomp, tags='o')
+
+
+def get_ncart_cumul(lmax):
+    """The number of cartesian powers up to a given angular momentum, lmax."""
+    return (lmax + 1) * (lmax + 2) * (lmax + 3) / 6
+
+
+def get_npure_cumul(lmax):
+    """The number of pure functions up to a given angular momentum, lmax."""
+    return (lmax + 1)**2

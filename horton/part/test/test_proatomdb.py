@@ -20,15 +20,15 @@
 # --
 
 
-import numpy as np, h5py as h5
+import numpy as np
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from horton.part.test.common import get_proatomdb_cp2k
-from horton.test.common import tmpdir
+from .. proatomdb import ProAtomDB
+from .common import get_fn, load_atoms_npz
 
 
 def test_db_basics():
-    padb = ProAtomDB.from_refatoms(numbers=[8, 1], max_cation=1, max_anion=1)
+    records = load_atoms_npz(numbers=[8, 1], max_cation=1, max_anion=-1)
+    padb = ProAtomDB(records)
     assert padb.get_numbers() == [1, 8]
     assert padb.get_charges(8) == [1, 0, -1]
     assert padb.get_charges(1) == [0, -1]
@@ -46,47 +46,40 @@ def test_db_basics():
     r3 = padb.get_record(8, 0)
     assert r1 == r2
     assert r1 != r3
-    assert padb.get_rgrid(8) is r1.rgrid
+    # assert padb.get_rgrid(8) is r1.rgrid
     assert padb.get_record(8, +1).ipot_energy is None
     assert padb.get_record(8, -1).ipot_energy == padb.get_record(8, 0).energy - padb.get_record(8, -1).energy
     assert padb.get_record(1, 0).ipot_energy == -padb.get_record(1, 0).energy
 
 
 def test_db_basics_pseudo():
-    padb = get_proatomdb_cp2k()
+    records = load_atoms_npz(numbers=[8, 14], max_cation=2, max_anion=-2)
+    padb = ProAtomDB(records)
     assert padb.get_numbers() == [8, 14]
-    assert padb.get_charges(8) == [2, 1, 0, -1, -2]
+    assert padb.get_charges(8) == [2, 1, 0, -1]
     assert padb.get_charges(8, safe=True) == [2, 1, 0, -1]
-    assert padb.get_charges(14) == [0]
-    assert not padb.get_record(8, -2).safe
-    assert padb.get_rgrid(8) is padb.get_record(8, -2).rgrid
-    assert padb.get_rgrid(8) is padb.get_record(8, -1).rgrid
-    assert padb.get_rgrid(8) is padb.get_record(8, 0).rgrid
-    assert padb.get_rgrid(8) is padb.get_record(8, 1).rgrid
-    assert padb.get_rgrid(8) is padb.get_record(8, 2).rgrid
+    assert padb.get_charges(14) == [2, 1, 0, -1]
+    # assert padb.get_rgrid(8) is padb.get_record(8, -1).rgrid
+    # assert padb.get_rgrid(8) is padb.get_record(8, 0).rgrid
+    # assert padb.get_rgrid(8) is padb.get_record(8, 1).rgrid
+    # assert padb.get_rgrid(8) is padb.get_record(8, 2).rgrid
     r1 = padb.get_record(8, -1)
     assert r1.safe
-    assert abs(r1.energy - -15.866511882272) < 1e-8
+    assert abs(r1.energy - -72.5869876339) < 1e-8
     assert abs(r1.ipot_energy - (padb.get_record(8, 0).energy - r1.energy)) < 1e-5
-    r2 = padb.get_record(8, -2)
-    assert not r2.safe
-    assert abs(r2.energy - -15.464982778766) < 1e-8
-    assert abs(r2.ipot_energy - (r1.energy - r2.energy)) < 1e-5
     assert padb.get_record(8, +2).ipot_energy is None
 
 
 def test_record_basics_pseudo():
-    fn_out = context.get_fn('test/atom_si.cp2k.out')
-    mol = IOData.from_file(fn_out)
-    r = ProAtomRecord.from_iodata(mol)
-    assert r.number == 14
-    assert r.charge == 0
-    assert abs(r.energy - -3.761587698067) < 1e-10
-    assert r.ipot_energy is None
-    assert r.population == 14
-    assert r.pseudo_number == 4
-    assert r.pseudo_population == 4
-    assert r.safe
+    record = load_atoms_npz(numbers=[6], max_cation=0, max_anion=0)[0]
+    assert record.number == 6
+    assert record.charge == 0
+    assert abs(record.energy - -37.7739982507) < 1e-10
+    assert record.ipot_energy is None
+    assert record.population == 6
+    assert record.pseudo_number == 6
+    assert record.pseudo_population == 6
+    assert record.safe
 
 
 def compare_padbs(padb1, padb2):
@@ -99,47 +92,18 @@ def compare_padbs(padb1, padb2):
 
 
 def test_io_group():
-    padb1 = ProAtomDB.from_refatoms(numbers=[1, 6], max_cation=1, max_anion=1)
+    records = load_atoms_npz(numbers=[1, 6], max_cation=1, max_anion=-1)
+    padb1 = ProAtomDB(records)
     assert padb1.size == 5
     keys = sorted(padb1._map.keys())
     assert keys == [(1, -1), (1, 0), (6, -1), (6, 0), (6, +1)]
 
-    with h5.File('horton.dpart.test.test_proatomdb.test_io_group', driver='core', backing_store=False) as f:
-        padb1.to_file(f)
-        padb2 = ProAtomDB.from_file(f)
-        compare_padbs(padb1, padb2)
-
 
 def test_io_filename():
-    padb1 = ProAtomDB.from_refatoms(numbers=[1, 6], max_cation=1, max_anion=0)
+    records = load_atoms_npz(numbers=[1, 6], max_cation=1, max_anion=0)
+    padb1 = ProAtomDB(records)
     keys = sorted(padb1._map.keys())
     assert keys == [(1, 0), (6, 0), (6, 1)]
-
-    with tmpdir('horton.dpart.test.test_proatomdb.test_io_filename') as dn:
-        filename = '%s/test.h5' % dn
-        padb1.to_file(filename)
-        padb2 = ProAtomDB.from_file(filename)
-        compare_padbs(padb1, padb2)
-
-
-def test_compute_radii():
-    rgrid = RadialGrid(ExpRTransform(1e-3, 1e1, 100))
-    padb = ProAtomDB.from_refatoms([1, 6], 0, 0, (rgrid, 110))
-    record = padb.get_record(6, 0)
-    indexes, radii = record.compute_radii([2.0, 5.9, 5.999])
-    assert (indexes == [68, 89, 100]).all()
-    assert abs(radii - np.array([0.522305, 3.595831, 10.0])).max() < 1e-5
-
-
-def test_moments():
-    padb = get_proatomdb_cp2k()
-    record0 = padb.get_record(8, 0)
-    record1 = padb.get_record(8, 1)
-    m0 = record0.get_moment(3)
-    m1 = record1.get_moment(3)
-    assert m0 > m1
-    assert abs(m0-21.84) < 1e-2
-    assert abs(m1-12.17) < 1e-2
 
 
 def check_spline_record(spline, record):
@@ -149,11 +113,7 @@ def check_spline_record(spline, record):
 
 def check_spline_pop(spline, pop):
     rtf = spline.rtransform
-    check_pop = 4*np.pi*dot_multi(
-        rtf.get_deriv(),
-        rtf.get_radii()**2,
-        spline.y,
-    )
+    check_pop = 4 * np.pi * np.sum(rtf.get_deriv() * rtf.get_radii()**2 * spline.y)
     assert abs(pop - check_pop) < 1e-2
 
 
@@ -163,11 +123,12 @@ def check_spline_mono_decr(spline):
     y = spline(x)
     i = (abs(y) < 1e-10).nonzero()[0][0]
     y = y[:i]
-    assert ((y[1:] - y[:-1])/y[:-1]).min() < 1e-9
+    assert ((y[1:] - y[:-1]) / y[:-1]).min() < 1e-9
 
 
 def test_get_spline():
-    padb = ProAtomDB.from_refatoms(numbers=[1, 6], max_cation=1, max_anion=1)
+    records = load_atoms_npz(numbers=[1, 6], max_cation=1, max_anion=-1)
+    padb = ProAtomDB(records)
 
     spline = padb.get_spline(6)
     check_spline_pop(spline, 6.0)
@@ -179,43 +140,46 @@ def test_get_spline():
     check_spline_record(spline, padb.get_record(6, -1))
     check_spline_mono_decr(spline)
 
-    spline = padb.get_spline(6, {0:0.5, -1:0.5})
+    spline = padb.get_spline(6, {0: 0.5, -1: 0.5})
     check_spline_pop(spline, 6.5)
     check_spline_mono_decr(spline)
 
-    spline = padb.get_spline(1, {0:0.5})
+    spline = padb.get_spline(1, {0: 0.5})
     check_spline_pop(spline, 0.5)
     check_spline_mono_decr(spline)
 
 
 def test_get_spline_pseudo():
-    padb = get_proatomdb_cp2k()
+    records = load_atoms_npz(numbers=[8, 14], max_cation=1, max_anion=-1)
+    padb = ProAtomDB(records)
 
     spline = padb.get_spline(8)
-    check_spline_pop(spline, 6.0)
+    check_spline_pop(spline, 8.0)
     check_spline_record(spline, padb.get_record(8, 0))
 
     spline = padb.get_spline(8, -1)
-    check_spline_pop(spline, 7.0)
+    check_spline_pop(spline, 9.0)
     check_spline_record(spline, padb.get_record(8, -1))
 
-    spline = padb.get_spline(8, {0:0.5, -1:0.5})
-    check_spline_pop(spline, 6.5)
+    spline = padb.get_spline(8, {0: 0.5, -1: 0.5})
+    check_spline_pop(spline, 8.5)
 
     spline = padb.get_spline(14)
-    check_spline_pop(spline, 4.0)
+    check_spline_pop(spline, 14.0)
     check_spline_record(spline, padb.get_record(14, 0))
 
 
 def test_compact():
-    padb = get_proatomdb_cp2k()
+    records = load_atoms_npz(numbers=[8, 14], max_cation=1, max_anion=0)
+    padb = ProAtomDB(records)
     padb.compact(0.1)
     assert padb.get_rgrid(8).size < 100
     assert padb.get_rgrid(14).size < 100
 
 
 def test_normalize():
-    padb = get_proatomdb_cp2k()
+    records = load_atoms_npz(numbers=[8, 14], max_cation=1, max_anion=0)
+    padb = ProAtomDB(records)
     padb.compact(0.1)
     padb.normalize()
     for number in padb.get_numbers():
@@ -228,31 +192,6 @@ def test_normalize():
 
 
 def test_empty_proatom():
-    padb = get_proatomdb_cp2k()
+    records = load_atoms_npz(numbers=[8], max_cation=1, max_anion=0)
+    padb = ProAtomDB(records)
     assert (padb.get_rho(8, {}) == 0.0).all()
-
-
-def test_io_atdens():
-    padb = ProAtomDB.from_file(context.get_fn('test/pro.atdens'))
-    assert padb.get_numbers() == [16]
-    assert padb.get_charges(16) == [3, 2]
-    r = padb.get_record(16, 3)
-    assert abs(r.rho[0] - 0.2628105459E+04) < 1e-5
-    assert abs(r.rho[-1] - 0.1998952826E-16) < 1e-5
-    s = padb.get_spline(16, 3)
-    assert abs(s(np.array([0.0])) - 2661.68659449) < 1e-5
-    radii = r.rgrid.rtransform.get_radii()
-    assert radii[0] == 0.5216488380E-03
-    assert abs(radii[-1] - 20) < 1e-14
-    assert abs(radii[1] - 0.5442350204E-03) < 1e-8
-    assert abs(r.rgrid.integrate(r.rho) - 13) < 1e-3
-    # check the basics of the get_rho method (charge)
-    rho1 = padb.get_rho(16, 3)
-    rho2, deriv = padb.get_rho(16, 3, do_deriv=True)
-    assert (rho1 == rho2).all()
-    assert deriv is None
-    # check the basics of the get_rho method (dict)
-    rho1 = padb.get_rho(16, {3:1})
-    rho2, deriv = padb.get_rho(16, {3:1}, do_deriv=True)
-    assert (rho1 == rho2).all()
-    assert deriv is None

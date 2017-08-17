@@ -20,33 +20,87 @@
 # --
 
 
-from glob import glob
+import os
+import shutil
+import tempfile
+import numpy as np
 
-from horton import ProAtomDB, context
+from glob import glob
+from contextlib import contextmanager
+
+from .. proatomdb import ProAtomDB, ProAtomRecord
+from horton.grid import LinearRTransform, PowerRTransform, ExpRTransform, RadialGrid
 
 
 __all__ = [
-    'get_proatomdb_cp2k', 'get_proatomdb_hf_sto3g',
-    'get_proatomdb_hf_lan', 'check_names', 'check_proatom_splines',
+    'get_fn', 'load_molecule_npz', 'load_atoms_npz', 'check_names', 'check_proatom_splines',
 ]
 
 
-def get_proatomdb_cp2k():
-    '''Return a proatomdb of pseudo oxygens and one silicon for testing purposes'''
-    fns = glob(context.get_fn('test/atom_*.cp2k.out'))
-    return ProAtomDB.from_files(fns)
+def get_fn(fn):
+    cur_pth = os.path.split(__file__)[0]
+    return "{0}/cached/{1}".format(cur_pth, fn)
 
 
-def get_proatomdb_hf_sto3g():
-    '''Return a proatomdb of H and O at hf/sto-3g for testing purposes'''
-    fns = glob(context.get_fn('test/atom_???_???_hf_sto3g.fchk'))
-    return ProAtomDB.from_files(fns)
+def load_molecule_npz(filename, spin_dens=False):
+    # get file path
+    filepath = get_fn(filename)
+    # load npz file
+    with np.load(filepath, mmap_mode=None) as npz:
+        dens = npz['dens']
+        points = npz['points']
+        numbers = npz['numbers']
+        coordinates = npz['coordinates']
+        pseudo_numbers = npz['pseudo_numbers']
+        if spin_dens:
+            spindens = npz['spin_dens']
+            return coordinates, numbers, pseudo_numbers, dens, spindens, points
+    return coordinates, numbers, pseudo_numbers, dens, points
 
 
-def get_proatomdb_hf_lan():
-    '''Return a proatomdb of H, O, Si at hf/LANL2MB for testing purposes'''
-    fns = glob(context.get_fn('test/atom_???_???_hf_lan.fchk'))
-    return ProAtomDB.from_files(fns)
+def get_atoms_npz(numbers, max_cation, max_anion, rtf_type, level):
+    filepaths = []
+    for number in numbers:
+        nelectrons = number - np.arange(max_anion, max_cation + 1)
+        for nelec in nelectrons:
+            if level is None:
+                filename = get_fn('atom_Z%.2i_N%.2i_%s.npz' % (number, nelec, rtf_type))
+            else:
+                filename = get_fn('atom_%s_Z%.2i_N%.2i_%s.npz' % (level, number, nelec, rtf_type))
+            if os.path.isfile(filename):
+                filepaths.append(filename)
+    return filepaths
+
+
+def load_atoms_npz(numbers, max_cation, max_anion, rtf_type='pow', level=None):
+    # radial transformation available
+    rtf_classes = {'lin': LinearRTransform, 'exp': ExpRTransform, 'pow': PowerRTransform}
+    # get filepath of atoms npz
+    filepaths = get_atoms_npz(numbers, max_cation, max_anion, rtf_type, level)
+    # load each file into a record
+    records = []
+    rtfclass = rtf_classes[rtf_type]
+    for filepath in filepaths:
+        with np.load(filepath, mmap_mode=None) as npz:
+            number, charge, energy = int(npz['number']), int(npz['charge']), float(npz['energy'])
+            dens, deriv = npz['dens'], npz['deriv']
+            rgrid = RadialGrid(rtfclass(*npz['rgrid']))
+            if 'pseudo_number' in list(npz.keys()):
+                pseudo_number = npz['pseudo_number']
+            else:
+                pseudo_number = None
+            record = ProAtomRecord(number, charge, energy, rgrid, dens, deriv, pseudo_number=pseudo_number)
+            records.append(record)
+    return records
+
+
+@contextmanager
+def tmpdir(name):
+    dn = tempfile.mkdtemp(name)
+    try:
+        yield dn
+    finally:
+        shutil.rmtree(dn)
 
 
 def check_names(names, part):
@@ -55,7 +109,7 @@ def check_names(names, part):
 
 
 def check_proatom_splines(part):
-    for index in xrange(part.natom):
+    for index in range(part.natom):
         spline = part.get_proatom_spline(index)
         grid = part.get_grid(index)
         array1 = grid.zeros()

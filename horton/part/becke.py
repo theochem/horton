@@ -18,23 +18,23 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Becke partitioning'''
+"""Becke partitioning"""
 
+
+from __future__ import print_function
 
 import numpy as np
 
-from horton.grid.cext import becke_helper_atom
-from horton.log import log, timer, biblio
-from horton.part.base import WPart
-from horton.periodic import periodic
-from horton.units import angstrom
+from .base import WPart
+from .utils import angstrom, radius_becke, radius_covalent
+from horton.grid import becke_helper_atom
 
 
 __all__ = ['BeckeWPart']
 
 
 class BeckeWPart(WPart):
-    '''Becke partitioning with Becke-Lebedev grids'''
+    """Becke partitioning with Becke-Lebedev grids"""
 
     name = 'b'
     options = ['lmax', 'k']
@@ -42,54 +42,52 @@ class BeckeWPart(WPart):
 
     def __init__(self, coordinates, numbers, pseudo_numbers, grid, moldens,
                  spindens=None, local=True, lmax=3, k=3):
-        '''
+        """
            **Optional arguments:** (that are not defined in ``WPart``)
 
            k
                 The order of the polynomials used in the Becke partitioning.
-        '''
+        """
         self._k = k
         WPart.__init__(self, coordinates, numbers, pseudo_numbers, grid,
                        moldens, spindens, local, lmax)
 
     def _init_log_scheme(self):
-        if log.do_medium:
-            log.deflist([
-                ('Scheme', 'Becke'),
-                ('Switching function', 'k=%i' % self._k),
-            ])
-            biblio.cite('becke1988_multicenter', 'the use of Becke partitioning')
-            biblio.cite('slater1964', 'the Brag-Slater radii used in the Becke partitioning')
+        print('5: Initialized: %s' % self)
+        print([
+            ('5: Scheme', 'Becke'),
+            ('5: Switching function', 'k=%i' % self._k),
+        ])
+        self.biblio.append(['becke1988_multicenter', 'the use of Becke partitioning'])
+        self.biblio.append(['slater1964', 'the Brag-Slater radii used in the Becke partitioning'])
 
-    @timer.with_section('Becke part')
     def update_at_weights(self):
-        if log.do_medium:
-            log('Computing Becke weights.')
+        print('5:Computing Becke weights.')
 
         # The list of radii is constructed to be as close as possible to
         # the original values used by Becke.
         radii = []
         for number in self.numbers:
             if number == 1:
-                radius = 0.35*angstrom # exception defined in Becke's paper
+                # exception defined in Becke's paper
+                radius = 0.35 * angstrom
             else:
-                radius = periodic[number].becke_radius
-                if radius is None: # for cases not covered by Brag-Slater
-                    radius = periodic[number].cov_radius
+                radius = radius_becke[number]
+                if radius is None:
+                    # for cases not covered by Brag-Slater
+                    radius = radius_covalent[number]
             radii.append(radius)
         radii = np.array(radii)
 
         # Actual work
-        pb = log.progress(self.natom)
-        for index in xrange(self.natom):
+        for index in range(self.natom):
             grid = self.get_grid(index)
             at_weights = self.cache.load('at_weights', index, alloc=grid.shape)[0]
             at_weights[:] = 1
             becke_helper_atom(grid.points, at_weights, radii, self.coordinates, index, self._k)
-            pb()
 
     def _get_k(self):
-        '''The order of the Becke switching function.'''
+        """The order of the Becke switching function."""
         return self._k
 
     k = property(_get_k)
