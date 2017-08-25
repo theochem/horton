@@ -20,17 +20,22 @@
 # --
 
 
+
 import numpy as np
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from horton.meanfield.test.common import get_obasis, load_orbs_alpha, load_orbs_beta
+from horton.part import get_mulliken_operators
+from .. import compute_noninteracting_response
 
 
-def check_response(fn):
-    mol = IOData.from_file(fn)
-    operators = get_mulliken_operators(mol.obasis)
-    orbs = [mol.orb_alpha]
-    if hasattr(mol, 'orb_beta'):
-        orbs.append(mol.orb_beta)
+def check_response(fname):
+    operators = get_mulliken_operators(get_obasis(fname))
+    orbs = [load_orbs_alpha(fname)]
+    try:
+        orbs.append(load_orbs_beta(fname))
+    except IOError:
+        pass
+
     for orb in orbs:
         response = compute_noninteracting_response(orb, operators)
         assert np.isfinite(response).all()
@@ -41,15 +46,15 @@ def check_response(fn):
 
 
 def test_response_water_sto3g():
-    fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
-    check_response(fn_fchk)
+    fname = 'water_sto3g_hf_g03_fchk'
+    check_response(fname)
 
 
 def test_response_h3_321g():
-    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    check_response(fn_fchk)
+    fname = 'h3_hfs_321g_fchk'
+    check_response(fname)
 
-
-def test_response_benzene():
-    fn_fchk = context.get_fn('test/benzene-sto3g.fchk')
-    check_response(fn_fchk)
+# TODO: Move to higher level test
+# def test_response_benzene():
+#     fname = 'benzene_sto3g_fchk'
+#     check_response(fname)

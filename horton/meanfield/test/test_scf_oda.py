@@ -24,11 +24,13 @@ import numpy as np
 from nose.plugins.attrib import attr
 from nose.tools import assert_raises
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from .common import check_hf_cs_hf, check_lih_os_hf, \
     check_water_cs_hfs, check_n2_cs_hfs, check_h3_os_hfs, check_h3_os_pbe, \
-    check_co_cs_pbe, check_vanadium_sc_hf, check_water_cs_m05, \
-    check_methyl_os_tpss
+    check_co_cs_pbe, check_water_cs_m05, \
+    check_methyl_os_tpss, load_mdata, load_olp, load_kin, load_na, load_er, load_orbs_alpha, \
+    load_orbs_beta
+from .. import ODASCFSolver, AufbauSpinOccModel, UTwoIndexTerm, UDirectTerm, \
+    UExchangeTerm, UEffHam, guess_core_hamiltonian, check_dm
 
 
 def test_hf_cs_hf():
@@ -63,9 +65,10 @@ def test_h3_os_pbe():
     check_h3_os_pbe(ODASCFSolver(threshold=1e-6))
 
 
-def test_vanadium_sc_hf():
-    with assert_raises(NoSCFConvergence):
-        check_vanadium_sc_hf(ODASCFSolver(threshold=1e-10, maxiter=10))
+# TODO: Move to higher level test
+# def test_vanadium_sc_hf():
+#     with assert_raises(NoSCFConvergence):
+#         check_vanadium_sc_hf(ODASCFSolver(threshold=1e-10, maxiter=10))
 
 
 def test_water_cs_m05():
@@ -102,14 +105,14 @@ def test_find_min_quadratic():
 
 
 def test_aufbau_spin():
-    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    mol = IOData.from_file(fn_fchk)
+    fname = 'li_h_3_21G_hf_g09_fchk'
+    mdata = load_mdata(fname)
     occ_model = AufbauSpinOccModel(3)
 
-    olp = mol.obasis.compute_overlap()
-    kin = mol.obasis.compute_kinetic()
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
-    er = mol.obasis.compute_electron_repulsion()
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
+    er = load_er(fname)
     terms = [
         UTwoIndexTerm(kin, 'kin'),
         UDirectTerm(er, 'hartree'),
@@ -119,10 +122,12 @@ def test_aufbau_spin():
     ham = UEffHam(terms)
 
     # Construct an initial state with unstable spin polarization
-    guess_core_hamiltonian(olp, kin + na, mol.orb_alpha, mol.orb_beta)
-    mol.orb_alpha.occupations[:3] = 1
-    mol.orb_beta.occupations[:] = 0
-    dms = [mol.orb_alpha.to_dm(), mol.orb_beta.to_dm()]
+    orb_alpha = load_orbs_alpha(fname)
+    orb_beta = load_orbs_beta(fname)
+    guess_core_hamiltonian(olp, kin + na, orb_alpha, orb_beta)
+    orb_alpha.occupations[:3] = 1
+    orb_beta.occupations[:] = 0
+    dms = [orb_alpha.to_dm(), orb_beta.to_dm()]
 
     # converge scf and check the spins
     scf_solver = ODASCFSolver(1e-6)  # On some machines, 1e-8 does not work.

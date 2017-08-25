@@ -24,8 +24,10 @@ import h5py as h5
 import numpy as np
 from nose.tools import assert_raises
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from horton.meanfield.test.common import load_mdata, load_olp, load_orbs_alpha, load_orbs_beta, \
+    load_dm
 from horton.test.common import numpy_seed
+from .. import Orbitals
 
 
 #
@@ -254,10 +256,10 @@ def test_orbitals_from_fock_and_dm():
 
 
 def test_orbitals_naturals():
-    fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    overlap = mol.obasis.compute_overlap()
-    dm = mol.orb_alpha.to_dm()
+    fname = 'ch3_hf_sto3g_fchk'
+    mdata = load_mdata(fname)
+    overlap = load_olp(fname)
+    dm = load_orbs_alpha(fname).to_dm()
     orb = Orbitals(dm.shape[0])
     orb.derive_naturals(dm, overlap)
     assert orb.occupations.min() > -1e-6
@@ -266,53 +268,53 @@ def test_orbitals_naturals():
 
 
 def test_orbitals_homo_lumo_ch3_hf():
-    fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    assert mol.orb_alpha.get_homo_index() == 4
-    assert mol.orb_beta.get_homo_index() == 3
-    assert mol.orb_alpha.get_lumo_index() == 5
-    assert mol.orb_beta.get_lumo_index() == 4
-    assert mol.orb_alpha.get_homo_index(1) == 3
-    assert mol.orb_beta.get_homo_index(1) == 2
-    assert mol.orb_alpha.get_lumo_index(1) == 6
-    assert mol.orb_beta.get_lumo_index(1) == 5
-    assert abs(mol.orb_alpha.get_homo_energy() - -3.63936540E-01) < 1e-8
-    assert abs(mol.orb_alpha.get_homo_energy(1) - -5.37273275E-01) < 1e-8
-    assert abs(mol.orb_alpha.get_lumo_energy() - 6.48361367E-01) < 1e-8
-    assert abs(mol.orb_beta.get_homo_energy() - -5.18988806E-01) < 1e-8
-    assert abs(mol.orb_beta.get_homo_energy(1) - -5.19454722E-01) < 1e-8
-    assert abs(mol.orb_beta.get_lumo_energy() - 3.28562907E-01) < 1e-8
-    assert abs(mol.orb_alpha.homo_energy - -3.63936540E-01) < 1e-8
-    assert abs(mol.orb_alpha.lumo_energy - 6.48361367E-01) < 1e-8
-    assert abs(mol.orb_beta.homo_energy - -5.18988806E-01) < 1e-8
-    assert abs(mol.orb_beta.lumo_energy - 3.28562907E-01) < 1e-8
+    fname = 'ch3_hf_sto3g_fchk'
+    mdata = load_mdata(fname)
+    assert load_orbs_alpha(fname).get_homo_index() == 4
+    assert load_orbs_beta(fname).get_homo_index() == 3
+    assert load_orbs_alpha(fname).get_lumo_index() == 5
+    assert load_orbs_beta(fname).get_lumo_index() == 4
+    assert load_orbs_alpha(fname).get_homo_index(1) == 3
+    assert load_orbs_beta(fname).get_homo_index(1) == 2
+    assert load_orbs_alpha(fname).get_lumo_index(1) == 6
+    assert load_orbs_beta(fname).get_lumo_index(1) == 5
+    assert abs(load_orbs_alpha(fname).get_homo_energy() - -3.63936540E-01) < 1e-8
+    assert abs(load_orbs_alpha(fname).get_homo_energy(1) - -5.37273275E-01) < 1e-8
+    assert abs(load_orbs_alpha(fname).get_lumo_energy() - 6.48361367E-01) < 1e-8
+    assert abs(load_orbs_beta(fname).get_homo_energy() - -5.18988806E-01) < 1e-8
+    assert abs(load_orbs_beta(fname).get_homo_energy(1) - -5.19454722E-01) < 1e-8
+    assert abs(load_orbs_beta(fname).get_lumo_energy() - 3.28562907E-01) < 1e-8
+    assert abs(load_orbs_alpha(fname).homo_energy - -3.63936540E-01) < 1e-8
+    assert abs(load_orbs_alpha(fname).lumo_energy - 6.48361367E-01) < 1e-8
+    assert abs(load_orbs_beta(fname).homo_energy - -5.18988806E-01) < 1e-8
+    assert abs(load_orbs_beta(fname).lumo_energy - 3.28562907E-01) < 1e-8
     with assert_raises(ValueError):
-        mol.orb_alpha.get_homo_index(-1)
+        load_orbs_alpha(fname).get_homo_index(-1)
     with assert_raises(ValueError):
-        mol.orb_alpha.get_lumo_index(-1)
+        load_orbs_alpha(fname).get_lumo_index(-1)
 
 
 def test_orbitals_to_dm1():
-    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    dm = mol.orb_alpha.to_dm()
+    fname = 'water_hfs_321g_fchk'
+    mdata = load_mdata(fname)
+    dm = load_orbs_alpha(fname).to_dm()
     dm *= 2
-    np.testing.assert_almost_equal(dm, mol.get_dm_full())
+    np.testing.assert_almost_equal(dm, load_dm(fname))
     np.testing.assert_almost_equal(dm, dm.T)
 
 
 def test_orbitals_to_dm2():
-    fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    dm = mol.orb_alpha.to_dm() + mol.orb_beta.to_dm()
-    np.testing.assert_almost_equal(dm, mol.get_dm_full())
+    fname = 'ch3_hf_sto3g_fchk'
+    mdata = load_mdata(fname)
+    dm = load_orbs_alpha(fname).to_dm() + load_orbs_beta(fname).to_dm()
+    np.testing.assert_almost_equal(dm, load_dm(fname))
     np.testing.assert_almost_equal(dm, dm.T)
 
 
 def test_orbitals_to_dm3():
-    fn_fchk = context.get_fn('test/ch3_hf_sto3g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    dm = mol.orb_alpha.to_dm(other=mol.orb_beta)
+    fname = 'ch3_hf_sto3g_fchk'
+    mdata = load_mdata(fname)
+    dm = load_orbs_alpha(fname).to_dm(other=load_orbs_beta(fname))
     assert (dm != dm.T).any()
 
 

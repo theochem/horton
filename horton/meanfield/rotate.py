@@ -22,13 +22,13 @@
 
 import numpy as np
 
-from .utils import fac2
 from horton.meanfield.moments import get_cartesian_powers, rotate_cartesian_multipole
+from .utils import fac2
 
 __all__ = ['rotate_coeffs']
 
 
-def rotate_coeffs(coeffs, obasis, rmat):
+def rotate_coeffs(coeffs, shell_types, rmat):
     """Apply a rotation to all cartesian basis functions.
 
        **Arguments:**
@@ -43,19 +43,19 @@ def rotate_coeffs(coeffs, obasis, rmat):
        rmat
             The rotation matrix.
     """
-    if obasis.nbasis != coeffs.shape[0]:
-        raise TypeError('The shape of the coefficients array does not match the basis set size')
-    if obasis.shell_types.min() < 0:
+    if shell_types.min() < 0:
         raise TypeError('Pure functions are not supported in rotate_coeffs.')
+
+    nshell = shell_types.size
 
     result = np.zeros(coeffs.shape)
 
     # 1) undo the part normalization of the basis functions due to the cartesian powers
-    lmax = obasis.shell_types.max()
+    lmax = shell_types.max()
     powers = get_cartesian_powers(lmax)
     factors = []
-    for ishell in xrange(obasis.nshell):
-        shell_type = obasis.shell_types[ishell]
+    for ishell in xrange(nshell):
+        shell_type = shell_types[ishell]
         icart0 = ((shell_type + 2) * (shell_type + 1) * shell_type) / 6
         shellsize = ((shell_type + 2) * (shell_type + 1)) / 2
         for ifn in xrange(shellsize):
@@ -69,8 +69,8 @@ def rotate_coeffs(coeffs, obasis, rmat):
 
     # 2) the actual rotation
     ibasis0 = 0
-    for ishell in xrange(obasis.nshell):
-        shell_type = obasis.shell_types[ishell]
+    for ishell in xrange(nshell):
+        shell_type = shell_types[ishell]
         shellsize = ((shell_type + 2) * (shell_type + 1)) / 2
         for iorb in xrange(coeffs.shape[1]):
             result[ibasis0:ibasis0 + shellsize, iorb] = rotate_cartesian_multipole(rmat, coeffs[

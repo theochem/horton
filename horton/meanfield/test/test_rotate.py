@@ -20,41 +20,49 @@
 # --
 
 
+
 import numpy as np
 from nose.plugins.attrib import attr
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from common import load_kin, load_orbs_alpha, load_olp, get_obasis
+from horton.grid import get_random_rotation  # TODO: Remove random rotation?
+from .. import Orbitals
+from ..rotate import rotate_coeffs
 
 
 @attr('slow')
 def test_rotation_energy():
-    mol = IOData.from_file(context.get_fn('test/he_spdf_orbital.fchk'))
-    kin = mol.obasis.compute_kinetic()
-    e0 = np.einsum('ab,ba', kin, mol.orb_alpha.to_dm())
+    fname = 'he_spdf_orbital_fchk'
+    kin = load_kin(fname)
+    e0 = np.einsum('ab,ba', kin, load_orbs_alpha(fname).to_dm())
     for irep in xrange(100):
         rmat = get_random_rotation()
-        mol.orb_alpha.coeffs[:] = rotate_coeffs(mol.orb_alpha.coeffs, mol.obasis, rmat)
-        e1 = np.einsum('ab,ba', kin, mol.orb_alpha.to_dm())
+        orb_alpha = load_orbs_alpha(fname)
+        orb_alpha.coeffs[:] = rotate_coeffs(load_orbs_alpha(fname).coeffs,
+                                            get_obasis(fname).shell_types, rmat)
+        e1 = np.einsum('ab,ba', kin, load_orbs_alpha(fname).to_dm())
         assert abs(e0 - e1) < 1e-10
 
 
 def test_rotation_sp():
-    mol = IOData.from_file(context.get_fn('test/he_sp_orbital.fchk'))
+    fname = 'he_sp_orbital_fchk'
     rmat = np.array([[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]])
-    assert (mol.orb_alpha.coeffs[5:7, 3:5] == [[0, 1], [1, 0]]).all()
-    mol.orb_alpha.coeffs[:] = rotate_coeffs(mol.orb_alpha.coeffs, mol.obasis, rmat)
-    assert (mol.orb_alpha.coeffs[5:7, 3:5] == [[-1, 0], [0, 1]]).all()
+    assert (load_orbs_alpha(fname).coeffs[5:7, 3:5] == [[0, 1], [1, 0]]).all()
+    orb_alpha = load_orbs_alpha(fname)
+    orb_alpha.coeffs[:] = rotate_coeffs(load_orbs_alpha(fname).coeffs,
+                                        get_obasis(fname).shell_types, rmat)
+    assert (orb_alpha.coeffs[5:7, 3:5] == [[-1, 0], [0, 1]]).all()
 
 
-def test_rotation_orhonormal():
-    obasis = get_gobasis(np.zeros((1, 3)), np.array([10]), 'cc-pvtz', pure=False)
-    overlap = obasis.compute_overlap()
+def test_rotation_orthonormal():
+    # obasis = get_gobasis(np.zeros((1, 3)), np.array([10]), 'cc-pvtz', pure=False)
+    overlap = load_olp("rotation_orthonormal")
 
     def helper(begin, end):
         # prepare random orbitals in selected range
         norb = end - begin
         assert norb > 0
-        orb = Orbitals(obasis.nbasis)
+        orb = Orbitals(overlap.shape[0])
         orb.occupations[:norb] = 1
         # fill with random orbitals and lowdin orthogonalize
         # orb.coeffs[begin:end,:norb] = np.random.normal(0, 1, (norb, norb))
@@ -69,7 +77,8 @@ def test_rotation_orhonormal():
         rmat = get_random_rotation()
         # rmat = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]])
         # rmat = get_rotation_matrix(np.array([0, 0, 1]), np.pi/4)
-        orb.coeffs[:, :norb] = rotate_coeffs(orb.coeffs[:, :norb], obasis, rmat)
+        shell_types = np.array([0, 0, 0, 0, 1, 1, 1, 2, 2, 3])  # From test system
+        orb.coeffs[:, :norb] = rotate_coeffs(orb.coeffs[:, :norb], shell_types, rmat)
         orb.check_normalization(overlap)
 
     helper(0, 4)  # all s-type basis functions

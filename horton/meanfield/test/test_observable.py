@@ -20,25 +20,28 @@
 # --
 """Unit tests for horton/meanfield/observable.py."""
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from .common import check_dot_hessian, \
-    check_dot_hessian_polynomial, check_dot_hessian_cache
+    check_dot_hessian_polynomial, check_dot_hessian_cache, load_orbsa_dms, load_orbsb_dms, load_olp, \
+    load_kin, load_na, load_er, load_er_chol, load_orbs_alpha, load_orbs_beta
+
+from .. import RTwoIndexTerm, RDirectTerm, RExchangeTerm, REffHam, UTwoIndexTerm, UDirectTerm, \
+    UExchangeTerm, UEffHam
 
 
 def setup_rhf_case(cholesky=False):
     """Prepare data structures for R-HF calculation on Water."""
-    fn_fchk = context.get_fn('test/water_sto3g_hf_g03.fchk')
-    mol = IOData.from_file(fn_fchk)
-    mol.dm_alpha = mol.orb_alpha.to_dm()
+    fname = 'water_sto3g_hf_g03_fchk'
+    dm_alpha = load_orbsa_dms(fname)
+    orb_alpha = load_orbs_alpha(fname)
 
     # RHF Effective Hamiltonian
-    olp = mol.obasis.compute_overlap()
-    core = mol.obasis.compute_kinetic()
-    mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, core)
+    olp = load_olp(fname)
+    core = load_kin(fname)
+    core += load_na(fname)
     if cholesky:
-        er = mol.obasis.compute_electron_repulsion_cholesky()
+        er = load_er_chol(fname)
     else:
-        er = mol.obasis.compute_electron_repulsion()
+        er = load_er(fname)
     terms = [
         RTwoIndexTerm(core, 'core'),
         RDirectTerm(er, 'hartree'),
@@ -46,51 +49,53 @@ def setup_rhf_case(cholesky=False):
     ]
     ham = REffHam(terms)
 
-    return mol, olp, core, ham
+    return dm_alpha, olp, core, ham, orb_alpha
 
 
 def test_dot_hessian_rhf_polynomial():
-    mol, olp, core, ham = setup_rhf_case()
-    check_dot_hessian_polynomial(olp, core, ham, [mol.orb_alpha])
+    dma, olp, core, ham, orb_alpha = setup_rhf_case()
+    check_dot_hessian_polynomial(olp, core, ham, [orb_alpha])
 
 
 def test_dot_hessian_rhf_fd():
-    mol, _olp, _core, ham = setup_rhf_case()
-    check_dot_hessian(ham, mol.dm_alpha)
+    dma, olp, core, ham, orb_alpha = setup_rhf_case()
+    check_dot_hessian(ham, dma)
 
 
 def test_cache_dot_hessian_rhf():
-    mol, _olp, _core, ham = setup_rhf_case()
-    check_dot_hessian_cache(ham, mol.dm_alpha)
+    dma, olp, core, ham, orb_alpha = setup_rhf_case()
+    check_dot_hessian_cache(ham, dma)
 
 
 def test_dot_hessian_rhf_polynomial_cholesky():
-    mol, olp, core, ham = setup_rhf_case(True)
-    check_dot_hessian_polynomial(olp, core, ham, [mol.orb_alpha])
+    dma, olp, core, ham, orb_alpha = setup_rhf_case(True)
+    check_dot_hessian_polynomial(olp, core, ham, [orb_alpha])
 
 
 def test_dot_hessian_rhf_fd_cholesky():
-    mol, _olp, _core, ham = setup_rhf_case(True)
-    check_dot_hessian(ham, mol.dm_alpha)
+    dma, olp, core, ham, orb_alpha = setup_rhf_case(True)
+    check_dot_hessian(ham, dma)
 
 
 def test_cache_dot_hessian_rhf_cholesky():
-    mol, _olp, _core, ham = setup_rhf_case(True)
-    check_dot_hessian_cache(ham, mol.dm_alpha)
+    dma, olp, core, ham, orb_alpha = setup_rhf_case(True)
+    check_dot_hessian_cache(ham, dma)
 
 
 def setup_uhf_case(cholesky=False):
     """Prepare data structures for UHF calculation."""
-    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    mol.dm_alpha = mol.orb_alpha.to_dm()
-    mol.dm_beta = mol.orb_beta.to_dm()
+    fname = 'h3_hfs_321g_fchk'
+    dma = load_orbsa_dms(fname)
+    dmb = load_orbsb_dms(fname)
+
+    orb_alpha = load_orbs_alpha(fname)
+    orb_beta = load_orbs_beta(fname)
 
     # UHF Effective Hamiltonian
-    olp = mol.obasis.compute_overlap()
-    core = mol.obasis.compute_kinetic()
-    mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers, core)
-    er = mol.obasis.compute_electron_repulsion()
+    olp = load_olp(fname)
+    core = load_kin(fname)
+    core += load_na(fname)
+    er = load_er(fname)
     terms = [
         UTwoIndexTerm(core, 'core'),
         UDirectTerm(er, 'hartree'),
@@ -98,34 +103,34 @@ def setup_uhf_case(cholesky=False):
     ]
     ham = UEffHam(terms)
 
-    return mol, olp, core, ham
+    return dma, dmb, olp, core, ham, orb_alpha, orb_beta
 
 
 def test_dot_hessian_uhf_polynomial():
-    mol, olp, core, ham = setup_uhf_case()
-    check_dot_hessian_polynomial(olp, core, ham, [mol.orb_alpha, mol.orb_beta])
+    dma, dmb, olp, core, ham, orb_alpha, orb_beta = setup_uhf_case()
+    check_dot_hessian_polynomial(olp, core, ham, [orb_alpha, orb_beta])
 
 
 def test_dot_hessian_uhf_fd():
-    mol, _olp, _core, ham = setup_uhf_case()
-    check_dot_hessian(ham, mol.dm_alpha, mol.dm_beta)
+    dma, dmb, olp, core, ham, orb_alpha, orb_beta = setup_uhf_case()
+    check_dot_hessian(ham, dma, dmb)
 
 
 def test_cache_dot_hessian_uhf():
-    mol, _olp, _core, ham = setup_uhf_case()
-    check_dot_hessian_cache(ham, mol.dm_alpha, mol.dm_beta)
+    dma, dmb, olp, core, ham, orb_alpha, orb_beta = setup_uhf_case()
+    check_dot_hessian_cache(ham, dma, dmb)
 
 
 def test_dot_hessian_uhf_polynomial_cholesky():
-    mol, olp, core, ham = setup_uhf_case(True)
-    check_dot_hessian_polynomial(olp, core, ham, [mol.orb_alpha, mol.orb_beta])
+    dma, dmb, olp, core, ham, orb_alpha, orb_beta = setup_uhf_case(True)
+    check_dot_hessian_polynomial(olp, core, ham, [orb_alpha, orb_beta])
 
 
 def test_dot_hessian_uhf_fd_cholesky():
-    mol, _olp, _core, ham = setup_uhf_case(True)
-    check_dot_hessian(ham, mol.dm_alpha, mol.dm_beta)
+    dma, dmb, olp, core, ham, orb_alpha, orb_beta = setup_uhf_case(True)
+    check_dot_hessian(ham, dma, dmb)
 
 
 def test_cache_dot_hessian_uhf_cholesky():
-    mol, _olp, _core, ham = setup_uhf_case(True)
-    check_dot_hessian_cache(ham, mol.dm_alpha, mol.dm_beta)
+    dma, dmb, olp, core, ham, orb_alpha, orb_beta = setup_uhf_case(True)
+    check_dot_hessian_cache(ham, dma, dmb)

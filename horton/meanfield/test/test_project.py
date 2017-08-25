@@ -25,41 +25,41 @@ from .common import helper_compute
 
 
 def test_project_msg_identical():
-    mol = IOData.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    mol = IOData.from_file(context.get_fn('test/water_sto3g_hf_g03_fchk'))
     orb = Orbitals(mol.obasis.nbasis)
-    project_orbitals_mgs(mol.obasis, mol.obasis, mol.orb_alpha, orb)
+    project_orbitals_mgs(mol.obasis, mol.obasis, load_orbs_alpha(fname), orb)
     assert (orb.energies == 0.0).all()
-    assert (orb.occupations == mol.orb_alpha.occupations).all()
-    assert abs(orb.coeffs[:, :-2] - mol.orb_alpha.coeffs[:, :-2]).max() < 1e-9
+    assert (orb.occupations == load_orbs_alpha(fname).occupations).all()
+    assert abs(orb.coeffs[:, :-2] - load_orbs_alpha(fname).coeffs[:, :-2]).max() < 1e-9
     assert (orb.coeffs[:, -2:] == 0.0).all()
 
 
 def test_project_ortho_basis_identical():
-    mol = IOData.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    mol = IOData.from_file(context.get_fn('test/water_sto3g_hf_g03_fchk'))
     orb = Orbitals(mol.obasis.nbasis)
-    project_orbitals_ortho(mol.obasis, mol.obasis, mol.orb_alpha, orb)
+    project_orbitals_ortho(mol.obasis, mol.obasis, load_orbs_alpha(fname), orb)
     assert (orb.energies == 0.0).all()
-    assert (orb.occupations == mol.orb_alpha.occupations).all()
-    assert abs(orb.coeffs - mol.orb_alpha.coeffs).max() < 1e-9
+    assert (orb.occupations == load_orbs_alpha(fname).occupations).all()
+    assert abs(orb.coeffs - load_orbs_alpha(fname).coeffs).max() < 1e-9
 
 
 def test_project_ortho_olp_identical():
-    mol = IOData.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    mol = IOData.from_file(context.get_fn('test/water_sto3g_hf_g03_fchk'))
     orb = Orbitals(mol.obasis.nbasis)
-    project_orbitals_ortho(mol.obasis, mol.obasis, mol.orb_alpha, orb)
+    project_orbitals_ortho(mol.obasis, mol.obasis, load_orbs_alpha(fname), orb)
     assert (orb.energies == 0.0).all()
-    assert (orb.occupations == mol.orb_alpha.occupations).all()
-    assert abs(orb.coeffs - mol.orb_alpha.coeffs).max() < 1e-9
+    assert (orb.occupations == load_orbs_alpha(fname).occupations).all()
+    assert abs(orb.coeffs - load_orbs_alpha(fname).coeffs).max() < 1e-9
 
 
 def test_project_msg_larger():
     # Load STO3G system and keep essential results
-    mol = IOData.from_file(context.get_fn('test/water_sto3g_hf_g03.fchk'))
+    mol = IOData.from_file(context.get_fn('test/water_sto3g_hf_g03_fchk'))
     obasis0 = mol.obasis
-    orb0 = mol.orb_alpha
+    orb0 = load_orbs_alpha(fname)
 
     # Upgrade the basis to 3-21G and project
-    obasis1 = get_gobasis(mol.coordinates, mol.numbers, '3-21G')
+    obasis1 = get_gobasis(mdata['coordinates'], mdata['numbers'], '3-21G')
     orb1 = Orbitals(obasis1.nbasis)
     project_orbitals_mgs(obasis0, obasis1, orb0, orb1)
     assert (orb1.energies == 0.0).all()
@@ -72,7 +72,7 @@ def test_project_msg_larger():
 
     # Setup HF hamiltonian and compute energy
     kin = obasis1.compute_kinetic()
-    na = obasis1.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    na = obasis1.compute_nuclear_attraction(mdata['coordinates'], mdata['pseudo_numbers'])
     er = obasis1.compute_electron_repulsion()
     terms = [
         RTwoIndexTerm(kin, 'kin'),
@@ -100,13 +100,13 @@ def test_project_msg_larger():
 
 def test_project_msg_smaller():
     # Load 3-21G system and keep essential results
-    mol = IOData.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
+    mol = IOData.from_file(context.get_fn('test/li_h_3_21G_hf_g09_fchk'))
     obasis0 = mol.obasis
-    orb0_alpha = mol.orb_alpha
-    orb0_beta = mol.orb_beta
+    orb0_alpha = load_orbs_alpha(fname)
+    orb0_beta = load_orbs_beta(fname)
 
     # Downgrade the basis to sto-3g and project
-    obasis1 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
+    obasis1 = get_gobasis(mdata['coordinates'], mdata['numbers'], 'sto-3g')
     orb1_alpha = Orbitals(obasis1.nbasis)
     orb1_beta = Orbitals(obasis1.nbasis)
     project_orbitals_mgs(obasis0, obasis1, orb0_alpha, orb1_alpha)
@@ -125,7 +125,7 @@ def test_project_msg_smaller():
 
     # Setup HF hamiltonian and compute energy
     kin = obasis1.compute_kinetic()
-    na = obasis1.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    na = obasis1.compute_nuclear_attraction(mdata['coordinates'], mdata['pseudo_numbers'])
     er = obasis1.compute_electron_repulsion()
     terms = [
         UTwoIndexTerm(kin, 'kin'),
@@ -149,7 +149,7 @@ def get_basis_pair_geometry():
     """Prepare two basis sets that only differ in geometry"""
     # Create initial system
     mol = IOData.from_file(context.get_fn('test/water.xyz'))
-    obasis0 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
+    obasis0 = get_gobasis(mdata['coordinates'], mdata['numbers'], 'sto-3g')
     orb0 = Orbitals(obasis0.nbasis)
 
     # Occupy all orbitals such that orthogonality is well tested
@@ -158,16 +158,16 @@ def get_basis_pair_geometry():
     # core-hamiltonian guess
     olp = obasis0.compute_overlap()
     kin = obasis0.compute_kinetic()
-    na = obasis0.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    na = obasis0.compute_nuclear_attraction(mdata['coordinates'], mdata['pseudo_numbers'])
     guess_core_hamiltonian(olp, kin + na, orb0)
 
     # Internal consistency check
     orb0.check_orthonormality(obasis0.compute_overlap())
 
     # Change geometry
-    mol.coordinates[1, 2] += 0.5
-    mol.coordinates[0, 1] -= 1.5
-    obasis1 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
+    mdata['coordinates'][1, 2] += 0.5
+    mdata['coordinates'][0, 1] -= 1.5
+    obasis1 = get_gobasis(mdata['coordinates'], mdata['numbers'], 'sto-3g')
     orb1 = Orbitals(obasis1.nbasis)
 
     return obasis0, obasis1, orb0, orb1

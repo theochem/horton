@@ -20,357 +20,381 @@
 # --
 
 
+
 from nose.plugins.skip import SkipTest
 from nose.tools import assert_raises
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from horton.grid import BeckeMolGrid
 from .common import check_interpolation, \
-    check_dot_hessian, check_dot_hessian_polynomial, check_dot_hessian_cache
+    check_dot_hessian, check_dot_hessian_polynomial, check_dot_hessian_cache, load_olp, load_kin, \
+    load_na, get_obasis, load_mdata, load_orbs_alpha, load_orbsa_dms, load_orbs_beta, \
+    load_orbsb_dms, load_er
+from .. import RGridGroup, RLibXCGGA, REffHam, RLibXCLDA, RLibXCHybridGGA, UGridGroup, ULibXCGGA, \
+    RLibXCMGGA, UEffHam, ULibXCLDA, ULibXCHybridGGA, UExchangeTerm, ULibXCMGGA, RLibXCWrapper, \
+    RLibXCHybridMGGA, ULibXCHybridMGGA
 
 
 def setup_gga_cs(name):
     """Prepare data structures for R-GGA calculation in CO."""
-    fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    mol.dm_alpha = mol.orb_alpha.to_dm()
+    fname = 'co_pbe_sto3g_fchk'
+    mdata = load_mdata(fname)
+    dm_alpha = load_orbsa_dms(fname)
+    orb_alpha = load_orbs_alpha(fname)
 
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
-    olp = mol.obasis.compute_overlap()
-    kin = mol.obasis.compute_kinetic()
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    grid = BeckeMolGrid(mdata['coordinates'], mdata['numbers'], mdata['pseudo_numbers'],
+                        random_rotate=False)
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
     terms = [
-        RGridGroup(mol.obasis, grid, [
+        RGridGroup(get_obasis(fname), grid, [
             RLibXCGGA(name),
         ]),
     ]
     ham = REffHam(terms)
-    return mol, olp, kin, na, ham
+    return dm_alpha, olp, kin, na, ham, orb_alpha
 
 
 def test_cubic_interpolation_c_pbe_cs():
-    mol, olp, kin, na, ham = setup_gga_cs('c_pbe')
-    check_interpolation(ham, olp, kin, na, [mol.orb_alpha])
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_gga_cs('c_pbe')
+    check_interpolation(ham, olp, kin, na, [orb_alpha])
 
 
 def test_dot_hessian_c_pbe_cs():
-    mol, _olp, _kin, _na, ham = setup_gga_cs('c_pbe')
-    check_dot_hessian(ham, mol.dm_alpha)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_gga_cs('c_pbe')
+    check_dot_hessian(ham, dm_alpha)
 
 
 def test_dot_hessian_c_pbe_cs_polynomial():
-    mol, olp, kin, na, ham = setup_gga_cs('c_pbe')
-    check_dot_hessian_polynomial(olp, kin + na, ham, [mol.orb_alpha], is_hf=False, extent=0.00005)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_gga_cs('c_pbe')
+    check_dot_hessian_polynomial(olp, kin + na, ham, [orb_alpha], is_hf=False, extent=0.00005)
 
 
 def test_dot_hessian_c_pbe_cs_cache():
-    mol, _olp, _kin, _na, ham = setup_gga_cs('c_pbe')
-    check_dot_hessian_cache(ham, mol.dm_alpha)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_gga_cs('c_pbe')
+    check_dot_hessian_cache(ham, dm_alpha)
 
 
 def test_cubic_interpolation_x_pbe_cs():
-    mol, olp, kin, na, ham = setup_gga_cs('x_pbe')
-    check_interpolation(ham, olp, kin, na, [mol.orb_alpha])
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_gga_cs('x_pbe')
+    check_interpolation(ham, olp, kin, na, [orb_alpha])
 
 
 def test_dot_hessian_x_pbe_cs():
-    mol, _olp, _kin, _na, ham = setup_gga_cs('x_pbe')
-    check_dot_hessian(ham, mol.dm_alpha)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_gga_cs('x_pbe')
+    check_dot_hessian(ham, dm_alpha)
 
 
 def test_dot_hessian_x_pbe_cs_polynomial():
-    mol, olp, kin, na, ham = setup_gga_cs('x_pbe')
-    check_dot_hessian_polynomial(olp, kin + na, ham, [mol.orb_alpha], is_hf=False, extent=0.00005)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_gga_cs('x_pbe')
+    check_dot_hessian_polynomial(olp, kin + na, ham, [orb_alpha], is_hf=False, extent=0.00005)
 
 
 def test_dot_hessian_x_pbe_cs_cache():
-    mol, _olp, _kin, _na, ham = setup_gga_cs('x_pbe')
-    check_dot_hessian_cache(ham, mol.dm_alpha)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_gga_cs('x_pbe')
+    check_dot_hessian_cache(ham, dm_alpha)
 
 
 def setup_hfs_cs():
     """Prepare data structures for R-HFS (x-functional-only) calculation on CO."""
-    fn_fchk = context.get_fn('test/co_pbe_sto3g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    mol.dm_alpha = mol.orb_alpha.to_dm()
+    fname = 'co_pbe_sto3g_fchk'
+    mdata = load_mdata(fname)
+    dm_alpha = load_orbsa_dms(fname)
+    orb_alpha = load_orbs_alpha(fname)
 
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers,
+    grid = BeckeMolGrid(mdata['coordinates'], mdata['numbers'], mdata['pseudo_numbers'],
                         'coarse', random_rotate=False)
-    olp = mol.obasis.compute_overlap()
-    kin = mol.obasis.compute_kinetic()
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
     terms = [
-        RGridGroup(mol.obasis, grid, [
+        RGridGroup(get_obasis(fname), grid, [
             RLibXCLDA('x'),
         ]),
     ]
     ham = REffHam(terms)
 
-    return mol, olp, kin, na, ham
+    return dm_alpha, olp, kin, na, ham, orb_alpha
 
 
 def test_cubic_interpolation_hfs_cs():
-    mol, olp, kin, na, ham = setup_hfs_cs()
-    check_interpolation(ham, olp, kin, na, [mol.orb_alpha])
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_hfs_cs()
+    check_interpolation(ham, olp, kin, na, [orb_alpha])
 
 
 def test_dot_hessian_hfs_cs():
-    mol, _olp, _kin, _na, ham = setup_hfs_cs()
-    check_dot_hessian(ham, mol.dm_alpha)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_hfs_cs()
+    check_dot_hessian(ham, dm_alpha)
 
 
 def test_dot_hessian_hfs_cs_polynomial():
-    mol, olp, kin, na, ham = setup_hfs_cs()
-    check_dot_hessian_polynomial(olp, kin + na, ham, [mol.orb_alpha], is_hf=False, extent=0.00005)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_hfs_cs()
+    check_dot_hessian_polynomial(olp, kin + na, ham, [orb_alpha], is_hf=False, extent=0.00005)
 
 
 def test_dot_hessian_hfs_cs_cache():
-    mol, _olp, _kin, _na, ham = setup_hfs_cs()
-    check_dot_hessian_cache(ham, mol.dm_alpha)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_hfs_cs()
+    check_dot_hessian_cache(ham, dm_alpha)
 
 
 def setup_x_pbe_c_vwn_cs():
     """Setup data structure for mixed GGA+LDA calculation."""
     # mixing of GGA and LDA
-    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    mol.dm_alpha = mol.orb_alpha.to_dm()
+    fname = 'water_hfs_321g_fchk'
+    mdata = load_mdata(fname)
+    dm_alpha = load_orbsa_dms(fname)
+    orb_alpha = load_orbs_alpha(fname)
 
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
-    olp = mol.obasis.compute_overlap()
-    kin = mol.obasis.compute_kinetic()
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    grid = BeckeMolGrid(mdata['coordinates'], mdata['numbers'], mdata['pseudo_numbers'],
+                        random_rotate=False)
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
     terms = [
-        RGridGroup(mol.obasis, grid, [
+        RGridGroup(get_obasis(fname), grid, [
             RLibXCGGA('x_pbe'),
             RLibXCLDA('c_vwn'),
         ]),
     ]
     ham = REffHam(terms)
-    return mol, olp, kin, na, ham
+    return dm_alpha, olp, kin, na, ham, orb_alpha
 
 
 def test_cubic_interpolation_x_pbe_c_vwn_cs():
-    mol, olp, kin, na, ham = setup_x_pbe_c_vwn_cs()
-    check_interpolation(ham, olp, kin, na, [mol.orb_alpha])
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_x_pbe_c_vwn_cs()
+    check_interpolation(ham, olp, kin, na, [orb_alpha])
 
 
 def test_dot_hessian_x_pbe_c_vwn_cs():
-    mol, _olp, _kin, _na, ham = setup_x_pbe_c_vwn_cs()
-    check_dot_hessian(ham, mol.dm_alpha)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_x_pbe_c_vwn_cs()
+    check_dot_hessian(ham, dm_alpha)
 
 
 def test_dot_hessian_x_pbe_c_vwn_cs_polynomial():
-    mol, olp, kin, na, ham = setup_x_pbe_c_vwn_cs()
-    check_dot_hessian_polynomial(olp, kin + na, ham, [mol.orb_alpha], is_hf=False, extent=0.00005)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_x_pbe_c_vwn_cs()
+    check_dot_hessian_polynomial(olp, kin + na, ham, [orb_alpha], is_hf=False, extent=0.00005)
 
 
 def test_dot_hessian_x_pbe_c_vwn_cs_cache():
-    mol, _olp, _kin, _na, ham = setup_x_pbe_c_vwn_cs()
-    check_dot_hessian_cache(ham, mol.dm_alpha)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_x_pbe_c_vwn_cs()
+    check_dot_hessian_cache(ham, dm_alpha)
 
 
 def setup_c_vwn_cs():
     """Prepare data structures for R-VWN (c-functional-only) calculation on water."""
-    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    mol.dm_alpha = mol.orb_alpha.to_dm()
+    fname = 'water_hfs_321g_fchk'
+    mdata = load_mdata(fname)
+    dm_alpha = load_orbsa_dms(fname)
+    orb_alpha = load_orbs_alpha(fname)
 
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
-    olp = mol.obasis.compute_overlap()
-    kin = mol.obasis.compute_kinetic()
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    grid = BeckeMolGrid(mdata['coordinates'], mdata['numbers'], mdata['pseudo_numbers'],
+                        random_rotate=False)
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
     terms = [
-        RGridGroup(mol.obasis, grid, [
+        RGridGroup(get_obasis(fname), grid, [
             RLibXCLDA('c_vwn'),
         ]),
     ]
     ham = REffHam(terms)
-    return mol, olp, kin, na, ham
+    return dm_alpha, olp, kin, na, ham, orb_alpha
 
 
 def test_cubic_interpolation_c_vwn_cs():
-    mol, olp, kin, na, ham = setup_c_vwn_cs()
-    check_interpolation(ham, olp, kin, na, [mol.orb_alpha])
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_c_vwn_cs()
+    check_interpolation(ham, olp, kin, na, [orb_alpha])
 
 
 def test_dot_hessian_c_vwn_cs():
-    mol, _olp, _kin, _na, ham = setup_c_vwn_cs()
-    check_dot_hessian(ham, mol.dm_alpha)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_c_vwn_cs()
+    check_dot_hessian(ham, dm_alpha)
 
 
 def test_dot_hessian_c_vwn_cs_polynomial():
-    mol, olp, kin, na, ham = setup_c_vwn_cs()
-    check_dot_hessian_polynomial(olp, kin + na, ham, [mol.orb_alpha], is_hf=False, extent=0.00005)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_c_vwn_cs()
+    check_dot_hessian_polynomial(olp, kin + na, ham, [orb_alpha], is_hf=False, extent=0.00005)
 
 
 def test_dot_hessian_c_vwn_cs_cache():
-    mol, _olp, _kin, _na, ham = setup_c_vwn_cs()
-    check_dot_hessian_cache(ham, mol.dm_alpha)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_c_vwn_cs()
+    check_dot_hessian_cache(ham, dm_alpha)
 
 
 def setup_o3lyp_cs():
     """Prepare data structures for R-O3LYP (xc-functional-only) calculation on water."""
-    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    mol.dm_alpha = mol.orb_alpha.to_dm()
+    fname = 'water_hfs_321g_fchk'
+    mdata = load_mdata(fname)
+    dm_alpha = load_orbsa_dms(fname)
+    orb_alpha = load_orbs_alpha(fname)
 
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
-    olp = mol.obasis.compute_overlap()
-    kin = mol.obasis.compute_kinetic()
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    grid = BeckeMolGrid(mdata['coordinates'], mdata['numbers'], mdata['pseudo_numbers'],
+                        random_rotate=False)
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
     libxc_term = RLibXCHybridGGA('xc_o3lyp')
     terms = [
-        RGridGroup(mol.obasis, grid, [libxc_term]),
+        RGridGroup(get_obasis(fname), grid, [libxc_term]),
     ]
     ham = REffHam(terms)
-    return mol, olp, kin, na, ham
+    return dm_alpha, olp, kin, na, ham, orb_alpha
 
 
 def test_cubic_interpolation_o3lyp_cs():
-    mol, olp, kin, na, ham = setup_o3lyp_cs()
-    check_interpolation(ham, olp, kin, na, [mol.orb_alpha])
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_o3lyp_cs()
+    check_interpolation(ham, olp, kin, na, [orb_alpha])
 
 
 def test_dot_hessian_o3lyp_cs():
-    mol, _olp, _kin, _na, ham = setup_o3lyp_cs()
-    check_dot_hessian(ham, mol.dm_alpha)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_o3lyp_cs()
+    check_dot_hessian(ham, dm_alpha)
 
 
 def test_dot_hessian_o3lyp_cs_polynomial():
     raise SkipTest("We should use more robust tests for derivatives.")
-    # mol, olp, kin, na, ham = setup_o3lyp_cs()
-    # check_dot_hessian_polynomial(olp, kin+na, ham, [mol.orb_alpha], is_hf=False, extent=0.00001)
+    # dm_alpha, olp, kin, na, ham, orb_alpha = setup_o3lyp_cs()
+    # check_dot_hessian_polynomial(olp, kin+na, ham, [orb_alpha], is_hf=False, extent=0.00001)
 
 
 def test_dot_hessian_o3lyp_cs_cache():
-    mol, _olp, _kin, _na, ham = setup_o3lyp_cs()
-    check_dot_hessian_cache(ham, mol.dm_alpha)
+    dm_alpha, olp, kin, na, ham, orb_alpha = setup_o3lyp_cs()
+    check_dot_hessian_cache(ham, dm_alpha)
 
 
 def test_cubic_interpolation_x_tpss_cs():
-    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    mol = IOData.from_file(fn_fchk)
+    fname = 'water_hfs_321g_fchk'
+    mdata = load_mdata(fname)
 
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
-    olp = mol.obasis.compute_overlap()
-    kin = mol.obasis.compute_kinetic()
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    grid = BeckeMolGrid(mdata['coordinates'], mdata['numbers'], mdata['pseudo_numbers'],
+                        random_rotate=False)
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
     terms = [
-        RGridGroup(mol.obasis, grid, [RLibXCMGGA('x_tpss')]),
+        RGridGroup(get_obasis(fname), grid, [RLibXCMGGA('x_tpss')]),
     ]
     ham = REffHam(terms)
-    check_interpolation(ham, olp, kin, na, [mol.orb_alpha])
+    check_interpolation(ham, olp, kin, na, [load_orbs_alpha(fname)])
 
 
 def test_cubic_interpolation_c_pbe_os():
-    fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
-    mol = IOData.from_file(fn_fchk)
+    fname = 'h3_pbe_321g_fchk'
+    mdata = load_mdata(fname)
 
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
-    olp = mol.obasis.compute_overlap()
-    kin = mol.obasis.compute_kinetic()
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    grid = BeckeMolGrid(mdata['coordinates'], mdata['numbers'], mdata['pseudo_numbers'],
+                        random_rotate=False)
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
     terms = [
-        UGridGroup(mol.obasis, grid, [
+        UGridGroup(get_obasis(fname), grid, [
             ULibXCGGA('c_pbe'),
         ]),
     ]
     ham = UEffHam(terms)
-    check_interpolation(ham, olp, kin, na, [mol.orb_alpha, mol.orb_beta])
+    check_interpolation(ham, olp, kin, na, [load_orbs_alpha(fname), load_orbs_beta(fname)])
 
 
 def test_cubic_interpolation_x_pbe_os():
-    fn_fchk = context.get_fn('test/h3_pbe_321g.fchk')
-    mol = IOData.from_file(fn_fchk)
+    fname = 'h3_pbe_321g_fchk'
+    mdata = load_mdata(fname)
 
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
-    olp = mol.obasis.compute_overlap()
-    kin = mol.obasis.compute_kinetic()
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    grid = BeckeMolGrid(mdata['coordinates'], mdata['numbers'], mdata['pseudo_numbers'],
+                        random_rotate=False)
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
     terms = [
-        UGridGroup(mol.obasis, grid, [
+        UGridGroup(get_obasis(fname), grid, [
             ULibXCGGA('x_pbe'),
         ]),
     ]
     ham = UEffHam(terms)
-    check_interpolation(ham, olp, kin, na, [mol.orb_alpha, mol.orb_beta])
+    check_interpolation(ham, olp, kin, na, [load_orbs_alpha(fname), load_orbs_beta(fname)])
 
 
 def setup_hfs_os():
     """Prepare data structures for U_HFS (x-functional-only) calculation in H3 radical."""
-    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    mol.dm_alpha = mol.orb_alpha.to_dm()
-    mol.dm_beta = mol.orb_beta.to_dm()
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
-    olp = mol.obasis.compute_overlap()
-    kin = mol.obasis.compute_kinetic()
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    fname = 'h3_hfs_321g_fchk'
+    mdata = load_mdata(fname)
+    dm_alpha = load_orbsa_dms(fname)
+    dm_beta = load_orbsb_dms(fname)
+    orb_alpha = load_orbs_alpha(fname)
+    orb_beta = load_orbs_beta(fname)
+    grid = BeckeMolGrid(mdata['coordinates'], mdata['numbers'], mdata['pseudo_numbers'],
+                        random_rotate=False)
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
     terms = [
-        UGridGroup(mol.obasis, grid, [
+        UGridGroup(get_obasis(fname), grid, [
             ULibXCLDA('x'),
         ]),
     ]
     ham = UEffHam(terms)
-    return mol, olp, kin, na, ham
+    return dm_alpha, dm_beta, olp, kin, na, ham, orb_alpha, orb_beta
 
 
 def test_cubic_interpolation_hfs_os():
-    mol, olp, kin, na, ham = setup_hfs_os()
-    check_interpolation(ham, olp, kin, na, [mol.orb_alpha, mol.orb_beta])
+    dm_alpha, dm_beta, olp, kin, na, ham, orb_alpha, orb_beta = setup_hfs_os()
+    check_interpolation(ham, olp, kin, na, [orb_alpha, orb_beta])
 
 
 def test_cubic_interpolation_x_pbe_c_vwn_os():
     # mixing of LDA and GGA
-    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    mol = IOData.from_file(fn_fchk)
+    fname = 'h3_hfs_321g_fchk'
+    mdata = load_mdata(fname)
 
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
-    olp = mol.obasis.compute_overlap()
-    kin = mol.obasis.compute_kinetic()
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    grid = BeckeMolGrid(mdata['coordinates'], mdata['numbers'], mdata['pseudo_numbers'],
+                        random_rotate=False)
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
     terms = [
-        UGridGroup(mol.obasis, grid, [
+        UGridGroup(get_obasis(fname), grid, [
             ULibXCGGA('x_pbe'),
             ULibXCLDA('c_vwn'),
         ]),
     ]
     ham = UEffHam(terms)
-    check_interpolation(ham, olp, kin, na, [mol.orb_alpha, mol.orb_beta])
+    check_interpolation(ham, olp, kin, na, [load_orbs_alpha(fname), load_orbs_beta(fname)])
 
 
 def test_cubic_interpolation_o3lyp_os():
-    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    mol = IOData.from_file(fn_fchk)
+    fname = 'h3_hfs_321g_fchk'
+    mdata = load_mdata(fname)
 
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
-    olp = mol.obasis.compute_overlap()
-    kin = mol.obasis.compute_kinetic()
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
-    er = mol.obasis.compute_electron_repulsion()
+    grid = BeckeMolGrid(mdata['coordinates'], mdata['numbers'], mdata['pseudo_numbers'],
+                        random_rotate=False)
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
+    er = load_er(fname)
     libxc_term = ULibXCHybridGGA('xc_o3lyp')
     terms = [
-        UGridGroup(mol.obasis, grid, [libxc_term]),
+        UGridGroup(get_obasis(fname), grid, [libxc_term]),
         UExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
     ]
     ham = UEffHam(terms)
-    check_interpolation(ham, olp, kin, na, [mol.orb_alpha, mol.orb_beta])
+    check_interpolation(ham, olp, kin, na, [load_orbs_alpha(fname), load_orbs_beta(fname)])
 
 
 def test_cubic_interpolation_x_tpss_os():
     # mixing of LDA and GGA
-    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    mol = IOData.from_file(fn_fchk)
+    fname = 'h3_hfs_321g_fchk'
+    mdata = load_mdata(fname)
 
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False)
-    olp = mol.obasis.compute_overlap()
-    kin = mol.obasis.compute_kinetic()
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    grid = BeckeMolGrid(mdata['coordinates'], mdata['numbers'], mdata['pseudo_numbers'],
+                        random_rotate=False)
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
     terms = [
-        UGridGroup(mol.obasis, grid, [ULibXCMGGA('x_tpss')]),
+        UGridGroup(get_obasis(fname), grid, [ULibXCMGGA('x_tpss')]),
     ]
     ham = UEffHam(terms)
-    check_interpolation(ham, olp, kin, na, [mol.orb_alpha, mol.orb_beta])
+    check_interpolation(ham, olp, kin, na, [load_orbs_alpha(fname), load_orbs_beta(fname)])
 
 
 def test_functionals_present():

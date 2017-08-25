@@ -22,7 +22,8 @@
 
 import numpy as np
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from .common import load_orbs_alpha, load_orbs_beta
+from .. import Orbitals, AufbauOccModel, FermiOccModel, FixedOccModel
 
 
 def test_occ_aufbau_cs():
@@ -62,47 +63,47 @@ def test_occ_aufbau_os():
 
 
 def test_fermi_occ_model_cs_helium():
-    fn_fchk = context.get_fn('test/helium_hf_sto3g.fchk')
-    mol = IOData.from_file(fn_fchk)
+    fname = 'helium_hf_sto3g_fchk'
     occ_model = FermiOccModel(1.0)
-    occ_model.assign(mol.orb_alpha)
-    assert (mol.orb_alpha.occupations == [1.0]).all()
+    occ_model.assign(load_orbs_alpha(fname))
+    assert (load_orbs_alpha(fname).occupations == [1.0]).all()
 
 
 def test_fermi_occ_model_cs():
-    fn_fchk = context.get_fn('test/water_hfs_321g.fchk')
-    mol = IOData.from_file(fn_fchk)
+    fname = 'water_hfs_321g_fchk'
     for temperature in 300, 3000, 10000, 30000:
         occ_model = FermiOccModel(5.0, temperature=temperature)
-        occ_model.assign(mol.orb_alpha)
-        occ = mol.orb_alpha.occupations
+        occ_model.assign(load_orbs_alpha(fname))
+        occ = load_orbs_alpha(fname).occupations
         assert abs(occ.sum() - 5.0) < 1e-8
         assert (occ[1:] <= occ[:-1]).all()
 
 
 def test_fermi_occ_model_os():
-    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    mol = IOData.from_file(fn_fchk)
+    fname = 'li_h_3_21G_hf_g09_fchk'
     for temperature in 300, 3000, 10000, 30000:
         occ_model = FermiOccModel(1.9, 1.1, temperature=temperature)
-        occ_model.assign(mol.orb_alpha, mol.orb_beta)
-        occ_a = mol.orb_alpha.occupations
+        orb_alpha = load_orbs_alpha(fname)
+        orb_beta = load_orbs_beta(fname)
+        occ_model.assign(orb_alpha, orb_beta)
+        occ_a = orb_alpha.occupations
         assert abs(occ_a.sum() - 1.9) < 1e-8
         assert (occ_a[1:] <= occ_a[:-1]).all()
-        occ_b = mol.orb_beta.occupations
+        occ_b = orb_beta.occupations
         assert abs(occ_b.sum() - 1.1) < 1e-8
         assert (occ_b[1:] <= occ_b[:-1]).all()
 
 
 def test_fixed_occ_model_os():
-    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    mol = IOData.from_file(fn_fchk)
+    fname = 'li_h_3_21G_hf_g09_fchk'
     occs_alpha = np.array([2.0, 0.0, 0.5])
     occs_beta = np.array([0.0, 0.5, 0.0, 0.0])
     occ_model = FixedOccModel(occs_alpha, occs_beta)
-    mol.orb_alpha.occupations[:] = 0.2
-    occ_model.assign(mol.orb_alpha, mol.orb_beta)
-    assert (mol.orb_alpha.occupations[:len(occs_alpha)] == occs_alpha).all()
-    assert (mol.orb_alpha.occupations[len(occs_alpha):] == 0.0).all()
-    assert (mol.orb_beta.occupations[:len(occs_beta)] == occs_beta).all()
-    assert (mol.orb_beta.occupations[len(occs_beta):] == 0.0).all()
+    load_orbs_alpha(fname).occupations[:] = 0.2
+    orb_alpha = load_orbs_alpha(fname)
+    orb_beta = load_orbs_beta(fname)
+    occ_model.assign(orb_alpha, orb_beta)
+    assert (orb_alpha.occupations[:len(occs_alpha)] == occs_alpha).all()
+    assert (orb_alpha.occupations[len(occs_alpha):] == 0.0).all()
+    assert (orb_beta.occupations[:len(occs_beta)] == occs_beta).all()
+    assert (orb_beta.occupations[len(occs_beta):] == 0.0).all()
