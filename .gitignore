@@ -45,3 +45,6 @@ setup.cfg
 # Ignore testing output
 .coverage
 qaworkdir
+
+# Ignore Pycharm
+.idea
