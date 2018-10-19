@@ -12,7 +12,7 @@ The table below contains information on the progress of various modules.
 | module name        | location                               | code | package  | doc        | 
 |--------------------|----------------------------------------|------|----------|------------| 
 | gbasis             | https://github.com/theochem/gbasis     | x    | x        |            | 
-| iodata             | https://github.com/theochem/iodata     | x    | x        |            | 
+| iodata             | https://github.com/theochem/iodata     | x    | x        | x          | 
 | grids + cell (old) | https://github.com/theochem/old_grids  | x    | x        |            | 
 | grids (new)        | https://github.com/theochem/qcgrids    |      |          |            | 
 | cell (new)         | https://github.com/theochem/cellcutoff | x    | x        |            | 
