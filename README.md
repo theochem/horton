@@ -17,4 +17,4 @@ The table below contains information on the progress of various modules.
 | grids (new)        | https://github.com/theochem/qcgrids    |      |          |            | 
 | cell (new)         | https://github.com/theochem/cellcutoff | x    | x        |            | 
 | meanfield          | https://github.com/theochem/meanfield  | x    | x        |            | 
-| porcelain          | *to be published*                      |      |          |            | 
+| porcelain          | https://github.com/QuantumElephant/horton-porcelain | RFC! |          |            | 
