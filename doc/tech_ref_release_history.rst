@@ -24,13 +24,13 @@ Release history
 
 Documentation of all HORTON versions can be found here: http://theochem.github.com/horton/
 
-**January 17, 2019. Version 2.1.1**
+**January 18, 2019. Version 2.1.1**
 
     - Bug fixes:
 
         - Fix issue with Cython error due to duplicate `index_wrap`.
-        - Update version requirement for Cython. 0.28.* has a bug that breaks
-          the compilation of HORTON extensions.
+        - Fix issue with Cython error due to non-toplevel `cdef extern`, which
+          broke compilation of extensions with Cython 0.28.*.
 
 **July 6, 2017. Version 2.1.0**
 
