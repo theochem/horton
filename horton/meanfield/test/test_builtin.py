@@ -18,23 +18,27 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-
-
 import numpy as np
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from horton.grid import BeckeMolGrid
+from horton.meanfield.test.common import load_mdata, load_er, load_orbsa_dms, load_orbsb_dms, \
+    get_obasis
+from .. import REffHam, RDirectTerm, RGridGroup, RBeckeHartree, UEffHam, UDirectTerm, UGridGroup, \
+    UBeckeHartree
 
 
 def test_becke_hartree_n2_hfs_sto3g():
-    fn_fchk = context.get_fn('test/n2_hfs_sto3g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False, mode='keep')
+    fname = 'n2_hfs_sto3g_fchk'
+    mdata = load_mdata(fname)
+    grid = BeckeMolGrid(mdata['coordinates'], mdata['numbers'], mdata['pseudo_numbers'],
+                        random_rotate=False,
+                        mode='keep')
 
-    er = mol.obasis.compute_electron_repulsion()
+    er = load_er(fname)
     ham1 = REffHam([RDirectTerm(er, 'hartree')])
-    ham2 = REffHam([RGridGroup(mol.obasis, grid, [RBeckeHartree(8)])])
+    ham2 = REffHam([RGridGroup(get_obasis(fname), grid, [RBeckeHartree(8)])])
 
-    dm_alpha = mol.orb_alpha.to_dm()
+    dm_alpha = load_orbsa_dms(fname)
     ham1.reset(dm_alpha)
     ham2.reset(dm_alpha)
     energy1 = ham1.compute_energy()
@@ -49,16 +53,18 @@ def test_becke_hartree_n2_hfs_sto3g():
 
 
 def test_becke_hartree_h3_hfs_321g():
-    fn_fchk = context.get_fn('test/h3_hfs_321g.fchk')
-    mol = IOData.from_file(fn_fchk)
-    grid = BeckeMolGrid(mol.coordinates, mol.numbers, mol.pseudo_numbers, random_rotate=False, mode='keep')
+    fname = 'h3_hfs_321g_fchk'
+    mdata = load_mdata(fname)
+    grid = BeckeMolGrid(mdata['coordinates'], mdata['numbers'], mdata['pseudo_numbers'],
+                        random_rotate=False,
+                        mode='keep')
 
-    er = mol.obasis.compute_electron_repulsion()
+    er = load_er(fname)
     ham1 = UEffHam([UDirectTerm(er, 'hartree')])
-    ham2 = UEffHam([UGridGroup(mol.obasis, grid, [UBeckeHartree(8)])])
+    ham2 = UEffHam([UGridGroup(get_obasis(fname), grid, [UBeckeHartree(8)])])
 
-    dm_alpha = mol.orb_alpha.to_dm()
-    dm_beta = mol.orb_beta.to_dm()
+    dm_alpha = load_orbsa_dms(fname)
+    dm_beta = load_orbsb_dms(fname)
     ham1.reset(dm_alpha, dm_beta)
     ham2.reset(dm_alpha, dm_beta)
     energy1 = ham1.compute_energy()

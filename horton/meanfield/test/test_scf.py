@@ -20,13 +20,12 @@
 # --
 
 
-import numpy as np
-
 from nose.tools import assert_raises
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf, \
-    check_vanadium_sc_hf
+from .common import check_hf_cs_hf, check_lih_os_hf, \
+    load_olp, load_kin, load_na, load_er
+from .. import PlainSCFSolver, AufbauOccModel, Orbitals, RTwoIndexTerm, \
+    RDirectTerm, RExchangeTerm, REffHam
 
 
 def test_hf_cs_hf():
@@ -37,9 +36,10 @@ def test_lih_os_hf():
     check_lih_os_hf(PlainSCFSolver(threshold=1e-10))
 
 
-def test_vanadium_sc_hf():
-    with assert_raises(NoSCFConvergence):
-        check_vanadium_sc_hf(PlainSCFSolver(threshold=1e-10, maxiter=10))
+# TODO: Move to higher level test
+# def test_vanadium_sc_hf():
+#     with assert_raises(NoSCFConvergence):
+#         check_vanadium_sc_hf(PlainSCFSolver(threshold=1e-10, maxiter=10))
 
 
 def test_hf_cs_hf_level_shift():
@@ -50,23 +50,21 @@ def test_lih_os_hf_level_shift():
     check_lih_os_hf(PlainSCFSolver(threshold=1e-10, level_shift=0.02))
 
 
-def test_vanadium_sc_hf_level_shift():
-    with assert_raises(ValueError):
-        check_vanadium_sc_hf(PlainSCFSolver(threshold=1e-10, level_shift=-0.1))
+# TODO: Move to higher level test
+# def test_vanadium_sc_hf_level_shift():
+#     with assert_raises(ValueError):
+#         check_vanadium_sc_hf(PlainSCFSolver(threshold=1e-10, level_shift=-0.1))
 
 
 def test_hf_water_321g_mistake():
     # When one forgets to construct the initial guess, some error must be
     # raised...
-    fn_xyz = context.get_fn('test/water.xyz')
-    mol = IOData.from_file(fn_xyz)
-    obasis = get_gobasis(mol.coordinates, mol.numbers, '3-21G')
+    fname = 'water_3_21G_xyz'
     occ_model = AufbauOccModel(5)
-    orb_alpha = Orbitals(obasis.nbasis)
-    olp = obasis.compute_overlap()
-    kin = obasis.compute_kinetic()
-    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
-    er = obasis.compute_electron_repulsion()
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
+    er = load_er(fname)
     terms = [
         RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
@@ -75,5 +73,6 @@ def test_hf_water_321g_mistake():
     ]
     ham = REffHam(terms)
     scf_solver = PlainSCFSolver()
+    orb_alpha = Orbitals(olp.shape[0])
     with assert_raises(AssertionError):
         scf_solver(ham, olp, occ_model, orb_alpha)

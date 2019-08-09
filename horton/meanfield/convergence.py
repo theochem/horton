@@ -18,17 +18,15 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Evaluation of convergence criteria
+"""Evaluation of convergence criteria
 
    These implementations are independent of the SCF algorithms and can be used
    to double check convergence.
-'''
-
+"""
 
 import numpy as np
 
-from horton.meanfield.utils import compute_commutator
-
+from .utils import compute_commutator
 
 __all__ = [
     'convergence_error_eigen', 'convergence_error_commutator',
@@ -36,7 +34,7 @@ __all__ = [
 
 
 def convergence_error_eigen(ham, overlap, *orbs):
-    '''Compute the self-consistency error
+    """Compute the self-consistency error
 
     Parameters
     ----------
@@ -53,7 +51,7 @@ def convergence_error_eigen(ham, overlap, *orbs):
     error: float
         The SCF error. This measure (not this function) is also used in some SCF
         algorithms to check for convergence.
-    '''
+    """
     if len(orbs) != ham.ndm:
         raise TypeError('Expecting %i sets of orbitals, got %i.' % (ham.ndm, len(orbs)))
     dms = [orb.to_dm() for orb in orbs]
@@ -67,7 +65,7 @@ def convergence_error_eigen(ham, overlap, *orbs):
 
 
 def convergence_error_commutator(ham, overlap, *dms):
-    '''Compute the commutator error
+    """Compute the commutator error
 
     Parameters
     ----------
@@ -83,15 +81,14 @@ def convergence_error_commutator(ham, overlap, *dms):
     error: float
         The commutator error. This measure (not this function) is also used in some SCF
         algorithms to check for convergence.
-    '''
+    """
     if len(dms) != ham.ndm:
         raise TypeError('Expecting %i density matrices, got %i.' % (ham.ndm, len(dms)))
     ham.reset(*dms)
     focks = [np.zeros(dms[0].shape) for i in xrange(ham.ndm)]
     ham.compute_fock(*focks)
-    error = 0.0
     errorsq = 0.0
     for i in xrange(ham.ndm):
         commutator = compute_commutator(dms[i], focks[i], overlap)
         errorsq += np.einsum('ab,ab', commutator, commutator)
-    return errorsq**0.5
+    return errorsq ** 0.5

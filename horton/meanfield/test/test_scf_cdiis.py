@@ -20,15 +20,12 @@
 # --
 
 
-import numpy as np
-
-from nose.tools import assert_raises
-
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf, \
+from .common import check_hf_cs_hf, check_lih_os_hf, \
     check_water_cs_hfs, check_n2_cs_hfs, check_h3_os_hfs, check_h3_os_pbe, \
-    check_co_cs_pbe, check_vanadium_sc_hf, check_water_cs_m05, \
+    check_co_cs_pbe, check_water_cs_m05, \
     check_methyl_os_tpss
+
+from .. import CDIISSCFSolver
 
 
 def test_hf_cs_hf():
@@ -59,9 +56,10 @@ def test_h3_os_pbe():
     check_h3_os_pbe(CDIISSCFSolver(threshold=1e-6))
 
 
-def test_vanadium_sc_hf():
-    with assert_raises(NoSCFConvergence):
-        check_vanadium_sc_hf(CDIISSCFSolver(threshold=1e-10, maxiter=10))
+# TODO: Move to higher level test
+# def test_vanadium_sc_hf():
+#     with assert_raises(NoSCFConvergence):
+#         check_vanadium_sc_hf(CDIISSCFSolver(threshold=1e-10, maxiter=10))
 
 
 def test_water_cs_m05():

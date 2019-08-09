@@ -18,27 +18,27 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Mean-field electronic structure code'''
+"""Mean-field electronic structure code"""
 
-
-from horton.meanfield.bond_order import *
-from horton.meanfield.builtin import *
-from horton.meanfield.convergence import *
-from horton.meanfield.cext import *
-from horton.meanfield.gridgroup import *
-from horton.meanfield.guess import *
-from horton.meanfield.hamiltonian import *
-from horton.meanfield.indextransform import *
-from horton.meanfield.libxc import *
-from horton.meanfield.observable import *
-from horton.meanfield.occ import *
-from horton.meanfield.orbitals import *
-from horton.meanfield.project import *
-from horton.meanfield.rotate import *
-from horton.meanfield.response import *
-from horton.meanfield.scf import *
-from horton.meanfield.scf_oda import *
-from horton.meanfield.scf_cdiis import *
-from horton.meanfield.scf_ediis import *
-from horton.meanfield.scf_ediis2 import *
-from horton.meanfield.utils import *
+from .bond_order import *
+from .builtin import *
+from .cext import *
+from .convergence import *
+from .exceptions import *
+from .gridgroup import *
+from .guess import *
+from .hamiltonian import *
+from .indextransform import *
+from .libxc import *
+from .observable import *
+from .occ import *
+from .orbitals import *
+from .project import *
+from .response import *
+from .rotate import *
+from .scf import *
+from .scf_cdiis import *
+from .scf_ediis import *
+from .scf_ediis2 import *
+from .scf_oda import *
+from .utils import *

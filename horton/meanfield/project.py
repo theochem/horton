@@ -18,14 +18,14 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Projection of 1-electron orbitals to a new basis set'''
+"""Projection of 1-electron orbitals to a new basis set"""
 
+# TODO: Move to gobasis?
 
 import numpy as np
 from scipy.linalg import sqrtm
 
 from horton.gbasis.cext import GOBasis
-
 
 __all__ = ['ProjectionError', 'project_orbitals_mgs', 'project_orbitals_ortho']
 
@@ -35,7 +35,7 @@ class ProjectionError(Exception):
 
 
 def project_orbitals_mgs(obasis0, obasis1, orb0, orb1, eps=1e-10):
-    '''Project the orbitals onto a new basis set with the modified Gram-Schmidt algorithm.
+    """Project the orbitals onto a new basis set with the modified Gram-Schmidt algorithm.
 
     The orbitals in ``orb0`` (w.r.t. ``obasis0``) are projected onto ``obasis1`` and
     stored in ``orb1``.
@@ -69,7 +69,7 @@ def project_orbitals_mgs(obasis0, obasis1, orb0, orb1, eps=1e-10):
 
     If the number of orbitals in ``orb1`` is too small to store all projected
     orbitals, an error is raised.
-    '''
+    """
     # Compute the overlap matrix of the combined orbital basis
     obasis_both = GOBasis.concatenate(obasis0, obasis1)
     olp_both = obasis_both.compute_overlap()
@@ -90,14 +90,14 @@ def project_orbitals_mgs(obasis0, obasis1, orb0, orb1, eps=1e-10):
         if i1 > orb1.nfn:
             raise ProjectionError('Not enough functions available in orb1 to store the '
                                   'projected orbitals.')
-        orb1.coeffs[:,i1] = np.dot(projector, orb0.coeffs[:,i0])
+        orb1.coeffs[:, i1] = np.dot(projector, orb0.coeffs[:, i0])
         orb1.occupations[i1] = orb0.occupations[i0]
         i1 += 1
 
     # clear all parts of orb1 that were not touched by the projection loop
     ntrans = i1
     del i1
-    orb1.coeffs[:,ntrans:] = 0.0
+    orb1.coeffs[:, ntrans:] = 0.0
     orb1.occupations[ntrans:] = 0.0
     orb1.energies[:] = 0.0
 
@@ -112,7 +112,7 @@ def project_orbitals_mgs(obasis0, obasis1, orb0, orb1, eps=1e-10):
         # Subtract overlap with previous orbitals
         for j1 in xrange(i1):
             other = orb1.coeffs[:, j1]
-            orb -= other*dot22(other, orb)/np.sqrt(dot22(other, other))
+            orb -= other * dot22(other, orb) / np.sqrt(dot22(other, other))
 
         # Renormalize
         norm = np.sqrt(dot22(orb, orb))
@@ -123,7 +123,7 @@ def project_orbitals_mgs(obasis0, obasis1, orb0, orb1, eps=1e-10):
 
 
 def project_orbitals_ortho(olp0, olp1, orb0, orb1):
-    r'''Re-orthogonalize the orbitals .
+    r"""Re-orthogonalize the orbitals .
 
     The orbitals in ``orb0`` (w.r.t. ``obasis0``) are re-orthonormalized w.r.t.
     ``obasis1`` and stored in ``orb1``.
@@ -162,7 +162,8 @@ def project_orbitals_ortho(olp0, olp1, orb0, orb1):
     orthogonalized atomic basis sets. The latter is only the case when the
     old and new atomic basis sets are very similar, e.g. for small geometric
     changes.
-    '''
+    """
+
     def helper_olp(olp):
         if isinstance(olp, GOBasis):
             obasis = olp

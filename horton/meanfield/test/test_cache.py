@@ -20,10 +20,11 @@
 # --
 
 
+
 import numpy as np
 from nose.tools import assert_raises
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from ..cache import JustOnceClass, just_once, Cache
 
 
 class Example(JustOnceClass):
@@ -112,16 +113,16 @@ def test_alloc1():
 
 def test_alloc2():
     c = Cache()
-    tmp, new = c.load('egg', alloc=(5,10))
+    tmp, new = c.load('egg', alloc=(5, 10))
     assert new
     assert (tmp == 0).all()
-    assert tmp.shape == (5,10)
+    assert tmp.shape == (5, 10)
     assert issubclass(tmp.dtype.type, float)
     tmp[3] = 1
     bis = c.load('egg')
     assert bis is tmp
     assert (bis[3] == 1).all()
-    tris, new = c.load('egg', alloc=(5,10))
+    tris, new = c.load('egg', alloc=(5, 10))
     assert not new
     assert tris is tmp
 
@@ -137,17 +138,17 @@ def test_multiple():
 def test_allocation():
     c = Cache()
     assert 'egg' not in c
-    ar1, new = c.load('egg', alloc=(5,10))
+    ar1, new = c.load('egg', alloc=(5, 10))
     assert new
     assert (ar1 == 0).all()
-    assert ar1.shape == (5,10)
+    assert ar1.shape == (5, 10)
     assert issubclass(ar1.dtype.type, float)
     assert 'egg' in c
     assert 'bar' not in c
     with assert_raises(TypeError):
         c.load('egg', alloc=10)
     with assert_raises(TypeError):
-        c.load('egg', alloc=(10,5))
+        c.load('egg', alloc=(10, 5))
     ar1[:] = 1.0
     c.clear()
     assert 'egg' not in c
@@ -156,18 +157,18 @@ def test_allocation():
     with assert_raises(KeyError):
         ar2 = c.load('egg')
     # properly load it anew
-    ar2, new = c.load('egg', alloc=(5,10))
+    ar2, new = c.load('egg', alloc=(5, 10))
     assert new
-    assert ar2 is ar1 # still the same array, just cleared.
+    assert ar2 is ar1  # still the same array, just cleared.
     assert 'egg' in c
     # simple load should now work
     ar3 = c.load('egg')
     assert ar3 is ar1
     # clear again and use different alloc
     c.clear()
-    ar4, new = c.load('egg', alloc=(5,1,2))
+    ar4, new = c.load('egg', alloc=(5, 1, 2))
     assert new
-    assert ar4.shape == (5,1,2)
+    assert ar4.shape == (5, 1, 2)
     assert not ar4 is ar1
 
 

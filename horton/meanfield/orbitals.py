@@ -20,15 +20,12 @@
 # --
 """Orbital class."""
 
-
 import numpy as np
 from scipy.linalg import eigh
 
-from horton.utils import check_type
-from horton.log import log
+from .utils import check_type
 
-
-__all__ = ['Orbitals']
+__all__ = ['Orbitals', 'check_dm']
 
 
 class Orbitals(object):
@@ -95,11 +92,11 @@ class Orbitals(object):
     def __eq__(self, other):
         """Compare self with other."""
         return isinstance(other, Orbitals) and \
-            other.nbasis == self.nbasis and \
-            other.nfn == self.nfn and \
-            (other._coeffs == self._coeffs).all() and \
-            (other._energies == self._energies).all() and \
-            (other._occupations == self._occupations).all()
+               other.nbasis == self.nbasis and \
+               other.nfn == self.nfn and \
+               (other._coeffs == self._coeffs).all() and \
+               (other._energies == self._energies).all() and \
+               (other._occupations == self._occupations).all()
 
     @classmethod
     def from_hdf5(cls, grp):
@@ -183,7 +180,7 @@ class Orbitals(object):
         permutation : np.ndarray, dtype=int, shape=(nbasis,)
             An array that defines the new order of the orbitals.
         """
-        self._coeffs[:] = self.coeffs[:,permutation]
+        self._coeffs[:] = self.coeffs[:, permutation]
 
     def change_basis_signs(self, signs):
         """Correct for different sign conventions of the basis functions.
@@ -193,7 +190,7 @@ class Orbitals(object):
         signs : np.ndarray, dtype=int, shape=(nbasis,)
             An array with sign changes indicated by +1 and -1.
         """
-        self._coeffs *= signs.reshape(-1,1)
+        self._coeffs *= signs.reshape(-1, 1)
 
     def check_normalization(self, overlap, eps=1e-4):
         """Check that the occupied orbitals are normalized.
@@ -210,9 +207,9 @@ class Orbitals(object):
         for i in xrange(self.nfn):
             if self.occupations[i] == 0:
                 continue
-            norm = np.dot(self._coeffs[:,i], np.dot(overlap, self._coeffs[:,i]))
-            #print i, norm
-            assert abs(norm-1) < eps, 'The orbitals are not normalized!'
+            norm = np.dot(self._coeffs[:, i], np.dot(overlap, self._coeffs[:, i]))
+            # print i, norm
+            assert abs(norm - 1) < eps, 'The orbitals are not normalized!'
 
     def check_orthonormality(self, overlap, eps=1e-4):
         """Check that the occupied orbitals are orthogonal and normalized.
@@ -229,12 +226,12 @@ class Orbitals(object):
         for i0 in xrange(self.nfn):
             if self.occupations[i0] == 0:
                 continue
-            for i1 in xrange(i0+1):
+            for i1 in xrange(i0 + 1):
                 if self.occupations[i1] == 0:
                     continue
-                dot = np.dot(self._coeffs[:,i0], np.dot(overlap, self._coeffs[:,i1]))
+                dot = np.dot(self._coeffs[:, i0], np.dot(overlap, self._coeffs[:, i1]))
                 if i0 == i1:
-                    assert abs(dot-1) < eps
+                    assert abs(dot - 1) < eps
                 else:
                     assert abs(dot) < eps
 
@@ -253,9 +250,9 @@ class Orbitals(object):
         error : float
             The RMSD error on the orbital energies.
         """
-        errors = np.dot(fock, (self.coeffs)) \
-                 - self.energies*np.dot(overlap, (self.coeffs))
-        return np.sqrt((abs(errors)**2).mean())
+        errors = np.dot(fock, self.coeffs) \
+                 - self.energies * np.dot(overlap, self.coeffs)
+        return np.sqrt((abs(errors) ** 2).mean())
 
     def from_fock(self, fock, overlap):
         """Diagonalize a Fock matrix to obtain orbitals and energies.
@@ -271,7 +268,7 @@ class Orbitals(object):
         """
         evals, evecs = eigh(fock, overlap)
         self._energies[:] = evals[:self.nfn]
-        self._coeffs[:] = evecs[:,:self.nfn]
+        self._coeffs[:] = evecs[:, :self.nfn]
 
     def from_fock_and_dm(self, fock, dm, overlap, epstol=1e-8):
         """Combined diagonalization of a Fock and a density matrix.
@@ -307,7 +304,7 @@ class Orbitals(object):
         clusters = []
         begin = 0
         for ifn in xrange(1, self.nfn):
-            if abs(self.energies[ifn] - self.energies[ifn-1]) > epstol:
+            if abs(self.energies[ifn] - self.energies[ifn - 1]) > epstol:
                 end = ifn
                 clusters.append([begin, end])
                 begin = ifn
@@ -318,20 +315,22 @@ class Orbitals(object):
         sds = np.dot(overlap.T, np.dot(dm, overlap))
         for begin, end in clusters:
             if end - begin == 1:
-                self.occupations[begin] = np.dot(self.coeffs[:,begin], np.dot(sds, self.coeffs[:,begin]))
+                self.occupations[begin] = np.dot(self.coeffs[:, begin],
+                                                 np.dot(sds, self.coeffs[:, begin]))
             else:
                 # Build matrix
                 mat = np.dot(self.coeffs[:, begin:end].T, np.dot(sds, self.coeffs[:, begin:end]))
                 # Diagonalize and reverse order
                 evals, evecs = np.linalg.eigh(mat)
                 evals = evals[::-1]
-                evecs = evecs[:,::-1]
+                evecs = evecs[:, ::-1]
                 # Rotate the orbitals
-                self.coeffs[:,begin:end] = np.dot(self.coeffs[:,begin:end], evecs)
+                self.coeffs[:, begin:end] = np.dot(self.coeffs[:, begin:end], evecs)
                 # Compute expectation values
                 self.occupations[begin:end] = evals
-                for i0 in xrange(end-begin):
-                    self.energies[begin+i0] = np.dot(self.coeffs[:,begin+i0], np.dot(fock, self.coeffs[:,begin+i0]))
+                for i0 in xrange(end - begin):
+                    self.energies[begin + i0] = np.dot(self.coeffs[:, begin + i0],
+                                                       np.dot(fock, self.coeffs[:, begin + i0]))
 
     def derive_naturals(self, dm, overlap):
         """Derive natural orbitals from a given density matrix and assign the result to self.
@@ -347,7 +346,7 @@ class Orbitals(object):
         sds = np.dot(overlap.T, np.dot(dm, overlap))
         # Diagonalize and compute eigenvalues
         evals, evecs = eigh(sds, overlap)
-        self._coeffs[:] = evecs[:,:self.nfn]
+        self._coeffs[:] = evecs[:, :self.nfn]
         self._occupations[:] = evals
         self._energies[:] = 0.0
 
@@ -364,7 +363,7 @@ class Orbitals(object):
             raise ValueError('Offset must be zero or positive.')
         homo_indexes = self.occupations.nonzero()[0]
         if len(homo_indexes) > offset:
-            return homo_indexes[len(homo_indexes)-offset-1]
+            return homo_indexes[len(homo_indexes) - offset - 1]
 
     homo_index = property(get_homo_index)
 
@@ -394,7 +393,7 @@ class Orbitals(object):
         """
         if offset < 0:
             raise ValueError('Offset must be zero or positive.')
-        lumo_indexes = (self.occupations==0.0).nonzero()[0]
+        lumo_indexes = (self.occupations == 0.0).nonzero()[0]
         if len(lumo_indexes) > offset:
             return lumo_indexes[offset]
 
@@ -429,9 +428,10 @@ class Orbitals(object):
             The density matrix.
         """
         if other is None:
-            return np.dot(self._coeffs*self.occupations, self._coeffs.T)
+            return np.dot(self._coeffs * self.occupations, self._coeffs.T)
         else:
-            return np.dot(self._coeffs*(self.occupations*other.occupations)**0.5, other._coeffs.T)
+            return np.dot(self._coeffs * (self.occupations * other.occupations) ** 0.5,
+                          other._coeffs.T)
 
     def rotate_random(self):
         """Apply random unitary transformation distributed with Haar measure.
@@ -454,14 +454,14 @@ class Orbitals(object):
 
         The attributes ``energies`` and ``occupations`` are not altered.
         """
-        if index0 == None:
+        if index0 is None:
             index0 = self.homo_index
-        if index1 == None:
+        if index1 is None:
             index1 = self.lumo_index
-        old0 = self.coeffs[:,index0].copy()
-        old1 = self.coeffs[:,index1].copy()
-        self.coeffs[:,index0] = np.cos(angle)*old0 - np.sin(angle)*old1
-        self.coeffs[:,index1] = np.sin(angle)*old0 + np.cos(angle)*old1
+        old0 = self.coeffs[:, index0].copy()
+        old1 = self.coeffs[:, index1].copy()
+        self.coeffs[:, index0] = np.cos(angle) * old0 - np.sin(angle) * old1
+        self.coeffs[:, index1] = np.sin(angle) * old0 + np.cos(angle) * old1
 
     def swap_orbitals(self, swaps):
         """Change the order of the orbitals using pair-exchange.
@@ -478,12 +478,41 @@ class Orbitals(object):
             raise TypeError('The argument swaps has the wrong shape/type.')
         for iswap in range(len(swaps)):
             index0, index1 = swaps[iswap]
-            if log.do_medium:
-                log('  Swapping orbitals %i and %i' %(index0, index1))
-            tmp = self.coeffs[:,index0].copy()
-            self.coeffs[:,index0] = self.coeffs[:,index1]
-            self.coeffs[:,index1] = tmp
-            self.energies[index0], self.energies[index1] =\
+            print('5:  Swapping orbitals %i and %i' % (index0, index1))
+            tmp = self.coeffs[:, index0].copy()
+            self.coeffs[:, index0] = self.coeffs[:, index1]
+            self.coeffs[:, index1] = tmp
+            self.energies[index0], self.energies[index1] = \
                 self.energies[index1], self.energies[index0]
-            self.occupations[index0], self.occupations[index1] =\
+            self.occupations[index0], self.occupations[index1] = \
                 self.occupations[index1], self.occupations[index0]
+
+
+def check_dm(dm, overlap, eps=1e-4, occ_max=1.0):
+    """Check if the density matrix has eigenvalues in the proper range.
+
+    Parameters
+    ----------
+    dm : np.ndarray, shape=(nbasis, nbasis), dtype=float
+        The density matrix
+    overlap : np.ndarray, shape=(nbasis, nbasis), dtype=float
+        The overlap matrix
+    eps : float
+        The threshold on the eigenvalue inequalities.
+    occ_max : float
+        The maximum occupation.
+
+    Raises
+    ------
+    ValueError
+        When the density matrix has wrong eigenvalues.
+    """
+    # construct natural orbitals
+    orb = Orbitals(dm.shape[0])
+    orb.derive_naturals(dm, overlap)
+    if orb.occupations.min() < -eps:
+        raise ValueError('The density matrix has eigenvalues considerably smaller than '
+                         'zero. error=%e' % (orb.occupations.min()))
+    if orb.occupations.max() > occ_max + eps:
+        raise ValueError('The density matrix has eigenvalues considerably larger than '
+                         'max. error=%e' % (orb.occupations.max() - 1))

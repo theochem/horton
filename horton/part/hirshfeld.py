@@ -21,10 +21,9 @@
 '''Hirshfeld partitioning'''
 
 
-from horton.cache import just_once
 from horton.log import log, biblio
+from horton.meanfield.cache import just_once
 from horton.part.stockholder import StockholderWPart
-
 
 __all__ = ['HirshfeldWPart']
 

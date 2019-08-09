@@ -23,8 +23,13 @@
 import numpy as np
 from nose.tools import assert_raises
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from horton.meanfield.indextransform import _parse_four_index_transform_orbs
+from horton.meanfield.test.common import load_olp, load_kin, load_na, load_er, load_nn, load_mdata, \
+    load_er_chol
+from .. import Orbitals, guess_core_hamiltonian, RTwoIndexTerm, RDirectTerm, RExchangeTerm, REffHam, \
+    AufbauOccModel, CDIISSCFSolver
+from ..indextransform import _parse_four_index_transform_orbs, four_index_transform, \
+    four_index_transform_cholesky, split_core_active, split_core_active_cholesky
+
 
 def test_parse_index_transform_orbs():
     assert _parse_four_index_transform_orbs(0, 1, 2, 3) == (0, 1, 2, 3)
@@ -84,25 +89,25 @@ def helper_hf(olp, ecore, one, two, nocc):
     return ham.cache['energy'], orb_alpha
 
 
-def prepare_hf(mol, basis_str):
+def prepare_hf(fname):
     # Input structure
-    obasis = get_gobasis(mol.coordinates, mol.numbers, basis_str)
+    mdata = load_mdata(fname)
 
     # Compute Gaussian integrals
-    olp = obasis.compute_overlap()
-    kin = obasis.compute_kinetic()
-    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    olp = load_olp(fname)  # FIXME: Doesn't take into account basis_str
+    kin = load_kin(fname)
+    na = load_na(fname)
     one = kin + na
-    two = obasis.compute_electron_repulsion()
+    two = load_er(fname)
 
-    enucnuc = compute_nucnuc(mol.coordinates, mol.pseudo_numbers)
-    return obasis, olp, kin, na, one, two, enucnuc
+    enucnuc = load_nn(fname)
+    return olp, kin, na, one, two, enucnuc
 
 
-def check_core_active_blank(mol, basis_str):
-    obasis, olp, kin, na, one, two, enucnuc = prepare_hf(mol, basis_str)
+def check_core_active_blank(fname):
+    olp, kin, na, one, two, enucnuc = prepare_hf(fname)
     ncore = 0
-    nactive = obasis.nbasis
+    nactive = olp.shape[0]
     one_small, two_small, ecore = \
         split_core_active(one, two, enucnuc, None, ncore, nactive)
     np.testing.assert_allclose(two, two_small)
@@ -110,16 +115,17 @@ def check_core_active_blank(mol, basis_str):
     np.testing.assert_allclose(one, one_small)
 
 
-def check_core_active(mol, basis_str, ncore, nactive):
+def check_core_active(fname, ncore, nactive):
     # A) Run a simple HF calculation on the given IOData in the given basis
-    obasis, olp, kin, na, one, two, enucnuc = prepare_hf(mol, basis_str)
+    olp, kin, na, one, two, enucnuc = prepare_hf(fname)
 
+    mdata = load_mdata(fname)
     # Decide how to occupy the orbitals
-    assert mol.numbers.sum() % 2 == 0
-    nocc = mol.numbers.sum()/2
+    assert mdata['numbers'].sum() % 2 == 0
+    nocc = mdata['numbers'].sum() / 2
     assert ncore + nactive > nocc
 
-    enucnuc = compute_nucnuc(mol.coordinates, mol.pseudo_numbers)
+    enucnuc = load_nn(fname)
     energy1, orb_alpha1 = helper_hf(olp, enucnuc, one, two, nocc)
 
     # B1) Get integrals for the active space, using tensordot transformation
@@ -127,7 +133,7 @@ def check_core_active(mol, basis_str, ncore, nactive):
         one, two, enucnuc, orb_alpha1, ncore, nactive)
     # C1) Verify the RHF energy using the active space integrals
     energy2, orb_alpha2 = helper_hf(
-        np.identity(len(one_small)), ecore, one_small, two_small, nocc-ncore)
+        np.identity(len(one_small)), ecore, one_small, two_small, nocc - ncore)
     np.testing.assert_almost_equal(energy1, energy2)
 
     # B2) Get integrals for the active space, using einsum transformation
@@ -135,29 +141,27 @@ def check_core_active(mol, basis_str, ncore, nactive):
         one, two, enucnuc, orb_alpha1, ncore, nactive, indextrans='einsum')
     # C2) Verify the RHF energy using the active space integrals
     energy2, orb_alpha2 = helper_hf(
-        np.identity(len(one_small)), ecore, one_small, two_small, nocc-ncore)
+        np.identity(len(one_small)), ecore, one_small, two_small, nocc - ncore)
     np.testing.assert_almost_equal(energy1, energy2)
 
 
 def test_core_active_neon():
-    mol = IOData(
-        coordinates=np.zeros((1, 3), float),
-        numbers=np.array([10], int)
-    )
-    check_core_active_blank(mol, '6-31+g(d)')
-    check_core_active(mol, '6-31+g(d)', 2, 6)
+    fname = "neon_6_31gd_xyz"
+    check_core_active_blank(fname)
+    check_core_active(fname, 2, 6)
 
 
 def test_core_active_water():
-    mol = IOData.from_file(context.get_fn('test/water.xyz'))
-    check_core_active_blank(mol, '6-31+g(d)')
-    check_core_active(mol, '6-31+g(d)', 1, 6)
+    fname = 'water_6_31gd_xyz'
+    check_core_active_blank(fname)
+    check_core_active(fname, 1, 6)
 
 
-def test_core_active_2h_azirine():
-    mol = IOData.from_file(context.get_fn('test/2h-azirine.xyz'))
-    check_core_active_blank(mol, '3-21g')
-    check_core_active(mol, '3-21g', 3, 15)
+# TODO: Move to higher level test
+# def test_core_active_h2_azirine():
+#     fname = 'h2_azirine_3_21g_xyz'
+#     check_core_active_blank(fname)
+#     check_core_active(fname, 3, 15)
 
 
 def helper_hf_cholesky(olp, ecore, one, two_vecs, nocc):
@@ -190,25 +194,25 @@ def helper_hf_cholesky(olp, ecore, one, two_vecs, nocc):
     return ham.cache['energy'], orb_alpha
 
 
-def prepare_hf_cholesky(mol, basis_str):
+def prepare_hf_cholesky(fname):
     # Input structure
-    obasis = get_gobasis(mol.coordinates, mol.numbers, basis_str)
+    mdata = load_mdata(fname)
 
     # Compute Gaussian integrals
-    olp = obasis.compute_overlap()
-    kin = obasis.compute_kinetic()
-    na = obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
     one = kin + na
-    two_vecs = obasis.compute_electron_repulsion_cholesky()
+    two_vecs = load_er_chol(fname)
 
-    enucnuc = compute_nucnuc(mol.coordinates, mol.pseudo_numbers)
-    return obasis, olp, kin, na, one, two_vecs, enucnuc
+    enucnuc = load_nn(fname)
+    return olp, kin, na, one, two_vecs, enucnuc
 
 
-def check_core_active_cholesky_blank(mol, basis_str):
-    obasis, olp, kin, na, one, two_vecs, enucnuc = prepare_hf_cholesky(mol, basis_str)
+def check_core_active_cholesky_blank(fname):
+    olp, kin, na, one, two_vecs, enucnuc = prepare_hf_cholesky(fname)
     ncore = 0
-    nactive = obasis.nbasis
+    nactive = olp.shape[0]
     one_small, two_vecs_small, ecore = \
         split_core_active_cholesky(one, two_vecs, enucnuc, None, ncore, nactive)
     np.testing.assert_allclose(two_vecs, two_vecs_small)
@@ -216,13 +220,14 @@ def check_core_active_cholesky_blank(mol, basis_str):
     np.testing.assert_allclose(one, one_small)
 
 
-def check_core_active_cholesky(mol, basis_str, ncore, nactive):
+def check_core_active_cholesky(fname, ncore, nactive):
     # A) Run a simple HF calculation on the given IOData in the given basis
-    obasis, olp, kin, na, one, two_vecs, enucnuc = prepare_hf_cholesky(mol, basis_str)
+    olp, kin, na, one, two_vecs, enucnuc = prepare_hf_cholesky(fname)
 
+    mdata = load_mdata(fname)
     # Decide how to occupy the orbitals
-    assert mol.numbers.sum() % 2 == 0
-    nocc = mol.numbers.sum()/2
+    assert mdata['numbers'].sum() % 2 == 0
+    nocc = mdata['numbers'].sum() / 2
     assert ncore + nactive > nocc
 
     energy1, orb_alpha1 = helper_hf_cholesky(olp, enucnuc, one, two_vecs, nocc)
@@ -232,7 +237,7 @@ def check_core_active_cholesky(mol, basis_str, ncore, nactive):
         one, two_vecs, enucnuc, orb_alpha1, ncore, nactive)
     # C1) Verify the RHF energy using the active space integrals
     energy2, orb_alpha2 = helper_hf_cholesky(
-        np.identity(len(one_small)), ecore, one_small, two_vecs_small, nocc-ncore)
+        np.identity(len(one_small)), ecore, one_small, two_vecs_small, nocc - ncore)
     np.testing.assert_almost_equal(energy1, energy2)
 
     # B2) Get integrals for the active space, using einsum transformation
@@ -240,26 +245,23 @@ def check_core_active_cholesky(mol, basis_str, ncore, nactive):
         one, two_vecs, enucnuc, orb_alpha1, ncore, nactive, indextrans='einsum')
     # C2) Verify the RHF energy using the active space integrals
     energy2, orb_alpha2 = helper_hf_cholesky(
-        np.identity(len(one_small)), ecore, one_small, two_vecs_small, nocc-ncore)
+        np.identity(len(one_small)), ecore, one_small, two_vecs_small, nocc - ncore)
     np.testing.assert_almost_equal(energy1, energy2)
 
 
 def test_core_active_neon_cholesky():
-    mol = IOData(
-        coordinates=np.zeros((1, 3), float),
-        numbers=np.array([10], int)
-    )
-    check_core_active_cholesky_blank(mol, '6-31+g(d)')
-    check_core_active_cholesky(mol, '6-31+g(d)', 2, 6)
+    fname = "neon_6_31gd_xyz"
+    check_core_active_cholesky_blank(fname)
+    check_core_active_cholesky(fname, 2, 6)
 
 
 def test_core_active_water_cholesky():
-    mol = IOData.from_file(context.get_fn('test/water.xyz'))
-    check_core_active_cholesky_blank(mol, '6-31+g(d)')
-    check_core_active_cholesky(mol, '6-31+g(d)', 1, 6)
+    fname = 'water_6_31gd_xyz'
+    check_core_active_cholesky_blank(fname)
+    check_core_active_cholesky(fname, 1, 6)
 
-
-def test_core_active_2h_azirine_cholesky():
-    mol = IOData.from_file(context.get_fn('test/2h-azirine.xyz'))
-    check_core_active_cholesky_blank(mol, '3-21g')
-    check_core_active_cholesky(mol, '3-21g', 3, 15)
+# TODO: Move to higher level test
+# def test_core_active_h2_azirine_cholesky():
+#     fname = 'h2_azirine_3_21g_xyz'
+#     check_core_active_cholesky_blank(fname)
+#     check_core_active_cholesky(fname, 3, 15)

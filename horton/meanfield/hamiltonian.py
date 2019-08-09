@@ -20,11 +20,8 @@
 # --
 """Mean-field DFT/HF Hamiltonian data structures"""
 
-
-from horton.log import log
-from horton.cache import Cache
-from horton.utils import doc_inherit
-
+from .cache import Cache
+from .utils import doc_inherit
 
 __all__ = [
     'REffHam', 'UEffHam'
@@ -122,18 +119,18 @@ class EffHam(object):
 
     def log(self):
         """Write an overview of the last computation on screen."""
-        log('Contributions to the energy:')
-        log.hline()
-        log('                                              term                 Value')
-        log.hline()
+        print('5: Contributions to the energy:')
+        print("5: " + "-" * 70)
+        print('5:                                               term                 Value')
+        print("5: " + "-" * 70)
         for term in self.terms:
             energy = self.cache['energy_%s' % term.label]
-            log('%50s  %20.12f' % (term.label, energy))
+            print('5: %50s  %20.12f' % (term.label, energy))
         for key, energy in self.external.iteritems():
-            log('%50s  %20.12f' % (key, energy))
-        log('%50s  %20.12f' % ('total', self.cache['energy']))
-        log.hline()
-        log.blank()
+            print('5: %50s  %20.12f' % (key, energy))
+        print('5: %50s  %20.12f' % ('total', self.cache['energy']))
+        print("5: " + "-" * 70)
+        print("5: ")
 
     def compute_fock(self, *focks):
         """Compute the fock matrices.
@@ -170,7 +167,7 @@ class EffHam(object):
             A list of output TwoIndex objects in which the dot product of the energy
             Hessian with the delta density matrices is stored.
 
-        Note that the result must be multiplied by the feactor deriv_scale squared in
+        Note that the result must be multiplied by the factor deriv_scale squared in
         order to obtain the proper second order derivative. This is due to conventions
         related to the definition of the Fock matrix.
         """
@@ -199,7 +196,8 @@ class REffHam(EffHam):
     def reset_delta(self, in_delta_dm_alpha):
         self.cache.clear(tags='d')
         # Take a copy of the input alpha delta density matrix in the cache.
-        delta_dm_alpha = self.cache.load('delta_dm_alpha', alloc=in_delta_dm_alpha.shape, tags='d')[0]
+        delta_dm_alpha = self.cache.load('delta_dm_alpha', alloc=in_delta_dm_alpha.shape, tags='d')[
+            0]
         delta_dm_alpha[:] = in_delta_dm_alpha
 
     @doc_inherit(EffHam)
@@ -229,7 +227,8 @@ class UEffHam(EffHam):
     def reset_delta(self, in_delta_dm_alpha, in_delta_dm_beta):
         self.cache.clear(tags='d')
         # Take a copy of the input alpha and beta delta density matrix in the cache.
-        delta_dm_alpha = self.cache.load('delta_dm_alpha', alloc=in_delta_dm_alpha.shape, tags='d')[0]
+        delta_dm_alpha = self.cache.load('delta_dm_alpha', alloc=in_delta_dm_alpha.shape, tags='d')[
+            0]
         delta_dm_alpha[:] = in_delta_dm_alpha
         delta_dm_beta = self.cache.load('delta_dm_beta', alloc=in_delta_dm_beta.shape, tags='d')[0]
         delta_dm_beta[:] = in_delta_dm_beta

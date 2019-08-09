@@ -18,18 +18,13 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-'''Initial guesses for wavefunctions'''
-
-
-from horton.log import log, timer
-
+"""Initial guesses for wavefunctions"""
 
 __all__ = ['guess_core_hamiltonian']
 
 
-@timer.with_section('Initial Guess')
 def guess_core_hamiltonian(overlap, core, *orbs):
-    '''Guess the orbitals by diagonalizing a core Hamiltonian.
+    """Guess the orbitals by diagonalizing a core Hamiltonian.
 
     Parameters
     ----------
@@ -42,10 +37,8 @@ def guess_core_hamiltonian(overlap, core, *orbs):
         A list of Orbitals objects (output arguments)
 
     This method only modifies the expansion coefficients and the orbital energies.
-    '''
-    if log.do_medium:
-        log('Performing a core Hamiltonian guess.')
-        log.blank()
+    """
+    print('5: Performing a core Hamiltonian guess.')
 
     if len(orbs) == 0:
         raise TypeError('At least one set of orbitals.')

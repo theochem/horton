@@ -20,16 +20,13 @@
 # --
 """Container for observables involving numerical integration"""
 
-
-from horton.meanfield.observable import Observable
-from horton.utils import doc_inherit
-
+from .observable import Observable
+from .utils import doc_inherit
 
 __all__ = [
     'DF_LEVEL_LDA', 'DF_LEVEL_GGA', 'DF_LEVEL_MGGA',
     'GridGroup', 'RGridGroup', 'UGridGroup', 'GridObservable'
 ]
-
 
 # Define a few `levels` of density functionals. These are used to determine
 # which properties need to be computed when using certain functionals. For LDA,
@@ -357,7 +354,7 @@ class RGridGroup(GridGroup):
         if self.df_level >= DF_LEVEL_LDA:
             rho_full, new = cache.load('rho_full', alloc=self.grid.size)
             if new:
-                rho_full[:] = 2*all_alpha[:, 0]
+                rho_full[:] = 2 * all_alpha[:, 0]
         if self.df_level >= DF_LEVEL_GGA:
             grad_rho_full, new = cache.load('grad_rho_full', alloc=(self.grid.size, 3))
             if new:
@@ -365,14 +362,14 @@ class RGridGroup(GridGroup):
                 grad_rho_full *= 2
             sigma_full, new = cache.load('sigma_full', alloc=self.grid.size)
             if new:
-                sigma_full[:] = 4*(all_alpha[:, 1:4]**2).sum(axis=1)
+                sigma_full[:] = 4 * (all_alpha[:, 1:4] ** 2).sum(axis=1)
         if self.df_level >= DF_LEVEL_MGGA:
             lapl_full, new = cache.load('lapl_full', alloc=self.grid.size)
             if new:
-                lapl_full[:] = 2*all_alpha[:, 4]
+                lapl_full[:] = 2 * all_alpha[:, 4]
             tau_full, new = cache.load('tau_full', alloc=self.grid.size)
             if new:
-                tau_full[:] = 2*all_alpha[:, 5]
+                tau_full[:] = 2 * all_alpha[:, 5]
 
     @doc_inherit(GridGroup)
     def _update_delta_grid_data(self, cache):
@@ -382,17 +379,17 @@ class RGridGroup(GridGroup):
             delta_rho_full, new = cache.load('delta_rho_full',
                                              alloc=self.grid.size, tags='d')
             if new:
-                delta_rho_full[:] = 2*delta_all_alpha[:, 0]
+                delta_rho_full[:] = 2 * delta_all_alpha[:, 0]
         if self.df_level >= DF_LEVEL_GGA:
             delta_grad_rho_full, new = cache.load('delta_grad_rho_full',
                                                   alloc=(self.grid.size, 3), tags='d')
             if new:
-                delta_grad_rho_full[:] = 2*delta_all_alpha[:, 1:4]
+                delta_grad_rho_full[:] = 2 * delta_all_alpha[:, 1:4]
             delta_sigma_full, new = cache.load('delta_sigma_full',
                                                alloc=self.grid.size, tags='d')
             if new:
                 grad_rho_full = cache['grad_rho_full']
-                delta_sigma_full[:] = 2*(delta_grad_rho_full*grad_rho_full).sum(axis=1)
+                delta_sigma_full[:] = 2 * (delta_grad_rho_full * grad_rho_full).sum(axis=1)
 
     @doc_inherit(Observable)
     def add_dot_hessian(self, cache, output_alpha):
@@ -503,9 +500,9 @@ class UGridGroup(GridGroup):
                 grad_rho_full += all_beta[:, 1:4]
             sigma_all, new = cache.load('sigma_all', alloc=(self.grid.size, 3))
             if new:
-                sigma_all[:, 0] = (all_alpha[:, 1:4]**2).sum(axis=1)
-                sigma_all[:, 1] = (all_alpha[:, 1:4]*all_beta[:, 1:4]).sum(axis=1)
-                sigma_all[:, 2] = (all_beta[:, 1:4]**2).sum(axis=1)
+                sigma_all[:, 0] = (all_alpha[:, 1:4] ** 2).sum(axis=1)
+                sigma_all[:, 1] = (all_alpha[:, 1:4] * all_beta[:, 1:4]).sum(axis=1)
+                sigma_all[:, 2] = (all_beta[:, 1:4] ** 2).sum(axis=1)
         if self.df_level >= DF_LEVEL_MGGA:
             lapl_both, new = cache.load('lapl_both', alloc=(self.grid.size, 2))
             if new:
@@ -531,6 +528,7 @@ class GridObservable(object):
             A unique label for this contribution.
         """
         self.label = label
+        self.biblio = []
 
     def compute_energy(self, cache, grid):
         """Compute the expectation value using numerical integration.

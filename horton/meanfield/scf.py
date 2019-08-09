@@ -20,14 +20,11 @@
 # --
 """Basic Self-Consistent Field (SCF) algorithm."""
 
-
 import numpy as np
 
-from horton.log import log, timer
-from horton.exceptions import NoSCFConvergence
-from horton.meanfield.convergence import convergence_error_eigen
-from horton.meanfield.utils import get_level_shift
-
+from .exceptions import NoSCFConvergence
+from .convergence import convergence_error_eigen
+from .utils import get_level_shift
 
 __all__ = ['PlainSCFSolver']
 
@@ -62,7 +59,6 @@ class PlainSCFSolver(object):
             raise ValueError('The level_shift argument cannot be negative.')
         self.level_shift = level_shift
 
-    @timer.with_section('SCF')
     def __call__(self, ham, overlap, occ_model, *orbs):
         """Find a self-consistent set of orbitals.
 
@@ -80,18 +76,18 @@ class PlainSCFSolver(object):
         """
         # Some type checking
         if ham.ndm != len(orbs):
-            raise TypeError('The number of initial orbital expansions does not match the Hamiltonian.')
+            raise TypeError(
+                'The number of initial orbital expansions does not match the Hamiltonian.')
         # Impose the requested occupation numbers
         occ_model.assign(*orbs)
         # Check the orthogonality of the orbitals
         for orb in orbs:
             orb.check_normalization(overlap)
 
-        if log.do_medium:
-            log('Starting plain SCF solver. ndm=%i' % ham.ndm)
-            log.hline()
-            log('Iter         Error')
-            log.hline()
+        print('Starting plain SCF solver. ndm=%i' % ham.ndm)
+        print("5: " + "-" * 70)
+        print('Iter         Error')
+        print("5: " + "-" * 70)
 
         focks = [np.zeros(overlap.shape) for i in xrange(ham.ndm)]
         dms = [None] * ham.ndm
@@ -109,8 +105,7 @@ class PlainSCFSolver(object):
             error = 0.0
             for i in xrange(ham.ndm):
                 error += orbs[i].error_eigen(focks[i], overlap)
-            if log.do_medium:
-                log('%4i  %12.5e' % (counter, error))
+            print('5: %4i  %12.5e' % (counter, error))
             if error < self.threshold:
                 converged = True
                 break
@@ -118,26 +113,24 @@ class PlainSCFSolver(object):
             if self.level_shift > 0:
                 for i in xrange(ham.ndm):
                     # The normal behavior is to shift down the occupied levels.
-                    focks[i] += -self.level_shift*get_level_shift(dms[i], overlap)
+                    focks[i] += -self.level_shift * get_level_shift(dms[i], overlap)
             # Diagonalize the fock operators to obtain new orbitals and
             for i in xrange(ham.ndm):
                 orbs[i].from_fock(focks[i], overlap)
                 # If requested, compensate for level-shift. This compensation
                 # is only correct when the SCF has converged.
                 if self.level_shift > 0:
-                    orbs[i].energies[:] += self.level_shift*orbs[i].occupations
+                    orbs[i].energies[:] += self.level_shift * orbs[i].occupations
             # Assign new occupation numbers.
             occ_model.assign(*orbs)
             # counter
             counter += 1
 
-        if log.do_medium:
-            log.blank()
+        print("5: ")
 
         if not self.skip_energy:
             ham.compute_energy()
-            if log.do_medium:
-                ham.log()
+            print(ham)
 
         if not converged:
             raise NoSCFConvergence
@@ -145,5 +138,5 @@ class PlainSCFSolver(object):
         return counter
 
     def error(self, ham, overlap, *orbs):
-        '''See :py:func:`horton.meanfield.convergence.convergence_error_eigen`.'''
+        """See :py:func:`horton.meanfield.convergence.convergence_error_eigen`."""
         return convergence_error_eigen(ham, overlap, *orbs)

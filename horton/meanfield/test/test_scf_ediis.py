@@ -21,15 +21,15 @@
 
 
 import numpy as np
-
 from nose.plugins.attrib import attr
-from nose.tools import assert_raises
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf, \
+from .common import check_hf_cs_hf, check_lih_os_hf, \
     check_water_cs_hfs, check_n2_cs_hfs, check_h3_os_hfs, check_h3_os_pbe, \
-    check_co_cs_pbe, check_vanadium_sc_hf, check_water_cs_m05, \
-    check_methyl_os_tpss
+    check_co_cs_pbe, check_water_cs_m05, \
+    check_methyl_os_tpss, load_mdata, load_olp, load_kin, load_na, load_er, load_nn, \
+    load_orbs_alpha, load_orbs_beta
+from .. import EDIISSCFSolver, NoSCFConvergence, RTwoIndexTerm, RDirectTerm, RExchangeTerm, REffHam, \
+    AufbauOccModel, UTwoIndexTerm, UDirectTerm, UExchangeTerm, UEffHam, guess_core_hamiltonian
 
 
 def test_hf_cs_hf():
@@ -64,9 +64,10 @@ def test_h3_os_pbe():
     check_h3_os_pbe(EDIISSCFSolver(threshold=1e-6))
 
 
-def test_vanadium_sc_hf():
-    with assert_raises(NoSCFConvergence):
-        check_vanadium_sc_hf(EDIISSCFSolver(threshold=1e-10, maxiter=10))
+# TODO: Move to higher level test
+# def test_vanadium_sc_hf():
+#     with assert_raises(NoSCFConvergence):
+#         check_vanadium_sc_hf(EDIISSCFSolver(threshold=1e-10, maxiter=10))
 
 
 def test_water_cs_m05():
@@ -78,14 +79,14 @@ def test_methyl_os_tpss():
 
 
 def test_interpol_hf_cs_hf():
-    fn_fchk = context.get_fn('test/hf_sto3g.fchk')
-    mol = IOData.from_file(fn_fchk)
+    fname = 'hf_sto3g_fchk'
+    mdata = load_mdata(fname)
 
-    olp = mol.obasis.compute_overlap()
-    kin = mol.obasis.compute_kinetic()
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
-    er = mol.obasis.compute_electron_repulsion()
-    external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
+    er = load_er(fname)
+    external = {'nn': load_nn(fname)}
     terms = [
         RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
@@ -95,19 +96,19 @@ def test_interpol_hf_cs_hf():
     ham = REffHam(terms, external)
     occ_model = AufbauOccModel(5)
 
-    orbs = [mol.orb_alpha]
+    orbs = [load_orbs_alpha(fname)]
     check_interpol_hf(ham, orbs, olp, kin, na, occ_model)
 
 
 def test_interpol_lih_os_hf():
-    fn_fchk = context.get_fn('test/li_h_3-21G_hf_g09.fchk')
-    mol = IOData.from_file(fn_fchk)
+    fname = 'li_h_3_21G_hf_g09_fchk'
+    mdata = load_mdata(fname)
 
-    olp = mol.obasis.compute_overlap()
-    kin = mol.obasis.compute_kinetic()
-    na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
-    er = mol.obasis.compute_electron_repulsion()
-    external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
+    olp = load_olp(fname)
+    kin = load_kin(fname)
+    na = load_na(fname)
+    er = load_er(fname)
+    external = {'nn': load_nn(fname)}
     terms = [
         UTwoIndexTerm(kin, 'kin'),
         UDirectTerm(er, 'hartree'),
@@ -117,12 +118,12 @@ def test_interpol_lih_os_hf():
     ham = UEffHam(terms, external)
     occ_model = AufbauOccModel(2, 1)
 
-    orbs = [mol.orb_alpha, mol.orb_beta]
+    orbs = [load_orbs_alpha(fname), load_orbs_beta(fname)]
     check_interpol_hf(ham, orbs, olp, kin, na, occ_model)
 
 
 def check_interpol_hf(ham, orbs, olp, kin, na, occ_model):
-    guess_core_hamiltonian(olp, kin+na, *orbs)
+    guess_core_hamiltonian(olp, kin + na, *orbs)
     dms = [exp.to_dm() for exp in orbs]
     scf_solver = EDIISSCFSolver(maxiter=4)
     try:
@@ -139,9 +140,9 @@ def check_interpol_hf(ham, orbs, olp, kin, na, occ_model):
     energies_approx = np.zeros(npt)
     energies_hf = np.zeros(npt)
     for ipt in xrange(npt):
-        x[0] = 1-alphas[ipt]
+        x[0] = 1 - alphas[ipt]
         x[1] = alphas[ipt]
-        energies_approx[ipt] = np.dot(x, 0.5*np.dot(b, x)-e)
+        energies_approx[ipt] = np.dot(x, 0.5 * np.dot(b, x) - e)
         # compute the hf energy
         scf_solver._history._build_combinations(x, dms, None)
         ham.reset(*dms)
