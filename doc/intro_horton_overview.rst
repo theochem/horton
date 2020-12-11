@@ -81,7 +81,7 @@ Main Features
 
 * Integrating the `LibXC
   <http://www.tddft.org/programs/octopus/wiki/index.php/Libxc>`_
-  [marques2012]_ and `LibInt2 <https://github.com/evaleev/libint>`_
+  [lehtola2018]_ and `LibInt2 <https://github.com/evaleev/libint>`_
   [valeev2014]_ libraries.
 
 * Supporting many :ref:`ref_file_formats` to exchange data with other codes.
