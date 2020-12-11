@@ -107,7 +107,7 @@ Main Features
 
     * Restricted and unrestricted orbitals
 
-    * LDA, GGA and Hybrid GGA :ref:`ref_functionals`
+    * LDA, GGA, hybrid GGA, mGGA, and hybrid mGGA :ref:`ref_functionals`
 
     * Various SCF algorithms
 
