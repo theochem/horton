@@ -81,7 +81,7 @@ Main Features
 
 * Integrating the `LibXC
   <http://www.tddft.org/programs/octopus/wiki/index.php/Libxc>`_
-  [marques2012]_ and `LibInt2 <https://github.com/evaleev/libint>`_
+  [lehtola2018]_ and `LibInt2 <https://github.com/evaleev/libint>`_
   [valeev2014]_ libraries.
 
 * Supporting many :ref:`ref_file_formats` to exchange data with other codes.
@@ -107,7 +107,7 @@ Main Features
 
     * Restricted and unrestricted orbitals
 
-    * LDA, GGA and Hybrid GGA :ref:`ref_functionals`
+    * LDA, GGA, hybrid GGA, mGGA, and hybrid mGGA :ref:`ref_functionals`
 
     * Various SCF algorithms
 

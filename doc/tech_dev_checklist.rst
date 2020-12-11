@@ -661,7 +661,7 @@ When no source is mentioned, the criteria are specific to HORTON.
       ``[lastnameyear]_``
 
     * **MP0403** Add ``log.cite('someref', 'a reason')`` to the code based on the
-      publication, e.g. ``log.cite('marques2012', 'using LibXC, the library of exchange
+      publication, e.g. ``log.cite('lehtola2018', 'using LibXC, the library of exchange
       and correlation functionals').``
 
     * **MP0404** No begging for citations in the output or documentation. Go beyond

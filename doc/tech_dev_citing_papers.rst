@@ -32,6 +32,6 @@ properly:
    touch existing references if not needed.
 
 2. Add ``log.cite('someref', 'a reason')`` to the code based on the publication, e.g.\
-   ``log.cite('marques2012', 'using LibXC, the library of exchange and correlation functionals')``.
+   ``log.cite('lehtola2018', 'using LibXC, the library of exchange and correlation functionals')``.
    This guarantees that paper is properly cited at the end of the HORTON screen
    output.
