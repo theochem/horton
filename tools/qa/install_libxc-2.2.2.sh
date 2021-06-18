@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-NAMEVER=libxc-2.2.2
+http://www.tddft.org/programs/libxc/down.php?file=2.2.2/libxc-2.2.2.tar.gz
+
+VER=2.2.2
+NAMEVER=libxc-${VER}
 set -e
 source tools/qa/common.sh
 if [ ! -d "${CACHED}/${NAMEVER}/lib" ]; then
@@ -9,7 +12,7 @@ if [ ! -d "${CACHED}/${NAMEVER}/lib" ]; then
     cd ${QAWORKDIR}
     mkdir -p depbuild
     cd depbuild
-    curl -OL 'http://www.tddft.org/programs/octopus/down.php?file=libxc/libxc-2.2.2.tar.gz'
+    curl -OL "http://www.tddft.org/programs/libxc/down.php?file=${VER}/${NAMEVER}.tar.gz"
     tar -xzf libxc-2.2.2.tar.gz
     cd libxc-2.2.2
     echo "Actual build and install. This may take a while."
