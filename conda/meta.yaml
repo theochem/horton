@@ -19,8 +19,8 @@ requirements:
     - cmake
     - make
     - git
-    - python {{ python }}
   host:
+    - python {{ python }}
     - numpy
     - scipy
     - cython
