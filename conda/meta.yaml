@@ -19,8 +19,8 @@ requirements:
     - cmake
     - make
     - git
+    - python {{ python }}
   host:
-    - python
     - numpy
     - scipy
     - cython
@@ -42,6 +42,6 @@ test:
     - horton
 
 about:
-  summary: "Python-based Simulations of Chemistry Framework"
-  license: Apache License 2.0
-  home: http://www.pyscf.org
+  summary: "Helpful Open-source Research TOol for N-fermion systems"
+  license: GPLv3.0
+  home: https://github.com/theochem/horton
