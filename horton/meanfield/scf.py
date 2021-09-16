@@ -93,13 +93,13 @@ class PlainSCFSolver(object):
             log('Iter         Error')
             log.hline()
 
-        focks = [np.zeros(overlap.shape) for i in xrange(ham.ndm)]
+        focks = [np.zeros(overlap.shape) for i in range(ham.ndm)]
         dms = [None] * ham.ndm
         converged = False
         counter = 0
         while self.maxiter is None or counter < self.maxiter:
             # convert the orbital expansions to density matrices
-            for i in xrange(ham.ndm):
+            for i in range(ham.ndm):
                 dms[i] = orbs[i].to_dm()
             # feed the latest density matrices in the hamiltonian
             ham.reset(*dms)
@@ -107,7 +107,7 @@ class PlainSCFSolver(object):
             ham.compute_fock(*focks)
             # Check for convergence
             error = 0.0
-            for i in xrange(ham.ndm):
+            for i in range(ham.ndm):
                 error += orbs[i].error_eigen(focks[i], overlap)
             if log.do_medium:
                 log('%4i  %12.5e' % (counter, error))
@@ -116,11 +116,11 @@ class PlainSCFSolver(object):
                 break
             # If requested, add the level shift to the Fock operator
             if self.level_shift > 0:
-                for i in xrange(ham.ndm):
+                for i in range(ham.ndm):
                     # The normal behavior is to shift down the occupied levels.
                     focks[i] += -self.level_shift*get_level_shift(dms[i], overlap)
             # Diagonalize the fock operators to obtain new orbitals and
-            for i in xrange(ham.ndm):
+            for i in range(ham.ndm):
                 orbs[i].from_fock(focks[i], overlap)
                 # If requested, compensate for level-shift. This compensation
                 # is only correct when the SCF has converged.

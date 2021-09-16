@@ -59,22 +59,22 @@ class LockedH5File(h5.File):
         count = kwargs.pop('count', 10)
         wait = kwargs.pop('wait', 10.0)
         # first try to open the file
-        for irep in xrange(count):
+        for irep in range(count):
             try:
                 h5.File.__init__(self, *args, **kwargs)
                 break # When this line is reached, it worked.
-            except IOError, e:
+            except IOError as e:
                 if irep == count-1:
                     # giving up
                     raise
                 else:
                     time.sleep(wait)
         # then try to get a lock
-        for irep in xrange(count):
+        for irep in range(count):
             try:
                 if self.driver != 'sec2': # only works for sec2
                     raise ValueError('LockedH5File only works with HDF5 sec2 driver.')
-                fd = self.fid.get_vfd_handle()
+                fd = self.id.get_vfd_handle()
                 if fd == 0:
                     raise IOError('Zero file descriptor')
                 if self.mode == 'r':
@@ -82,7 +82,7 @@ class LockedH5File(h5.File):
                 else:
                     fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 break # When this line is reached, it worked.
-            except IOError, e:
+            except IOError as e:
                 if irep == count-1:
                     # giving up
                     raise

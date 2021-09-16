@@ -177,7 +177,7 @@ def iter_states(elements, max_cation, max_anion, hund):
     """
     for number in iter_elements(elements):
         # Loop over all charge states for this element
-        for charge in xrange(-max_anion, max_cation+1):
+        for charge in range(-max_anion, max_cation+1):
             nel = number - charge
             if nel <= 0:
                 continue
@@ -396,8 +396,8 @@ class EnergyTable(object):
     def log(self):
         log(' Nr Pop Chg              Energy          Ionization            Affinity')
         log.hline()
-        for number, cases in sorted(self.all.iteritems()):
-            for pop, energy in sorted(cases.iteritems()):
+        for number, cases in sorted(self.all.items()):
+            for pop, energy in sorted(cases.items()):
                 energy_prev = cases.get(pop-1)
                 if energy_prev is None:
                     ip_str = ''
@@ -464,7 +464,7 @@ class AtomProgram(object):
         exists = os.path.isfile(fn_script)
         if not exists:
             with open(fn_script, 'w') as f:
-                print >> f, self.run_script
+                print(self.run_script, file=f)
             log('Written new:      ', fn_script)
         else:
             log('Not overwriting:  ', fn_script)
@@ -720,6 +720,6 @@ class Psi4AtomProgram(AtomProgram):
 
 
 atom_programs = {}
-for APC in globals().values():
+for APC in list(globals().values()):
     if isinstance(APC, type) and issubclass(APC, AtomProgram) and not APC is AtomProgram:
         atom_programs[APC.name] = APC()

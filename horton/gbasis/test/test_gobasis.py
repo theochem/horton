@@ -112,7 +112,7 @@ def test_gobasis_consistency():
 
 
 def test_load_basis():
-    for go_basis_family in go_basis_families.itervalues():
+    for go_basis_family in go_basis_families.values():
         assert os.path.basename(go_basis_family.filename).islower()
         go_basis_family.load()
 
@@ -125,7 +125,7 @@ def test_grid_lih_321g_hf_density_some_points():
         [0.0, 0.0, 1.0, 0.186234028507],
         [0.4, 0.2, 0.1, 0.018503681370],
     ])
-    ref[:,:3] *= angstrom
+    ref[:, :3] *= angstrom
     mol = IOData.from_file(context.get_fn('test/li_h_3-21G_hf_g09.fchk'))
 
     # check for one point the compute_grid_point1 method
@@ -137,7 +137,7 @@ def test_grid_lih_321g_hf_density_some_points():
     assert mol.obasis.nprims[0] == 3
     scales = mol.obasis.get_scales()
     total = 0.0
-    for i in xrange(3):
+    for i in range(3):
         alpha = mol.obasis.alphas[i]
         coeff = mol.obasis.con_coeffs[i]
         nrml = gob_cart_normalization(alpha, np.zeros(3, int))
@@ -152,19 +152,19 @@ def test_grid_lih_321g_hf_density_some_points():
 
     # check density matrix value
     dm_full = mol.get_dm_full()
-    assert abs(dm_full[0,0] - 1.96589709) < 1e-7
+    assert abs(dm_full[0, 0] - 1.96589709) < 1e-7
 
-    points = ref[:,:3].copy()
+    points = ref[:, :3].copy()
     rhos = mol.obasis.compute_grid_density_dm(dm_full, points)
-    assert abs(rhos - ref[:,3]).max() < 1e-5
+    assert abs(rhos - ref[:, 3]).max() < 1e-5
 
 
 def check_grid_rho(fn, ref, eps):
     mol = IOData.from_file(context.get_fn(fn))
-    points = ref[:,:3].copy()
+    points = ref[:, :3].copy()
     dm_full = mol.get_dm_full()
     rhos = mol.obasis.compute_grid_density_dm(dm_full, points)
-    assert abs(rhos - ref[:,3]).max() < eps
+    assert abs(rhos - ref[:, 3]).max() < eps
 
 
 def test_grid_co_ccpv5z_cart_hf_density_some_points():
@@ -178,7 +178,7 @@ def test_grid_co_ccpv5z_cart_hf_density_some_points():
         [ 0.4, -0.2,  0.1,   0.14627065655],
         [ 0.4,  0.2, -0.1,   0.11912840380],
     ])
-    ref[:,:3] *= angstrom
+    ref[:, :3] *= angstrom
     check_grid_rho('test/co_ccpv5z_cart_hf_g03.fchk', ref, 3e-3)
 
 
@@ -193,16 +193,16 @@ def test_grid_co_ccpv5z_pure_hf_density_some_points():
         [ 0.4, -0.2,  0.1,   0.14409038614],
         [ 0.4,  0.2, -0.1,   0.11750780363],
     ])
-    ref[:,:3] *= angstrom
+    ref[:, :3] *= angstrom
     check_grid_rho('test/co_ccpv5z_pure_hf_g03.fchk', ref, 3e-3)
 
 
 def check_grid_gradient(fn, ref, eps):
     mol = IOData.from_file(context.get_fn(fn))
-    points = ref[:,:3].copy()
+    points = ref[:, :3].copy()
     dm_full = mol.get_dm_full()
     gradients = mol.obasis.compute_grid_gradient_dm(dm_full, points)
-    assert abs(gradients - ref[:,3:]).max() < eps
+    assert abs(gradients - ref[:, 3:]).max() < eps
 
 
 def test_grid_lih_321g_hf_gradient_some_points():
@@ -300,7 +300,7 @@ def test_grid_co_ccpv5z_cart_hf_gradient_some_points():
         [ 0.4, -0.2,  0.1,  -0.50464249640,   0.29978538874,  -0.01244489023],
         [ 0.4,  0.2, -0.1,  -0.21837773815,  -0.16855926400,   0.15518115326],
     ])
-    ref[:,:3] *= angstrom
+    ref[:, :3] *= angstrom
     # cubegen output somehow not reliable?
     check_grid_gradient('test/co_ccpv5z_cart_hf_g03.fchk', ref, 1e-2)
 
@@ -316,16 +316,16 @@ def test_grid_co_ccpv5z_pure_hf_gradient_some_points():
         [ 0.4, -0.2,  0.1,  -0.51099806603,   0.29961935521,  -0.00979594206],
         [ 0.4,  0.2, -0.1,  -0.21849813344,  -0.16098019809,   0.16093849962],
     ])
-    ref[:,:3] *= angstrom
+    ref[:, :3] *= angstrom
     check_grid_gradient('test/co_ccpv5z_pure_hf_g03.fchk', ref, 1e-4)
 
 
 def check_grid_esp(fn, ref, eps):
     mol = IOData.from_file(context.get_fn(fn))
-    points = ref[:,:3].copy()
+    points = ref[:, :3].copy()
     dm_full = mol.get_dm_full()
     esps = mol.obasis.compute_grid_esp_dm(dm_full, mol.coordinates, mol.pseudo_numbers, points)
-    assert abs(esps - ref[:,3]).max() < eps
+    assert abs(esps - ref[:, 3]).max() < eps
 
 
 def test_grid_lih_321g_hf_esp_some_points():
@@ -336,7 +336,7 @@ def test_grid_lih_321g_hf_esp_some_points():
         [0.0, 0.0, 1.0, 1.422294470114],
         [0.4, 0.2, 0.1, 0.796490099689],
     ])
-    ref[:,:3] *= angstrom
+    ref[:, :3] *= angstrom
     check_grid_esp('test/li_h_3-21G_hf_g09.fchk', ref, 1e-8)
 
 
@@ -352,7 +352,7 @@ def test_grid_co_ccpv5z_cart_hf_esp_some_points():
         [ 0.4, -0.2,  0.1,   0.83432301119],
         [ 0.4,  0.2, -0.1,   0.68524674809],
     ])
-    ref[:,:3] *= angstrom
+    ref[:, :3] *= angstrom
     # cubegen output somehow not reliable?
     check_grid_esp('test/co_ccpv5z_cart_hf_g03.fchk', ref, 1e-3)
 
@@ -369,7 +369,7 @@ def test_grid_co_ccpv5z_pure_hf_esp_some_points():
         [ 0.4, -0.2,  0.1,   0.83432301119],
         [ 0.4,  0.2, -0.1,   0.68524674809],
     ])
-    ref[:,:3] *= angstrom
+    ref[:, :3] *= angstrom
     check_grid_esp('test/co_ccpv5z_pure_hf_g03.fchk', ref, 1e-5)
 
 
@@ -393,9 +393,9 @@ def test_grid_two_index_ne():
 def test_gob_normalization():
     assert abs(gob_pure_normalization(0.09515, 0) - 0.122100288) < 1e-5
     assert abs(gob_pure_normalization(0.1687144, 1) - 0.154127551) < 1e-5
-    assert abs(gob_cart_normalization(0.344, np.array([1,1,0])) - 0.440501466) < 1e-8
-    assert abs(gob_cart_normalization(0.246, np.array([1,1,1])) - 0.242998767) < 1e-8
-    assert abs(gob_cart_normalization(0.238, np.array([2,1,1])) - 0.127073818) < 1e-8
+    assert abs(gob_cart_normalization(0.344, np.array([1, 1, 0])) - 0.440501466) < 1e-8
+    assert abs(gob_cart_normalization(0.246, np.array([1, 1, 1])) - 0.242998767) < 1e-8
+    assert abs(gob_cart_normalization(0.238, np.array([2, 1, 1])) - 0.127073818) < 1e-8
     assert abs(gob_pure_normalization(0.3, 0) - gob_cart_normalization(0.3, np.array([0, 0, 0]))) < 1e-10
     assert abs(gob_pure_normalization(0.7, 0) - gob_cart_normalization(0.7, np.array([0, 0, 0]))) < 1e-10
     assert abs(gob_pure_normalization(1.9, 0) - gob_cart_normalization(1.9, np.array([0, 0, 0]))) < 1e-10
@@ -419,9 +419,9 @@ def test_concatenate1():
     assert ob.ncenter == 3*2
     assert ob.nbasis == 13*2
     a = ob.compute_overlap()
-    assert abs(a[:13,:13] - a[:13,13:]).max() < 1e-15
-    assert (a[:13,:13] == a[13:,13:]).all()
-    assert abs(a[:13,:13] - a[13:,:13]).max() < 1e-15
+    assert abs(a[:13, :13] - a[:13, 13:]).max() < 1e-15
+    assert (a[:13, :13] == a[13:, 13:]).all()
+    assert abs(a[:13, :13] - a[13:, :13]).max() < 1e-15
 
 
 def test_concatenate2():
@@ -436,13 +436,13 @@ def test_concatenate2():
     a11 = obasis1.compute_overlap()
     a22 = obasis2.compute_overlap()
     N = obasis1.nbasis
-    assert (a[:N,:N] == a11).all()
-    assert (a[N:,N:] == a22).all()
+    assert (a[:N, :N] == a11).all()
+    assert (a[N:, N:] == a22).all()
 
 
 def test_abstract():
     with assert_raises(NotImplementedError):
-        centers = np.zeros((1,3), float)
+        centers = np.zeros((1, 3), float)
         shell_map = np.zeros(2, int)
         nprims = np.array([1, 2])
         shell_types = np.array([0, 1])
@@ -529,7 +529,7 @@ def test_gobasis_output_args_grid_hartree_dm():
 def test_subset_simple():
     mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
     # select a basis set for the first hydrogen atom
-    sub_obasis, ibasis_list = mol.obasis.get_subset([0,1])
+    sub_obasis, ibasis_list = mol.obasis.get_subset([0, 1])
     assert sub_obasis.ncenter == 1
     assert sub_obasis.nshell == 2
     assert (sub_obasis.centers[0] == mol.obasis.centers[0]).all()
@@ -545,7 +545,7 @@ def test_subset_simple():
 def test_subset_simple_reverse():
     mol = IOData.from_file(context.get_fn('test/water_hfs_321g.fchk'))
     # select a basis set for the first hydrogen atom
-    sub_obasis, ibasis_list = mol.obasis.get_subset([1,0])
+    sub_obasis, ibasis_list = mol.obasis.get_subset([1, 0])
     assert sub_obasis.ncenter == 1
     assert sub_obasis.nshell == 2
     assert (sub_obasis.centers[0] == mol.obasis.centers[0]).all()
@@ -589,7 +589,7 @@ def test_basis_atoms():
         assert (sub_obasis.centers[0] == mol.obasis.centers[icenter]).all()
         icenter += 1
         ibasis_all.extend(ibasis_list)
-    assert ibasis_all == range(mol.obasis.nbasis)
+    assert ibasis_all == list(range(mol.obasis.nbasis))
 
 
 def check_normalization(number, basis):
@@ -615,5 +615,5 @@ def check_normalization(number, basis):
 
 
 def test_normalization_ccpvdz():
-    for number in xrange(1, 18+1):
+    for number in range(1, 18+1):
         check_normalization(number, 'cc-pvdz')

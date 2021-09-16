@@ -96,7 +96,7 @@ def translate_random_rvecs(coordinates, rvecs, seed):
     """Translate nuclei by a random integer linear combination of cell vectors."""
     result = coordinates.copy()
     with numpy_seed(seed):
-        for j in xrange(len(coordinates)):
+        for j in range(len(coordinates)):
             result[j] += np.dot(np.random.randint(-3, 4, 3), rvecs)
     return result
 
@@ -117,20 +117,20 @@ def check_costs(costs, eps0=1e-3, eps1=1e-9):
     """
     assert abs(costs[0]._A).max() > eps0
     assert abs(costs[0]._B).max() > eps0
-    for i in xrange(nrep-1):
+    for i in range(nrep-1):
         assert abs(costs[i]._A - costs[i+1]._A).max() < eps1
         assert abs(costs[i]._B - costs[i+1]._B).max() < eps1
         assert abs(costs[i]._C - costs[i+1]._C) < eps1
 
 
 def test_esp_cost_cube3d_invariance_origin():
-    for irep in xrange(nrep):
+    for irep in range(nrep):
         # Some parameters
         coordinates, _origin, grid_rvecs, shape, pbc, vref, weights = \
             get_random_esp_cost_cube3d_args(irep)
         # Generate costs with displaced origin
         costs = []
-        for ishift in xrange(nrep):
+        for ishift in range(nrep):
             shift = get_random_shift(irep*10 + ishift)
             tmp = coordinates+shift
             grid = UniformGrid(shift, grid_rvecs, shape, pbc)
@@ -141,13 +141,13 @@ def test_esp_cost_cube3d_invariance_origin():
 
 
 def test_esp_cost_cube0d_invariance_origin():
-    for irep in xrange(nrep):
+    for irep in range(nrep):
         # Some parameters
         coordinates, _origin, grid_rvecs, shape, pbc, vref, weights = \
             get_random_esp_cost_cube0d_args(irep)
         # Generate costs with displaced origin
         costs = []
-        for ishift in xrange(nrep):
+        for ishift in range(nrep):
             shift = get_random_shift(irep*10 + ishift)
             tmp = coordinates+shift
             grid = UniformGrid(shift, grid_rvecs, shape, pbc)
@@ -158,13 +158,13 @@ def test_esp_cost_cube0d_invariance_origin():
 
 
 def test_esp_cost_cube3d_invariance_rotation():
-    for irep in xrange(nrep):
+    for irep in range(nrep):
         # Some parameters
         coordinates, origin, grid_rvecs, shape, pbc, vref, weights = \
             get_random_esp_cost_cube3d_args(irep)
         # Generate costs with displaced origin
         costs = []
-        for irot in xrange(nrep):
+        for irot in range(nrep):
             unitary = get_random_unitary(irep*10 + irot)
             new_grid_rvecs = np.dot(grid_rvecs, unitary)
             new_coordinates = np.dot(coordinates-origin, unitary)+origin
@@ -177,13 +177,13 @@ def test_esp_cost_cube3d_invariance_rotation():
 
 
 def test_esp_cost_cube0d_invariance_rotation():
-    for irep in xrange(nrep):
+    for irep in range(nrep):
         # Some parameters
         coordinates, origin, grid_rvecs, shape, pbc, vref, weights = \
             get_random_esp_cost_cube0d_args(irep)
         # Generate costs with displaced origin
         costs = []
-        for irot in xrange(nrep):
+        for irot in range(nrep):
             unitary = get_random_unitary(irep*10 + irot)
             new_grid_rvecs = np.dot(grid_rvecs, unitary)
             new_coordinates = np.dot(coordinates-origin, unitary)+origin
@@ -196,7 +196,7 @@ def test_esp_cost_cube0d_invariance_rotation():
 
 
 def test_esp_cost_cube3d_invariance_images():
-    for irep in xrange(nrep):
+    for irep in range(nrep):
         # Some parameters
         coordinates, origin, grid_rvecs, shape, pbc, vref, weights = \
             get_random_esp_cost_cube3d_args(irep)
@@ -204,7 +204,7 @@ def test_esp_cost_cube3d_invariance_images():
         # Generate costs with displaced origin
         costs = []
         rvecs = grid.get_cell().rvecs
-        for iimage in xrange(nrep):
+        for iimage in range(nrep):
             new_coordinates = translate_random_rvecs(coordinates, rvecs, irep*10 + iimage)
             cost = ESPCost.from_grid_data(new_coordinates, grid, vref, weights)
             costs.append(cost)
@@ -213,14 +213,14 @@ def test_esp_cost_cube3d_invariance_images():
 
 
 def test_esp_cost_cube3d_invariance_rcut():
-    for irep in xrange(3):  # Repeating this only 3 times because it is so slow.
+    for irep in range(3):  # Repeating this only 3 times because it is so slow.
         # Some parameters
         coordinates, origin, grid_rvecs, shape, pbc, vref, weights = \
             get_random_esp_cost_cube3d_args(irep)
         grid = UniformGrid(origin, grid_rvecs, shape, pbc)
         # Generate costs with displaced origin
         costs = []
-        for icut in xrange(nrep):
+        for icut in range(nrep):
             with numpy_seed(irep*10 + icut):
                 rcut = np.random.uniform(10, 30)
             alpha = 4.5/rcut
@@ -233,7 +233,7 @@ def test_esp_cost_cube3d_invariance_rcut():
 
 
 def test_esp_cost_cube3d_gradient():
-    for irep in xrange(nrep):
+    for irep in range(nrep):
         # Some parameters
         coordinates, origin, grid_rvecs, shape, pbc, vref, weights = \
             get_random_esp_cost_cube3d_args(irep)
@@ -247,7 +247,7 @@ def test_esp_cost_cube3d_gradient():
 
 
 def test_esp_cost_solve():
-    for irep in xrange(nrep):
+    for irep in range(nrep):
         with numpy_seed(irep):
             A = np.random.uniform(-1, 1, (11, 11))
             B = np.random.uniform(-1, 1, 11)
@@ -277,7 +277,7 @@ def test_esp_cost_solve():
 
 
 def test_esp_cost_solve_regularized():
-    for irep in xrange(nrep):
+    for irep in range(nrep):
         with numpy_seed(irep):
             A = np.random.uniform(-1, 1, (11, 11))
             B = np.random.uniform(-1, 1, 11)
@@ -348,7 +348,7 @@ def test_compare_cubetools():
 
 
 def test_worst():
-    for irep in xrange(nrep):
+    for irep in range(nrep):
         cost = get_random_esp_cost_cube3d(irep)
         N = cost.natom
         assert cost.worst() < cost._C
@@ -360,7 +360,7 @@ def test_worst():
 
 
 def test_value_charges1():
-    for irep in xrange(nrep):
+    for irep in range(nrep):
         cost = get_random_esp_cost_cube3d(irep)
         x = cost.solve()
         charges = x[:-1]
@@ -368,9 +368,9 @@ def test_value_charges1():
 
 
 def test_value_charges2():
-    for irep in xrange(nrep):
+    for irep in range(nrep):
         cost = get_random_esp_cost_cube3d(irep)
-        for ix in xrange(nrep):
+        for ix in range(nrep):
             with numpy_seed(irep*10 + ix):
                 x = np.random.normal(0, 1, len(cost._A))
             x -= x.sum()
@@ -378,7 +378,7 @@ def test_value_charges2():
 
 
 def test_consistent():
-    for irep in xrange(nrep):
+    for irep in range(nrep):
         with numpy_seed(irep):
             # random system
             natom = 5
@@ -404,7 +404,7 @@ def test_consistent():
 
         # Set up weights
         weights = np.ones(shape)
-        for i in xrange(natom):
+        for i in range(natom):
             multiply_near_mask(coordinates[i], ugrid, 1.0, 0.5, weights)
 
         # Fit the charges and test
@@ -418,8 +418,7 @@ def test_consistent():
 def test_hdf5():
     # Not repeating nrep times this because the values of the random numbers do not affect
     # the behavior.
-    with h5.File('horton.espfit.test.test_cost.test_hdf5.h5', driver='core',
-                 backing_store=False) as f:
+    with h5.File('horton.espfit.test.test_cost.test_hdf5.h5', "w", driver='core', backing_store=False) as f:
         cost1 = get_random_esp_cost_cube3d()
         cost1.to_hdf5(f)
         cost2 = ESPCost.from_hdf5(f)

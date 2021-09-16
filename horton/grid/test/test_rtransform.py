@@ -31,50 +31,50 @@ def check_consistency(rtf):
     # consistency between radius and radius_array
     rs = np.zeros(ts.shape)
     rtf.radius(ts, rs)
-    for i in xrange(ts.shape[0]):
+    for i in range(ts.shape[0]):
         assert rs[i] == rtf.radius(ts[i])
     # consistency between radius and radius_array
     rs = rtf.radius(ts)
-    for i in xrange(ts.shape[0]):
+    for i in range(ts.shape[0]):
         assert rs[i] == rtf.radius(ts[i])
     # consistency between deriv and deriv_array
     ds = np.zeros(ts.shape)
     rtf.deriv(ts, ds)
-    for i in xrange(ts.shape[0]):
+    for i in range(ts.shape[0]):
         assert ds[i] == rtf.deriv(ts[i])
     # consistency between deriv and deriv_array
     ds = rtf.deriv(ts)
-    for i in xrange(ts.shape[0]):
+    for i in range(ts.shape[0]):
         assert ds[i] == rtf.deriv(ts[i])
     # consistency between deriv2 and deriv2_array
     d2s = np.zeros(ts.shape)
     rtf.deriv2(ts, d2s)
-    for i in xrange(ts.shape[0]):
+    for i in range(ts.shape[0]):
         assert d2s[i] == rtf.deriv2(ts[i])
     # consistency between deriv2 and deriv2_array
     d2s = rtf.deriv2(ts)
-    for i in xrange(ts.shape[0]):
+    for i in range(ts.shape[0]):
         assert d2s[i] == rtf.deriv2(ts[i])
     # consistency between deriv3 and deriv3_array
     d3s = np.zeros(ts.shape)
     rtf.deriv3(ts, d3s)
-    for i in xrange(ts.shape[0]):
+    for i in range(ts.shape[0]):
         assert d3s[i] == rtf.deriv3(ts[i])
     # consistency between deriv3 and deriv3_array
     d3s = rtf.deriv3(ts)
-    for i in xrange(ts.shape[0]):
+    for i in range(ts.shape[0]):
         assert d3s[i] == rtf.deriv3(ts[i])
     # consistency between inv and inv_array
     ts[:] = 0.0
     rtf.inv(rs, ts)
-    for i in xrange(ts.shape[0]):
+    for i in range(ts.shape[0]):
         assert ts[i] == rtf.inv(rs[i])
     # consistency between inv and inv_array
     ts = rtf.inv(rs)
-    for i in xrange(ts.shape[0]):
+    for i in range(ts.shape[0]):
         assert ts[i] == rtf.inv(rs[i])
     # consistency between inv and radius
-    for i in xrange(ts.shape[0]):
+    for i in range(ts.shape[0]):
         assert abs(ts[i] - rtf.inv(rtf.radius(ts[i]))) < 1e-10
 
     ts = np.arange(rtf.npoint, dtype=float)

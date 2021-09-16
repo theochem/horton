@@ -20,11 +20,9 @@
 # --
 """Utility functions"""
 
-
 import numpy as np
 
 from horton.meanfield.orbitals import Orbitals
-
 
 __all__ = [
     'check_dm', 'get_level_shift', 'get_spin', 'get_homo_lumo',
@@ -57,9 +55,9 @@ def check_dm(dm, overlap, eps=1e-4, occ_max=1.0):
     if orb.occupations.min() < -eps:
         raise ValueError('The density matrix has eigenvalues considerably smaller than '
                          'zero. error=%e' % (orb.occupations.min()))
-    if orb.occupations.max() > occ_max+eps:
+    if orb.occupations.max() > occ_max + eps:
         raise ValueError('The density matrix has eigenvalues considerably larger than '
-                         'max. error=%e' % (orb.occupations.max()-1))
+                         'max. error=%e' % (orb.occupations.max() - 1))
 
 
 def get_level_shift(dm, overlap):
@@ -93,20 +91,20 @@ def get_spin(orb_alpha, orb_beta, overlap):
     '''
     nalpha = orb_alpha.occupations.sum()
     nbeta = orb_beta.occupations.sum()
-    sz = (nalpha - nbeta)/2
+    sz = (nalpha - nbeta) / 2
     correction = 0.0
-    for ialpha in xrange(orb_alpha.nfn):
+    for ialpha in range(orb_alpha.nfn):
         if orb_alpha.occupations[ialpha] == 0.0:
             continue
-        for ibeta in xrange(orb_beta.nfn):
+        for ibeta in range(orb_beta.nfn):
             if orb_beta.occupations[ibeta] == 0.0:
                 continue
             correction += np.dot(
-                orb_alpha.coeffs[:,ialpha],
-                np.dot(overlap, orb_beta.coeffs[:,ibeta]))**2
+                orb_alpha.coeffs[:, ialpha],
+                np.dot(overlap, orb_beta.coeffs[:, ibeta])) ** 2
 
-    ssq = sz*(sz+1) + nbeta - correction
-    print sz, ssq
+    ssq = sz * (sz + 1) + nbeta - correction
+    print(sz, ssq)
     return sz, ssq
 
 
@@ -121,13 +119,9 @@ def get_homo_lumo(*orbs):
        **Returns:** homo_energy, lumo_energy. (The second is None when all
        orbitals are occupied.)
     '''
-    homo_energy = max(orb.homo_energy for orb in orbs)
+    homo_energy = max(orb.homo_energy for orb in orbs if orb.homo_energy is not None)
     lumo_energies = [orb.lumo_energy for orb in orbs]
-    lumo_energies = [lumo_energy for lumo_energy in lumo_energies if lumo_energy is not None]
-    if len(lumo_energies) == 0:
-        lumo_energy = None
-    else:
-        lumo_energy = min(lumo_energies)
+    lumo_energy = min([lumo_energy for lumo_energy in lumo_energies if lumo_energy is not None], default=None)
     return homo_energy, lumo_energy
 
 

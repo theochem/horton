@@ -390,18 +390,17 @@ ref_lda_x_1 = """\
   issue = {03},
   month = {7},
   pages = {376},
-  numpages = {10},
   year = {1930},
   issn = {1469-8064},
   doi = {10.1017/S0305004100016108},
-  URL = {http://journals.cambridge.org/article_S0305004100016108}
+  url = {http://journals.cambridge.org/article_S0305004100016108}
 }"""
 
 
 ref_lda_x_2 = """\
 @article{Bloch1929_545,
   title = {Bemerkung zur Elektronentheorie des Ferromagnetismus und der elektrischen \
-Leitf\xc3\xa4higkeit},
+Leitf\\"{a}higkeit},
   author = {F. Bloch},
   journal = {Z. Phys.},
   volume = {57},

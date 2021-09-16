@@ -28,23 +28,23 @@ from nose.tools import assert_raises
 
 
 def test_consistency():
-    for npoint, lmax in lebedev_laikov_npoints.iteritems():
+    for npoint, lmax in lebedev_laikov_npoints.items():
         assert lebedev_laikov_lmaxs[lmax] == npoint
 
 
 def test_lebedev_laikov_sphere():
-    previous_npoint = None
-    for i in xrange(1, 132):
+    previous_npoint = -np.inf
+    for i in range(1, 132):
         npoint = lebedev_laikov_lmaxs[i]
         if npoint > previous_npoint:
             points = np.zeros((npoint, 3), float)
             weights = np.zeros(npoint, float)
             lebedev_laikov_sphere(points, weights)
             assert abs(weights.sum() - 1.0) < 1e-13
-            assert abs(points[:,0].sum()) < 1e-10
-            assert abs(points[:,1].sum()) < 1e-10
-            assert abs(points[:,2].sum()) < 1e-10
-            assert abs(np.dot(points[:,0], weights)) < 1e-15
-            assert abs(np.dot(points[:,1], weights)) < 1e-15
-            assert abs(np.dot(points[:,2], weights)) < 1e-15
+            assert abs(points[:, 0].sum()) < 1e-10
+            assert abs(points[:, 1].sum()) < 1e-10
+            assert abs(points[:, 2].sum()) < 1e-10
+            assert abs(np.dot(points[:, 0], weights)) < 1e-15
+            assert abs(np.dot(points[:, 1], weights)) < 1e-15
+            assert abs(np.dot(points[:, 2], weights)) < 1e-15
         previous_npoint = npoint

@@ -20,7 +20,7 @@ with open('scf_results.txt') as f:
             tally[mixing]=[]
         tally[mixing].append(niter)
 
-    for k in sorted(tally.iterkeys()):
+    for k in sorted(tally.keys()):
         tally[k].sort()
         pt.plot(tally[k], np.linspace(0.0, 1.0, len(tally[k])), label=str(-np.log10(k)), ls='steps-post')
 

@@ -118,8 +118,8 @@ class GOBasisDesc(object):
         self.pure = pure
 
         # Update the element map such that it only contains numbers as keys.
-        for key in self.element_map.keys():
-            if isinstance(key, basestring):
+        for key in list(self.element_map.keys()):
+            if isinstance(key, str):
                 number = periodic[key].number
                 self.element_map[number] = element_map[key]
                 del element_map[key]
@@ -162,7 +162,7 @@ class GOBasisDesc(object):
 
         def translate_basis(basis_x, n):
             """Translate the first argument into a GOBasisAtom instance"""
-            if isinstance(basis_x, basestring):
+            if isinstance(basis_x, str):
                 basis_fam = go_basis_families.get(basis_x.lower())
                 if basis_fam is None:
                     raise ValueError('Unknown basis family: %s' % basis_x)
@@ -181,7 +181,7 @@ class GOBasisDesc(object):
                 raise ValueError('Can not interpret %s as an atomic basis function.' % basis_x)
 
         # Loop over the atoms and fill in all the lists
-        for i in xrange(natom):
+        for i in range(natom):
             n = numbers[i]
             basis_x = get_basis(i, n)
             basis_atom = translate_basis(basis_x, n)
@@ -264,14 +264,14 @@ class GOBasisFamily(object):
 
     def _to_arrays(self):
         """Convert all contraction attributes to numpy arrays."""
-        for ba in self.basis_atom_map.itervalues():
+        for ba in self.basis_atom_map.values():
             for bc in ba.bcs:
                 bc.to_arrays()
 
     def _to_segmented(self):
         '''Convert all contractions from generalized to segmented'''
         new_basis_atom_map = {}
-        for n, ba in self.basis_atom_map.iteritems():
+        for n, ba in self.basis_atom_map.items():
             new_bcs = []
             for bc in ba.bcs:
                 new_bcs.extend(bc.get_segmented_bcs())
@@ -281,7 +281,7 @@ class GOBasisFamily(object):
 
     def _normalize_contractions(self):
         """Renormalize all contractions."""
-        for ba in self.basis_atom_map.itervalues():
+        for ba in self.basis_atom_map.values():
             for bc in ba.bcs:
                 bc.normalize()
 
@@ -410,7 +410,7 @@ class GOBasisContraction(object):
                             'generalized contractions.')
         return [
             GOBasisContraction(self.shell_type, self.alphas, self.con_coeffs[:, i])
-            for i in xrange(self.con_coeffs.shape[1])
+            for i in range(self.con_coeffs.shape[1])
         ]
 
     @log.with_level(log.silent)

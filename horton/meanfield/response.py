@@ -59,7 +59,7 @@ def compute_noninteracting_response(orb, operators, work=None):
 
     if work is None:
         work = np.zeros((nop, norb, norb))
-    for iop in xrange(nop):
+    for iop in range(nop):
         work[iop] = np.dot(coeffs.T, np.dot(operators[iop], coeffs))
 
     # Put the orbital energies and the occupations in a convenient array
@@ -86,8 +86,8 @@ def compute_noninteracting_response(orb, operators, work=None):
     # are included. (The first term corresponds to the lower diagonal of prefacs
     # while the complex conjugate corresponds to the upper diagonal of prefacs.)
     result = np.zeros((nop, nop), float)
-    for iop0 in xrange(nop):
-        for iop1 in xrange(iop0+1):
+    for iop0 in range(nop):
+        for iop1 in range(iop0+1):
             # evaluate the sum over states expression
             state_sum = (work[iop0]*work[iop1]*prefacs).sum()
 

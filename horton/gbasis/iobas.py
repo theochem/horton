@@ -24,7 +24,6 @@ import numpy as np
 
 from horton.periodic import periodic
 
-
 __all__ = [
     'str_to_shell_types', 'shell_type_to_str', 'fortran_float',
     'load_basis_atom_map_nwchem', 'load_basis_atom_map_gbs',
@@ -57,7 +56,7 @@ def load_basis_atom_map_nwchem(filename):
 
     f = open(filename)
     basis_atom_map = {}
-    bc = None # The current contraction being loaded
+    bc = None  # The current contraction being loaded
     for line in f:
         # Strip off comments and white space.
         line = line[:line.find('#')].strip()
@@ -144,7 +143,7 @@ def dump_basis_atom_map_gbs(filename, name, basis_atom_map):
     with open(filename, 'w') as f:
         f.write('!Basis set, {0}, generated using HORTON\n\n'.format(name))
         f.write('****\n')
-        for atom, gobatom in sorted(basis_atom_map.iteritems()):
+        for atom, gobatom in sorted(basis_atom_map.items()):
             f.write('{0:<6}0\n'.format(periodic[atom].symbol))
             contractions = gobatom.bcs
             for contraction in contractions:
@@ -156,6 +155,6 @@ def dump_basis_atom_map_gbs(filename, name, basis_atom_map):
                 f.write('{0:<4}{1:<4}1.00\n'.format(
                     shell_type_to_str(contraction.shell_type).upper(), exponents.size))
                 for con_row in con_numbers:
-                    f.write(('{:>17}'*con_row.size).format(*con_row))
+                    f.write(('{:>16} ' * con_row.size).format(*con_row))
                     f.write('\n')
             f.write('****\n')

@@ -114,7 +114,7 @@ def test_aufbau_spin():
     terms = [
         UTwoIndexTerm(kin, 'kin'),
         UDirectTerm(er, 'hartree'),
-        UExchangeTerm(er,'x_hf'),
+        UExchangeTerm(er, 'x_hf'),
         UTwoIndexTerm(na, 'ne'),
     ]
     ham = UEffHam(terms)

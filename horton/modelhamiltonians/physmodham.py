@@ -74,7 +74,7 @@ class Hubbard(PhysModHam):
     def compute_kinetic(self, tparam):
         """Calculate the one-body term of the 1D Hubbard Hamiltonian."""
         result = np.zeros((self.nbasis, self.nbasis))
-        for i in xrange(self.nbasis - 1):
+        for i in range(self.nbasis - 1):
             result[i, i + 1] = tparam
             result[i + 1, i] = tparam
         if  self.pbc == True:
@@ -85,7 +85,7 @@ class Hubbard(PhysModHam):
     def compute_er(self, uparam):
         """Calculate the the-body term of the 1D Hubbard Hamiltonian."""
         result = np.zeros((self.nbasis, self.nbasis, self.nbasis, self.nbasis))
-        for i in xrange(self.nbasis):
+        for i in range(self.nbasis):
             result[i, i, i, i] = uparam
         return result
 

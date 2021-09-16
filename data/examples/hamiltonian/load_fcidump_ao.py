@@ -8,8 +8,8 @@ data = IOData.from_file('hamiltonian_ao.FCIDUMP')
 
 # Access some attributes. In more realistic cases, some code follows that does a
 # useful calculation.
-print data.core_energy
-print data.one_mo[0, 0]
+print(data.core_energy)
+print(data.one_mo[0, 0])
 
 
 # CODE BELOW IS FOR horton-regression-test.py ONLY. IT IS NOT PART OF THE EXAMPLE.

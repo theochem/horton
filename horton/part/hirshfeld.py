@@ -32,7 +32,7 @@ __all__ = ['HirshfeldWPart']
 def check_proatomdb(numbers, pseudo_numbers, proatomdb):
     # Check if the same pseudo numbers (effective core charges) are used for the
     # molecule and the proatoms.
-    for i in xrange(len(numbers)):
+    for i in range(len(numbers)):
         number = numbers[i]
         pseudo_number = pseudo_numbers[i]
         pseudo_number_expected = proatomdb.get_record(number, 0).pseudo_number
@@ -103,7 +103,7 @@ class HirshfeldMixin(object):
             if log.do_medium:
                 log('Computing atomic dispersion coefficients.')
 
-            for i in xrange(self.natom):
+            for i in range(self.natom):
                 n = self.numbers[i]
                 volumes[i] = radial_moments[i, 3]
                 ref_volume = self.proatomdb.get_record(n, 0).get_moment(3)

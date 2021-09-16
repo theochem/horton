@@ -18,13 +18,13 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-
+#cython: language_level=3
 
 cimport numpy as np
 
-cimport cubic_spline
-cimport rtransform
-cimport uniform
+cimport horton.grid.cubic_spline as cubic_spline
+cimport horton.grid.rtransform as rtransform
+cimport horton.grid.uniform as uniform
 
 
 cdef class Extrapolation(object):

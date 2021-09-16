@@ -18,6 +18,8 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
+#cython: language_level=3
+
 '''C++ extensions'''
 
 
@@ -25,8 +27,8 @@ import numpy as np
 cimport numpy as np
 np.import_array()
 
-cimport electrostatics
-cimport mask
+cimport horton.espfit.electrostatics as electrostatics
+cimport horton.espfit.mask as mask
 
 cimport horton.cext
 cimport horton.grid.cext

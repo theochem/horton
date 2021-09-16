@@ -35,12 +35,13 @@ guess_core_hamiltonian(olp, kin + na, orb_alpha, orb_beta)
 
 # Construct the restricted HF effective Hamiltonian
 external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-libxc_term = ULibXCHybridMGGA('xc_m05')
+libxc_term_x = ULibXCHybridMGGA('x_m05')
+libxc_term_c = ULibXCMGGA('c_m05')
 terms = [
     UTwoIndexTerm(kin, 'kin'),
     UDirectTerm(er_vecs, 'hartree'),
-    UGridGroup(obasis, grid, [libxc_term]),
-    UExchangeTerm(er_vecs, 'x_hf', libxc_term.get_exx_fraction()),
+    UGridGroup(obasis, grid, [libxc_term_x, libxc_term_c]),
+    UExchangeTerm(er_vecs, 'x_hf', libxc_term_x.get_exx_fraction()),
     UTwoIndexTerm(na, 'ne'),
 ]
 ham = UEffHam(terms, external)

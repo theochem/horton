@@ -114,7 +114,7 @@ def get_random_problem(nx=8, nl=None, posdef=False, epscn=1e-4):
 
 
 def test_diagonal_form_nl0():
-    for i in xrange(100):
+    for i in range(100):
         # nl = 0
         a, b, r, s = get_random_problem(nl=0)
         x0, basis, evals, evecs, b_diag = diagonal_form(a, b, r, s)
@@ -128,7 +128,7 @@ def test_diagonal_form_nl0():
 
 
 def test_diagonal_form_nl4():
-    for i in xrange(100):
+    for i in range(100):
         # nl = 5
         a, b, r, s = get_random_problem(nl=5)
         x0, basis, evals, evecs, b_diag = diagonal_form(a, b, r, s)
@@ -142,27 +142,27 @@ def test_diagonal_form_nl4():
         try:
             assert abs(x3 - x4).max() < 1e-8*abs(x3).max()
         except:
-            print i, 5
-            print np.linalg.eigvalsh(a)
-            print np.linalg.svd(r)[1]
-            print x3
-            print x3 - x4
-            print
+            print(i, 5)
+            print(np.linalg.eigvalsh(a))
+            print(np.linalg.svd(r)[1])
+            print(x3)
+            print(x3 - x4)
+            print()
             raise
 
 
 def test_diagonal_form_nl8():
-    for i in xrange(100):
+    for i in range(100):
         # nl = nx = 8
         a, b, r, s = get_random_problem(nl=8)
         x0, basis, evals, evecs, b_diag = diagonal_form(a, b, r, s)
         try:
             assert abs(np.dot(r, x0) - s).max() < 1e-10
         except:
-            print i, 8, 'constraint'
-            print np.linalg.svd(r)[1]
-            print s
-            print np.dot(r, x0) - s
+            print(i, 8, 'constraint')
+            print(np.linalg.svd(r)[1])
+            print(s)
+            print(np.dot(r, x0) - s)
             raise
         assert basis is None
         assert evals is None
@@ -172,17 +172,17 @@ def test_diagonal_form_nl8():
         try:
             assert abs(x0 - x5).max() < 1e-8*abs(x0).max()
         except:
-            print i, 8
-            print np.linalg.eigvalsh(a)
-            print np.linalg.svd(r)[1]
-            print x0
-            print x0 - x5
-            print
+            print(i, 8)
+            print(np.linalg.eigvalsh(a))
+            print(np.linalg.svd(r)[1])
+            print(x0)
+            print(x0 - x5)
+            print()
             raise
 
 
 def test_solve_radius_posdef_nl0():
-    for i in xrange(100):
+    for i in range(100):
         a, b, r, s = get_random_problem(nl=0, posdef=True)
         radius = np.random.uniform(1e-5, 1e2)
         center = np.random.normal(0, 0.3*radius, len(b))
@@ -197,7 +197,7 @@ def test_solve_radius_posdef_nl0():
 
 
 def test_solve_radius_posdef_nl4():
-    for i in xrange(100):
+    for i in range(100):
         a, b, r, s = get_random_problem(nl=4, posdef=True)
         radius = np.random.uniform(1e-5, 1e2)
         center = np.random.normal(0, 0.5*radius, len(b))
@@ -215,7 +215,7 @@ def test_solve_radius_posdef_nl4():
 
 
 def test_solve_radius_posdef_nl8():
-    for i in xrange(100):
+    for i in range(100):
         a, b, r, s = get_random_problem(nl=8, posdef=True)
         radius = np.random.uniform(1e-5, 1e2)
         center = np.random.normal(0, 0.5*radius, len(b))
@@ -234,7 +234,7 @@ def test_qps_infeasible():
     a = np.diag(np.random.uniform(2.0, 5.0, nx))
     b = np.random.normal(0.0, 1.0, nx)
     r = np.zeros((nl, nx))
-    r[:,:2] = np.random.normal(0.0, 1.0, (nl, 2))
+    r[:, :2] = np.random.normal(0.0, 1.0, (nl, 2))
     s =  np.random.normal(0.0, 1.0, nl)
     qps = QPSolver(a, b, r, s)
     free = np.array([False, False, True, True])
@@ -248,7 +248,7 @@ def test_qps_infeasible_radius():
     a = np.diag(np.random.uniform(2.0, 5.0, nx))
     b = np.random.normal(0.0, 1.0, nx)
     r = np.zeros((nl, nx))
-    r[:,:2] = np.random.normal(0.0, 1.0, (nl, 2))
+    r[:, :2] = np.random.normal(0.0, 1.0, (nl, 2))
     s =  np.random.normal(0.0, 1.0, nl)
     center = np.random.normal(0, 1, nx)
     qps = QPSolver(a, b, r, s)
@@ -262,7 +262,7 @@ def get_random_feasible(qps, free=None, positive=False):
     if free is None:
         free = np.ones(qps.nx, bool)
     nfree = free.sum()
-    for i in xrange(10):
+    for i in range(10):
         x_free = np.random.normal(0, 1, nfree)
         if qps.nl > 0:
             a_free, b_free, r_free, s_free = qps.get_free_problem(free)
@@ -282,9 +282,9 @@ def get_random_free(qps):
 
 
 def test_get_free_problem():
-    for i0 in xrange(100):
+    for i0 in range(100):
         qps = QPSolver(*get_random_problem())
-        for i1 in xrange(max(1, qps.nl), qps.nx+1):
+        for i1 in range(max(1, qps.nl), qps.nx+1):
             free = np.zeros(qps.nx, dtype=bool)
             free[:i1] = True
             a_free, b_free, r_free, s_free = qps.get_free_problem(free)
@@ -300,7 +300,7 @@ def test_get_free_problem():
 
 def test_expand_x():
     qps = QPSolver(*get_random_problem())
-    for i0 in xrange(3, 9):
+    for i0 in range(3, 9):
         free = np.zeros(qps.nx, dtype=bool)
         free[:i0] = True
         a_free, b_free, r_free, s_free = qps.get_free_problem(free)
@@ -312,10 +312,10 @@ def test_expand_x():
 
 
 def test_solve_qps():
-    for i0 in xrange(100):
+    for i0 in range(100):
         with numpy_seed(i0):
             qps = QPSolver(*get_random_problem())
-        for i1 in xrange(10):
+        for i1 in range(10):
             if i1 == 0:
                 free = np.ones(qps.nx, dtype=bool)
             else:
@@ -326,9 +326,9 @@ def test_solve_qps():
 
 
 def test_solve_qps_radius_posdef():
-    for i0 in xrange(100):
+    for i0 in range(100):
         qps = QPSolver(*get_random_problem(posdef=True))
-        for i1 in xrange(10):
+        for i1 in range(10):
             free = get_random_free(qps)
             center = get_random_feasible(qps, free)
             if center is None:
@@ -343,9 +343,9 @@ def test_solve_qps_radius_posdef():
 
 
 def test_solve_qps_radius():
-    for i0 in xrange(100):
+    for i0 in range(100):
         qps = QPSolver(*get_random_problem())
-        for i1 in xrange(10):
+        for i1 in range(10):
             free = get_random_free(qps)
             center = get_random_feasible(qps, free)
             if center is None:
@@ -372,7 +372,7 @@ def test_brute_simple():
 
 @attr('slow')
 def test_brute_local_posdef():
-    for counter in xrange(100):
+    for counter in range(100):
         # A large eps is used because some random problems are very ill-behaved.
         qps = QPSolver(*get_random_problem(nx=6, posdef=True), eps=1e-6)
 
@@ -386,7 +386,7 @@ def test_brute_local_posdef():
             try:
                 qps.check_solution(x0)
             except:
-                print 'problem with brute'
+                print('problem with brute')
                 qps.log()
                 raise
 
@@ -395,7 +395,7 @@ def test_brute_local_posdef():
                 qps.check_solution(x1)
                 assert abs(x0 - x1).max() < qps.eps
             except:
-                print 'problem with local from solution'
+                print('problem with local from solution')
                 qps.log(x0)
                 raise
 
@@ -407,14 +407,14 @@ def test_brute_local_posdef():
                 qps.check_solution(x2)
                 assert abs(x0 - x2).max() < qps.eps
             except:
-                print 'problem with local from random'
+                print('problem with local from random')
                 qps.log(xr)
                 raise
 
 
 @attr('slow')
 def test_brute_local():
-    for counter in xrange(100):
+    for counter in range(100):
         # A large eps is used because some random problems are very ill-behaved.
         qps = QPSolver(*get_random_problem(nx=6), eps=1e-6)
         qps.log()
@@ -422,14 +422,14 @@ def test_brute_local():
         try:
             cost0, x0 = qps.find_brute()
             feasible = True
-        except (FeasibilityError, BoundedError), e:
+        except (FeasibilityError, BoundedError) as e:
             feasible = False
 
         if feasible:
             try:
                 qps.check_solution(x0)
             except:
-                print 'problem with brute'
+                print('problem with brute')
                 qps.log()
                 raise
 
@@ -438,7 +438,7 @@ def test_brute_local():
                 qps.check_solution(x1)
                 assert abs(x0 - x1).max() < qps.eps
             except:
-                print 'problem with local from solution'
+                print('problem with local from solution')
                 qps.log(x0)
                 raise
 
@@ -454,7 +454,7 @@ def test_brute_local():
                 # this may happen with unbounded problems
                 continue
             except:
-                print 'problem with local from random'
+                print('problem with local from random')
                 qps.log(xr)
                 raise
 
@@ -571,7 +571,7 @@ def test_brute_case6():
             [0.10251918427316184, 0.64749152585353753, -1.1798151543302824, 1.7280732016323954, -0.0079015689549524204, -2.4093790812393414],
         ]),
         np.array([-1.628027986608761, -1.680081567157873, 0.12815213529315533, -0.38201939028605525, 0.77151603852902884, 0.50875081807696942]),
-        np.zeros((0,6)),
+        np.zeros((0, 6)),
         np.array([]),
     )
     with assert_raises(BoundedError):
@@ -676,7 +676,7 @@ def test_local_case2():
             [1.3191440233541152, 1.0362029379461384, 0.24762190846137289, -0.55618812054465072, 0.56183256135502446, 1.9755149613389364],
         ]),
         np.array([-0.036326161624374083, 0.93442606896402636, 2.3465206569805046, 0.60013364713670336, -0.065360649313220678, 0.74605936179230847]),
-        np.zeros((0,6)),
+        np.zeros((0, 6)),
         np.array([]),
     )
     guess = np.array([0.060781020807135232, 0.094832047408032777, 1.1736098312337082, 0.27679006326937744, 0.08915412896212016, 2.7251320294146675])
@@ -765,7 +765,7 @@ def test_local_case6():
             [-2.8949938905463575, 2.3075404741986758, -4.2203649379170152, -0.15939236254485001, 2.7570212908688965, 10.413810265914657],
         ]),
         np.array([2.1051178688693808, 0.77034513234528068, -0.066413262422188549, -1.161467599974259, -1.145284458324215, 1.9115896887435808]),
-        np.zeros((0,6)),
+        np.zeros((0, 6)),
         np.array([]),
     )
     guess = np.array([1.1218006104444309, 0.055845280862766397, 0.5678162968457573, 0.64202055422478232, 0.79817332647621919, 0.4492255175376717])
@@ -866,7 +866,7 @@ def test_local_case10():
             [-1.7656114953692559, 2.5974001710229837, -2.5864818874051134, -2.2997148639134855, -0.32310839292740823, 4.1635594436043855],
         ]),
         np.array([0.6827237762636329, 0.61262449970997035, -0.10526820438669089, -0.3423860463506388, -0.60158021270458772, -0.32020790415623457]),
-        np.zeros((0,6)),
+        np.zeros((0, 6)),
         np.array([]),
     )
     guess = np.array([0.4183733839886043, 1.685868545495764, 0.91029464030598595, 0.20609014773347709, 0.41772085105136075, 0.21627704946572152])

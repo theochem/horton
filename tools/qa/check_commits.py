@@ -58,10 +58,10 @@ def check_commits(ancestor):
     result = 0
 
     if ancestor is None:
-        print 'Checking for bad habits in files to be committed ...'
+        print('Checking for bad habits in files to be committed ...')
         diff_args = [None]
     else:
-        print 'Checking for bad habits in commits up to {} ...'.format(ancestor)
+        print('Checking for bad habits in commits up to {} ...'.format(ancestor))
         lines = subprocess.check_output(
             ['git', 'log', '%s..HEAD' % ancestor, '--pretty=oneline', '--color=never'],
             stderr=subprocess.STDOUT).decode("utf-8").splitlines()
@@ -75,13 +75,13 @@ def check_commits(ancestor):
 
         # Define the ranges to be checked with git diff
         diff_args = []
-        for i in xrange(len(commit_ids) - 1):
+        for i in range(len(commit_ids) - 1):
             diff_args.append('{}..{}'.format(commit_ids[i + 1], commit_ids[i]))
 
     # Loop over all commits and check them:
     for diff_arg in diff_args:
         if ancestor is not None:
-            print '{}'.format(diff_arg)
+            print('{}'.format(diff_arg))
         # Get a list of files in the diff.
         status_lines = subprocess.check_output(
             ['git', 'diff', '--name-status', '-M', diff_arg or '--cached'],
@@ -117,9 +117,9 @@ def check_commits(ancestor):
 
             # Get the diff
             if status == 'R':
-                print '   {} {} -> {}'.format(status, old_filename, new_filename)
+                print('   {} {} -> {}'.format(status, old_filename, new_filename))
             else:
-                print '   {} {}'.format(status, new_filename)
+                print('   {} {}'.format(status, new_filename))
             diff_lines = subprocess.check_output(
                 ['git', 'diff', '--color=never', '-M', old_blob, new_blob],
                 stderr=subprocess.STDOUT).decode("utf-8").splitlines()
@@ -137,10 +137,10 @@ def check_commits(ancestor):
                 elif line.startswith('+'):
                     location = '{}:{}'.format(new_filename, line_number)
                     if '\t' in line and not new_filename.endswith('Makefile'):
-                        print '      Tab                   {}'.format(location)
+                        print('      Tab                   {}'.format(location))
                         result = 1
                     if line.endswith(' '):
-                        print '      Trailing whitespace   {}'.format(location)
+                        print('      Trailing whitespace   {}'.format(location))
                         result = 1
                     line_number += 1
                 elif line.startswith(' '):
@@ -153,13 +153,13 @@ def check_commits(ancestor):
 
             # Check for other bad things in the entire file.
             if '\r' in new_contents:
-                print '      \\r                    {}'.format(new_filename)
+                print('      \\r                    {}'.format(new_filename))
                 result = 1
             if new_contents.endswith('\n\n'):
-                print '      Trailing newlines     {}'.format(new_filename)
+                print('      Trailing newlines     {}'.format(new_filename))
                 result = 1
             if not new_contents.endswith('\n'):
-                print '      Missing last newline  {}'.format(new_filename)
+                print('      Missing last newline  {}'.format(new_filename))
                 result = 1
 
         if ancestor is None:
@@ -171,14 +171,14 @@ def check_commits(ancestor):
             for status_line in status_lines:
                 if status_line.startswith('??'):
                     new_filename = status_line[3:]
-                    print '   Untracked file        {}'.format(new_filename)
+                    print('   Untracked file        {}'.format(new_filename))
                     result = 1
 
     # Stop process with appropriate exit code.
     if result != 0:
-        print 'Commit failed. Please, clean up and try again.'
+        print('Commit failed. Please, clean up and try again.')
     else:
-        print 'OK.'
+        print('OK.')
     sys.exit(result)
 
 

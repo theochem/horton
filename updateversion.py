@@ -63,7 +63,7 @@ if __name__ == '__main__':
             for iline, line in enumerate(lines):
                 m = r.match(line)
                 if m is not None:
-                    for igroup in xrange(m.lastindex, 0, -1):
+                    for igroup in range(m.lastindex, 0, -1):
                         line = line[:m.start(igroup)] + newversion + line[m.end(igroup):]
                     lines[iline] = line
         with open(fn, 'w') as f:

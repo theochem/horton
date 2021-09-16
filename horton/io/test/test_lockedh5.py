@@ -30,7 +30,7 @@ from horton.test.common import tmpdir
 def test_locked1():
     # just a silly test
     with tmpdir('horton.scripts.test.test_common.test_locked1') as dn:
-        with LockedH5File('%s/foo.h5' % dn) as f:
+        with LockedH5File('%s/foo.h5' % dn, "w") as f:
             pass
 
 
@@ -53,7 +53,7 @@ def test_locked4():
     # test error handling of wrong driver
     with assert_raises(ValueError):
         with tmpdir('horton.scripts.test.test_common.test_locked4') as dn:
-            with LockedH5File('%s/foo.h5' % dn, driver='core') as f:
+            with LockedH5File('%s/foo.h5' % dn, "w", driver='core') as f:
                 pass
 
 
@@ -61,5 +61,5 @@ def test_locked5():
     # test error handling in with clause
     with assert_raises(RuntimeError):
         with tmpdir('horton.scripts.test.test_common.test_locked5') as dn:
-            with LockedH5File('%s/foo.h5' % dn) as f:
+            with LockedH5File('%s/foo.h5' % dn, "w") as f:
                 raise RuntimeError

@@ -43,7 +43,7 @@ def test_gridgroup_density_cutoff():
     mask1 = alpha_basics[:, 0] >= 1e-9
     mask2 = alpha_basics[:, 0] == 0.0
     assert (mask1 | mask2).all()
-    assert (alpha_basics[mask2, :] == 0.0).all()
+    assert (alpha_basics[mask2,:] == 0.0).all()
 
     # use all grid points
     rgg = RGridGroup(mol.obasis, grid, [RLibXCMGGA('c_tpss')], density_cutoff=0.0)

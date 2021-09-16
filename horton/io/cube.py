@@ -53,7 +53,7 @@ def _read_cube_header(f):
     shape = np.array([shape0, shape1, shape2], int)
     axes = np.array([axis0, axis1, axis2])
 
-    cell = Cell(axes*shape.reshape(-1,1))
+    cell = Cell(axes*shape.reshape(-1, 1))
     ugrid = UniformGrid(origin, axes, shape, np.ones(3, int))
 
     def read_coordinate_line(line):
@@ -68,7 +68,7 @@ def _read_cube_header(f):
     numbers = np.zeros(natom, int)
     pseudo_numbers = np.zeros(natom, float)
     coordinates = np.zeros((natom, 3), float)
-    for i in xrange(natom):
+    for i in range(natom):
         numbers[i], pseudo_numbers[i], coordinates[i] = read_coordinate_line(f.readline())
         # If the pseudo_number field is zero, we assume that no effective core
         # potentials were used.
@@ -119,19 +119,19 @@ def load_cube(filename):
 
 
 def _write_cube_header(f, title, coordinates, numbers, ugrid, pseudo_numbers):
-    print >> f, title
-    print >> f, 'OUTER LOOP: X, MIDDLE LOOP: Y, INNER LOOP: Z'
+    print(title, file=f)
+    print('OUTER LOOP: X, MIDDLE LOOP: Y, INNER LOOP: Z', file=f)
     natom = len(numbers)
     x, y, z = ugrid.origin
-    print >> f, '%5i % 11.6f % 11.6f % 11.6f' % (natom, x, y, z)
+    print('%5i % 11.6f % 11.6f % 11.6f' % (natom, x, y, z), file=f)
     rvecs = ugrid.grid_rvecs
-    for i in xrange(3):
+    for i in range(3):
         x, y, z = rvecs[i]
-        print >> f, '%5i % 11.6f % 11.6f % 11.6f' % (ugrid.shape[i], x, y, z)
-    for i in xrange(natom):
+        print('%5i % 11.6f % 11.6f % 11.6f' % (ugrid.shape[i], x, y, z), file=f)
+    for i in range(natom):
         q = pseudo_numbers[i]
         x, y, z = coordinates[i]
-        print >> f, '%5i % 11.6f % 11.6f % 11.6f % 11.6f' % (numbers[i], q, x, y, z)
+        print('%5i % 11.6f % 11.6f % 11.6f % 11.6f' % (numbers[i], q, x, y, z), file=f)
 
 
 def _write_cube_data(f, cube_data):

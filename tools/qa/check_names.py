@@ -55,15 +55,15 @@ def check_names(key, kind):
             names.discard(line[:-1])
     # Report the names that were not in the AUTHORS file.
     if len(names) != 0:
-        print 'UNKNOWN %s:' % kind
+        print('UNKNOWN %s:' % kind)
         for name in sorted(names):
-            print '   ', name
+            print('   ', name)
     return len(names) == 0
 
 
 def main():
     """Check all names against AUTHORS and quit with exit code 1 if an error is found."""
-    print 'Checking author and committer names.'.upper()
+    print('Checking author and committer names.'.upper())
     pass_a = check_names('a', 'authors')
     pass_c = check_names('c', 'committers')
     if not (pass_a and pass_c):

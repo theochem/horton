@@ -114,7 +114,7 @@ class EffHam(object):
             energy = term.compute_energy(self.cache)
             self.cache['energy_%s' % term.label] = energy
             total += energy
-        for key, energy in self.external.iteritems():
+        for key, energy in self.external.items():
             self.cache['energy_%s' % key] = energy
             total += energy
         self.cache['energy'] = total
@@ -129,7 +129,7 @@ class EffHam(object):
         for term in self.terms:
             energy = self.cache['energy_%s' % term.label]
             log('%50s  %20.12f' % (term.label, energy))
-        for key, energy in self.external.iteritems():
+        for key, energy in self.external.items():
             log('%50s  %20.12f' % (key, energy))
         log('%50s  %20.12f' % ('total', self.cache['energy']))
         log.hline()

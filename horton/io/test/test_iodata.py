@@ -28,12 +28,12 @@ from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 def test_typecheck():
     m = IOData(coordinates=np.array([[1, 2, 3], [2, 3, 1]]))
-    assert issubclass(m.coordinates.dtype.type, float)
+    assert np.issubdtype(m.coordinates.dtype, np.floating)
     assert not hasattr(m, 'numbers')
     m = IOData(numbers=np.array([2, 3]), coordinates=np.array([[1, 2, 3], [2, 3, 1]]))
     m = IOData(numbers=np.array([2.0, 3.0]), pseudo_numbers=np.array([1, 1]), coordinates=np.array([[1, 2, 3], [2, 3, 1]]))
-    assert issubclass(m.numbers.dtype.type, int)
-    assert issubclass(m.pseudo_numbers.dtype.type, float)
+    assert np.issubdtype(m.numbers.dtype, np.int)
+    assert np.issubdtype(m.pseudo_numbers.dtype, np.floating)
     assert hasattr(m, 'numbers')
     del m.numbers
     assert not hasattr(m, 'numbers')
@@ -66,7 +66,7 @@ def test_copy():
     vars1 = vars(mol1)
     vars2 = vars(mol2)
     assert len(vars1) == len(vars2)
-    for key1, value1 in vars1.iteritems():
+    for key1, value1 in vars1.items():
         assert value1 is vars2[key1]
 
 

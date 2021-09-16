@@ -14,7 +14,7 @@ lnratio = (np.log(alpha_high) - np.log(alpha_low))/(nbasis-1)
 # build a list of "contractions". These aren't real contractions as every
 # contraction only contains one basis function.
 bcs = []
-for ibasis in xrange(nbasis):
+for ibasis in range(nbasis):
     alpha = alpha_low * np.exp(lnratio * ibasis)
     # arguments of GOBasisContraction:
     #     shell_type, list of exponents, list of contraction coefficients

@@ -55,13 +55,13 @@ def test_ugrid_writable():
     pbc = np.random.randint(0, 2, 3)
     ugrid = UniformGrid(origin, grid_rvecs, shape, pbc)
     # write to attributes and check value
-    for i in xrange(10):
+    for i in range(10):
         value = np.random.normal(0, 1)
         i, j = np.random.randint(0, 3, 2)
         ugrid.origin[i] = value
         assert ugrid.origin[i] == value
-        ugrid.grid_rvecs[i,j] = value
-        assert ugrid.grid_rvecs[i,j] == value
+        ugrid.grid_rvecs[i, j] = value
+        assert ugrid.grid_rvecs[i, j] == value
         k = np.random.randint(10, 20)
         ugrid.shape[i] = k
         assert ugrid.shape[i] == k

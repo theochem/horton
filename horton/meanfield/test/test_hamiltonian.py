@@ -90,11 +90,11 @@ def test_perturbation():
 
     # Construct a perturbation based on the Mulliken AIM operator
     assert mol.obasis.nbasis % 2 == 0
-    nfirst = mol.obasis.nbasis / 2
+    nfirst = mol.obasis.nbasis // 2
     operator = mol.obasis.compute_overlap().copy()
-    operator[:nfirst,nfirst:] *= 0.5
-    operator[nfirst:,:nfirst] *= 0.5
-    operator[nfirst:,nfirst:] = 0.0
+    operator[:nfirst, nfirst:] *= 0.5
+    operator[nfirst:, :nfirst] *= 0.5
+    operator[nfirst:, nfirst:] = 0.0
 
     # Apply the perturbation with oposite signs and check that, because of
     # symmetry, the energy of the perturbed wavefunction is the same in both

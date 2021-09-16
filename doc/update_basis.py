@@ -22,7 +22,7 @@
 
 
 from glob import glob
-from cStringIO import StringIO
+from io import StringIO
 import os
 from horton.periodic import periodic
 from horton.log import log
@@ -39,7 +39,7 @@ for family in go_basis_families_list:
     family.load()
     numbers = sorted(family.basis_atom_map.keys())
     s = []
-    for i in xrange(len(numbers)):
+    for i in range(len(numbers)):
         if (i > 0 and i < len(numbers)-1) and numbers[i-1] == numbers[i]-1 \
            and numbers[i+1] == numbers[i]+1:
             if s[-1] != '-':

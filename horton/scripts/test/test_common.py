@@ -38,9 +38,9 @@ def test_iter_elements():
     assert list(iter_elements('H-C')) == [1, 2, 3, 4, 5, 6]
     assert list(iter_elements('H-6')) == [1, 2, 3, 4, 5, 6]
     assert list(iter_elements('6-8')) == [6, 7, 8]
-    assert list(iter_elements('2,6-8')) == [2,6, 7, 8]
+    assert list(iter_elements('2,6-8')) == [2, 6, 7, 8]
     assert list(iter_elements('2,6-8,10')) == [2, 6, 7, 8, 10]
-    assert list(iter_elements('10,6-8,2')) == [10 ,6, 7, 8, 2]
+    assert list(iter_elements('10,6-8,2')) == [10, 6, 7, 8, 2]
     assert list(iter_elements('6-8,2')) == [6, 7, 8, 2]
     with assert_raises(ValueError):
         list(iter_elements('8-6,2')) == [2]
@@ -54,7 +54,7 @@ def test_reduce_data0():
 
     data1, ugrid1 = reduce_data(data, ugrid, 10, 0)
     assert data1.shape == (1, 2, 3)
-    assert (data1 == data[::10,::10,::10]).all()
+    assert (data1 == data[::10, ::10, ::10]).all()
     assert (ugrid1.origin == ugrid.origin).all()
     assert abs(ugrid1.grid_rvecs - ugrid.grid_rvecs*10).max() < 1e-10
     assert (ugrid1.shape == [1, 2, 3]).all()
@@ -62,7 +62,7 @@ def test_reduce_data0():
 
     data2, ugrid2 = reduce_data(data, ugrid, 5, 0)
     assert data2.shape == (2, 4, 6)
-    assert (data2 == data[::5,::5,::5]).all()
+    assert (data2 == data[::5, ::5, ::5]).all()
     assert (ugrid2.origin == ugrid.origin).all()
     assert abs(ugrid2.grid_rvecs - ugrid.grid_rvecs*5).max() < 1e-10
     assert (ugrid2.shape == [2, 4, 6]).all()
@@ -77,7 +77,7 @@ def test_reduce_data1():
 
     data1, ugrid1 = reduce_data(data, ugrid, 10, 1)
     assert data1.shape == (1, 2, 3)
-    assert (data1 == data[:-1:10,:-1:10,:-1:10]).all()
+    assert (data1 == data[:-1:10, :-1:10, :-1:10]).all()
     assert (ugrid1.origin == ugrid.origin).all()
     assert abs(ugrid1.grid_rvecs - ugrid.grid_rvecs*10).max() < 1e-10
     assert (ugrid1.shape == [1, 2, 3]).all()
@@ -85,7 +85,7 @@ def test_reduce_data1():
 
     data2, ugrid2 = reduce_data(data, ugrid, 5, 1)
     assert data2.shape == (2, 4, 6)
-    assert (data2 == data[:-1:5,:-1:5,:-1:5]).all()
+    assert (data2 == data[:-1:5, :-1:5, :-1:5]).all()
     assert (ugrid2.origin == ugrid.origin).all()
     assert abs(ugrid2.grid_rvecs - ugrid.grid_rvecs*5).max() < 1e-10
     assert (ugrid2.shape == [2, 4, 6]).all()
@@ -100,7 +100,7 @@ def test_parse_pbc():
 
 
 def test_store_args():
-    with h5.File('horton.scripts.test.test_common.test_store_args.h5', driver='core', backing_store=False) as f:
+    with h5.File('horton.scripts.test.test_common.test_store_args.h5', "w", driver='core', backing_store=False) as f:
         namespace = argparse.Namespace()
         namespace.a = 1
         namespace.b = 'a'
@@ -122,7 +122,7 @@ def test_check_output():
         assert not check_output('%s/foo.h5' % dn, '/bar', True)
         assert not check_output('%s/foo.h5' % dn, '/', False)
         assert not check_output('%s/foo.h5' % dn, '/bar', False)
-        with h5.File('%s/foo.h5' % dn) as f:
+        with h5.File('%s/foo.h5' % dn, "w") as f:
             f.create_group('bork')
         assert not check_output('%s/foo.h5' % dn, '/', True)
         assert not check_output('%s/foo.h5' % dn, '/bork', True)
@@ -130,7 +130,7 @@ def test_check_output():
         assert check_output('%s/foo.h5' % dn, '/', False)
         assert not check_output('%s/foo.h5' % dn, '/bork', False)
         assert not check_output('%s/foo.h5' % dn, '/bar', False)
-        with h5.File('%s/foo.h5' % dn) as f:
+        with h5.File('%s/foo.h5' % dn, "r+") as f:
             f['bork']['a'] = np.array([1, 2, 3])
         assert not check_output('%s/foo.h5' % dn, '/', True)
         assert not check_output('%s/foo.h5' % dn, '/bork', True)
@@ -146,7 +146,7 @@ def test_write_script_output():
     def test_h5(fn_h5):
         with h5.File(fn_h5, 'r') as f:
             assert sorted(f.keys()) == ['a', 'c']
-            assert f['a'].keys() == ['b']
+            assert list(f['a'].keys()) == ['b']
             assert (f['a/b'][:] == np.array([1, 2, 3])).all()
             assert (f['c'][:] == np.array([0.1, 0.2, 0.3])).all()
             assert len(f.attrs) == 5
@@ -160,12 +160,12 @@ def test_write_script_output():
         test_h5(fn_h5)
         write_script_output(fn_h5, '/', results, args)
         test_h5(fn_h5)
-        with h5.File(fn_h5) as f:
+        with h5.File(fn_h5, "w") as f:
             f['d'] = 5
         write_script_output(fn_h5, '/', results, args)
         test_h5(fn_h5)
-        with h5.File(fn_h5) as f:
-            for key in f.keys():
+        with h5.File(fn_h5, "w") as f:
+            for key in list(f.keys()):
                 del f[key]
         write_script_output(fn_h5, '/', results, args)
         test_h5(fn_h5)

@@ -45,11 +45,11 @@ def test_fac2():
 
 
 def test_binom():
-    assert binom(1,1) == 1
-    assert binom(5,3) == 10
-    assert binom(3,2) == 3
-    assert binom(10,4) == 210
-    assert binom(18,14) == 3060
+    assert binom(1, 1) == 1
+    assert binom(5, 3) == 10
+    assert binom(3, 2) == 3
+    assert binom(10, 4) == 210
+    assert binom(18, 14) == 3060
     assert binom(5, 1) == 5
     assert binom(5, 0) == 1
     assert binom(0, 0) == 1

@@ -33,7 +33,7 @@ def clean_code(fn):
        fn
            The file to be cleaned.
     '''
-    print 'Cleaning'.upper(), fn
+    print('Cleaning'.upper(), fn)
 
     # read lines
     with open(fn) as f:
@@ -44,7 +44,7 @@ def clean_code(fn):
     changed = False
 
     # line-by-line stripping of rubish
-    for i in xrange(len(lines)):
+    for i in range(len(lines)):
         # replace tab with four spaces
         line = lines[i].replace('\t', '    ')
         # remove trailing whitespaces from the end of the line

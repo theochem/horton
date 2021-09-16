@@ -100,7 +100,7 @@ class NamespaceTrapdoorProgram(TrapdoorProgram):
                 messages.add(Message(filename, None, None, 'Missing __all__'))
 
         # Detect collisions
-        for name, modules in namespace.iteritems():
+        for name, modules in namespace.items():
             if len(modules) > 1:
                 counter['Namespace collision'] += 1
                 text = 'Name \'%s\' found in modules %s' % (name, ' '.join(modules))

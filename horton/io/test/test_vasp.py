@@ -52,9 +52,9 @@ def test_load_chgcar_oxygen():
     assert abs(ugrid.grid_rvecs - mol.cell.rvecs/2).max() < 1e-10
     assert abs(ugrid.origin).max() < 1e-10
     d = mol.cube_data
-    assert abs(d[0,0,0] - 0.78406017013E+04/mol.cell.volume) < 1e-10
-    assert abs(d[-1,-1,-1] - 0.10024522914E+04/mol.cell.volume) < 1e-10
-    assert abs(d[1,0,0] - 0.76183317989E+04/mol.cell.volume) < 1e-10
+    assert abs(d[0, 0, 0] - 0.78406017013E+04/mol.cell.volume) < 1e-10
+    assert abs(d[-1, -1, -1] - 0.10024522914E+04/mol.cell.volume) < 1e-10
+    assert abs(d[1, 0, 0] - 0.76183317989E+04/mol.cell.volume) < 1e-10
 
 
 def test_load_chgcar_water():

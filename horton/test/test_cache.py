@@ -112,16 +112,16 @@ def test_alloc1():
 
 def test_alloc2():
     c = Cache()
-    tmp, new = c.load('egg', alloc=(5,10))
+    tmp, new = c.load('egg', alloc=(5, 10))
     assert new
     assert (tmp == 0).all()
-    assert tmp.shape == (5,10)
+    assert tmp.shape == (5, 10)
     assert issubclass(tmp.dtype.type, float)
     tmp[3] = 1
     bis = c.load('egg')
     assert bis is tmp
     assert (bis[3] == 1).all()
-    tris, new = c.load('egg', alloc=(5,10))
+    tris, new = c.load('egg', alloc=(5, 10))
     assert not new
     assert tris is tmp
 
@@ -137,17 +137,17 @@ def test_multiple():
 def test_allocation():
     c = Cache()
     assert 'egg' not in c
-    ar1, new = c.load('egg', alloc=(5,10))
+    ar1, new = c.load('egg', alloc=(5, 10))
     assert new
     assert (ar1 == 0).all()
-    assert ar1.shape == (5,10)
+    assert ar1.shape == (5, 10)
     assert issubclass(ar1.dtype.type, float)
     assert 'egg' in c
     assert 'bar' not in c
     with assert_raises(TypeError):
         c.load('egg', alloc=10)
     with assert_raises(TypeError):
-        c.load('egg', alloc=(10,5))
+        c.load('egg', alloc=(10, 5))
     ar1[:] = 1.0
     c.clear()
     assert 'egg' not in c
@@ -156,7 +156,7 @@ def test_allocation():
     with assert_raises(KeyError):
         ar2 = c.load('egg')
     # properly load it anew
-    ar2, new = c.load('egg', alloc=(5,10))
+    ar2, new = c.load('egg', alloc=(5, 10))
     assert new
     assert ar2 is ar1 # still the same array, just cleared.
     assert 'egg' in c
@@ -165,9 +165,9 @@ def test_allocation():
     assert ar3 is ar1
     # clear again and use different alloc
     c.clear()
-    ar4, new = c.load('egg', alloc=(5,1,2))
+    ar4, new = c.load('egg', alloc=(5, 1, 2))
     assert new
-    assert ar4.shape == (5,1,2)
+    assert ar4.shape == (5, 1, 2)
     assert not ar4 is ar1
 
 
@@ -245,9 +245,9 @@ def test_iter():
     c = Cache()
     c.dump('foo', 5)
     c.dump('bar', 6)
-    assert sorted(c.iterkeys()) == ['bar', 'foo']
-    assert sorted(c.itervalues()) == [5, 6]
-    assert sorted(c.iteritems()) == [('bar', 6), ('foo', 5)]
+    assert sorted(c.keys()) == ['bar', 'foo']
+    assert sorted(c.values()) == [5, 6]
+    assert sorted(c.items()) == [('bar', 6), ('foo', 5)]
     assert len(c) == 2
     assert sorted(c) == ['bar', 'foo']
 
@@ -258,15 +258,15 @@ def test_iter_tags():
     c.dump('bar', 6)
     c.dump('egg', 7, tags='op')
     c.dump('spam', 8, tags='co')
-    assert sorted(c.iterkeys()) == ['bar', 'egg', 'foo', 'spam']
-    assert sorted(c.itervalues()) == [5, 6, 7, 8]
-    assert sorted(c.iteritems()) == [('bar', 6), ('egg', 7), ('foo', 5), ('spam', 8)]
-    assert sorted(c.iterkeys(tags='c')) == ['foo', 'spam']
-    assert sorted(c.itervalues(tags='c')) == [5, 8]
-    assert sorted(c.iteritems(tags='c')) == [('foo', 5), ('spam', 8)]
-    assert sorted(c.iterkeys(tags='a')) == []
-    assert sorted(c.itervalues(tags='a')) == []
-    assert sorted(c.iteritems(tags='a')) == []
+    assert sorted(c.keys()) == ['bar', 'egg', 'foo', 'spam']
+    assert sorted(c.values()) == [5, 6, 7, 8]
+    assert sorted(c.items()) == [('bar', 6), ('egg', 7), ('foo', 5), ('spam', 8)]
+    assert sorted(c.keys(tags='c')) == ['foo', 'spam']
+    assert sorted(c.values(tags='c')) == [5, 8]
+    assert sorted(c.items(tags='c')) == [('foo', 5), ('spam', 8)]
+    assert sorted(c.keys(tags='a')) == []
+    assert sorted(c.values(tags='a')) == []
+    assert sorted(c.items(tags='a')) == []
     assert len(c) == 4
     assert sorted(c) == ['bar', 'egg', 'foo', 'spam']
 

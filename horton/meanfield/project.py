@@ -84,20 +84,20 @@ def project_orbitals_mgs(obasis0, obasis1, orb0, orb1, eps=1e-10):
 
     # Project occupied orbitals.
     i1 = 0
-    for i0 in xrange(orb0.nfn):
+    for i0 in range(orb0.nfn):
         if orb0.occupations[i0] == 0.0:
             continue
         if i1 > orb1.nfn:
             raise ProjectionError('Not enough functions available in orb1 to store the '
                                   'projected orbitals.')
-        orb1.coeffs[:,i1] = np.dot(projector, orb0.coeffs[:,i0])
+        orb1.coeffs[:, i1] = np.dot(projector, orb0.coeffs[:, i0])
         orb1.occupations[i1] = orb0.occupations[i0]
         i1 += 1
 
     # clear all parts of orb1 that were not touched by the projection loop
     ntrans = i1
     del i1
-    orb1.coeffs[:,ntrans:] = 0.0
+    orb1.coeffs[:, ntrans:] = 0.0
     orb1.occupations[ntrans:] = 0.0
     orb1.energies[:] = 0.0
 
@@ -106,11 +106,11 @@ def project_orbitals_mgs(obasis0, obasis1, orb0, orb1, eps=1e-10):
         return np.dot(np.dot(a, olp_22), b)
 
     # Apply the MGS algorithm to orthogonalize the orbitals
-    for i1 in xrange(ntrans):
+    for i1 in range(ntrans):
         orb = orb1.coeffs[:, i1]
 
         # Subtract overlap with previous orbitals
-        for j1 in xrange(i1):
+        for j1 in range(i1):
             other = orb1.coeffs[:, j1]
             orb -= other*dot22(other, orb)/np.sqrt(dot22(other, other))
 

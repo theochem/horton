@@ -179,7 +179,7 @@ class Element(object):
     def __init__(self, number=None, symbol=None, **kwargs):
         self.number = number
         self.symbol = symbol
-        for name, value in kwargs.iteritems():
+        for name, value in kwargs.items():
             setattr(self, name, value)
 
         self.cov_radius = self.cov_radius_cordero
@@ -232,7 +232,7 @@ class Periodic(object):
            **Returns:** the corresponding :class:`Element` instance
         '''
         result = self._lookup.get(index)
-        if result is None and isinstance(index, basestring):
+        if result is None and isinstance(index, str):
             index = index.strip()
             result = self._lookup.get(index.lower())
             if result is None and index.isdigit():
@@ -255,7 +255,7 @@ def load_periodic():
         'amu': (lambda s: float(s)*amu),
     }
 
-    with open(context.get_fn('elements.csv'),'r') as f:
+    with open(context.get_fn('elements.csv'), 'r') as f:
         r = csv.reader(f)
         # go to the actual data
         for row in r:
@@ -263,14 +263,14 @@ def load_periodic():
                 break
         # parse the first two header rows
         names = row
-        convertors = [convertor_types[key] for key in r.next()]
+        convertors = [convertor_types[key] for key in next(r)]
 
         elements = []
         for row in r:
             if len(row) == 0:
                 break
             kwargs = {}
-            for i in xrange(len(row)):
+            for i in range(len(row)):
                 cell = row[i]
                 if len(cell) > 0:
                     kwargs[names[i]] = convertors[i](cell)

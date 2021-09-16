@@ -39,7 +39,7 @@ def test_wpart_schemes():
     assert wpart_schemes['h'].linear
     assert wpart_schemes['b'].linear
 
-    for WPartClass in wpart_schemes.itervalues():
+    for WPartClass in wpart_schemes.values():
         assert hasattr(WPartClass, 'options')
 
 

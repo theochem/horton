@@ -50,11 +50,11 @@ def load_wfn_low(filename):
         """Read the coordiantes of the atoms."""
         numbers = np.empty(num_atoms, int)
         coordinates = np.empty((num_atoms, 3), float)
-        for atom in xrange(num_atoms):
+        for atom in range(num_atoms):
             line = f.readline()
             line = line.split()
             numbers[atom] = periodic[line[0]].number
-            coordinates[atom, :] = [line[4], line[5], line[6]]
+            coordinates[atom,:] = [line[4], line[5], line[6]]
         return numbers, coordinates
 
     def helper_section(f, start, skip):
@@ -100,7 +100,7 @@ def load_wfn_low(filename):
         mo_occ = np.empty(num_mo, float)
         mo_energy = np.empty(num_mo, float)
         coefficients = np.empty([num_primitives, num_mo], float)
-        for mo in xrange(num_mo):
+        for mo in range(num_mo):
             mo_count[mo], mo_occ[mo], mo_energy[mo], coefficients[:, mo] = helper_mo(f)
         energy = helper_energy(f)
     return title, numbers, coordinates, centers, type_assignment, exponent, \
@@ -123,7 +123,7 @@ def get_permutation_orbital(type_assignment):
                 sub_count += 1
             sub_type = np.empty(sub_count, int)
             sub_type[:] = permutation[index: index + sub_count]
-            for i in xrange(sub_count):
+            for i in range(sub_count):
                 permutation[index: index + length] = sub_type[i] + np.arange(length) * sub_count
                 index += length
         else:

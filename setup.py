@@ -21,12 +21,10 @@
 # --
 
 
-import ConfigParser
-import distutils.ccompiler
+import configparser
 from distutils.command.install_data import install_data
 from distutils.command.install_headers import install_headers
-from distutils.core import setup
-from distutils.extension import Extension
+from setuptools import setup, Extension
 from glob import glob
 import json
 import os
@@ -35,35 +33,7 @@ import subprocess
 import sys
 
 import numpy as np
-from Cython.Distutils import build_ext
-
-
-# Distutils optimizations
-# -----------------------
-
-def parallelCCompile(self, sources, output_dir=None, macros=None,
-                     include_dirs=None, debug=0, extra_preargs=None, extra_postargs=None,
-                     depends=None):
-    """Monkey-patch for distutils compiler to run in parallel."""
-    # these lines are copied from distutils.ccompiler.CCompiler directly
-    macros, objects, extra_postargs, pp_opts, build = self._setup_compile(
-        output_dir, macros, include_dirs, sources, depends, extra_postargs)
-    cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
-    # parallel code
-    N = 2  # number of parallel compilations
-    import multiprocessing.pool
-    def _single_compile(obj):
-        try:
-            src, ext = build[obj]
-        except KeyError:
-            return
-        self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
-
-    # convert to list, imap is evaluated on-demand
-    list(multiprocessing.pool.ThreadPool(N).imap(_single_compile, objects))
-    return objects
-
-distutils.ccompiler.CCompiler.compile = parallelCCompile
+from Cython.Build import cythonize
 
 
 # Utility functions
@@ -118,11 +88,11 @@ class my_install_data(install_data):
             # the file data_dir.txt.
             if '.' not in name:
                 destination = os.path.join(libdir, name, "data_dir.txt")
-                print "install_dir={}".format(my_install_dir)
-                print "Creating {}".format(destination)
+                print("install_dir={}".format(my_install_dir))
+                print("Creating {}".format(destination))
                 if not self.dry_run:
                     with open(destination, "w") as f:
-                        print >> f, my_install_dir
+                        print(my_install_dir, file=f)
 
 
 class my_install_headers(install_headers):
@@ -150,20 +120,20 @@ lib_config_keys = ['include_dirs', 'library_dirs', 'libraries', 'extra_objects',
 
 def print_lib_config(heading, lib_config):
     '''Print (partial) lib_config'''
-    print '   %s' % heading
+    print('   %s' % heading)
     if len(lib_config) == 0:
-        print '      -'
+        print('      -')
     else:
-        for key, value in sorted(lib_config.iteritems()):
+        for key, value in sorted(lib_config.items()):
             if len(value) > 0:
-                print '      %s: %s' % (key, value)
+                print('      %s: %s' % (key, value))
 
 
 def get_lib_config_setup(prefix, fn_setup_cfg):
     '''Get library configuration from a setup.cfg'''
     lib_config = {}
     if os.path.isfile(fn_setup_cfg):
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         config.read(fn_setup_cfg)
         if config.has_section(prefix):
             for key in lib_config_keys:
@@ -173,7 +143,7 @@ def get_lib_config_setup(prefix, fn_setup_cfg):
                         lib_config[key] = value.split(':')
         print_lib_config('From %s' % fn_setup_cfg, lib_config)
     else:
-        print '   File %s not found. Skipping.' % fn_setup_cfg
+        print('   File %s not found. Skipping.' % fn_setup_cfg)
     return lib_config
 
 
@@ -221,12 +191,12 @@ def all_empty(lib_config):
     '''Test if all lib_config fields are empty'''
     if len(lib_config) == 0:
         return True
-    return all(len(value) == 0 for value in lib_config.itervalues())
+    return all(len(value) == 0 for value in lib_config.values())
 
 
 def all_exist(lib_config):
     '''Test if all paths in the lib_config exist'''
-    for key, value in lib_config.iteritems():
+    for key, value in lib_config.items():
         for path in value:
             if not os.path.exists(path):
                 return False
@@ -257,7 +227,7 @@ def lib_config_magic(prefix, libname, static_config={}, known_include_dirs=[]):
         files are commonly installed in a place that is not considered by default by most
         compilers.
     '''
-    print '%s Configuration' % prefix.upper()
+    print('%s Configuration' % prefix.upper())
 
     # Start out empty
     lib_config = dict((key, []) for key in lib_config_keys)
@@ -271,7 +241,7 @@ def lib_config_magic(prefix, libname, static_config={}, known_include_dirs=[]):
     # If no environment variables were set, attempt to use the static config.
     if all_empty(lib_config):
         if all_empty(static_config):
-            print '   No static config available for this library'
+            print('   No static config available for this library')
         elif not all_exist(static_config):
             print_lib_config('Static lib not found in ${QAWORKDIR}', static_config)
         else:
@@ -285,7 +255,7 @@ def lib_config_magic(prefix, libname, static_config={}, known_include_dirs=[]):
             # Try to get dynamic link info from pkg-config
             lib_config.update(get_lib_config_pkg(libname))
         except PkgConfigError:
-            print '   pkg-config failed.'
+            print('   pkg-config failed.')
 
     # Uber-dumb fallback. It works most of the times.
     if all_empty(lib_config):
@@ -303,7 +273,7 @@ def lib_config_magic(prefix, libname, static_config={}, known_include_dirs=[]):
 # Print the Machine name on screen
 # --------------------------------
 
-print 'PLATFORM={}'.format(platform.platform())
+print('PLATFORM={}'.format(platform.platform()))
 
 # Load dependency information
 # ---------------------------
@@ -349,8 +319,8 @@ libint2_config = lib_config_magic(
 
 # Print versions of (almost) all dependencies
 # -------------------------------------------
-print 'Version of dependencies:'
-for name, dependency in sorted(dependencies.iteritems()):
+print('Version of dependencies:')
+for name, dependency in sorted(dependencies.items()):
     version_command = dependency.get('version_command')
     if version_command is not None:
         try:
@@ -359,7 +329,7 @@ for name, dependency in sorted(dependencies.iteritems()):
                 stderr=subprocess.STDOUT).strip()
         except subprocess.CalledProcessError:
             version_info = '-- not found --'
-        print '{:>20}: {}'.format(name, version_info)
+        print('{:>20}: {}'.format(name, version_info))
 
 
 # Define extension modules
@@ -447,7 +417,6 @@ setup(
         'horton.scripts', 'horton.scripts.test',
         'horton.modelhamiltonians', 'horton.modelhamiltonians.test'],
     cmdclass={
-        'build_ext': build_ext,
         'install_data': my_install_data,
         'install_headers': my_install_headers,
     },
@@ -473,7 +442,7 @@ setup(
         'horton.gbasis': ['*.pxd'],
         'horton.grid': ['*.pxd'],
     },
-    ext_modules=ext_modules,
+    ext_modules=cythonize(ext_modules),
     headers=get_headers(),
     classifiers=[
         'Development Status :: 3 - Alpha',

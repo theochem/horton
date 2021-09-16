@@ -198,7 +198,7 @@ class Part(JustOnceClass):
         if log.do_medium:
             # precompute arrays sizes for certain grids
             nbyte_global = self.grid.size*8
-            nbyte_locals = np.array([self.get_grid(i).size*8 for i in xrange(self.natom)])
+            nbyte_locals = np.array([self.get_grid(i).size*8 for i in range(self.natom)])
 
             # compute and report usage
             estimates = self.get_memory_estimates()
@@ -248,7 +248,7 @@ class Part(JustOnceClass):
             pseudo_populations = self.cache.load('pseudo_populations', alloc=self.natom, tags='o')[0]
             if log.do_medium:
                 log('Computing atomic populations.')
-            for i in xrange(self.natom):
+            for i in range(self.natom):
                 pseudo_populations[i] = self.compute_pseudo_population(i)
             populations[:] = pseudo_populations
             populations += self.numbers - self.pseudo_numbers
@@ -270,7 +270,7 @@ class Part(JustOnceClass):
             self.do_partitioning()
             if log.do_medium:
                 log('Computing atomic spin charges.')
-            for index in xrange(self.natom):
+            for index in range(self.natom):
                 grid = self.get_grid(index)
                 spindens = self.get_spindens(index)
                 at_weights = self.cache.load('at_weights', index)
@@ -293,7 +293,7 @@ class Part(JustOnceClass):
             if log.do_medium:
                 log('Computing cartesian and pure AIM multipoles and radial AIM moments.')
 
-            for i in xrange(self.natom):
+            for i in range(self.natom):
                 # 1) Define a 'window' of the integration grid for this atom
                 center = self.coordinates[i]
                 grid = self.get_grid(i)
@@ -327,7 +327,7 @@ class Part(JustOnceClass):
             attr = getattr(self, attr_name)
             if callable(attr) and attr_name.startswith('do_') and attr_name != 'do_all':
                 attr()
-        return list(self.cache.iterkeys(tags='o'))
+        return list(self.cache.keys(tags='o'))
 
 
 class WPart(Part):
@@ -398,7 +398,7 @@ class WPart(Part):
                 log.warn('Skipping density decomposition because no local grids were found.')
             return
 
-        for index in xrange(self.natom):
+        for index in range(self.natom):
             atgrid = self.get_grid(index)
             assert isinstance(atgrid, AtomicGrid)
             key = ('density_decomposition', index)
@@ -419,14 +419,14 @@ class WPart(Part):
                 log.warn('Skipping hartree decomposition because no local grids were found.')
             return
 
-        for index in xrange(self.natom):
+        for index in range(self.natom):
             key = ('hartree_decomposition', index)
             if key not in self.cache:
                 self.do_density_decomposition()
                 if log.do_medium:
                     log('Computing hartree decomposition for atom %i' % index)
                 density_decomposition = self.cache.load('density_decomposition', index)
-                rho_splines = [spline for foo, spline in sorted(density_decomposition.iteritems())]
+                rho_splines = [spline for foo, spline in sorted(density_decomposition.items())]
                 v_splines = solve_poisson_becke(rho_splines)
                 hartree_decomposition = dict(('spline_%05i' % j, spline) for j, spline in enumerate(v_splines))
                 self.cache.dump(key, hartree_decomposition, tags='o')

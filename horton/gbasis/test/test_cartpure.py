@@ -73,27 +73,27 @@ def test_cart_pure_p():
     work_cart = np.random.normal(0, 1, 3)
     work_pure = np.random.normal(0, 1, 3)
     cart_to_pure_low(work_cart, work_pure, shell_type=1, nant=1, npost=1)
-    assert abs(work_cart[[2,0,1]] - work_pure).max() < 1e-10
+    assert abs(work_cart[[2, 0, 1]] - work_pure).max() < 1e-10
 
     work_cart = np.random.normal(0, 1, (10, 3))
     work_pure = np.random.normal(0, 1, (10, 3))
     cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=1, nant=10, npost=1)
-    assert abs(work_cart[:,[2,0,1]] - work_pure).max() < 1e-10
+    assert abs(work_cart[:, [2, 0, 1]] - work_pure).max() < 1e-10
 
     work_cart = np.random.normal(0, 1, (10, 3, 2))
     work_pure = np.random.normal(0, 1, (10, 3, 2))
     cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=1, nant=10, npost=2)
-    assert abs(work_cart[:,[2,0,1],:] - work_pure).max() < 1e-10
+    assert abs(work_cart[:, [2, 0, 1],:] - work_pure).max() < 1e-10
 
     work_cart = np.random.normal(0, 1, (3, 6))
     work_pure = np.random.normal(0, 1, (3, 6))
     cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=1, nant=1, npost=6)
-    assert abs(work_cart[[2,0,1],:] - work_pure).max() < 1e-10
+    assert abs(work_cart[[2, 0, 1],:] - work_pure).max() < 1e-10
 
     work_cart = np.random.normal(0, 1, (5, 2, 3, 2, 3))
     work_pure = np.random.normal(0, 1, (5, 2, 3, 2, 3))
     cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=1, nant=10, npost=6)
-    assert abs(work_cart[:,:,[2,0,1],:,:] - work_pure).max() < 1e-10
+    assert abs(work_cart[:,:, [2, 0, 1],:,:] - work_pure).max() < 1e-10
 
 
 
@@ -124,10 +124,10 @@ def test_cart_pure_g():
     cart_to_pure_low(work_cart, work_pure, shell_type=4, nant=1, npost=1)
     assert abs(np.dot(tf, work_cart) - work_pure).max() < 1e-10
 
-    work_cart = np.random.normal(0, 1, (3,15))
-    work_pure = np.random.normal(0, 1, (3,9))
+    work_cart = np.random.normal(0, 1, (3, 15))
+    work_pure = np.random.normal(0, 1, (3, 9))
     cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=4, nant=3, npost=1)
-    assert abs(np.dot(work_cart[:,:15], tf.T) - work_pure).max() < 1e-10
+    assert abs(np.dot(work_cart[:, :15], tf.T) - work_pure).max() < 1e-10
 
 
 def test_gb2_overlap_integral_class():
@@ -146,17 +146,17 @@ def test_gb2_overlap_integral_class():
     gb2oi.add(0.5, 0.123, 0.210, scales0, scales1)
     gb2oi.add(0.7, 1.234, 2.333, scales0, scales1)
     gb2oi.add(0.3, 0.500, 0.500, scales0, scales1)
-    work0 = gb2oi.get_work(15,10)
+    work0 = gb2oi.get_work(15, 10)
     gb2oi.cart_to_pure()
-    work1 = gb2oi.get_work(9,7)
+    work1 = gb2oi.get_work(9, 7)
     step0 = np.dot(work0, tfs[3].T)
     step1 = np.dot(tfs[4], step0)
     assert abs(work1 - step1).max() < 1e-10
 
 
 def test_cart_pure_domain():
-    work_cart = np.random.normal(0, 1, (3,70))
-    work_pure = np.random.normal(0, 1, (3,70))
+    work_cart = np.random.normal(0, 1, (3, 70))
+    work_pure = np.random.normal(0, 1, (3, 70))
     with assert_raises(ValueError):
         cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=get_max_shell_type()+1, nant=1, npost=1)
     with assert_raises(ValueError):
@@ -240,24 +240,24 @@ def test_gb4_electron_repulsion_integral_class_pppm1():
 
 def test_gb4_electron_repulsion_integral_class_pppm2():
     work0, work1 = gb4_helper(1, 1, 1, -1)
-    work0 = np.tensordot(work0, tfs[2], ([3,1]))
+    work0 = np.tensordot(work0, tfs[2], ([3, 1]))
     assert work0.shape == work1.shape
     assert abs(work0-work1).max() < 1e-10
 
 def test_gb4_electron_repulsion_integral_class_ppmp():
     work0, work1 = gb4_helper(1, 1, -1, 1)
-    work0 = np.tensordot(work0, tfs[2], ([2,1])).transpose(0,1,3,2)
+    work0 = np.tensordot(work0, tfs[2], ([2, 1])).transpose(0, 1, 3, 2)
     assert work0.shape == work1.shape
     assert abs(work0-work1).max() < 1e-10
 
 def test_gb4_electron_repulsion_integral_class_pmpp():
     work0, work1 = gb4_helper(1, -1, 1, 1)
-    work0 = np.tensordot(work0, tfs[3], ([1,1])).transpose(0,3,1,2)
+    work0 = np.tensordot(work0, tfs[3], ([1, 1])).transpose(0, 3, 1, 2)
     assert work0.shape == work1.shape
     assert abs(work0-work1).max() < 1e-10
 
 def test_gb4_electron_repulsion_integral_class_mppp():
     work0, work1 = gb4_helper(-1, 1, 1, 1)
-    work0 = np.tensordot(work0, tfs[4], ([0,1])).transpose(3,0,1,2)
+    work0 = np.tensordot(work0, tfs[4], ([0, 1])).transpose(3, 0, 1, 2)
     assert work0.shape == work1.shape
     assert abs(work0-work1).max() < 1e-10

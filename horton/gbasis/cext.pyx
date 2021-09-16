@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
+#cython: language_level=3
 '''C++ extensions'''
 
 
@@ -29,16 +30,16 @@ cimport libc.string
 from libcpp.vector cimport vector
 from cython.operator cimport dereference as deref
 
-cimport boys
-cimport cartpure
-cimport common
-cimport gbasis
-cimport ints
-cimport fns
-cimport iter_gb
-cimport iter_pow
-cimport cholesky
-cimport gbw
+cimport horton.gbasis.boys as boys
+cimport horton.gbasis.cartpure as cartpure
+cimport horton.gbasis.common as common
+cimport horton.gbasis.gbasis as gbasis
+cimport horton.gbasis.ints as ints
+cimport horton.gbasis.fns as fns
+cimport horton.gbasis.iter_gb as iter_gb
+cimport horton.gbasis.iter_pow as iter_pow
+cimport horton.gbasis.cholesky as cholesky
+cimport horton.gbasis.gbw as gbw
 
 import atexit
 
@@ -1475,7 +1476,7 @@ cdef class GOBasis(GBasis):
             raise TypeError('stride[0] of the pots argument must be a multiple of 8.')
         if pots.strides[1] % 8 != 0:
             raise TypeError('stride[1] of the pots argument must be a multiple of 8.')
-        pot_stride = (pots.strides[0]/8)
+        pot_stride = (pots.strides[0]//8)
         if pots.shape[1] > 1:
             pot_stride *= (pots.strides[1]/8)
         (<gbasis.GOBasis*>self._this).compute_grid1_fock(
@@ -1731,11 +1732,11 @@ def get_2index_slice(GOBasis gobasis, long index0, long index2,
         gb4w.select_2index(index0, index2, &pbegin0, &pend0, &pbegin2, &pend2)
         gb4w.compute()
         output = gb4w.get_2index_slice(index0, index2)
-        print output[0]
-        print sizeof(double)*gobasis.nbasis*gobasis.nbasis
+        print(output[0])
+        print(sizeof(double)*gobasis.nbasis*gobasis.nbasis)
         libc.string.memcpy(&slice[0,0], output,
                 sizeof(double)*gobasis.nbasis*gobasis.nbasis)
-        print slice[0,0]
+        print(slice[0,0])
 
     finally:
         if gb4int is not NULL:

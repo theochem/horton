@@ -40,7 +40,7 @@ def main():
     for d in dependencies:
         install_command = d.get('install_command')
         if install_command is not None:
-            print install_command
+            print(install_command)
             os.system(install_command)
 
 

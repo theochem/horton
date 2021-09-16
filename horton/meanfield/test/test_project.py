@@ -32,8 +32,8 @@ def test_project_msg_identical():
     project_orbitals_mgs(mol.obasis, mol.obasis, mol.orb_alpha, orb)
     assert (orb.energies == 0.0).all()
     assert (orb.occupations == mol.orb_alpha.occupations).all()
-    assert abs(orb.coeffs[:,:-2] - mol.orb_alpha.coeffs[:,:-2]).max() < 1e-9
-    assert (orb.coeffs[:,-2:] == 0.0).all()
+    assert abs(orb.coeffs[:, :-2] - mol.orb_alpha.coeffs[:, :-2]).max() < 1e-9
+    assert (orb.coeffs[:, -2:] == 0.0).all()
 
 
 def test_project_ortho_basis_identical():
@@ -67,7 +67,7 @@ def test_project_msg_larger():
     project_orbitals_mgs(obasis0, obasis1, orb0, orb1)
     assert (orb1.energies == 0.0).all()
     assert orb0.occupations.sum() == orb1.occupations.sum()
-    assert (orb1.coeffs[:,5:] == 0.0).all()
+    assert (orb1.coeffs[:, 5:] == 0.0).all()
 
     # Check the normalization of the projected orbitals
     olp = obasis1.compute_overlap()
@@ -118,8 +118,8 @@ def test_project_msg_smaller():
     assert (orb1_beta.energies == 0.0).all()
     assert orb1_alpha.occupations.sum() == 2
     assert orb1_beta.occupations.sum() == 1
-    assert (orb1_alpha.coeffs[:,2:] == 0.0).all()
-    assert (orb1_beta.coeffs[:,1:] == 0.0).all()
+    assert (orb1_alpha.coeffs[:, 2:] == 0.0).all()
+    assert (orb1_beta.coeffs[:, 1:] == 0.0).all()
 
     # Check the normalization of the projected orbitals
     olp = obasis1.compute_overlap()
@@ -169,8 +169,8 @@ def get_basis_pair_geometry():
     orb0.check_orthonormality(obasis0.compute_overlap())
 
     # Change geometry
-    mol.coordinates[1,2] += 0.5
-    mol.coordinates[0,1] -= 1.5
+    mol.coordinates[1, 2] += 0.5
+    mol.coordinates[0, 1] -= 1.5
     obasis1 = get_gobasis(mol.coordinates, mol.numbers, 'sto-3g')
     orb1 = Orbitals(obasis1.nbasis)
 
@@ -186,7 +186,7 @@ def test_project_msg_geometry():
     # Basic checks
     assert (orb1.energies == 0.0).all()
     assert (orb1.occupations == orb0.occupations).all()
-    assert abs(orb1.coeffs[:,:5] - orb0.coeffs[:,:5]).max() > 1e-3 # something should change
+    assert abs(orb1.coeffs[:, :5] - orb0.coeffs[:, :5]).max() > 1e-3 # something should change
 
     # Check orthonormality
     orb1.check_orthonormality(obasis1.compute_overlap())
@@ -201,7 +201,7 @@ def test_project_ortho_basis_geometry():
     # Basic checks
     assert (orb1.energies == 0.0).all()
     assert (orb1.occupations == orb0.occupations).all()
-    assert abs(orb1.coeffs[:,:5] - orb0.coeffs[:,:5]).max() > 1e-3 # something should change
+    assert abs(orb1.coeffs[:, :5] - orb0.coeffs[:, :5]).max() > 1e-3 # something should change
 
     # Check orthonormality
     orb1.check_orthonormality(obasis1.compute_overlap())
@@ -218,7 +218,7 @@ def test_project_ortho_olp_geometry():
     # Basic checks
     assert (orb1.energies == 0.0).all()
     assert (orb1.occupations == orb0.occupations).all()
-    assert abs(orb1.coeffs[:,:5] - orb0.coeffs[:,:5]).max() > 1e-3 # something should change
+    assert abs(orb1.coeffs[:, :5] - orb0.coeffs[:, :5]).max() > 1e-3 # something should change
 
     # Check orthonormality
     orb1.check_orthonormality(obasis1.compute_overlap())

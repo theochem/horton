@@ -124,8 +124,8 @@ class RectangleGrid(IntGrid):
             np.dot(axis0, axis1)**2
         )
         counter = 0
-        for i0 in xrange(l0, h0+1):
-            for i1 in xrange(l1, h1+1):
+        for i0 in range(l0, h0+1):
+            for i1 in range(l1, h1+1):
                 points[counter] = origin + axis0*i0 + axis1*i1
                 counter += 1
         IntGrid.__init__(self, points, weights)

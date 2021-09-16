@@ -101,14 +101,14 @@ class StockHolderMixin(object):
 
         # update the promolecule density and store the proatoms in the at_weights
         # arrays for later.
-        for index in xrange(self.natom):
+        for index in range(self.natom):
             grid = self.get_grid(index)
             at_weights = self.cache.load('at_weights', index, alloc=grid.shape)[0]
             self.update_pro(index, at_weights, promoldens)
 
         # Compute the atomic weights by taking the ratios between proatoms and
         # promolecules.
-        for index in xrange(self.natom):
+        for index in range(self.natom):
             at_weights = self.cache.load('at_weights', index)
             at_weights /= self.to_atomic_grid(index, promoldens)
             np.clip(at_weights, 0, 1, out=at_weights)
@@ -117,7 +117,7 @@ class StockHolderMixin(object):
         raise NotImplementedError
 
     def do_prosplines(self):
-        for index in xrange(self.natom):
+        for index in range(self.natom):
             # density
             key = ('spline_prodensity', index)
             if key not in self.cache:

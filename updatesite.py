@@ -146,19 +146,19 @@ def update_index():
     for fn_ri in sorted(glob('*.*.*/releaseinfo.json')):
         with open(fn_ri) as f:
             releaseinfo = json.load(f)
-        print 'Found', releaseinfo['version']
+        print('Found', releaseinfo['version'])
         if 'b' in releaseinfo['version']:
             releases['beta'].append(releaseinfo)
         elif 'a' in releaseinfo['version']:
             releases['alpha'].append(releaseinfo)
         else:
             releases['stable'].append(releaseinfo)
-    for values in releases.itervalues():
+    for values in releases.values():
         values.sort(key=version_sort_key, reverse=True)
 
     # Write the index file
     subs = dict((key, format_releases(versions))
-                for key, versions in releases.iteritems())
+                for key, versions in releases.items())
     subs['css'] = css_template
     with open('index.html', 'w') as f:
         f.write(html_template.format(**subs))
@@ -185,9 +185,9 @@ def call(command, cwd=None):
     """
     command_str = ' '.join(('\'%s\'' % arg) if (' ' in arg) else arg for arg in command)
     if cwd is None:
-        print command_str
+        print(command_str)
     else:
-        print command_str, '(in %s)' % cwd
+        print(command_str, '(in %s)' % cwd)
     return subprocess.check_output(command, cwd=cwd)
 
 

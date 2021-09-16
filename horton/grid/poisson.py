@@ -54,8 +54,8 @@ def solve_poisson_becke(density_decomposition):
 
     result = []
     counter = 0
-    for l in xrange(0, lmax+1):
-        for m in xrange(-l, l+1):
+    for l in range(0, lmax+1):
+        for m in range(-l, l+1):
             rho = density_decomposition[counter]
             rtf = rho.rtransform
             rgrid = RadialGrid(rtf)

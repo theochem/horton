@@ -19,8 +19,9 @@
 #
 # --
 
+#cython: language_level=3
 
-cimport fns
+cimport horton.gbasis.fns as fns
 
 cdef extern from "horton/gbasis/gbasis.h":
     double gob_cart_normalization(double alpha, long* n)

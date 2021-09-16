@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
+#cython: language_level=3
 
 
 cdef extern from "horton/moments.h":

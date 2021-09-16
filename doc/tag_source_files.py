@@ -39,7 +39,7 @@ def iter_txt_files(root):
 def main(root):
     from conf import release
 
-    print 'Tagging files in %s with release %s' % (root, release)
+    print('Tagging files in %s with release %s' % (root, release))
 
     for fn_txt in iter_txt_files(root):
         with open(fn_txt) as f:

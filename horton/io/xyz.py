@@ -40,17 +40,17 @@ def load_xyz(filename):
 
        **Returns:** dictionary with ``title`, ``coordinates`` and ``numbers``.
     '''
-    f = file(filename)
-    size = int(f.next())
-    title = f.next().strip()
+    f = open(filename)
+    size = int(next(f))
+    title = next(f).strip()
     coordinates = np.empty((size, 3), float)
     numbers = np.empty(size, int)
-    for i in xrange(size):
-        words = f.next().split()
+    for i in range(size):
+        words = next(f).split()
         numbers[i] = periodic[words[0]].number
-        coordinates[i,0] = float(words[1])*angstrom
-        coordinates[i,1] = float(words[2])*angstrom
-        coordinates[i,2] = float(words[3])*angstrom
+        coordinates[i, 0] = float(words[1])*angstrom
+        coordinates[i, 1] = float(words[2])*angstrom
+        coordinates[i, 2] = float(words[3])*angstrom
     f.close()
     return {
         'title': title,
@@ -73,9 +73,9 @@ def dump_xyz(filename, data):
             May contain ``title``.
     '''
     with open(filename, 'w') as f:
-        print >> f, data.natom
-        print >> f, getattr(data, 'title', 'Created with HORTON')
-        for i in xrange(data.natom):
+        print(data.natom, file=f)
+        print(getattr(data, 'title', 'Created with HORTON'), file=f)
+        for i in range(data.natom):
             n = periodic[data.numbers[i]].symbol
             x, y, z = data.coordinates[i]/angstrom
-            print >> f, '%2s %15.10f %15.10f %15.10f' % (n, x, y, z)
+            print('%2s %15.10f %15.10f %15.10f' % (n, x, y, z), file=f)

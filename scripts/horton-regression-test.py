@@ -26,7 +26,7 @@ import argparse
 import contextlib
 import numbers
 import os
-import StringIO
+import io
 import sys
 import textwrap
 
@@ -110,8 +110,8 @@ def capture_io():
     """Context manager to capture standard output and error temporarily."""
     old_stdout = sys.stdout
     old_stderr = sys.stderr
-    sys.stdout = StringIO.StringIO()
-    sys.stderr = StringIO.StringIO()
+    sys.stdout = io.StringIO()
+    sys.stderr = io.StringIO()
     try:
         yield sys.stdout, sys.stderr
     finally:
@@ -134,7 +134,7 @@ def main():
 
     # Run all examples.
     for example_path in example_paths:
-        print example_path
+        print(example_path)
 
         # Sanity checks
         if not example_path.endswith(".py"):
@@ -151,9 +151,9 @@ def main():
         # Run example and collect results.
         example_globals = {}
         with numpy_seed():
-            print '   First random number:', np.random.rand()
+            print('   First random number:', np.random.rand())
         with open(example_path) as fh, numpy_seed():
-            exec fh in example_globals  # pylint: disable=exec-used
+            exec(fh.read(), example_globals)  # pylint: disable=exec-used
 
         # Check that rt_results is defined in the example.
         if 'rt_results' not in example_globals:
@@ -169,11 +169,11 @@ def main():
         known_keys = ['rt_results', 'rt_atols', 'rt_rtols', 'rt_references', 'rt_previous']
         for key in example_globals:
             if key.startswith('rt_') and key not in known_keys:
-                print 'Unrecognized variable starting with rt_: {}.' % key
+                print('Unrecognized variable starting with rt_: {}.' % key)
 
         # Compare results with expected or previous values, if previous values are present.
         rt_status = {}
-        for key, result in rt_results.iteritems():
+        for key, result in rt_results.items():
             target = rt_references.get(key, rt_previous.get(key))
             if target is None:
                 rt_status[key] = 'PREVIOUS OR REFERENCE MISSING'
@@ -230,16 +230,16 @@ def update_example(example_path, example_lines, rt_previous, rt_results, rt_stat
     # the force option is used.
     rt_new_previous = rt_previous.copy()
     changed = False
-    for key, status in rt_status.iteritems():
+    for key, status in rt_status.items():
         if status != 'OK' or do_force:
-            print '   Updating "{}"'.format(key)
+            print('   Updating "{}"'.format(key))
             rt_new_previous[key] = rt_results[key]
             changed = True
         else:
-            print '   Not updating "{}"'.format(key)
+            print('   Not updating "{}"'.format(key))
 
     if changed:
-        print '   Rewriting example code.'
+        print('   Rewriting example code.')
         # Load the example code.
         with open(example_path) as f:
             example_lines = f.readlines()
@@ -254,11 +254,11 @@ def update_example(example_path, example_lines, rt_previous, rt_results, rt_stat
 
         # Add new previous results
         example_lines.append(comment_auto)
-        if any(isinstance(x, np.ndarray) for x in rt_new_previous.itervalues()) and \
+        if any(isinstance(x, np.ndarray) for x in rt_new_previous.values()) and \
            not any('import numpy as np' in line for line in example_lines):
             example_lines.append('import numpy as np  # pylint: disable=wrong-import-position\n')
         example_lines.append('rt_previous = {\n')
-        for key, new_previous in sorted(rt_new_previous.iteritems()):
+        for key, new_previous in sorted(rt_new_previous.items()):
             representation = format_value(new_previous, key, example_path)
             example_lines.append('    \'{}\': {},\n'.format(key, representation))
         example_lines.append('}\n')
@@ -268,12 +268,12 @@ def update_example(example_path, example_lines, rt_previous, rt_results, rt_stat
             f.writelines(example_lines)
 
     # Write basic unit test code to screen.
-    print template_unit_test.format(
+    print(template_unit_test.format(
         example_name=example_path[14:-3].replace('/', '_'),
         example_path=example_path[5:],
         example_basename=os.path.basename(example_path[5:]),
         example_dirname=os.path.dirname(example_path[5:]),
-    )
+    ))
 
 
 def format_value(value, key, example_path):
@@ -308,8 +308,8 @@ def report_regressions(rt_results, rt_atols, rt_rtols, rt_references, rt_previou
     An update to the exit status is returned. Absence of a previous value is also an error.
     """
     exit_status = 0
-    for key, status in rt_status.iteritems():
-        print '   Status "{}": {}'.format(key, status)
+    for key, status in rt_status.items():
+        print('   Status "{}": {}'.format(key, status))
         if status == 'BOUNDS EXCEEDED':
             target = rt_references.get(key, rt_previous.get(key))
             result = rt_results.get(key)
@@ -320,12 +320,12 @@ def report_regressions(rt_results, rt_atols, rt_rtols, rt_references, rt_previou
                 maxabserr = abserr.max()
             else:
                 maxabserr = abserr
-            print '      Previous:       {}'.format(rt_previous.get(key))
-            print '      Reference:      {}'.format(rt_references.get(key))
-            print '      Result:         {}'.format(result)
-            print '      Abs. Threshold: {}'.format(atol)
-            print '      Rel. Threshold: {}'.format(rtol)
-            print '      Max.Abs.Err.:   {}'.format(maxabserr)
+            print('      Previous:       {}'.format(rt_previous.get(key)))
+            print('      Reference:      {}'.format(rt_references.get(key)))
+            print('      Result:         {}'.format(result))
+            print('      Abs. Threshold: {}'.format(atol))
+            print('      Rel. Threshold: {}'.format(rtol))
+            print('      Max.Abs.Err.:   {}'.format(maxabserr))
         if status != 'OK':
             exit_status = 1
     return exit_status

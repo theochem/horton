@@ -34,13 +34,12 @@ from horton.meanfield.gridgroup import RGridGroup, UGridGroup
 from horton.meanfield.guess import guess_core_hamiltonian
 from horton.meanfield.hamiltonian import REffHam, UEffHam
 from horton.meanfield.libxc import RLibXCLDA, ULibXCLDA, RLibXCGGA, ULibXCGGA, \
-    ULibXCMGGA, RLibXCHybridMGGA
+    ULibXCMGGA, RLibXCHybridMGGA, RLibXCMGGA
 from horton.meanfield.observable import RTwoIndexTerm, RDirectTerm, RExchangeTerm
 from horton.meanfield.observable import UTwoIndexTerm, UDirectTerm, UExchangeTerm
 from horton.meanfield.orbitals import Orbitals
 from horton.meanfield.occ import AufbauOccModel, FixedOccModel
 from horton.meanfield.scf_oda import check_cubic
-
 
 __all__ = [
     'check_cubic_wrapper', 'check_interpolation', 'check_dot_hessian',
@@ -60,7 +59,7 @@ def check_cubic_wrapper(ham, dm0s, dm1s, do_plot=False):
     e0 = ham.compute_energy()
     ham.compute_fock(*focks)
     g0 = 0.0
-    for i in xrange(ham.ndm):
+    for i in range(ham.ndm):
         g0 += np.einsum('ab,ba', focks[i], dm1s[i])
         g0 -= np.einsum('ab,ba', focks[i], dm0s[i])
     g0 *= ham.deriv_scale
@@ -70,7 +69,7 @@ def check_cubic_wrapper(ham, dm0s, dm1s, do_plot=False):
     e1 = ham.compute_energy()
     ham.compute_fock(*focks)
     g1 = 0.0
-    for i in xrange(ham.ndm):
+    for i in range(ham.ndm):
         g1 += np.einsum('ab,ba', focks[i], dm1s[i])
         g1 -= np.einsum('ab,ba', focks[i], dm0s[i])
     g1 *= ham.deriv_scale
@@ -80,7 +79,7 @@ def check_cubic_wrapper(ham, dm0s, dm1s, do_plot=False):
 
 def check_interpolation(ham, olp, kin, na, orbs, do_plot=False):
     dm0s = [orb.to_dm() for orb in orbs]
-    guess_core_hamiltonian(olp, kin+na, *orbs)
+    guess_core_hamiltonian(olp, kin + na, *orbs)
     dm1s = [orb.to_dm() for orb in orbs]
     check_cubic_wrapper(ham, dm0s, dm1s, do_plot)
 
@@ -107,7 +106,7 @@ def check_dot_hessian(ham, *dms0):
     """
     assert ham.ndm == len(dms0)
     nbasis = dms0[0].shape[0]
-    focks0 = [np.zeros((nbasis, nbasis)) for _i in xrange(ham.ndm)]
+    focks0 = [np.zeros((nbasis, nbasis)) for _i in range(ham.ndm)]
     ham.reset(*dms0)
     ham.compute_fock(*focks0)
 
@@ -115,15 +114,15 @@ def check_dot_hessian(ham, *dms0):
     nrep = 100
     diffs = np.zeros(nrep)
     errors = np.zeros(nrep)
-    dms1 = [np.zeros((nbasis, nbasis)) for _i in xrange(ham.ndm)]
-    focks1 = [np.zeros((nbasis, nbasis)) for _i in xrange(ham.ndm)]
-    dots0 = [np.zeros((nbasis, nbasis)) for _i in xrange(ham.ndm)]
-    dots1 = [np.zeros((nbasis, nbasis)) for _i in xrange(ham.ndm)]
+    dms1 = [np.zeros((nbasis, nbasis)) for _i in range(ham.ndm)]
+    focks1 = [np.zeros((nbasis, nbasis)) for _i in range(ham.ndm)]
+    dots0 = [np.zeros((nbasis, nbasis)) for _i in range(ham.ndm)]
+    dots1 = [np.zeros((nbasis, nbasis)) for _i in range(ham.ndm)]
     tmp1 = np.zeros((nbasis, nbasis))
     tmp2 = np.zeros((nbasis, nbasis))
-    for irep in xrange(nrep):
-        delta_dms = [np.random.normal(0, eps, (nbasis, nbasis)) for _i in xrange(ham.ndm)]
-        for idm in xrange(ham.ndm):
+    for irep in range(nrep):
+        delta_dms = [np.random.normal(0, eps, (nbasis, nbasis)) for _i in range(ham.ndm)]
+        for idm in range(ham.ndm):
             dms1[idm] = dms0[idm] + delta_dms[idm]
         ham.reset(*dms0)
         ham.reset_delta(*delta_dms)
@@ -136,24 +135,24 @@ def check_dot_hessian(ham, *dms0):
 
         diffsq = 0.0
         errorsq = 0.0
-        for idm in xrange(ham.ndm):
+        for idm in range(ham.ndm):
             tmp1 = focks0[idm] - focks1[idm]
             tmp2 = np.dot(tmp1, dms0[idm])
             diffsq += np.einsum('ab,ab', tmp2, tmp2)
-            tmp1 += (0.5*ham.deriv_scale)*dots0[idm]
-            tmp1 += (0.5*ham.deriv_scale)*dots1[idm]
+            tmp1 += (0.5 * ham.deriv_scale) * dots0[idm]
+            tmp1 += (0.5 * ham.deriv_scale) * dots1[idm]
             tmp2 = np.dot(tmp1, dms0[idm])
             errorsq += np.einsum('ab,ab', tmp2, tmp2)
-        diffs[irep] = diffsq**0.5
-        errors[irep] = errorsq**0.5
+        diffs[irep] = diffsq ** 0.5
+        errors[irep] = errorsq ** 0.5
 
-    threshold = np.median(diffs)*0.1
+    threshold = np.median(diffs) * 0.1
     mask = diffs > threshold
 
     assert abs(errors[mask]).max() < threshold, (
-        'The first order approximation off the difference between Fock matrices is too '
-        'wrong.\nThe threshold is %.1e.\nDiffs and Errors are:\n%s') % \
-        (threshold, np.array([diffs, errors]).T)
+                                                    'The first order approximation off the difference between Fock matrices is too '
+                                                    'wrong.\nThe threshold is %.1e.\nDiffs and Errors are:\n%s') % \
+                                                (threshold, np.array([diffs, errors]).T)
 
 
 def check_dot_hessian_polynomial(olp, core, ham, orbs, is_hf=True, extent=1.0,
@@ -203,7 +202,7 @@ def check_dot_hessian_polynomial(olp, core, ham, orbs, is_hf=True, extent=1.0,
         ham.compute_fock(*focks_a)
 
         delta_dms = []
-        for idm in xrange(ham.ndm):
+        for idm in range(ham.ndm):
             delta_dms.append(dms_b[idm] - dms_a[idm])
         ham.reset_delta(*delta_dms)
         dots_a = [np.zeros(dm_a.shape) for dm_a in dms_a]
@@ -211,9 +210,9 @@ def check_dot_hessian_polynomial(olp, core, ham, orbs, is_hf=True, extent=1.0,
 
         energy_a_1 = 0.0
         energy_a_2 = 0.0
-        for idm in xrange(ham.ndm):
-            energy_a_1 += np.einsum('ab,ba', focks_a[idm], delta_dms[idm])*ham.deriv_scale
-            energy_a_2 += np.einsum('ab,ba', dots_a[idm], delta_dms[idm])*ham.deriv_scale**2
+        for idm in range(ham.ndm):
+            energy_a_1 += np.einsum('ab,ba', focks_a[idm], delta_dms[idm]) * ham.deriv_scale
+            energy_a_2 += np.einsum('ab,ba', dots_a[idm], delta_dms[idm]) * ham.deriv_scale ** 2
 
         # print 'energy_a_0', energy_a_0
         # print 'energy_a_1', energy_a_1
@@ -224,21 +223,21 @@ def check_dot_hessian_polynomial(olp, core, ham, orbs, is_hf=True, extent=1.0,
         energies_2nd_order = np.zeros(npoint)
         derivs_x = np.zeros(npoint)
         derivs_2nd_order = np.zeros(npoint)
-        for ipoint in xrange(npoint):
+        for ipoint in range(npoint):
             x = xs[ipoint]
             dms_x = []
-            for idm in xrange(ham.ndm):
-                dm_x = dms_a[idm]*(1-x) + dms_b[idm]*x
+            for idm in range(ham.ndm):
+                dm_x = dms_a[idm] * (1 - x) + dms_b[idm] * x
                 dms_x.append(dm_x)
             ham.reset(*dms_x)
             energies_x[ipoint] = ham.compute_energy()
             ham.compute_fock(*focks_a)
-            for idm in xrange(ham.ndm):
+            for idm in range(ham.ndm):
                 derivs_x[ipoint] += np.einsum('ab,ba', focks_a[idm], delta_dms[idm]) * \
                                     ham.deriv_scale
 
-            energies_2nd_order[ipoint] = energy_a_0 + x*energy_a_1 + 0.5*x*x*energy_a_2
-            derivs_2nd_order[ipoint] = energy_a_1 + x*energy_a_2
+            energies_2nd_order[ipoint] = energy_a_0 + x * energy_a_1 + 0.5 * x * x * energy_a_2
+            derivs_2nd_order[ipoint] = energy_a_1 + x * energy_a_2
             # print '%5.2f %15.8f %15.8f' % (x, energies_x[ipoint], energies_2nd_order[ipoint])
 
         if do_plot:  # pragma: no cover
@@ -252,8 +251,8 @@ def check_dot_hessian_polynomial(olp, core, ham, orbs, is_hf=True, extent=1.0,
             pt.plot(xs, derivs_2nd_order, 'k-')
             pt.savefig('test_derivs.png')
 
-        assert abs(energies_x - energies_2nd_order).max()/np.ptp(energies_x) < threshold
-        assert abs(derivs_x - derivs_2nd_order).max()/np.ptp(derivs_x) < threshold
+        assert abs(energies_x - energies_2nd_order).max() / np.ptp(energies_x) < threshold
+        assert abs(derivs_x - derivs_2nd_order).max() / np.ptp(derivs_x) < threshold
         return energy_a_0, energy_a_1, energy_a_2
 
     # 1) using dms1 as reference point
@@ -281,13 +280,13 @@ def check_dot_hessian_cache(ham, *dms):
     ham.reset(*dms)
     focks = [np.zeros(dm.shape) for dm in dms]
     ham.compute_fock(*focks)
-    keys0 = sorted(ham.cache.iterkeys())
+    keys0 = sorted(ham.cache.keys())
 
     # Do a dot-hessian. Check that some extra elements are present in cache
     ham.reset_delta(*focks)
     dots = [np.zeros(dm.shape) for dm in dms]
     ham.compute_dot_hessian(*dots)
-    keys1 = sorted(ham.cache.iterkeys())
+    keys1 = sorted(ham.cache.keys())
     assert len(keys0) < len(keys1)
     for key in keys0:
         assert key in keys1
@@ -296,12 +295,12 @@ def check_dot_hessian_cache(ham, *dms):
     # Check that the original list of keys is restored.
     # Keys starting with 'kernel' are allowed.
     ham.cache.clear(tags='d')
-    keys2 = sorted(key for key in ham.cache.iterkeys() if not key.startswith('kernel'))
+    keys2 = sorted(key for key in ham.cache.keys() if not key.startswith('kernel'))
     assert keys0 == keys2
 
 
 def check_solve(ham, scf_solver, occ_model, olp, kin, na, *orbs):
-    guess_core_hamiltonian(olp, kin+na, *orbs)
+    guess_core_hamiltonian(olp, kin + na, *orbs)
     if scf_solver.kind == 'orb':
         occ_model.assign(*orbs)
         assert scf_solver.error(ham, olp, *orbs) > scf_solver.threshold
@@ -313,9 +312,9 @@ def check_solve(ham, scf_solver, occ_model, olp, kin, na, *orbs):
         assert scf_solver.error(ham, olp, *dms) > scf_solver.threshold
         scf_solver(ham, olp, occ_model, *dms)
         assert scf_solver.error(ham, olp, *dms) < scf_solver.threshold
-        focks = [np.zeros(dms[0].shape) for i in xrange(ham.ndm)]
+        focks = [np.zeros(dms[0].shape) for i in range(ham.ndm)]
         ham.compute_fock(*focks)
-        for i in xrange(ham.ndm):
+        for i in range(ham.ndm):
             orbs[i].from_fock(focks[i], olp)
         occ_model.assign(*orbs)
 
@@ -569,7 +568,7 @@ def check_h3_os_hfs(scf_solver):
     # Compare the potential computed by libxc with the builtin implementation
     energy1, focks1 = helper_compute(ham1, mol.orb_alpha, mol.orb_beta)
     energy2, focks2 = helper_compute(ham2, mol.orb_alpha, mol.orb_beta)
-    libxc_pot = ham1.cache.load('pot_libxc_lda_x_both')[:,0]
+    libxc_pot = ham1.cache.load('pot_libxc_lda_x_both')[:, 0]
     builtin_pot = ham2.cache.load('pot_x_dirac_alpha')
     # Libxc apparently approximates values of the potential below 1e-4 with zero.
     assert abs(libxc_pot - builtin_pot).max() < 1e-4
@@ -647,9 +646,9 @@ def check_co_cs_pbe(scf_solver):
 
     # test orbital energies
     expected_energies = np.array([
-         -1.86831122E+01, -9.73586915E+00, -1.03946082E+00, -4.09331776E-01,
-         -3.48686522E-01, -3.48686522E-01, -2.06049056E-01, 5.23730418E-02,
-         5.23730418E-02, 6.61093726E-01
+        -1.86831122E+01, -9.73586915E+00, -1.03946082E+00, -4.09331776E-01,
+        -3.48686522E-01, -3.48686522E-01, -2.06049056E-01, 5.23730418E-02,
+        5.23730418E-02, 6.61093726E-01
     ])
     assert abs(mol.orb_alpha.energies - expected_energies).max() < 1e-2
 
@@ -657,7 +656,8 @@ def check_co_cs_pbe(scf_solver):
     # compare with g09
     assert abs(ham.cache['energy_ne'] - -3.072370116827E+02) < 1e-2
     assert abs(ham.cache['energy_kin'] - 1.103410779827E+02) < 1e-2
-    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_libxc_gga_x_pbe'] + ham.cache['energy_libxc_gga_c_pbe'] - 6.273115782683E+01) < 1e-2
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_libxc_gga_x_pbe'] + ham.cache[
+        'energy_libxc_gga_c_pbe'] - 6.273115782683E+01) < 1e-2
     assert abs(ham.cache['energy'] - -1.116465967841901E+02) < 1e-4
     assert abs(ham.cache['energy_nn'] - 22.5181790889) < 1e-7
 
@@ -714,7 +714,8 @@ def check_h3_os_pbe(scf_solver):
     # compare with g09
     assert abs(ham.cache['energy_ne'] - -6.934705182067E+00) < 1e-5
     assert abs(ham.cache['energy_kin'] - 1.948808793424E+00) < 1e-5
-    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_libxc_gga_x_pbe'] + ham.cache['energy_libxc_gga_c_pbe'] - 1.502769385597E+00) < 1e-5
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_libxc_gga_x_pbe'] + ham.cache[
+        'energy_libxc_gga_c_pbe'] - 1.502769385597E+00) < 1e-5
     assert abs(ham.cache['energy'] - -1.593208400939354E+00) < 1e-5
     assert abs(ham.cache['energy_nn'] - 1.8899186021) < 1e-8
 
@@ -757,7 +758,7 @@ def check_vanadium_sc_hf(scf_solver):
 
     # Allocate orbitals and make the initial guess
     orb_alpha = Orbitals(obasis.nbasis)
-    guess_core_hamiltonian(olp, kin+na, orb_alpha)
+    guess_core_hamiltonian(olp, kin + na, orb_alpha)
 
     # SCF test
     check_solve(ham, scf_solver, occ_model, olp, kin, na, orb_alpha)
@@ -781,12 +782,13 @@ def check_water_cs_m05(scf_solver):
     na = mol.obasis.compute_nuclear_attraction(mol.coordinates, mol.pseudo_numbers)
     er = mol.obasis.compute_electron_repulsion()
     external = {'nn': compute_nucnuc(mol.coordinates, mol.pseudo_numbers)}
-    libxc_term = RLibXCHybridMGGA('xc_m05')
+    libxc_xterm = RLibXCHybridMGGA('x_m05')
+    libxc_cterm = RLibXCMGGA('c_m05')
     terms = [
         RTwoIndexTerm(kin, 'kin'),
         RDirectTerm(er, 'hartree'),
-        RGridGroup(mol.obasis, grid, [libxc_term]),
-        RExchangeTerm(er, 'x_hf', libxc_term.get_exx_fraction()),
+        RGridGroup(mol.obasis, grid, [libxc_xterm, libxc_cterm]),
+        RExchangeTerm(er, 'x_hf', libxc_xterm.get_exx_fraction()),
         RTwoIndexTerm(na, 'ne'),
     ]
     ham = REffHam(terms, external)
@@ -815,8 +817,9 @@ def check_water_cs_m05(scf_solver):
     # compare with
     assert abs(ham.cache['energy_kin'] - 75.54463056278) < 1e-2
     assert abs(ham.cache['energy_ne'] - -198.3003887880) < 1e-2
-    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_x_hf'] +
-               ham.cache['energy_libxc_hyb_mgga_xc_m05'] - 3.764537450376E+01) < 1e-2
+    assert abs(ham.cache['energy_hartree'] + ham.cache['energy_x_hf']
+               + ham.cache['energy_libxc_hyb_mgga_x_m05']
+               + ham.cache["energy_libxc_mgga_c_m05"] - 3.764537450376E+01) < 1e-2
     assert abs(ham.cache['energy'] - -75.9532086800) < 1e-3
     assert abs(ham.cache['energy_nn'] - 9.1571750414) < 1e-5
 

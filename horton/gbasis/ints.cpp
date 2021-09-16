@@ -506,7 +506,7 @@ void GB4Integral::cart_to_pure() {
 #error LibInt must be compiled with support for electron repulsion integrals.
 #endif
 
-#if LIBINT2_MAX_AM_ERI < MAX_SHELL_TYPE
+#if LIBINT2_MAX_AM_eri < MAX_SHELL_TYPE
 #error LibInt must be compiled with an angular momentum limit of at least MAX_SHELL_TYPE.
 #endif
 

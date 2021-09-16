@@ -14,9 +14,9 @@ def store_wfn(fn_h5, mixing, name_case, exp):
         grp = grp.require_group(name_case)
 
         # clear the group if anything was present
-        for key in grp.keys():
+        for key in list(grp.keys()):
             del grp[key]
-        for key in grp.attrs.keys():
+        for key in list(grp.attrs.keys()):
             del grp.attrs[key]
         exp.to_hdf5(grp)
         # The following is needed to create object of the right type when
@@ -27,7 +27,7 @@ def store_wfn(fn_h5, mixing, name_case, exp):
 def get_random_occupations(nbasis, nep):
     result = np.zeros(nbasis)
     # this is not uniformely random, but it is good enough.
-    for iep in xrange(int(np.round(nep))):
+    for iep in range(int(np.round(nep))):
         total = 1.0
         while total > 0:
             if total < 0.01:
@@ -89,7 +89,7 @@ def main():
     # - arbitrary (fractional) occupation numbers (with proper sum)
     nbasis = obasis.nbasis
     random_exps = []
-    for irandom in xrange(nrandom):
+    for irandom in range(nrandom):
         # random symmetric matrix
         tmp1 = np.random.normal(0, 1, (nbasis, nbasis))
         tmp1 = tmp1 + tmp1.T
@@ -110,7 +110,7 @@ def main():
 
     # interpolate between solution and random wfns
     for mixing in mixings[1:]: # do not consider mixing==1.0
-        for irandom in xrange(nrandom):
+        for irandom in range(nrandom):
             # create a new wfn object.
             # construct the mixed density matrix
             dm_mixed = lf.create_one_body()

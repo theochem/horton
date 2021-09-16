@@ -13,7 +13,7 @@ for number in mol.numbers:
     mass += periodic[number].mass
 
 # Print the mass in the amu unit
-print 'MOLECULAR MASS [amu]: %.5f' % (mass/amu)
+print('MOLECULAR MASS [amu]: %.5f' % (mass/amu))
 
 # Store the mass in the IOData instance, in order to write it to the file
 mol.mass = mass

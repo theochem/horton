@@ -61,7 +61,7 @@ def test_cell_cubic():
     assert abs(np.dot(cell.gvecs.transpose(), cell.rvecs) - np.identity(3)).max() < 1e-5
     cell2 = Cell(-cell.rvecs)
     assert abs(cell2.volume - (9.865*angstrom)**3) < 1e-10
-    for i in xrange(3):
+    for i in range(3):
         assert cell.get_rlength(i) == cell.rlengths[i]
         assert cell.get_glength(i) == cell.glengths[i]
         assert cell.get_rspacing(i) == cell.rspacings[i]
@@ -73,7 +73,7 @@ def test_cell_cubic():
     vec1 = np.array([10.0, 0.0, 5.0])*angstrom
     cell.mic(vec1)
     assert abs(vec1 - np.array([0.135, 0.0, -4.865])*angstrom).max() < 1e-10
-    cell.add_rvec(vec1, np.array([1,2,3]))
+    cell.add_rvec(vec1, np.array([1, 2, 3]))
     assert abs(vec1 - np.array([10.0, 19.73, 24.73])*angstrom).max() < 1e-10
 
     # Test methods (2)
@@ -96,7 +96,7 @@ def test_cell_triclinic():
     assert abs(np.dot(cell.gvecs.transpose(), cell.rvecs) - np.identity(3)).max() < 1e-5
     cell2 = Cell(-cell.rvecs)
     assert abs(cell2.volume - abs(np.linalg.det(rvecs))) < 1e-10
-    for i in xrange(3):
+    for i in range(3):
         assert cell.get_rlength(i) == cell.rlengths[i]
         assert cell.get_glength(i) == cell.glengths[i]
         assert cell.get_rspacing(i) == cell.rspacings[i]
@@ -107,7 +107,7 @@ def test_cell_triclinic():
     # Test methods (1)
     vec1 = np.array([10.0, 0.0, 5.0])*angstrom
     cell.mic(vec1)
-    cell.add_rvec(vec1, np.array([1,2,3]))
+    cell.add_rvec(vec1, np.array([1, 2, 3]))
 
     # Test methods (2)
     check_frac_cart(cell)
@@ -123,7 +123,7 @@ def test_cell_parallellogram2d():
     assert (cell.rvecs == rvecs).all()
     assert abs(cell.volume - np.linalg.norm(np.cross(cell.rvecs[0], cell.rvecs[1]))) < 1e-10
     assert abs(np.dot(cell.gvecs, cell.rvecs.transpose()) - np.identity(2)).max() < 1e-5
-    for i in xrange(2):
+    for i in range(2):
         assert cell.get_rlength(i) == cell.rlengths[i]
         assert cell.get_glength(i) == cell.glengths[i]
         assert cell.get_rspacing(i) == cell.rspacings[i]
@@ -139,7 +139,7 @@ def test_cell_parallellogram2d():
     vec1 = np.array([10.0, 0.0, 105.0])*angstrom
     cell.mic(vec1)
     assert abs(vec1 - np.array([0.156, 0.0, 105])*angstrom).max() < 1e-3
-    cell.add_rvec(vec1, np.array([1,2]))
+    cell.add_rvec(vec1, np.array([1, 2]))
     assert abs(vec1 - np.array([10.002, 8.524, 105])*angstrom).max() < 1e-3
 
     # Test methods (2)
@@ -164,7 +164,7 @@ def test_cell_1d():
     assert cell.get_gspacing(0) == cell.gspacings[0]
     assert abs(cell.get_rlength(0) - 1.0/cell.get_gspacing(0)) < 1e-10
     assert abs(cell.get_glength(0) - 1.0/cell.get_rspacing(0)) < 1e-10
-    for i in xrange(1,3):
+    for i in range(1, 3):
         assert abs(cell.get_rlength(i) - 1.0) < 1e-10
         assert abs(cell.get_glength(i) - 1.0) < 1e-10
         assert abs(cell.get_rspacing(i) - 1.0) < 1e-10
@@ -191,7 +191,7 @@ def test_cell_quartz():
     assert cell.gvecs.shape == (3, 3)
     assert abs(cell.volume - abs(np.linalg.det(cell.rvecs))) < 1e-10
     assert abs(np.dot(cell.gvecs, cell.rvecs.transpose()) - np.identity(3)).max() < 1e-5
-    for i in xrange(3):
+    for i in range(3):
         assert cell.get_rlength(i) == cell.rlengths[i]
         assert cell.get_glength(i) == cell.glengths[i]
         assert cell.get_rspacing(i) == cell.rspacings[i]
@@ -220,7 +220,7 @@ def test_cell_0d():
     assert cell.gvecs.shape == (0, 3)
     assert cell.rspacings.shape == (0,)
     assert cell.gspacings.shape == (0,)
-    for i in xrange(3):
+    for i in range(3):
         assert abs(cell.get_rlength(i) - 1.0) < 1e-10
         assert abs(cell.get_glength(i) - 1.0) < 1e-10
         assert abs(cell.get_rspacing(i) - 1.0) < 1e-10
@@ -263,9 +263,9 @@ def test_ranges_rcut_3d():
             continue
 
         # test if distances to points outside the ranges are always outside rcut
-        for i0 in xrange(ranges_low[0], ranges_high[0]):
-            for i1 in xrange(ranges_low[1], ranges_high[1]):
-                for i2 in xrange(ranges_low[2], ranges_high[2]):
+        for i0 in range(ranges_low[0], ranges_high[0]):
+            for i1 in range(ranges_low[1], ranges_high[1]):
+                for i2 in range(ranges_low[2], ranges_high[2]):
                     if (i0 >= ranges_begin[0] and i0 < ranges_end[0] and
                         i1 >= ranges_begin[1] and i1 < ranges_end[1] and
                         i2 >= ranges_begin[2] and i2 < ranges_end[2]):
@@ -285,8 +285,8 @@ def test_ranges_rcut_2d():
         cell, origin, center, rcut, ranges_begin, ranges_end, ranges_low, ranges_high = setup_ranges_rcut(2)
 
         # test if distances to points outside the ranges are always outside rcut
-        for i0 in xrange(ranges_low[0], ranges_high[0]):
-            for i1 in xrange(ranges_low[1], ranges_high[1]):
+        for i0 in range(ranges_low[0], ranges_high[0]):
+            for i1 in range(ranges_low[1], ranges_high[1]):
                 if (i0 >= ranges_begin[0] and i0 < ranges_end[0] and
                     i1 >= ranges_begin[1] and i1 < ranges_end[1]):
                     continue
@@ -305,7 +305,7 @@ def test_ranges_rcut_1d():
         cell, origin, center, rcut, ranges_begin, ranges_end, ranges_low, ranges_high = setup_ranges_rcut(1)
 
         # test if distances to points outside the ranges are always outside rcut
-        for i0 in xrange(ranges_low[0], ranges_high[0]):
+        for i0 in range(ranges_low[0], ranges_high[0]):
             if i0 >= ranges_begin[0] and i0 < ranges_end[0]:
                 continue
             tmp = origin.copy()
@@ -355,19 +355,19 @@ def check_from_parameters(cell0):
         assert abs(angles0 - angles1).max() < 1e-10
 
 def test_from_parameters1():
-    for i in xrange(10):
+    for i in range(10):
         cell0 = get_random_cell(1.0, 1)
         check_from_parameters(cell0)
 
 
 def test_from_parameters2():
-    for i in xrange(10):
+    for i in range(10):
         cell0 = get_random_cell(1.0, 2)
         check_from_parameters(cell0)
 
 
 def test_from_parameters3():
-    for i in xrange(10):
+    for i in range(10):
         cell0 = get_random_cell(1.0, 3)
         check_from_parameters(cell0)
 

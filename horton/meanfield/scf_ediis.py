@@ -93,30 +93,30 @@ class EDIISHistory(DIISHistory):
            missing dot products in self.edots.
         '''
         # This routine  even works after multiple additions.
-        for i0 in xrange(self.nused-1, -1, -1):
-            if np.isfinite(self.edots[i0,i0]):
+        for i0 in range(self.nused-1, -1, -1):
+            if np.isfinite(self.edots[i0, i0]):
                 return
             # Compute off-diagonal coefficients
             state0 = self.stack[i0]
-            for i1 in xrange(i0+1):
+            for i1 in range(i0+1):
                 state1 = self.stack[i1]
-                self.edots[i0,i1] = 0.0
-                for j in xrange(self.ndm):
-                    self.edots[i0,i1] += np.einsum('ab,ba', state0.focks[j], state1.dms[j])
+                self.edots[i0, i1] = 0.0
+                for j in range(self.ndm):
+                    self.edots[i0, i1] += np.einsum('ab,ba', state0.focks[j], state1.dms[j])
                 if i0 != i1:
                     # Note that this matrix is not symmetric!
-                    self.edots[i1,i0] = 0.0
-                    for j in xrange(self.ndm):
-                        self.edots[i1,i0] += np.einsum('ab,ba', state1.focks[j], state0.dms[j])
+                    self.edots[i1, i0] = 0.0
+                    for j in range(self.ndm):
+                        self.edots[i1, i0] += np.einsum('ab,ba', state1.focks[j], state0.dms[j])
 
     def _setup_equations(self):
         '''Compute the equations for the quadratic programming problem.'''
         b = np.zeros((self.nused, self.nused), float)
         e = np.zeros(self.nused, float)
-        for i0 in xrange(self.nused):
+        for i0 in range(self.nused):
             e[i0] = -self.stack[i0].energy
-            for i1 in xrange(i0+1):
-                b[i0, i1] = -0.5*self.deriv_scale*(self.edots[i0,i0] + self.edots[i1,i1] - self.edots[i0,i1] - self.edots[i1,i0])
+            for i1 in range(i0+1):
+                b[i0, i1] = -0.5*self.deriv_scale*(self.edots[i0, i0] + self.edots[i1, i1] - self.edots[i0, i1] - self.edots[i1, i0])
                 if i0 != i1:
                     b[i1, i0] = b[i0, i1]
         return b, e
@@ -127,14 +127,14 @@ class EDIISHistory(DIISHistory):
         assert self.nused >= 2
         # Fill in the missing commutators
         self._complete_edots_matrix()
-        assert not np.isnan(self.edots[:self.nused,:self.nused]).any()
+        assert not np.isnan(self.edots[:self.nused, :self.nused]).any()
         # Setup the equations
         b, e = self._setup_equations()
         # Check if solving these equations makes sense.
         if b.max() - b.min() == 0 and e.max() - e.min() == 0:
             raise NoSCFConvergence('Convergence criteria too tight for EDIIS')
         # solve the quadratic programming problem
-        qps = QPSolver(b, e, np.ones((1,self.nused)), np.array([1.0]), eps=1e-6)
+        qps = QPSolver(b, e, np.ones((1, self.nused)), np.array([1.0]), eps=1e-6)
         if self.nused < 10:
             energy, coeffs = qps.find_brute()
             guess = None

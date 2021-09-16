@@ -30,18 +30,18 @@ from horton.test.common import numpy_seed
 
 def test_tridiagsym_solve():
     N = 10
-    A = np.zeros((N,N), float)
-    for irep in xrange(100):
+    A = np.zeros((N, N), float)
+    for irep in range(100):
         with numpy_seed(irep):  # Make random numbers reproducible
             # randomize the diagonal
-            A.ravel()[::N+1] = np.random.uniform(1,2,N)
+            A.ravel()[::N+1] = np.random.uniform(1, 2, N)
             # randomize the upper diagonal
-            A.ravel()[1::N+1] = np.random.uniform(-1,0,N-1)
+            A.ravel()[1::N+1] = np.random.uniform(-1, 0, N-1)
         # clone the lower diagonal
         A.ravel()[N::N+1] = A.ravel()[1::N+1]
         # test the inverse for all possible basis vectors
         Ainv = np.linalg.inv(A)
-        for i in xrange(N):
+        for i in range(N):
             right = np.zeros(N, float)
             right[i] = 1.0
             solution = np.zeros(N, float)
@@ -50,15 +50,15 @@ def test_tridiagsym_solve():
                 A.ravel()[N::N+1].copy(),
                 right, solution
             )
-            error = abs(solution - Ainv[:,i]).max()
+            error = abs(solution - Ainv[:, i]).max()
             assert(error < 1e-9)
 
 
 def test_basics_identity():
     N = 10
-    y = np.random.normal(0,1,N)
-    d = np.random.normal(0,1,N)
-    cs = CubicSpline(y,d)
+    y = np.random.normal(0, 1, N)
+    d = np.random.normal(0, 1, N)
+    cs = CubicSpline(y, d)
     assert (cs.y == y).all()
     assert (cs.dx == d).all()
     assert (cs.dt == d).all()
@@ -66,8 +66,8 @@ def test_basics_identity():
 
 def test_basics_linear():
     N = 10
-    y = np.random.normal(0,1,N)
-    d = np.random.normal(0,1,N)
+    y = np.random.normal(0, 1, N)
+    d = np.random.normal(0, 1, N)
     rtf = LinearRTransform(-0.3, 0.6, N)
     cs = CubicSpline(y, d, rtf)
     assert (cs.y == y).all()
@@ -79,8 +79,8 @@ def test_basics_linear():
 
 def test_basics_exp():
     N = 10
-    y = np.random.normal(0,1,N)
-    d = np.random.normal(0,1,N)
+    y = np.random.normal(0, 1, N)
+    d = np.random.normal(0, 1, N)
     rtf = ExpRTransform(0.1, 1.0, N)
     cs = CubicSpline(y, d, rtf)
     assert (cs.y == y).all()
@@ -101,7 +101,7 @@ def check_continuity(ynew, y, d, N):
     error = abs(dd)
     assert(error < 1e-14)
     # test the continuity of the second order derivative
-    for i in xrange(1,N-1):
+    for i in range(1, N-1):
         dd1 = 3*(y[i-1] - y[i]) + (d[i-1] + 2*d[i])
         dd2 = 3*(y[i+1] - y[i]) - (d[i+1] + 2*d[i])
         error = abs(dd1 - dd2)
@@ -110,7 +110,7 @@ def check_continuity(ynew, y, d, N):
 
 def test_continuity_identity():
     N = 10
-    y = np.random.normal(0,1,N)
+    y = np.random.normal(0, 1, N)
     cs = CubicSpline(y)
     # test the function values at the grid points
     xnew = np.arange(N, dtype=float)
@@ -122,7 +122,7 @@ def test_continuity_identity():
 def test_continuity_exp():
     N = 10
     rtf = ExpRTransform(0.1, 1.0, N)
-    y = np.random.normal(0,1,N)
+    y = np.random.normal(0, 1, N)
     cs = CubicSpline(y, rtransform=rtf)
     # test the function values at the grid points
     tnew = np.arange(N, dtype=float)
@@ -361,7 +361,8 @@ def test_extrapolation_exp_potential():
 
 
 def test_consistency_h5():
-    with h5.File('horton.grid.test.test_cubic_spline.test_consistency_h5', driver='core', backing_store=False) as chk:
+    with h5.File('horton.grid.test.test_cubic_spline.test_consistency_h5', "w",
+                 driver='core', backing_store=False) as chk:
         rtf = ExpRTransform(0.1, 1.0, 10)
         y = np.random.normal(0, 1, 10)
         d = np.random.normal(0, 1, 10)

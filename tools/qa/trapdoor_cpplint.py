@@ -74,7 +74,7 @@ class CPPLintTrapdoorProgram(TrapdoorProgram):
                    All errors encountered in the current branch.
         """
         # Get version
-        print 'USING              : cpplint.py update #456'
+        print('USING              : cpplint.py update #456')
 
         # Call cpplint
         command = [self.cpplint_file, '--linelength=100', '--filter=-runtime/int']

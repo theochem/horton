@@ -20,7 +20,6 @@
 # --
 '''Abstract DIIS code used by the different DIIS implementations'''
 
-
 import numpy as np
 
 from horton.log import log, timer
@@ -29,15 +28,15 @@ from horton.meanfield.convergence import convergence_error_commutator
 from horton.meanfield.utils import compute_commutator, check_dm
 from horton.meanfield.orbitals import Orbitals
 
-
 __all__ = []
 
 
 class DIISSCFSolver(object):
     '''Base class for all DIIS SCF solvers'''
-    kind = 'dm' # input/output variable is the density matrix
+    kind = 'dm'  # input/output variable is the density matrix
 
-    def __init__(self, DIISHistoryClass, threshold=1e-6, maxiter=128, nvector=6, skip_energy=False, prune_old_states=False):
+    def __init__(self, DIISHistoryClass, threshold=1e-6, maxiter=128, nvector=6, skip_energy=False,
+                 prune_old_states=False):
         '''
            **Arguments:**
 
@@ -76,7 +75,6 @@ class DIISSCFSolver(object):
         self._orbs = []
         self.commutator = None
 
-
     @timer.with_section('SCF')
     def __call__(self, ham, overlap, occ_model, *dms):
         '''Find a self-consistent set of density matrices.
@@ -101,14 +99,14 @@ class DIISSCFSolver(object):
             raise TypeError('The number of initial density matrices does not match the Hamiltonian.')
 
         # Check input density matrices.
-        for i in xrange(ham.ndm):
+        for i in range(ham.ndm):
             check_dm(dms[i], overlap)
         occ_model.check_dms(overlap, *dms)
 
         # keep local variables as attributes for inspection/debugging by caller
         self._history = self.DIISHistoryClass(self.nvector, ham.ndm, ham.deriv_scale, overlap)
-        self._focks = [np.zeros(overlap.shape) for i in xrange(ham.ndm)]
-        self._orbs = [Orbitals(overlap.shape[0]) for i in xrange(ham.ndm)]
+        self._focks = [np.zeros(overlap.shape) for i in range(ham.ndm)]
+        self._orbs = [Orbitals(overlap.shape[0]) for i in range(ham.ndm)]
 
         if log.do_medium:
             log('Starting restricted closed-shell %s-SCF' % self._history.name)
@@ -126,8 +124,7 @@ class DIISSCFSolver(object):
                 # Construct the Fock operators
                 ham.compute_fock(*self._focks)
                 # Compute the energy if needed by the history
-                energy = ham.compute_energy() if self._history.need_energy \
-                         else None
+                energy = ham.compute_energy() if self._history.need_energy else None
                 # Add the current fock+dm pair to the history
                 error = self._history.add(energy, dms, self._focks)
 
@@ -140,7 +137,7 @@ class DIISSCFSolver(object):
                 if log.do_high:
                     log.blank()
                 if log.do_medium:
-                    energy_str = ' '*20 if energy is None else '% 20.13f' % energy
+                    energy_str = ' ' * 20 if energy is None else '% 20.13f' % energy
                     log('%4i %12.5e                         %2i   %20s' % (
                         counter, error, self._history.nused, energy_str
                     ))
@@ -153,10 +150,10 @@ class DIISSCFSolver(object):
 
             # Take a regular SCF step using the current fock matrix. Then
             # construct a new density matrix and fock matrix.
-            for i in xrange(ham.ndm):
+            for i in range(ham.ndm):
                 self._orbs[i].from_fock(self._focks[i], overlap)
             occ_model.assign(*self._orbs)
-            for i in xrange(ham.ndm):
+            for i in range(ham.ndm):
                 dms[i][:] = self._orbs[i].to_dm()
             ham.reset(*dms)
             energy = ham.compute_energy() if self._history.need_energy else None
@@ -176,7 +173,7 @@ class DIISSCFSolver(object):
             if log.do_high:
                 log.blank()
             if log.do_medium:
-                energy_str = ' '*20 if energy is None else '% 20.13f' % energy
+                energy_str = ' ' * 20 if energy is None else '% 20.13f' % energy
                 log('%4i %12.5e                         %2i   %20s' % (
                     counter, error, self._history.nused, energy_str
                 ))
@@ -194,7 +191,7 @@ class DIISSCFSolver(object):
                 if error < self.threshold:
                     converged = True
                     break
-                #if coeffs[coeffs<0].sum() < -1:
+                # if coeffs[coeffs<0].sum() < -1:
                 #    if log.do_high:
                 #        log('          DIIS (coeffs too negative) -> drop %i and retry' % self._history.stack[0].identity)
                 #    self._history.shrink()
@@ -215,12 +212,12 @@ class DIISSCFSolver(object):
                 energies1 = []
                 energies2 = []
                 for x in xs:
-                    x_coeffs = np.array([1-x, x])
-                    energies1.append(np.dot(x_coeffs, 0.5*np.dot(a, x_coeffs) - b))
+                    x_coeffs = np.array([1 - x, x])
+                    energies1.append(np.dot(x_coeffs, 0.5 * np.dot(a, x_coeffs) - b))
                     self._history._build_combinations(x_coeffs, dms_tmp, None)
                     ham.reset(*dms_tmp)
                     energies2.append(ham.compute_energy())
-                    print x, energies1[-1], energies2[-1]
+                    print(x, energies1[-1], energies2[-1])
                 pt.clf()
                 pt.plot(xs, energies1, label='est')
                 pt.plot(xs, energies2, label='ref')
@@ -238,7 +235,7 @@ class DIISSCFSolver(object):
                 self._history.log(coeffs)
 
             if log.do_medium:
-                change_str = ' '*10 if energy_change is None else '% 12.7f' % energy_change
+                change_str = ' ' * 10 if energy_change is None else '% 12.7f' % energy_change
                 log('%4i              %10.3e %12.7f %2i %s                      %12s' % (
                     counter, cn, coeffs[-1], self._history.nused, method,
                     change_str
@@ -249,7 +246,7 @@ class DIISSCFSolver(object):
 
             if self.prune_old_states:
                 # get rid of old states with zero coeff
-                for i in xrange(self._history.nused):
+                for i in range(self._history.nused):
                     if coeffs[i] == 0.0:
                         if log.do_high:
                             log('          DIIS insignificant -> drop %i' % self._history.stack[0].identity)
@@ -298,16 +295,16 @@ class DIISState(object):
         self.overlap = overlap
         self.energy = np.nan
         self.normsq = np.nan
-        self.dms = [np.zeros(overlap.shape) for i in xrange(self.ndm)]
-        self.focks = [np.zeros(overlap.shape) for i in xrange(self.ndm)]
-        self.commutators = [np.zeros(overlap.shape) for i in xrange(self.ndm)]
-        self.identity = None # every state has a different id.
+        self.dms = [np.zeros(overlap.shape) for i in range(self.ndm)]
+        self.focks = [np.zeros(overlap.shape) for i in range(self.ndm)]
+        self.commutators = [np.zeros(overlap.shape) for i in range(self.ndm)]
+        self.identity = None  # every state has a different id.
 
     def clear(self):
         '''Reset this record.'''
         self.energy = np.nan
         self.normsq = np.nan
-        for i in xrange(self.ndm):
+        for i in range(self.ndm):
             self.dms[i][:] = 0.0
             self.focks[i][:] = 0.0
             self.commutators[i][:] = 0.0
@@ -332,7 +329,7 @@ class DIISState(object):
         self.identity = identity
         self.energy = energy
         self.normsq = 0.0
-        for i in xrange(self.ndm):
+        for i in range(self.ndm):
             self.dms[i][:] = dms[i]
             self.focks[i][:] = focks[i]
             self.commutators[i][:] = compute_commutator(dms[i], focks[i], self.overlap)
@@ -369,7 +366,7 @@ class DIISHistory(object):
            used
                 The actual number of vectors in the history.
         '''
-        self.stack = [DIISState(ndm, overlap) for i in xrange(nvector)]
+        self.stack = [DIISState(ndm, overlap) for i in range(nvector)]
         self.ndm = ndm
         self.deriv_scale = deriv_scale
         self.overlap = overlap
@@ -384,17 +381,18 @@ class DIISHistory(object):
     nvector = property(_get_nvector)
 
     def log(self, coeffs):
-        eref = min(state.energy for state in self.stack[:self.nused])
+        eref = min((state.energy for state in self.stack[:self.nused] if state.energy), default=None)
         if eref is None:
             log('          DIIS history          normsq       coeff         id')
-            for i in xrange(self.nused):
+            for i in range(self.nused):
                 state = self.stack[i]
                 log('          DIIS history  %12.5e  %12.7f   %8i' % (state.normsq, coeffs[i], state.identity))
         else:
             log('          DIIS history          normsq      energy         coeff         id')
-            for i in xrange(self.nused):
+            for i in range(self.nused):
                 state = self.stack[i]
-                log('          DIIS history  %12.5e  %12.5e  %12.7f   %8i' % (state.normsq, state.energy-eref, coeffs[i], state.identity))
+                log('          DIIS history  %12.5e  %12.5e  %12.7f   %8i' % (
+                    state.normsq, state.energy - eref, coeffs[i], state.identity))
         log.blank()
 
     def solve(self, dms_output, focks_output):
@@ -420,9 +418,9 @@ class DIISHistory(object):
         self.stack.append(state)
         for dots in self.dots_matrices:
             dots[:-1] = dots[1:]
-            dots[:,:-1] = dots[:,1:]
+            dots[:, :-1] = dots[:, 1:]
             dots[-1] = np.nan
-            dots[:,-1] = np.nan
+            dots[:, -1] = np.nan
 
     def add(self, energy, dms, focks):
         '''Add new state to the history.
@@ -476,21 +474,21 @@ class DIISHistory(object):
         if dms_output is not None:
             if len(dms_output) != self.ndm:
                 raise TypeError('The number of density matrices must match the ndm parameter.')
-            for i in xrange(self.ndm):
-                dms_stack = [self.stack[j].dms[i] for j in xrange(self.nused)]
+            for i in range(self.ndm):
+                dms_stack = [self.stack[j].dms[i] for j in range(self.nused)]
                 self._linear_combination(coeffs, dms_stack, dms_output[i])
         if focks_output is not None:
             if len(focks_output) != self.ndm:
                 raise TypeError('The number of Fock matrices must match the ndm parameter.')
-            for i in xrange(self.ndm):
-                focks_stack = [self.stack[j].focks[i] for j in xrange(self.nused)]
+            for i in range(self.ndm):
+                focks_stack = [self.stack[j].focks[i] for j in range(self.nused)]
                 self._linear_combination(coeffs, focks_stack, focks_output[i])
         if not (dms_output is None or focks_output is None):
             errorsq = 0.0
-            for i in xrange(self.ndm):
+            for i in range(self.ndm):
                 self.commutator = compute_commutator(dms_output[i], focks_output[i], self.overlap)
                 errorsq += np.einsum('ab,ab', self.commutator, self.commutator)
-            return errorsq**0.5
+            return errorsq ** 0.5
 
     def _linear_combination(self, coeffs, ops, output):
         '''Make a linear combination of two-index objects
@@ -507,5 +505,5 @@ class DIISHistory(object):
                 The output operator.
         '''
         output[:] = 0
-        for i in xrange(self.nused):
-            output += coeffs[i]*ops[i]
+        for i in range(self.nused):
+            output += coeffs[i] * ops[i]

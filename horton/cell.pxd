@@ -19,6 +19,7 @@
 #
 # --
 
+# cython: language_level=3
 
 cdef extern from "horton/cell.h":
     cdef cppclass Cell:

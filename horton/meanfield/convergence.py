@@ -58,10 +58,10 @@ def convergence_error_eigen(ham, overlap, *orbs):
         raise TypeError('Expecting %i sets of orbitals, got %i.' % (ham.ndm, len(orbs)))
     dms = [orb.to_dm() for orb in orbs]
     ham.reset(*dms)
-    focks = [np.zeros(dms[0].shape) for i in xrange(ham.ndm)]
+    focks = [np.zeros(dms[0].shape) for i in range(ham.ndm)]
     ham.compute_fock(*focks)
     error = 0.0
-    for i in xrange(ham.ndm):
+    for i in range(ham.ndm):
         error += orbs[i].error_eigen(focks[i], overlap)
     return error
 
@@ -87,11 +87,11 @@ def convergence_error_commutator(ham, overlap, *dms):
     if len(dms) != ham.ndm:
         raise TypeError('Expecting %i density matrices, got %i.' % (ham.ndm, len(dms)))
     ham.reset(*dms)
-    focks = [np.zeros(dms[0].shape) for i in xrange(ham.ndm)]
+    focks = [np.zeros(dms[0].shape) for i in range(ham.ndm)]
     ham.compute_fock(*focks)
     error = 0.0
     errorsq = 0.0
-    for i in xrange(ham.ndm):
+    for i in range(ham.ndm):
         commutator = compute_commutator(dms[i], focks[i], overlap)
         errorsq += np.einsum('ab,ab', commutator, commutator)
     return errorsq**0.5

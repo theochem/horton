@@ -20,7 +20,6 @@
 # --
 '''Code shared by several scripts'''
 
-
 import os, sys, datetime, numpy as np
 
 from horton.units import angstrom
@@ -29,7 +28,6 @@ from horton.periodic import periodic
 from horton.log import log
 from horton.io.lockedh5 import LockedH5File
 from horton.io.internal import dump_h5
-
 
 __all__ = [
     'iter_elements', 'reduce_ugrid', 'reduce_data',
@@ -54,7 +52,7 @@ def iter_elements(elements_str):
             last = periodic[words[1]].number
             if first > last:
                 raise ValueError('first=%i > last=%i' % (first, last))
-            for number in xrange(first,last+1):
+            for number in range(first, last + 1):
                 yield number
         else:
             yield periodic[item].number
@@ -81,8 +79,8 @@ def reduce_ugrid(ugrid, stride, chop):
     if ((ugrid.shape - chop) % stride != 0).any():
         raise ValueError('The stride is not commensurate with all three grid demsions.')
 
-    new_shape = (ugrid.shape-chop)/stride
-    grid_rvecs = ugrid.grid_rvecs*stride
+    new_shape = (ugrid.shape - chop) // stride
+    grid_rvecs = ugrid.grid_rvecs * stride
     new_ugrid = UniformGrid(ugrid.origin, grid_rvecs, new_shape, ugrid.pbc)
     return new_ugrid
 
@@ -174,15 +172,17 @@ def check_output(fn_h5, grp_name, overwrite):
                     return False
                 else:
                     if log.do_warning:
-                        log.warn('Skipping because the group "%s" is already present in the file "%s" and it is not empty.' % (grp_name, fn_h5))
+                        log.warn(
+                            'Skipping because the group "%s" is already present in the file "%s" and it is not empty.' % (
+                            grp_name, fn_h5))
                     return True
     return False
 
 
 def parse_ewald_args(args):
-    rcut = args.rcut*angstrom
-    alpha = args.alpha_scale/rcut
-    gcut = args.gcut_scale*alpha
+    rcut = args.rcut * angstrom
+    alpha = args.alpha_scale / rcut
+    gcut = args.gcut_scale * alpha
     return rcut, alpha, gcut
 
 
@@ -190,7 +190,7 @@ def parse_pbc(spbc):
     if len(spbc) != 3:
         raise ValueError('The pbc argument must consist of three characters, 0 or 1.')
     result = np.zeros(3, int)
-    for i in xrange(3):
+    for i in range(3):
         if spbc[i] not in '01':
             raise ValueError('The pbc argument must consist of three characters, 0 or 1.')
         result[i] = int(spbc[i])
@@ -199,10 +199,10 @@ def parse_pbc(spbc):
 
 def store_args(args, grp):
     '''Convert the command line arguments to hdf5 attributes'''
-    grp.attrs['cmdline'] =  ' '.join(sys.argv)
+    grp.attrs['cmdline'] = ' '.join(sys.argv)
     grp.attrs['pwd'] = os.getcwd()
     grp.attrs['datetime'] = datetime.datetime.now().isoformat()
-    for key, val in vars(args).iteritems():
+    for key, val in vars(args).items():
         if val is not None:
             grp.attrs['arg_%s' % key] = val
 
@@ -229,10 +229,11 @@ def write_part_output(fn_h5, grp_name, part, keys, args):
             The results of the command line parser. All arguments are stored
             as attributes in the HDF5 output file.
     '''
+
     def get_results(part, keys):
         results = {}
         for key in keys:
-            if isinstance(key, basestring):
+            if isinstance(key, str):
                 results[key] = part[key]
             elif isinstance(key, tuple):
                 assert len(key) == 2
@@ -245,13 +246,13 @@ def write_part_output(fn_h5, grp_name, part, keys, args):
         return results
 
     # Store the results in an HDF5 file
-    with LockedH5File(fn_h5) as f:
+    with LockedH5File(fn_h5, "w") as f:
         # Transform results to a suitable dictionary structure
         results = get_results(part, keys)
 
         # Store results
         grp = f.require_group(grp_name)
-        for key in grp.keys():
+        for key in list(grp.keys()):
             del grp[key]
         dump_h5(grp, results)
 
@@ -260,7 +261,7 @@ def write_part_output(fn_h5, grp_name, part, keys, args):
 
         if args.debug:
             # Collect debug results
-            debug_keys = [key for key in part.cache.iterkeys() if key not in keys]
+            debug_keys = [key for key in part.cache.keys() if key not in keys]
             debug_results = get_results(part, debug_keys)
 
             # Store additional data for debugging
@@ -291,10 +292,10 @@ def write_script_output(fn_h5, grp_name, results, args):
             The results of the command line parser. All arguments are stored
             as attributes in the HDF5 output file.
     '''
-    with LockedH5File(fn_h5) as f:
+    with LockedH5File(fn_h5, "w") as f:
         # Store results
         grp = f.require_group(grp_name)
-        for key in grp.keys():
+        for key in list(grp.keys()):
             del grp[key]
         dump_h5(grp, results)
 

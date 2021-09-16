@@ -60,17 +60,17 @@ def main():
     # compute the origin and the number of repetitions along each axis.
     nrep = np.zeros(3, int)
     origin = np.zeros(3, float)
-    for i in xrange(3):
-        projc = np.dot(mol.coordinates, evecs[:,i])
+    for i in range(3):
+        projc = np.dot(mol.coordinates, evecs[:, i])
         nrep[i] = np.ceil((projc.max() - projc.min() + 2*margin)/spacing)+1
-        origin += 0.5*(projc.max() + projc.min() - (nrep[i]-1)*spacing)*evecs[:,i]
+        origin += 0.5*(projc.max() + projc.min() - (nrep[i]-1)*spacing)*evecs[:, i]
 
     with open(args.output, 'w') as f:
         # the header is written in Bohr, hence the -nrep[0]
-        print >> f, '% 5i % 15.10f % 15.10f % 15.10f' % (0, origin[0], origin[1], origin[2])
-        print >> f, '% 5i % 15.10f % 15.10f % 15.10f' % (-nrep[0], axes[0,0], axes[0,1], axes[0,2])
-        print >> f, '% 5i % 15.10f % 15.10f % 15.10f' % (nrep[1], axes[1,0], axes[1,1], axes[1,2])
-        print >> f, '% 5i % 15.10f % 15.10f % 15.10f' % (nrep[2], axes[2,0], axes[2,1], axes[2,2])
+        print('% 5i % 15.10f % 15.10f % 15.10f' % (0, origin[0], origin[1], origin[2]), file=f)
+        print('% 5i % 15.10f % 15.10f % 15.10f' % (-nrep[0], axes[0, 0], axes[0, 1], axes[0, 2]), file=f)
+        print('% 5i % 15.10f % 15.10f % 15.10f' % (nrep[1], axes[1, 0], axes[1, 1], axes[1, 2]), file=f)
+        print('% 5i % 15.10f % 15.10f % 15.10f' % (nrep[2], axes[2, 0], axes[2, 1], axes[2, 2]), file=f)
 
 
 if __name__ == '__main__':

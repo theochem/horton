@@ -155,7 +155,7 @@ class GridGroup(Observable):
             # The prefix is not used here to make sure the second-order
             # derivatives are strictly consistent.
             mask = cache['all_%s' % select][:, 0] < self.density_cutoff
-            all_basics[mask, :] = 0.0
+            all_basics[mask,:] = 0.0
         return all_basics
 
     def _update_grid_data(self, cache):
@@ -218,7 +218,7 @@ class GridGroup(Observable):
         focks : list of TwoIndex
             A list of Fock matrices.
         """
-        for ichannel in xrange(len(focks)):
+        for ichannel in range(len(focks)):
             if self.df_level == DF_LEVEL_LDA:
                 self.obasis.compute_grid_density_fock(
                     self.grid.points, self.grid.weights,

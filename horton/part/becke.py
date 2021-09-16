@@ -81,7 +81,7 @@ class BeckeWPart(WPart):
 
         # Actual work
         pb = log.progress(self.natom)
-        for index in xrange(self.natom):
+        for index in range(self.natom):
             grid = self.get_grid(index)
             at_weights = self.cache.load('at_weights', index, alloc=grid.shape)[0]
             at_weights[:] = 1

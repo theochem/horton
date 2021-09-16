@@ -64,7 +64,7 @@ class PyDocStyleTrapdoorProgram(TrapdoorProgram):
         # Get version
         command = ['pydocstyle', '--version']
         version = run_command(command, verbose=False)[0].strip()
-        print 'USING              : pydocstyle', version
+        print('USING              : pydocstyle', version)
 
         # Call pydocstyle in the directories containing Python code. All files will be
         # checked, including test files. Missing docstrings are ignored because they are

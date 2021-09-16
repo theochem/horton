@@ -38,7 +38,7 @@ lines = [
     '    ================  ==================',
 ]
 
-for key, value in sorted(globals().iteritems()):
+for key, value in sorted(globals().items()):
     if not isinstance(value, float):
         continue
     lines.append('    %16s  %.10e' % (key, value))

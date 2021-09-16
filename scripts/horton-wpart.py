@@ -100,7 +100,7 @@ def main():
 
     # Define a list of optional arguments for the WPartClass:
     WPartClass = wpart_schemes[args.scheme]
-    kwargs = dict((key, val) for key, val in vars(args).iteritems() if key in WPartClass.options)
+    kwargs = dict((key, val) for key, val in vars(args).items() if key in WPartClass.options)
 
     # Load the proatomdb
     if args.atoms is not None:
@@ -118,13 +118,13 @@ def main():
     dm_spin = mol.get_dm_spin()
     if dm_spin is not None:
         kwargs['spindens'] = mol.obasis.compute_grid_density_dm(dm_spin, grid.points, epsilon=args.epsilon)
-    wpart = wpart_schemes[args.scheme](mol.coordinates, mol.numbers, mol.pseudo_numbers,grid, moldens, **kwargs)
+    wpart = wpart_schemes[args.scheme](mol.coordinates, mol.numbers, mol.pseudo_numbers, grid, moldens, **kwargs)
     keys = wpart.do_all()
 
     if args.slow:
         # ugly hack for the slow analysis involving the AIM overlap operators.
         wpart_slow_analysis(wpart, mol)
-        keys = list(wpart.cache.iterkeys(tags='o'))
+        keys = list(wpart.cache.keys(tags='o'))
 
     write_part_output(fn_h5, grp_name, wpart, keys, args)
 

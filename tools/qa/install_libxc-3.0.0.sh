@@ -14,9 +14,9 @@ if [ ! -d "${CACHED}/${NAMEVER}/lib" ]; then
     tar -xzf ${NAMEVER}.tar.gz
     cd ${NAMEVER}
     echo "Actual build and install. This may take a while."
-    (CFLAGS='-fPIC' CPPFLAGS='-fPIC' FCCPP=-ffreestanding ./configure --prefix=${CACHED}/${NAMEVER} && make install) &> install.log
+    (CFLAGS='-fPIC' CPPFLAGS='-fPIC' FCCPP=-ffreestanding ./configure --prefix=${CACHED}/${NAMEVER} && make install)
     cp src/funcs_key.c ${CACHED}/${NAMEVER}
-    tail install.log
+#    tail install.log
 )
 else
     echo -e "${GREEN}Using Cached ${NAMEVER}${RESET}"

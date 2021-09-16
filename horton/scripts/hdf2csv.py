@@ -37,7 +37,7 @@ def iter_datasets(grp):
        This function iterators over all (name,dset) pairs it can find. The name
        is the full path of the dataset relative to the given group object.
     '''
-    for name, item in sorted(grp.iteritems()):
+    for name, item in sorted(grp.items()):
         if isinstance(item, h5.Dataset):
             yield name, item
         elif isinstance(item, h5.Group):

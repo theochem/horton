@@ -20,7 +20,7 @@
 # --
 
 
-cimport uniform
+cimport horton.grid.uniform as uniform
 
 cdef extern from "horton/grid/utils.h":
     void dot_multi(long npoint, long nvector, double** data, long* segments,

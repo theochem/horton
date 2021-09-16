@@ -18,15 +18,16 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
+#cython: language_level=3
 '''C++ extensions'''
 
 import numpy as np
 cimport numpy as np
 np.import_array()
 
-cimport cell
-cimport moments
-cimport nucpot
+cimport horton.cell as cell
+cimport horton.moments as moments
+cimport horton.nucpot as nucpot
 
 from horton.utils import typecheck_geo
 

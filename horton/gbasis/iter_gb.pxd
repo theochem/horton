@@ -20,7 +20,7 @@
 # --
 
 
-cimport gbasis
+cimport horton.gbasis.gbasis as gbasis
 
 cdef extern from "horton/gbasis/iter_gb.h":
     cdef cppclass IterGB1:

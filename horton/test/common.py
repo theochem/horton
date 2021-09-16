@@ -26,6 +26,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+from typing import List
 
 import numpy as np
 
@@ -33,13 +34,11 @@ from horton.cext import Cell
 from horton.moments import get_cartesian_powers
 from horton.meanfield.occ import AufbauOccModel
 
-
 __all__ = [
     'in_horton_source_root', 'check_script', 'check_script_in_tmp', 'check_delta',
     'get_random_cell', 'get_pentagon_moments', 'compare_occ_model', 'compare_orbs',
     'compare_mols', 'tmpdir', 'numpy_seed', 'truncated_file',
 ]
-
 
 # All, except underflows, is *not* fine.
 np.seterr(divide='raise', over='raise', invalid='raise')
@@ -57,10 +56,10 @@ def in_horton_source_root():
         return False
     if not os.path.isdir('scripts'):
         return False
-    if not os.path.isfile('README'):
+    if not os.path.isfile('README.md'):
         return False
-    with open('README') as f:
-        if f.next() != 'HORTON: *H*elpful *O*pen-source *R*esearch *TO*ol for *N*-fermion systems.\n':
+    with open('README.md') as f:
+        if next(f) != 'HORTON: *H*elpful *O*pen-source *R*esearch *TO*ol for *N*-fermion systems.\n':
             return False
     return True
 
@@ -88,25 +87,23 @@ def check_script(command, workdir):
         env['HORTONDATA'] = os.path.join(root_dir, 'data')
     env['PATH'] = os.path.join(root_dir, 'scripts') + ':' + env.get('PATH', '')
     try:
-        proc = subprocess.Popen(command, stdin=subprocess.PIPE,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                cwd=workdir, env=env, shell=True)
-        outdata, errdata = proc.communicate()
+        proc = subprocess.run(command, cwd=workdir, env=env, capture_output=True, shell=True)
+        outdata, errdata = proc.stdout, proc.stderr
     except OSError:
         raise AssertionError('Executable not found.')
     if proc.returncode != 0:
-        print 'Standard output'
-        print '+'*80
-        print outdata
-        print '+'*80
-        print 'Standard error'
-        print '+'*80
-        print errdata
-        print '+'*80
+        print('Standard output')
+        print('+' * 80)
+        print(outdata)
+        print('+' * 80)
+        print('Standard error')
+        print('+' * 80)
+        print(errdata)
+        print('+' * 80)
         assert False
 
 
-def check_script_in_tmp(command, required, expected):
+def check_script_in_tmp(command: str, required: List[str], expected: List[str]):
     '''Test a script in a tmp dir
 
        **Arguments:**
@@ -122,9 +119,9 @@ def check_script_in_tmp(command, required, expected):
             execution.
     '''
     # Create a unique-ish suffix
-    m = hashlib.sha256(command)
+    m = hashlib.sha256(command.encode("utf-8"))
     for s in required + expected:
-        m.update(s)
+        m.update(s.encode("utf-8"))
     suffix = m.hexdigest()
     # Do the actual work.
     with tmpdir('check_scrip_in_tmp-{}'.format(suffix)) as dn:
@@ -182,9 +179,9 @@ def check_delta(fun, fun_deriv, x, dxs):
     f0 = fun(x)
     grad0 = fun_deriv(x)
     for dx in dxs:
-        f1 = fun(x+dx)
-        grad1 = fun_deriv(x+dx)
-        grad = 0.5*(grad0+grad1)
+        f1 = fun(x + dx)
+        grad1 = fun_deriv(x + dx)
+        grad = 0.5 * (grad0 + grad1)
         d1 = f1 - f0
         if hasattr(d1, '__iter__'):
             norm = np.linalg.norm
@@ -194,7 +191,7 @@ def check_delta(fun, fun_deriv, x, dxs):
 
         dn1s.append(norm(d1))
         dn2s.append(norm(d2))
-        dnds.append(norm(d1-d2))
+        dnds.append(norm(d1 - d2))
     dn1s = np.array(dn1s)
     dn2s = np.array(dn2s)
     dnds = np.array(dnds)
@@ -206,14 +203,14 @@ def check_delta(fun, fun_deriv, x, dxs):
     # the threshold
     if not (dnds[mask] < threshold).all():
         raise AssertionError((
-            'The first order approximation on the difference is too wrong. The '
-            'threshold is %.1e.\n\nDifferences:\n%s\n\nFirst order '
-            'approximation to differences:\n%s\n\nAbsolute errors:\n%s')
-            % (threshold,
-            ' '.join('%.1e' % v for v in dn1s[mask]),
-            ' '.join('%.1e' % v for v in dn2s[mask]),
-            ' '.join('%.1e' % v for v in dnds[mask])
-        ))
+                                 'The first order approximation on the difference is too wrong. The '
+                                 'threshold is %.1e.\n\nDifferences:\n%s\n\nFirst order '
+                                 'approximation to differences:\n%s\n\nAbsolute errors:\n%s')
+                             % (threshold,
+                                ' '.join('%.1e' % v for v in dn1s[mask]),
+                                ' '.join('%.1e' % v for v in dn2s[mask]),
+                                ' '.join('%.1e' % v for v in dnds[mask])
+                                ))
 
 
 def get_random_cell(a, nvec):
@@ -222,9 +219,9 @@ def get_random_cell(a, nvec):
     while True:
         if a <= 0:
             raise ValueError('The first argument must be strictly positive.')
-        rvecs = np.random.uniform(0, a, (nvec,3))
+        rvecs = np.random.uniform(0, a, (nvec, 3))
         cell = Cell(rvecs)
-        if cell.volume > a**nvec*0.1:
+        if cell.volume > a ** nvec * 0.1:
             return cell
 
 
@@ -235,13 +232,13 @@ def get_pentagon_moments(rmat=None, lmax=4):
     cartesian_powers = get_cartesian_powers(lmax)
     ncart = cartesian_powers.shape[0]
     result = np.zeros(ncart)
-    for i in xrange(6):
-        alpha = 2.0*np.pi/5.0
-        vec = np.array([1+np.cos(alpha), np.sin(alpha), 0])
+    for i in range(6):
+        alpha = 2.0 * np.pi / 5.0
+        vec = np.array([1 + np.cos(alpha), np.sin(alpha), 0])
         vec = np.dot(rmat, vec)
-        for j in xrange(ncart):
+        for j in range(ncart):
             px, py, pz = cartesian_powers[j]
-            result[j] += vec[0]**px * vec[1]**py * vec[2]**pz
+            result[j] += vec[0] ** px * vec[1] ** py * vec[2] ** pz
     return result
 
 
@@ -252,11 +249,11 @@ def get_point_moments(coordinates, rmat=None, lmax=4):
     cartesian_powers = get_cartesian_powers(lmax)
     ncart = cartesian_powers.shape[0]
     result = np.zeros(ncart)
-    for i in xrange(len(coordinates)):
+    for i in range(len(coordinates)):
         vec = np.dot(rmat, coordinates[i])
-        for j in xrange(ncart):
+        for j in range(ncart):
             px, py, pz = cartesian_powers[j]
-            result[j] += vec[0]**px * vec[1]**py * vec[2]**pz
+            result[j] += vec[0] ** px * vec[1] ** py * vec[2] ** pz
     return result
 
 
@@ -357,6 +354,6 @@ def truncated_file(name, fn_orig, nline, nadd):
                 if counter >= nline:
                     break
                 f_truncated.write(line)
-            for _ in xrange(nadd):
+            for _ in range(nadd):
                 f_truncated.write('\n')
         yield fn_truncated

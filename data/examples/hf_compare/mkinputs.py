@@ -5,8 +5,8 @@ import os
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
-for z in xrange(1, 18):
-    for charge in xrange(-1, 3):
+for z in range(1, 18):
+    for charge in range(-1, 3):
         nel = z-charge
         if nel <= 0:
             continue
@@ -21,12 +21,12 @@ for z in xrange(1, 18):
             if not os.path.isdir(dirname):
                 os.mkdir(dirname)
             with open('%s/gaussian.com' % dirname, 'w') as f:
-                print >> f, '%nproc=4'
-                print >> f, '%chk=gaussian.chk'
-                print >> f, '#p HF/aug-cc-pVDZ scf(tight,xqc) IOP(6/7=3)'
-                print >> f
-                print >> f, dirname
-                print >> f
-                print >> f, charge, mult
-                print >> f, periodic[z].symbol, 0.0, 0.0, 0.0
-                print >> f
+                print('%nproc=4', file=f)
+                print('%chk=gaussian.chk', file=f)
+                print('#p HF/aug-cc-pVDZ scf(tight,xqc) IOP(6/7=3)', file=f)
+                print(file=f)
+                print(dirname, file=f)
+                print(file=f)
+                print(charge, mult, file=f)
+                print(periodic[z].symbol, 0.0, 0.0, 0.0, file=f)
+                print(file=f)

@@ -24,6 +24,7 @@
 import numpy as np
 
 from horton.log import timer
+from functools import reduce
 
 
 __all__ = ['four_index_transform', 'transform_integrals', 'split_core_active',
@@ -101,16 +102,16 @@ def four_index_transform(ao_integrals, orb0, orb1=None, orb2=None, orb3=None, me
     elif method == 'tensordot':
         # because the way tensordot works, the order of the dot products is
         # not according to literature conventions.
-        result[:] = np.tensordot(ao_integrals, orb0.coeffs, axes=([0],[0]))
-        result[:] = np.tensordot(result, orb1.coeffs, axes=([0],[0]))
-        result[:] = np.tensordot(result, orb2.coeffs, axes=([0],[0]))
-        result[:] = np.tensordot(result, orb3.coeffs, axes=([0],[0]))
+        result[:] = np.tensordot(ao_integrals, orb0.coeffs, axes=([0], [0]))
+        result[:] = np.tensordot(result, orb1.coeffs, axes=([0], [0]))
+        result[:] = np.tensordot(result, orb2.coeffs, axes=([0], [0]))
+        result[:] = np.tensordot(result, orb3.coeffs, axes=([0], [0]))
     else:
         raise ValueError('The method must either be \'einsum\' or \'tensordot\'.')
     # Symmetrize the result
-    result[:] = result + result.transpose(1,0,3,2)
-    result[:] = result + result.transpose(2,3,0,1)
-    result[:] = result + result.transpose(0,3,2,1)
+    result[:] = result + result.transpose(1, 0, 3, 2)
+    result[:] = result + result.transpose(2, 3, 0, 1)
+    result[:] = result + result.transpose(0, 3, 2, 1)
     result /= 8
     return result
 
@@ -251,8 +252,8 @@ def four_index_transform_cholesky(ao_integrals, orb0, orb1=None, method='tensord
         result = np.einsum('ai,kac->kic', orb0.coeffs, ao_integrals)
         result = np.einsum('cj,kic->kij', orb1.coeffs, result)
     elif method == 'tensordot':
-        result = np.tensordot(ao_integrals, orb0.coeffs, axes=([1],[0]))
-        result = np.tensordot(result, orb1.coeffs, axes=([1],[0]))
+        result = np.tensordot(ao_integrals, orb0.coeffs, axes=([1], [0]))
+        result = np.tensordot(result, orb1.coeffs, axes=([1], [0]))
     else:
         raise ValueError('The method must either be \'einsum\' or \'tensordot\'.')
     return result

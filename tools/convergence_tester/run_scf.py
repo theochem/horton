@@ -82,7 +82,7 @@ def run(irandom, mixing, method):
 
     for i in mixing[::-1]:
         exp_alpha = load_exp('guesses.h5', i, 'case_%03i' % irandom)
-        print "mixing: " + str(i)
+        print("mixing: " + str(i))
 
         dm_alpha = exp_alpha.to_dm()
         ham.reset(dm_alpha)
@@ -93,15 +93,15 @@ def run(irandom, mixing, method):
         try:
             niter = solver.solve()
             mix_iters.append(niter)
-        except (scp.optimize.nonlin.NoConvergence,NoSCFConvergence):
+        except (scp.optimize.nonlin.NoConvergence, NoSCFConvergence):
             nfail += 1
             if nfail > 2:
                 padding = ["inf"]*(len(mixing) - len(mix_iters))
                 return mix_iters + padding
 
-        print 'run %3i: %8.5f %3i %12.6f %12.6f' % (
+        print('run %3i: %8.5f %3i %12.6f %12.6f' % (
             irandom, -np.log10(i), niter, energy0, ham.compute()
-            )
+            ))
     return mix_iters
 
 def main():
@@ -113,7 +113,7 @@ def main():
 #     res =  run(5, mixings, SCFOpt)
 #     print [str(mix) +" " + str(iter) for mix,iter in zip(reversed(mixings[-len(res):]), res)]
 
-    fseq = [futures.submit(run, i, mixings, SCFOpt) for i in xrange(nrandom)]
+    fseq = [futures.submit(run, i, mixings, SCFOpt) for i in range(nrandom)]
 
     not_done = ["dummy"]
     while not_done:
@@ -121,8 +121,8 @@ def main():
 
         for i in done:
             with open('scf_results.txt', 'a') as f:
-                line = [str(mix) +" "+ str(iter) for mix,iter in zip(reversed(mixings[-len(i.result()):]), i.result())]
-                print >> f, '\n'.join(line)
+                line = [str(mix) +" "+ str(iter) for mix, iter in zip(reversed(mixings[-len(i.result()):]), i.result())]
+                print('\n'.join(line), file=f)
             fseq.remove(i)
 
 if __name__ == '__main__':

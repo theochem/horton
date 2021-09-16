@@ -18,13 +18,13 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
+#cython: language_level=3
 """C++ extensions"""
-
 
 import numpy as np
 cimport numpy as np
-np.import_array()
 
+np.import_array()
 
 __all__ = [
     'RLibXCWrapper', 'ULibXCWrapper'
@@ -36,20 +36,22 @@ cdef extern from "xc.h":
     enum: XC_POLARIZED
 
     ctypedef struct func_reference_type:
-        char *ref, *doi, *bibtex;
+        char *ref;
+        char *doi;
+        char *bibtex;
 
     ctypedef struct xc_func_info_type:
         int number
         int kind
-        char* name
+        char * name
         int family
         func_reference_type *refs[5]
 
     ctypedef struct xc_func_type:
-        xc_func_info_type* info
+        xc_func_info_type * info
 
     int xc_functional_get_number(char *name)
-    bint xc_func_init(xc_func_type *p, int functional, int nspin)
+    int xc_func_init(xc_func_type *p, int functional, int nspin)
     void xc_func_end(xc_func_type *p)
     void xc_lda_exc(xc_func_type *p, int npoint, double *rho, double *zk)
     void xc_lda_vxc(xc_func_type *p, int npoint, double *rho, double *vrho)
@@ -62,8 +64,8 @@ cdef extern from "xc.h":
     void xc_mgga_exc(xc_func_type *p, int npoint, double *rho, double *sigma,
                      double *lapl, double *tau, double *zk)
     void xc_mgga_vxc(xc_func_type *p, int npoint, double *rho, double *sigma,
-                     double *lapl, double *tau, double* vrho, double* vsigma,
-                     double* vlapl, double* vtau);
+                     double *lapl, double *tau, double * vrho, double * vsigma,
+                     double * vlapl, double * vtau);
     double xc_hyb_exx_coef(xc_func_type *p)
     double xc_hyb_cam_coef(const xc_func_type *p, double *omega, double *alpha, double *beta)
 
@@ -73,8 +75,9 @@ cdef class LibXCWrapper(object):
     cdef xc_func_type _func
     cdef int _func_id
     cdef bytes _key
+    cdef bytes _name
 
-    def __cinit__(self, bytes key):
+    def __cinit__(self, str key):
         """Initialize a LibXCWrapper.
 
         Parameters
@@ -82,9 +85,9 @@ cdef class LibXCWrapper(object):
         key : str
             The name of the functional in LibXC, e.g. `"lda_x"`.
         """
-        self._key = key
+        self._key = key.encode("utf-8")
         self._func_id = -1
-        self._func_id = xc_functional_get_number(key)
+        self._func_id = xc_functional_get_number(key.encode("utf-8"))
         if self._func_id < 0:
             raise ValueError('Unknown LibXC functional: %s' % key)
 
@@ -97,7 +100,7 @@ cdef class LibXCWrapper(object):
 
     property key:
         def __get__(self):
-            return self._key
+            return self._key.decode("utf-8")
 
     property number:
         def __get__(self):
@@ -109,7 +112,8 @@ cdef class LibXCWrapper(object):
 
     property name:
         def __get__(self):
-            return self._func.info[0].name
+            self._name = self._func.info[0].name
+            return self._name.decode("utf-8")
 
     property family:
         def __get__(self):
@@ -118,15 +122,15 @@ cdef class LibXCWrapper(object):
     property refs:
         def __get__(self):
             cdef int i
-            cdef func_reference_type* ref
+            cdef func_reference_type * ref
             result = []
             for i in range(5):
                 ref = self._func.info[0].refs[i]
                 if ref != NULL:
                     result.append([
-                        ref[0].ref.strip(),
-                        ref[0].doi.strip(),
-                        ref[0].bibtex.strip()])
+                        ref[0].ref.strip().decode("utf-8"),
+                        ref[0].doi.strip().decode("utf-8"),
+                        ref[0].bibtex.strip().decode("utf-8")])
             return result
 
     ## HYB GGA
@@ -153,9 +157,8 @@ cdef class LibXCWrapper(object):
         xc_hyb_cam_coef(&self._func, &omega, &alpha, &beta)
         return omega, alpha, beta
 
-
 cdef class RLibXCWrapper(LibXCWrapper):
-    def __cinit__(self, bytes key):
+    def __cinit__(self, str key):
         """Initialize a RLibXCWrapper.
 
         Parameters
@@ -171,7 +174,7 @@ cdef class RLibXCWrapper(LibXCWrapper):
     ## LDA
 
     def compute_lda_exc(self, np.ndarray[double, ndim=1] rho not None,
-                              np.ndarray[double, ndim=1] zk not None):
+                        np.ndarray[double, ndim=1] zk not None):
         """Compute the LDA energy density.
 
         Parameters
@@ -188,7 +191,7 @@ cdef class RLibXCWrapper(LibXCWrapper):
         xc_lda_exc(&self._func, npoint, &rho[0], &zk[0])
 
     def compute_lda_vxc(self, np.ndarray[double, ndim=1] rho not None,
-                              np.ndarray[double, ndim=1] vrho not None):
+                        np.ndarray[double, ndim=1] vrho not None):
         """Compute the LDA potential.
 
         Parameters
@@ -205,7 +208,7 @@ cdef class RLibXCWrapper(LibXCWrapper):
         xc_lda_vxc(&self._func, npoint, &rho[0], &vrho[0])
 
     def compute_lda_fxc(self, np.ndarray[double, ndim=1] rho not None,
-                              np.ndarray[double, ndim=1] v2rho2 not None):
+                        np.ndarray[double, ndim=1] v2rho2 not None):
         """Compute the LDA hardness kernel.
 
         Parameters
@@ -224,8 +227,8 @@ cdef class RLibXCWrapper(LibXCWrapper):
     ## GGA
 
     def compute_gga_exc(self, np.ndarray[double, ndim=1] rho not None,
-                              np.ndarray[double, ndim=1] sigma not None,
-                              np.ndarray[double, ndim=1] zk not None):
+                        np.ndarray[double, ndim=1] sigma not None,
+                        np.ndarray[double, ndim=1] zk not None):
         """Compute the GGA energy density.
 
         Parameters
@@ -246,9 +249,9 @@ cdef class RLibXCWrapper(LibXCWrapper):
         xc_gga_exc(&self._func, npoint, &rho[0], &sigma[0], &zk[0])
 
     def compute_gga_vxc(self, np.ndarray[double, ndim=1] rho not None,
-                              np.ndarray[double, ndim=1] sigma not None,
-                              np.ndarray[double, ndim=1] vrho not None,
-                              np.ndarray[double, ndim=1] vsigma not None):
+                        np.ndarray[double, ndim=1] sigma not None,
+                        np.ndarray[double, ndim=1] vrho not None,
+                        np.ndarray[double, ndim=1] vsigma not None):
         """Compute the GGA functional derivatives.
 
         For every input `x`, a functional derivative is computed, `vx`, stored in an array
@@ -277,10 +280,10 @@ cdef class RLibXCWrapper(LibXCWrapper):
         xc_gga_vxc(&self._func, npoint, &rho[0], &sigma[0], &vrho[0], &vsigma[0])
 
     def compute_gga_fxc(self, np.ndarray[double, ndim=1] rho not None,
-                              np.ndarray[double, ndim=1] sigma not None,
-                              np.ndarray[double, ndim=1] v2rho2 not None,
-                              np.ndarray[double, ndim=1] v2rhosigma not None,
-                              np.ndarray[double, ndim=1] v2sigma2 not None):
+                        np.ndarray[double, ndim=1] sigma not None,
+                        np.ndarray[double, ndim=1] v2rho2 not None,
+                        np.ndarray[double, ndim=1] v2rhosigma not None,
+                        np.ndarray[double, ndim=1] v2sigma2 not None):
         """Compute the GGA hardness kernel.
 
         Parameters
@@ -311,10 +314,10 @@ cdef class RLibXCWrapper(LibXCWrapper):
     ## MGGA
 
     def compute_mgga_exc(self, np.ndarray[double, ndim=1] rho not None,
-                               np.ndarray[double, ndim=1] sigma not None,
-                               np.ndarray[double, ndim=1] lapl not None,
-                               np.ndarray[double, ndim=1] tau not None,
-                               np.ndarray[double, ndim=1] zk not None):
+                         np.ndarray[double, ndim=1] sigma not None,
+                         np.ndarray[double, ndim=1] lapl not None,
+                         np.ndarray[double, ndim=1] tau not None,
+                         np.ndarray[double, ndim=1] zk not None):
         """Compute the MGGA energy density.
 
         Parameters
@@ -343,13 +346,13 @@ cdef class RLibXCWrapper(LibXCWrapper):
         xc_mgga_exc(&self._func, npoint, &rho[0], &sigma[0], &lapl[0], &tau[0], &zk[0])
 
     def compute_mgga_vxc(self, np.ndarray[double, ndim=1] rho not None,
-                               np.ndarray[double, ndim=1] sigma not None,
-                               np.ndarray[double, ndim=1] lapl not None,
-                               np.ndarray[double, ndim=1] tau not None,
-                               np.ndarray[double, ndim=1] vrho not None,
-                               np.ndarray[double, ndim=1] vsigma not None,
-                               np.ndarray[double, ndim=1] vlapl not None,
-                               np.ndarray[double, ndim=1] vtau not None,):
+                         np.ndarray[double, ndim=1] sigma not None,
+                         np.ndarray[double, ndim=1] lapl not None,
+                         np.ndarray[double, ndim=1] tau not None,
+                         np.ndarray[double, ndim=1] vrho not None,
+                         np.ndarray[double, ndim=1] vsigma not None,
+                         np.ndarray[double, ndim=1] vlapl not None,
+                         np.ndarray[double, ndim=1] vtau not None, ):
         """Compute the MGGA functional derivatives.
 
         For every input `x`, a functional derivative is computed, `vx`, stored in an array
@@ -393,9 +396,8 @@ cdef class RLibXCWrapper(LibXCWrapper):
         xc_mgga_vxc(&self._func, npoint, &rho[0], &sigma[0], &lapl[0], &tau[0], &vrho[0],
                     &vsigma[0], &vlapl[0], &vtau[0])
 
-
 cdef class ULibXCWrapper(LibXCWrapper):
-    def __cinit__(self, bytes key):
+    def __cinit__(self, str key):
         """Initialize a ULibXCWrapper.
 
         Parameters
@@ -411,7 +413,7 @@ cdef class ULibXCWrapper(LibXCWrapper):
     ## LDA
 
     def compute_lda_exc(self, np.ndarray[double, ndim=2] rho not None,
-                              np.ndarray[double, ndim=1] zk not None):
+                        np.ndarray[double, ndim=1] zk not None):
         """Compute the LDA energy density.
 
         Parameters
@@ -429,7 +431,7 @@ cdef class ULibXCWrapper(LibXCWrapper):
         xc_lda_exc(&self._func, npoint, &rho[0, 0], &zk[0])
 
     def compute_lda_vxc(self, np.ndarray[double, ndim=2] rho not None,
-                              np.ndarray[double, ndim=2] vrho not None):
+                        np.ndarray[double, ndim=2] vrho not None):
         """Compute the LDA potentials (alpha and beta).
 
         Parameters
@@ -451,8 +453,8 @@ cdef class ULibXCWrapper(LibXCWrapper):
     ## GGA
 
     def compute_gga_exc(self, np.ndarray[double, ndim=2] rho not None,
-                              np.ndarray[double, ndim=2] sigma not None,
-                              np.ndarray[double, ndim=1] zk not None):
+                        np.ndarray[double, ndim=2] sigma not None,
+                        np.ndarray[double, ndim=1] zk not None):
         """Compute the GGA energy density.
 
         Parameters
@@ -476,9 +478,9 @@ cdef class ULibXCWrapper(LibXCWrapper):
         xc_gga_exc(&self._func, npoint, &rho[0, 0], &sigma[0, 0], &zk[0])
 
     def compute_gga_vxc(self, np.ndarray[double, ndim=2] rho not None,
-                              np.ndarray[double, ndim=2] sigma not None,
-                              np.ndarray[double, ndim=2] vrho not None,
-                              np.ndarray[double, ndim=2] vsigma not None):
+                        np.ndarray[double, ndim=2] sigma not None,
+                        np.ndarray[double, ndim=2] vrho not None,
+                        np.ndarray[double, ndim=2] vsigma not None):
         """Compute the GGA functional derivatives.
 
         For every input `x`, a functional derivative is computed, `vx`, stored in an array
@@ -514,10 +516,10 @@ cdef class ULibXCWrapper(LibXCWrapper):
     ## MGGA
 
     def compute_mgga_exc(self, np.ndarray[double, ndim=2] rho not None,
-                               np.ndarray[double, ndim=2] sigma not None,
-                               np.ndarray[double, ndim=2] lapl not None,
-                               np.ndarray[double, ndim=2] tau not None,
-                               np.ndarray[double, ndim=1] zk not None):
+                         np.ndarray[double, ndim=2] sigma not None,
+                         np.ndarray[double, ndim=2] lapl not None,
+                         np.ndarray[double, ndim=2] tau not None,
+                         np.ndarray[double, ndim=1] zk not None):
         """Compute the MGGA energy density.
 
         Parameters
@@ -551,13 +553,13 @@ cdef class ULibXCWrapper(LibXCWrapper):
                     &tau[0, 0], &zk[0])
 
     def compute_mgga_vxc(self, np.ndarray[double, ndim=2] rho not None,
-                               np.ndarray[double, ndim=2] sigma not None,
-                               np.ndarray[double, ndim=2] lapl not None,
-                               np.ndarray[double, ndim=2] kin not None,
-                               np.ndarray[double, ndim=2] vrho not None,
-                               np.ndarray[double, ndim=2] vsigma not None,
-                               np.ndarray[double, ndim=2] vlapl not None,
-                               np.ndarray[double, ndim=2] vtau not None):
+                         np.ndarray[double, ndim=2] sigma not None,
+                         np.ndarray[double, ndim=2] lapl not None,
+                         np.ndarray[double, ndim=2] kin not None,
+                         np.ndarray[double, ndim=2] vrho not None,
+                         np.ndarray[double, ndim=2] vsigma not None,
+                         np.ndarray[double, ndim=2] vlapl not None,
+                         np.ndarray[double, ndim=2] vtau not None):
         """Compute the MGGA functional derivatives.
 
         For every input `x`, a functional derivative is computed, `vx`, stored in an array

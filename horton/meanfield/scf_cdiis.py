@@ -96,19 +96,19 @@ class CDIISHistory(DIISHistory):
            Even after multiple additions, this routine will fill up all the
            missing dot products in self.cdots.
         '''
-        for i0 in xrange(self.nused-1, -1, -1):
+        for i0 in range(self.nused-1, -1, -1):
             state0 = self.stack[i0]
-            self.cdots[i0,i0] = state0.normsq
+            self.cdots[i0, i0] = state0.normsq
             # Compute off-diagonal coefficients
-            for i1 in xrange(i0):
-                if np.isfinite(self.cdots[i0,i1]):
+            for i1 in range(i0):
+                if np.isfinite(self.cdots[i0, i1]):
                     return
                 state1 = self.stack[i1]
                 cdot = 0.0
-                for j in xrange(self.ndm):
+                for j in range(self.ndm):
                     cdot += np.einsum('ab,ab', state0.commutators[j], state1.commutators[j])
-                self.cdots[i0,i1] = cdot
-                self.cdots[i1,i0] = cdot
+                self.cdots[i0, i1] = cdot
+                self.cdots[i1, i0] = cdot
 
     @doc_inherit(DIISHistory)
     def solve(self, dms_output, focks_output):
@@ -116,9 +116,9 @@ class CDIISHistory(DIISHistory):
         assert self.nused >= 2
         # Fill in the missing commutators
         self._complete_cdots_matrix()
-        coeffs = solve_cdiis(self.cdots[:self.nused,:self.nused])
+        coeffs = solve_cdiis(self.cdots[:self.nused, :self.nused])
         # get a condition number
-        absevals = abs(np.linalg.eigvalsh(self.cdots[:self.nused,:self.nused]))
+        absevals = abs(np.linalg.eigvalsh(self.cdots[:self.nused, :self.nused]))
         with np.errstate(divide='ignore'):
             cn = absevals.max()/absevals.min()
         # assign extrapolated fock
@@ -145,9 +145,9 @@ def solve_cdiis(a):
     assert a.shape == (n, n)
     assert (a == a.T).all()
     a2 = np.zeros((n+1, n+1))
-    a2[:n,:n] = a
-    a2[n,:n] = 1
-    a2[:n,n] = 1
+    a2[:n, :n] = a
+    a2[n, :n] = 1
+    a2[:n, n] = 1
     b2 = np.zeros(n+1)
     b2[n] = 1
     x2 = solve_safe(a2, b2)

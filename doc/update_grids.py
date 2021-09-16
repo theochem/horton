@@ -22,7 +22,7 @@
 
 
 from glob import glob
-from cStringIO import StringIO
+from io import StringIO
 import os
 from horton import periodic
 

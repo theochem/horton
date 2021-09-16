@@ -47,7 +47,7 @@ def main():
         raise ValueError('The environment variable PIP_WHEEL_DIR is not defined.')
     if not os.path.isdir(root):
         raise ValueError('The PIP_WHEEL_DIR (%s) does not exist.' % root)
-    print 'Removing old wheels in %s' % root
+    print('Removing old wheels in %s' % root)
 
     # get list of all wheels
     all_wheels = sorted(glob('%s/*.whl' % root), key=sort_key)
@@ -62,7 +62,7 @@ def main():
 
     # Remove the old wheels
     for wheel in old_wheels:
-        print wheel
+        print(wheel)
         os.remove(wheel)
 
 

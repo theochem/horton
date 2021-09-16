@@ -137,13 +137,13 @@ def _compute_bond_orders_low(dm, operators):
     populations = np.zeros(n, float)
 
     precomputed = []
-    for i0 in xrange(n):
+    for i0 in range(n):
         # compute population
         populations[i0] = np.einsum('ab,ba', operators[i0], dm)
         # precompute a dot product
         tmp = np.dot(dm, operators[i0])
         precomputed.append(tmp)
-        for i1 in xrange(i0+1):
+        for i1 in range(i0+1):
             # compute bond orders
             bond_orders[i0, i1] = 2*np.einsum('ab,ba', precomputed[i0], precomputed[i1])
             bond_orders[i1, i0] = bond_orders[i0, i1]
@@ -168,7 +168,7 @@ def _compute_valences_low(dm, populations, operators):
     '''
     n = len(operators)
     valences = np.zeros(n, float)
-    for i in xrange(n):
+    for i in range(n):
         # valence for atom i
         tmp = np.dot(dm, operators[i])
         valences[i] = 2*populations[i] - 2*np.einsum('ab,ba', tmp, tmp)

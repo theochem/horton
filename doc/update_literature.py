@@ -21,7 +21,7 @@
 # --
 
 
-from cStringIO import StringIO
+from io import StringIO
 
 from horton.log import Biblio
 from horton.context import context
@@ -35,12 +35,12 @@ def key(item):
     return int(item[1].tags['year']), item[0]
 
 f = StringIO()
-print >> f, 'Literature'
-print >> f, '##########'
-items = biblio._records.items()
+print('Literature', file=f)
+print('##########', file=f)
+items = list(biblio._records.items())
 items.sort(key=key)
 for key, reference in items:
-    print >> f
-    print >> f, '.. [%s] %s' % (key, reference.format_rst())
+    print(file=f)
+    print('.. [%s] %s' % (key, reference.format_rst()), file=f)
 s = f.getvalue()
 write_if_changed('tech_ref_literature.rst', s)

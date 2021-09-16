@@ -8,7 +8,7 @@ data = IOData.from_file('hamiltonian_ao.h5')
 
 # Access some attributes. In more realistic cases, some code follows that does a
 # useful calculation.
-print data.kin[0, 0]
+print(data.kin[0, 0])
 
 
 # CODE BELOW IS FOR horton-regression-test.py ONLY. IT IS NOT PART OF THE EXAMPLE.

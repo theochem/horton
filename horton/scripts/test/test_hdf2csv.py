@@ -38,7 +38,7 @@ def fill_hdf5(f):
 
 
 def test_iter_datasets():
-    with h5.File('horton.scripts.test.test_hdf2csv.test_iter_datasets', driver='core', backing_store=False) as f:
+    with h5.File('horton.scripts.test.test_hdf2csv.test_iter_datasets', "w", driver='core', backing_store=False) as f:
         fill_hdf5(f)
         l = list(iter_datasets(f))
         assert len(l) == 5
@@ -56,7 +56,7 @@ def test_iter_datasets():
 
 def test_script():
     with tmpdir('horton.scripts.test.test_hdf2csv.test_script') as dn:
-        with h5.File('%s/test.h5' % dn) as f:
+        with h5.File('%s/test.h5' % dn, "w") as f:
             fill_hdf5(f)
         check_script('horton-hdf2csv.py test.h5:/ test.csv', dn)
         check_files(dn, ['test.h5', 'test.csv'])
@@ -73,8 +73,8 @@ def test_script():
             assert rows[3][0] == 'Shape'
             assert rows[3][1] == '5'
             assert rows[3][2] == '2'
-            assert float(rows[4][0]) == f['bar/foo'][0,0]
-            assert float(rows[8][1]) == f['bar/foo'][4,1]
+            assert float(rows[4][0]) == f['bar/foo'][0, 0]
+            assert float(rows[8][1]) == f['bar/foo'][4, 1]
             assert len(rows[9]) == 0
             assert len(rows[22]) == 2
             assert rows[22][0] == 'Dataset'
@@ -83,8 +83,8 @@ def test_script():
             assert rows[23][0] == 'Shape'
             assert rows[23][1] == '5'
             assert rows[23][2] == '2'
-            assert float(rows[24][0]) == f['test2'][0,0]
-            assert float(rows[28][1]) == f['test2'][4,1]
+            assert float(rows[24][0]) == f['test2'][0, 0]
+            assert float(rows[28][1]) == f['test2'][4, 1]
             assert rows[29] == []
             assert len(rows[30]) == 2
             assert rows[30][0] == 'Dataset'
@@ -94,13 +94,13 @@ def test_script():
             assert rows[31][1] == '5'
             assert rows[31][2] == '2'
             assert rows[31][3] == '5'
-            assert float(rows[32][0]) == f['zzz'][0,0,0]
-            assert float(rows[32][1]) == f['zzz'][0,1,0]
+            assert float(rows[32][0]) == f['zzz'][0, 0, 0]
+            assert float(rows[32][1]) == f['zzz'][0, 1, 0]
             assert rows[32][2] == ''
-            assert float(rows[32][3]) == f['zzz'][0,0,1]
-            assert float(rows[32][4]) == f['zzz'][0,1,1]
+            assert float(rows[32][3]) == f['zzz'][0, 0, 1]
+            assert float(rows[32][4]) == f['zzz'][0, 1, 1]
             assert rows[32][5] == ''
             assert len(rows[32]) == 3*5-1
-            assert float(rows[36][1]) == f['zzz'][4,1,0]
-            assert float(rows[36][3*5-2]) == f['zzz'][4,1,4]
+            assert float(rows[36][1]) == f['zzz'][4, 1, 0]
+            assert float(rows[36][3*5-2]) == f['zzz'][4, 1, 4]
             assert rows[-1] == []

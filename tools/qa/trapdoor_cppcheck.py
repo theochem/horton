@@ -63,11 +63,11 @@ class CPPCheckTrapdoorProgram(TrapdoorProgram):
             binary = os.path.abspath(fns_cppcheck[-1])
         else:
             binary = 'cppcheck'
-        print 'USING BINARY       :', binary
+        print('USING BINARY       :', binary)
 
         # Get version
         command = [binary, '--version']
-        print 'USING VERSION      :', run_command(command, verbose=False)[0].strip()
+        print('USING VERSION      :', run_command(command, verbose=False)[0].strip())
 
         # Call Cppcheck
         command = [binary] + get_source_filenames(config, 'cpp') + \

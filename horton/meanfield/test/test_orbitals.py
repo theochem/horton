@@ -64,7 +64,7 @@ def get_signs(n):
     It is guaranteed that not all signs are positive.
     """
     while True:
-        signs = np.random.randint(0, 1, n)*2 -1
+        signs = np.random.randint(0, 1, n) * 2 - 1
         if (signs < 0).any():
             return signs
 
@@ -76,7 +76,7 @@ def get_random_orbitals(nbasis):
     a = a + a.T
     evals, evecs = np.linalg.eigh(a)
     orb.coeffs[:] = evecs
-    orb.occupations[:nbasis/2] = 1.0
+    orb.occupations[:nbasis // 2] = 1.0
     orb.energies[:] = np.random.uniform(-1, 1, nbasis)
     orb.energies.sort()
     olp = np.identity(nbasis)
@@ -91,7 +91,8 @@ def test_orbitals_hdf5():
     for args in (4,), (6, 3):
         a = Orbitals(*args)
         a.randomize()
-        with h5.File('horton.meanfield.test.test_orbitals.test_orbitals_hdf5', driver='core', backing_store=False) as f:
+        with h5.File('horton.meanfield.test.test_orbitals.test_orbitals_hdf5', "w",
+                     driver='core', backing_store=False) as f:
             a.to_hdf5(f)
             b = Orbitals.from_hdf5(f)
             assert a == b
@@ -108,7 +109,7 @@ def test_orbitals_copy_new_randomize_clear_assign():
         assert a != b
         c = b.copy()
         assert b == c
-        assert not( b is c)
+        assert not (b is c)
         d = Orbitals(*args)
         assert a == d
         b.clear()
@@ -129,7 +130,7 @@ def test_orbitals_copy():
 
 
 def test_orbitals_permute_basis():
-    for i in xrange(10):
+    for i in range(10):
         forth, back = get_forth_back(5)
         a = Orbitals(5)
         a.randomize()
@@ -141,7 +142,7 @@ def test_orbitals_permute_basis():
 
 
 def test_orbitals_permute_orbitals():
-    for i in xrange(10):
+    for i in range(10):
         forth, back = get_forth_back(5)
         a = Orbitals(5)
         a.randomize()
@@ -153,7 +154,7 @@ def test_orbitals_permute_orbitals():
 
 
 def test_orbitals_change_basis_signs():
-    for i in xrange(10):
+    for i in range(10):
         signs = get_signs(5)
         a = Orbitals(5)
         a.randomize()
@@ -180,7 +181,7 @@ def test_orbitals_error_eigen():
     with numpy_seed(1):
         orb = Orbitals(5)
         a = np.random.normal(0, 1, (5, 5))
-        fock = a+a.T
+        fock = a + a.T
         evals, evecs = np.linalg.eigh(fock)
         orb.coeffs[:] = evecs
         orb.energies[:] = evals
@@ -193,7 +194,7 @@ def test_orbitals_error_eigen():
 def test_orbitals_from_fock():
     with numpy_seed(1):
         a = np.random.normal(0, 1, (5, 5))
-        fock = a+a.T
+        fock = a + a.T
         a = np.random.normal(0, 1, (5, 5))
         olp = np.dot(a, a.T)
         orb = Orbitals(5)
@@ -207,13 +208,13 @@ def test_orbitals_from_fock_and_dm():
     # Use a simple Huckel-like model to construct degenerate levels
     fock = np.zeros((natom, natom))
     olp = np.zeros((natom, natom))
-    for i in xrange(natom):
+    for i in range(natom):
         fock[i, i] = 0.6
-        fock[i, (i+1) % natom] = -0.2
-        fock[(i+1) % natom, i] = -0.2
+        fock[i, (i + 1) % natom] = -0.2
+        fock[(i + 1) % natom, i] = -0.2
         olp[i, i] = 1.0
-        olp[i, (i+1) % natom] = 0.2
-        olp[(i+1) % natom, i] = 0.2
+        olp[i, (i + 1) % natom] = 0.2
+        olp[(i + 1) % natom, i] = 0.2
 
     # Create orbitals that will be used to construct various density matrices
     orb = Orbitals(natom)
@@ -240,15 +241,15 @@ def test_orbitals_from_fock_and_dm():
 
     # Case 3: incompatible degeneracies and rotated degenerate orbitals
     orb.occupations[:] = [2, 1, 0, 0, 0]
-    for i in xrange(36):
-        orb.rotate_2orbitals(np.pi/18.0, 1, 2)
+    for i in range(36):
+        orb.rotate_2orbitals(np.pi / 18.0, 1, 2)
         check_case(orb)
 
     # Case 4: incompatible degeneracies, fractional occupations and rotated
     # degenerate orbitals
     orb.occupations[:] = [1.5, 0.7, 0.3, 0, 0]
-    for i in xrange(36):
-        orb.rotate_2orbitals(np.pi/18.0, 1, 2)
+    for i in range(36):
+        orb.rotate_2orbitals(np.pi / 18.0, 1, 2)
         check_case(orb)
 
 
@@ -260,7 +261,7 @@ def test_orbitals_naturals():
     orb = Orbitals(dm.shape[0])
     orb.derive_naturals(dm, overlap)
     assert orb.occupations.min() > -1e-6
-    assert orb.occupations.max() < 1+1e-6
+    assert orb.occupations.max() < 1 + 1e-6
     orb.check_normalization(overlap)
 
 
@@ -335,10 +336,10 @@ def test_orbitals_two_index_rotate_2orbitals():
     check = np.identity(4, float)
     dots = np.dot(orb0.coeffs.T, orb1.coeffs)
     check = np.identity(4)
-    check[1,1] = 1.0/np.sqrt(2)
-    check[1,2] = 1.0/np.sqrt(2)
-    check[2,1] = -1.0/np.sqrt(2)
-    check[2,2] = 1.0/np.sqrt(2)
+    check[1, 1] = 1.0 / np.sqrt(2)
+    check[1, 2] = 1.0 / np.sqrt(2)
+    check[2, 1] = -1.0 / np.sqrt(2)
+    check[2, 2] = 1.0 / np.sqrt(2)
     np.testing.assert_almost_equal(dots, check)
 
 
@@ -349,10 +350,10 @@ def test_orbitals_swap_orbitals():
     orb1.swap_orbitals(np.array([[0, 1], [2, 3]]))
     dots = np.dot(orb0.coeffs.T, orb1.coeffs)
     check = np.zeros((4, 4))
-    check[0,1] = 1.0
-    check[1,0] = 1.0
-    check[2,3] = 1.0
-    check[3,2] = 1.0
+    check[0, 1] = 1.0
+    check[1, 0] = 1.0
+    check[2, 3] = 1.0
+    check[3, 2] = 1.0
     np.testing.assert_almost_equal(dots, check)
     with assert_raises(TypeError):
         orb1.swap_orbitals(np.zeros((3, 3), dtype=int))

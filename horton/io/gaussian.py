@@ -88,12 +88,12 @@ def _load_twoindex_g09(f, nbasis):
     block_counter = 0
     while block_counter < nbasis:
         # skip the header line
-        f.next()
+        next(f)
         # determine the number of rows in this part
         nrow = nbasis - block_counter
-        for i in xrange(nrow):
-            words = f.next().split()[1:]
-            for j in xrange(len(words)):
+        for i in range(nrow):
+            words = next(f).split()[1:]
+            for j in range(len(words)):
                 value = float(words[j].replace('D', 'E'))
                 result[i+block_counter, j+block_counter] = value
                 result[j+block_counter, i+block_counter] = value
@@ -114,12 +114,12 @@ def _load_fourindex_g09(f, nbasis):
     """
     result = np.zeros((nbasis, nbasis, nbasis, nbasis))
     # Skip first six lines
-    for i in xrange(6):
-        f.next()
+    for i in range(6):
+        next(f)
     # Start reading elements until a line is encountered that does not start
     # with ' I='
     while True:
-        line = f.next()
+        line = next(f)
         if not line.startswith(' I='):
             break
         #print line[3:7], line[9:13], line[15:19], line[21:25], line[28:].replace('D', 'E')
@@ -208,7 +208,7 @@ class FCHKFile(dict):
                         for word in line.split():
                             try:
                                 value[counter] = datatype(word)
-                            except (ValueError, OverflowError), e:
+                            except (ValueError, OverflowError) as e:
                                 raise IOError('Could not interpret word while reading %s: %s' % (word, filename))
                             counter += 1
                 except ValueError:
@@ -219,7 +219,7 @@ class FCHKFile(dict):
             self[label] = value
             return True
 
-        f = file(filename, 'r')
+        f = open(filename, 'r')
         self.title = f.readline()[:-1].strip()
         words = f.readline().split()
         if len(words) == 3:
@@ -250,10 +250,10 @@ def triangle_to_dense(triangle):
     nrow = int(np.round((np.sqrt(1+8*len(triangle))-1)/2))
     result = np.zeros((nrow, nrow))
     begin = 0
-    for irow in xrange(nrow):
+    for irow in range(nrow):
         end = begin + irow + 1
-        result[irow,:irow+1] = triangle[begin:end]
-        result[:irow+1,irow] = triangle[begin:end]
+        result[irow, :irow+1] = triangle[begin:end]
+        result[:irow+1, irow] = triangle[begin:end]
         begin = end
     return result
 
@@ -298,7 +298,7 @@ def load_fchk(filename):
 
     # A) Load the geometry
     numbers = fchk["Atomic numbers"]
-    coordinates = fchk["Current cartesian coordinates"].reshape(-1,3)
+    coordinates = fchk["Current cartesian coordinates"].reshape(-1, 3)
     pseudo_numbers = fchk["Nuclear charges"]
     # Mask out ghost atoms
     mask = pseudo_numbers != 0.0
@@ -393,7 +393,7 @@ def load_fchk(filename):
         if label in fchk:
             dm = np.zeros((obasis.nbasis, obasis.nbasis))
             start = 0
-            for i in xrange(obasis.nbasis):
+            for i in range(obasis.nbasis):
                 stop = start+i+1
                 dm[i, :i+1] = fchk[label][start:stop]
                 dm[:i+1, i] = fchk[label][start:stop]

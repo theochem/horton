@@ -104,7 +104,7 @@ def test_io_group():
     keys = sorted(padb1._map.keys())
     assert keys == [(1, -1), (1, 0), (6, -1), (6, 0), (6, +1)]
 
-    with h5.File('horton.dpart.test.test_proatomdb.test_io_group', driver='core', backing_store=False) as f:
+    with h5.File('horton.dpart.test.test_proatomdb.test_io_group', "w", driver='core', backing_store=False) as f:
         padb1.to_file(f)
         padb2 = ProAtomDB.from_file(f)
         compare_padbs(padb1, padb2)

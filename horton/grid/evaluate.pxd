@@ -19,10 +19,10 @@
 #
 # --
 
+#cython: language_level=3
 
 cimport horton.cell
-cimport cubic_spline
-cimport uniform
+cimport horton.grid.cubic_spline as cubic_spline
 
 cdef extern from "horton/grid/evaluate.h":
     void eval_spline_grid(cubic_spline.CubicSpline* spline, double* center,

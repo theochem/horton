@@ -60,23 +60,23 @@ def write_rst_table(f, table, nhead=1):
                         for icell, cell in enumerate(cells))
 
     # construct the column markers
-    markers = format_row(['='*widths[icell] for icell in xrange(len(widths))], '=')
+    markers = format_row(['='*widths[icell] for icell in range(len(widths))], '=')
 
     # top markers
-    print >> f, markers
+    print(markers, file=f)
 
     # heading rows (if any)
-    for irow in xrange(nhead):
-        print >> f, format_row(table[irow], ' ')
+    for irow in range(nhead):
+        print(format_row(table[irow], ' '), file=f)
     if nhead > 0:
-        print >> f, markers
+        print(markers, file=f)
 
     # table body
-    for irow in xrange(nhead, len(table)):
-        print >> f, format_row(table[irow], ' ')
+    for irow in range(nhead, len(table)):
+        print(format_row(table[irow], ' '), file=f)
 
     # bottom markers
-    print >> f, markers
+    print(markers, file=f)
 
 
 def write_if_changed(fn, s_new):
@@ -99,10 +99,10 @@ def write_if_changed(fn, s_new):
         with open(fn) as f:
             s_old = f.read()
         if s_new == s_old:
-            print 'File %s needs no update. Skipping.' % fn
+            print('File %s needs no update. Skipping.' % fn)
             return
 
     # write the new file to dis
-    print 'Writing new or updated %s' % fn
+    print('Writing new or updated %s' % fn)
     with open(fn, 'w') as f:
         f.write(s_new)

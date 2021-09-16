@@ -52,8 +52,8 @@ def check_water_hf_sto3g(scheme, expecting, needs_padb=True, **kwargs):
     names = wpart.do_all()
     check_names(names, wpart)
     assert abs(wpart['charges'] - expecting).max() < 2e-3
-    assert abs(wpart['charges'] - wpart['cartesian_multipoles'][:,0]).max() < 1e-3
-    assert abs(wpart['charges'] - wpart['pure_multipoles'][:,0]).max() < 1e-3
+    assert abs(wpart['charges'] - wpart['cartesian_multipoles'][:, 0]).max() < 1e-3
+    assert abs(wpart['charges'] - wpart['pure_multipoles'][:, 0]).max() < 1e-3
 
     check_proatom_splines(wpart)
     return wpart

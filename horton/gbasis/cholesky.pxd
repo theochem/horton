@@ -18,9 +18,11 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
+#cython: language_level=3
+
 from libcpp.vector cimport vector
 
-cimport gbw
+cimport horton.gbasis.gbw as gbw
 
 cdef extern from "horton/gbasis/cholesky.h":
     long cholesky(gbw.GB4IntegralWrapper* gbw4, vector[double]* vectors, double threshold)

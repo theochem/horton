@@ -22,7 +22,7 @@
 '''Update the table with HF/DFT examples based on files in data/examples/hf_dft.'''
 
 from glob import glob
-from cStringIO import StringIO
+from io import StringIO
 import json, os
 from common import write_rst_table, write_if_changed
 

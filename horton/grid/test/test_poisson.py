@@ -41,7 +41,7 @@ def test_solve_poisson_becke_n2():
     rho = mol.obasis.compute_grid_density_dm(dm_full, molgrid.points)
     begin = 0
     hds = []
-    for i in xrange(mol.natom):
+    for i in range(mol.natom):
         atgrid = molgrid.subgrids[i]
         end = begin + atgrid.size
         becke_weights = molgrid.becke_weights[begin:end]
@@ -53,9 +53,9 @@ def test_solve_poisson_becke_n2():
     # Evaluate the splines obtained with Becke's method on the molecular grid
     # Increasing angular momenta are used to check the convergence.
     last_error = None
-    for lmax in xrange(0, lmaxmax+1):
+    for lmax in range(0, lmaxmax+1):
         result = molgrid.zeros()
-        for i in xrange(mol.natom):
+        for i in range(mol.natom):
             molgrid.eval_decomposition(hds[i][:(lmax+1)**2], mol.coordinates[i], result)
         potential_error = result - reference
         error = molgrid.integrate(potential_error, potential_error)**0.5
@@ -64,13 +64,13 @@ def test_solve_poisson_becke_n2():
         last_error = error
         if False:
             worst = molgrid.integrate(reference, reference)**0.5
-            print 'lmax=%i  %12.4e  %12.4e' % (lmax, error, worst)
+            print('lmax=%i  %12.4e  %12.4e' % (lmax, error, worst))
             for rho_low, rho_high in (0, 1e-8), (1e-8, 1e-4), (1e-4, 1e0), (1e0, 1e4), (1e4, 1e100):
                 mask = ((rho >= rho_low) & (rho < rho_high)).astype(float)
                 error = molgrid.integrate(potential_error, potential_error, mask)**0.5
                 worst = molgrid.integrate(reference, reference, mask)**0.5
-                print '%10.2e : %10.2e   |   %12.4e  %12.4e' % (rho_low, rho_high, error, worst)
-            print
+                print('%10.2e : %10.2e   |   %12.4e  %12.4e' % (rho_low, rho_high, error, worst))
+            print()
     assert error < 6e-2
 
     if False:
@@ -79,9 +79,9 @@ def test_solve_poisson_becke_n2():
         linegrid = LineGrid(mol.coordinates[0], mol.coordinates[1], 500, 1)
         rho = mol.obasis.compute_grid_density_dm(dm_full, linegrid.points)
         reference = mol.obasis.compute_grid_hartree_dm(dm_full, linegrid.points)
-        for lmax in xrange(0, lmaxmax+1):
+        for lmax in range(0, lmaxmax+1):
             result = linegrid.zeros()
-            for i in xrange(mol.natom):
+            for i in range(mol.natom):
                 linegrid.eval_decomposition(hds[i][:(lmax+1)**2], mol.coordinates[i], result)
             pt.clf()
             #pt.plot(linegrid.x, reference)

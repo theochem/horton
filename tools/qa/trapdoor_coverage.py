@@ -86,9 +86,9 @@ class CoverageTrapdoorProgram(TrapdoorProgram):
         """
         # Get version
         command = ['nosetests', '--version']
-        print 'USING              :', run_command(command, verbose=False)[0].strip()
+        print('USING              :', run_command(command, verbose=False)[0].strip())
         command = ['coverage', '--version']
-        print 'USING              :', run_command(command, verbose=False)[0].split('\n')[0]
+        print('USING              :', run_command(command, verbose=False)[0].split('\n')[0])
 
         # Results will be stored in the following variables
         counter = Counter()

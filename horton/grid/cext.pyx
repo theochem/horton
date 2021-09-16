@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
+#cython: language_level=3
 '''C++ extensions'''
 
 
@@ -33,14 +34,14 @@ np.import_array()
 from libc.stdlib cimport malloc, free
 cimport libcpp
 
-cimport lebedev_laikov
-cimport becke
-cimport cubic_spline
-cimport evaluate
-cimport ode2
-cimport rtransform
-cimport uniform
-cimport utils
+cimport horton.grid.lebedev_laikov as lebedev_laikov
+cimport horton.grid.becke as becke
+cimport horton.grid.cubic_spline as cubic_spline
+cimport horton.grid.evaluate as evaluate
+cimport horton.grid.ode2 as ode2
+cimport horton.grid.rtransform as rtransform
+cimport horton.grid.uniform as uniform
+cimport horton.grid.utils as utils
 
 cimport horton.cext
 

@@ -39,18 +39,18 @@ def test_hermite_overlap2():
     assert hermite_overlap2(10, 2*5+0, False, 2*5+1, False) == 0
     assert hermite_overlap2(10, 2*5+1, False, 2*5+0, False) == 0
     assert hermite_overlap2(10, 2*5+0, False, 2*5+0, True ) == 0
-    assert hermite_overlap2(10, 2*5+0, True , 2*5+0, False) == 0
+    assert hermite_overlap2(10, 2*5+0, True, 2*5+0, False) == 0
     # things that should be non-zero
     assert hermite_overlap2(10, 2*5+0, False, 2*5+0, False) != 0
-    assert hermite_overlap2(10, 2*5+0, True , 2*5+0, True ) != 0
+    assert hermite_overlap2(10, 2*5+0, True, 2*5+0, True ) != 0
     assert hermite_overlap2(10, 2*5+1, False, 2*5+1, False) != 0
-    assert hermite_overlap2(10, 2*5+1, True , 2*5+1, True ) != 0
+    assert hermite_overlap2(10, 2*5+1, True, 2*5+1, True ) != 0
     # symmetry
     assert hermite_overlap2(10, 2*5+0, False, 2*6+0, False) == hermite_overlap2(10, 2*6+0, False, 2*5+0, False)
-    assert hermite_overlap2(10, 2*5+0, True , 2*6+0, True ) == hermite_overlap2(10, 2*6+0, True , 2*5+0, True )
+    assert hermite_overlap2(10, 2*5+0, True, 2*6+0, True ) == hermite_overlap2(10, 2*6+0, True, 2*5+0, True )
     # anti-symmetry
     assert hermite_overlap2(10, 2*5+0, False, 2*6+1, False) == -hermite_overlap2(10, 2*6+0, False, 2*5+1, False)
-    assert hermite_overlap2(10, 2*5+0, True , 2*6+1, True ) == -hermite_overlap2(10, 2*6+0, True , 2*5+1, True )
+    assert hermite_overlap2(10, 2*5+0, True, 2*6+1, True ) == -hermite_overlap2(10, 2*6+0, True, 2*5+1, True )
     # xmax
     assert 2*hermite_overlap2(8, 2*0+0, False, 2*0+0, False) == hermite_overlap2(8, 2*4+0, False, 2*4+0, False)
     assert 2*hermite_overlap2(8, 2*8+0, False, 2*8+0, False) == hermite_overlap2(8, 2*4+0, False, 2*4+0, False)
@@ -65,7 +65,7 @@ def test_hermite_overlap3():
     assert hermite_overlap3(10, 2*5+0, False, 2*5+1, False, 2*5+0, False) == 0
     # things that should be non-zero (even integrand)
     assert hermite_overlap3(10, 2*5+0, False, 2*5+0, False, 2*5+0, False) != 0
-    assert hermite_overlap3(10, 2*5+0, True , 2*5+0, False, 2*5+0, True ) != 0
+    assert hermite_overlap3(10, 2*5+0, True, 2*5+0, False, 2*5+0, True ) != 0
     assert hermite_overlap3(10, 2*5+1, False, 2*5+0, False, 2*5+1, False) != 0
 
 
@@ -381,8 +381,8 @@ def check_solve_s2(rtf, sigma=1.0, epsy=1e-10, epsd=1e-10):
     soly = erf(r/s2s)/r
     sold = np.exp(-(r/s2s)**2)*2/np.sqrt(np.pi)/s2s/r - erf(r/s2s)/r**2
     if False:
-        print abs(u.y - soly).max()/abs(soly).max()
-        print abs(u.dx - sold).max()/abs(sold).max()
+        print(abs(u.y - soly).max()/abs(soly).max())
+        print(abs(u.dx - sold).max()/abs(sold).max())
         import matplotlib.pyplot as pt
         pt.clf()
         pt.plot(r, u.y, label='numerical')
@@ -419,8 +419,8 @@ def check_solve_xexp(rtf, s=1.0):
         x[-1]*np.exp(s*x[-1]),
         (1+s*x[-1])*np.exp(s*x[-1]),
     ]
-    for i0 in xrange(2):
-        for i1 in xrange(2, 4):
+    for i0 in range(2):
+        for i1 in range(2, 4):
             bcs = list(bcs_base)
             bcs[i0] = None
             bcs[i1] = None
@@ -430,13 +430,13 @@ def check_solve_xexp(rtf, s=1.0):
             soly = x*np.exp(s*x)
             sold = (1+s*x)*np.exp(s*x)
             if False:
-                print i0, i1,
-                print abs(u.y - soly).max()/abs(soly).max(),
-                print abs(u.dx - sold).max()/abs(sold).max()
-                print '%+10.5f  %+10.5f  %s' % (u.y[0], soly[0], bcs[0])
-                print '%+10.5f  %+10.5f  %s' % (u.dx[0], sold[0], bcs[1])
-                print '%+10.5f  %+10.5f  %s' % (u.y[-1], soly[-1], bcs[2])
-                print '%+10.5f  %+10.5f  %s' % (u.dx[-1], sold[-1], bcs[3])
+                print(i0, i1, end=' ')
+                print(abs(u.y - soly).max()/abs(soly).max(), end=' ')
+                print(abs(u.dx - sold).max()/abs(sold).max())
+                print('%+10.5f  %+10.5f  %s' % (u.y[0], soly[0], bcs[0]))
+                print('%+10.5f  %+10.5f  %s' % (u.dx[0], sold[0], bcs[1]))
+                print('%+10.5f  %+10.5f  %s' % (u.y[-1], soly[-1], bcs[2]))
+                print('%+10.5f  %+10.5f  %s' % (u.dx[-1], sold[-1], bcs[3]))
                 import matplotlib.pyplot as pt
                 pt.clf()
                 pt.plot(x, u.y, label='numerical')

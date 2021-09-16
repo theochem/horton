@@ -53,6 +53,6 @@ def guess_core_hamiltonian(overlap, core, *orbs):
     # Compute orbitals.
     orbs[0].from_fock(core, overlap)
     # Copy to other Orbitals objects.
-    for i in xrange(1, len(orbs)):
+    for i in range(1, len(orbs)):
         orbs[i].coeffs[:] = orbs[0].coeffs
         orbs[i].energies[:] = orbs[0].energies

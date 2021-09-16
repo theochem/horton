@@ -76,7 +76,7 @@ def check_functional_deriv(fn, comp, dm_method, fock_method):
     eps = 1e-4
     x = dm_full.copy().ravel()
     dxs = []
-    for _irep in xrange(100):
+    for _irep in range(100):
         tmp = np.random.uniform(-eps, +eps, x.shape)*x
         dxs.append(tmp)
 
@@ -144,7 +144,7 @@ def test_grid_fn_p():
 
     d = point - center
     dsq = np.linalg.norm(d)**2
-    for i in xrange(3):
+    for i in range(3):
         assert abs(work[i] - scales0[i]*coeff*np.exp(-alpha*dsq)*d[i]) < 1e-10
 
 
@@ -174,7 +174,7 @@ def test_grid_fn_p_contraction():
 
     d = point - center
     dsq = np.linalg.norm(d)**2
-    for i in xrange(3):
+    for i in range(3):
         expected = scales0[i]*coeff0*np.exp(-alpha0*dsq)*d[i] + \
                    scales0[i]*coeff1*np.exp(-alpha1*dsq)*d[i]
         assert abs(work[i] - expected) < 1e-10
@@ -349,7 +349,7 @@ def check_dm_gradient(obasis, dm_full, p0, p1):
     obasis._compute_grid1_dm(dm_full, p1, grid_fn, gradrhos1)
     work1 = grid_fn.get_work(grid_fn.max_nbasis)
 
-    for i in xrange(len(work0)):
+    for i in range(len(work0)):
         d1 = work0[i, 0] - work1[i, 0]
         d2 = np.dot(p0-p1, work0[i, 1:]+work1[i, 1:])/2
         assert abs(d1-d2) < abs(d1)*1e-3
@@ -440,9 +440,9 @@ def check_orbitals(mol):
 
     # more detailed usage
     assert aos.shape[1] == (mol.orb_alpha.occupations > 0).sum()
-    iorbs_alpha = (mol.orb_alpha.occupations > 0).nonzero()[0]
+    iorbs_alpha = (mol.orb_alpha.occupations > 0).nonzero()[0].tolist()
     import random
-    iorbs_alpha1 = np.array(random.sample(iorbs_alpha, len(iorbs_alpha)/2))
+    iorbs_alpha1 = np.array(random.sample(iorbs_alpha, len(iorbs_alpha)//2))
     iorbs_alpha2 = np.array([i for i in iorbs_alpha if i not in iorbs_alpha1])
     aos1 = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha, points, iorbs_alpha1)
     aos2 = mol.obasis.compute_grid_orbitals_exp(mol.orb_alpha, points, iorbs_alpha2)
@@ -526,7 +526,7 @@ def test_concept_gradient():
 
     # A) Build alphabetically sorted combinations of X, Y and Z
     moms = [[], ['x', 'y', 'z']]
-    for l in xrange(2, 8):
+    for l in range(2, 8):
         curmoms = []
         for alpha in 'xyz':
             for oldmom in moms[l-1]:
@@ -536,18 +536,18 @@ def test_concept_gradient():
 
     # B) Test the rules to get the position of a polynomial of higher order
     #    by adding X, Y or Z
-    for l in xrange(1, 7):
+    for l in range(1, 7):
         # rule for x
-        for i in xrange(len(moms[l])):
+        for i in range(len(moms[l])):
             s = 'x' + moms[l][i]
             assert s == moms[l+1][i]
         # rule for y
-        for i in xrange(len(moms[l])):
+        for i in range(len(moms[l])):
             s = ''.join(sorted('y' + moms[l][i]))
             nnotx = sum([alpha != 'x' for alpha in moms[l][i]])
             assert s == moms[l+1][i+1+nnotx]
         # rule for z
-        for i in xrange(len(moms[l])):
+        for i in range(len(moms[l])):
             s = moms[l][i] + 'z'
             nnotx = sum([alpha != 'x' for alpha in moms[l][i]])
             assert s == moms[l+1][i+2+nnotx]
@@ -564,7 +564,7 @@ def check_gradient_systematic(pure):
     # Create fake basis set.
     alpha = 1.5
     bcs = []
-    for shell_type in xrange(2):
+    for shell_type in range(2):
         # not properly normalized. So what.
         bcs.append(GOBasisContraction(shell_type, np.array([alpha, alpha/2]),
                                       np.array([0.5, 0.5])))
@@ -577,11 +577,11 @@ def check_gradient_systematic(pure):
 
     # Run derivative tests for each DM matrix element.
     eps = 1e-4
-    for ibasis0 in xrange(obasis.nbasis):
-        for ibasis1 in xrange(ibasis0+1):
+    for ibasis0 in range(obasis.nbasis):
+        for ibasis1 in range(ibasis0+1):
             dm[ibasis0, ibasis1] = 1.2
             dm[ibasis1, ibasis0] = 1.2
-            for _irep in xrange(5):
+            for _irep in range(5):
                 point = np.random.normal(0.0, 1.0, 3)
                 check_density_gradient(obasis, dm, point, eps)
             dm[ibasis0, ibasis1] = 0.0
@@ -644,7 +644,7 @@ def check_hessian_systematic(pure):
     # Create fake basis set.
     alpha = 1.5
     bcs = []
-    for shell_type in xrange(2):
+    for shell_type in range(2):
         # not properly normalized. So what.
         bcs.append(GOBasisContraction(shell_type, np.array([alpha, alpha/2]),
                                       np.array([0.5, 0.5])))
@@ -657,11 +657,11 @@ def check_hessian_systematic(pure):
 
     # Run derivative tests for each DM matrix element.
     eps = 1e-4
-    for ibasis0 in xrange(obasis.nbasis):
-        for ibasis1 in xrange(ibasis0+1):
+    for ibasis0 in range(obasis.nbasis):
+        for ibasis1 in range(ibasis0+1):
             dm[ibasis0, ibasis1] = 1.2
             dm[ibasis1, ibasis0] = 1.2
-            for _irep in xrange(5):
+            for _irep in range(5):
                 point = np.random.normal(0.0, 1.0, 3)
                 check_density_hessian(obasis, dm, point, eps)
             dm[ibasis0, ibasis1] = 0.0
@@ -717,7 +717,7 @@ def check_gga_evaluation(fn):
     mol = IOData.from_file(fn)
     dm_full = mol.get_dm_full()
 
-    for _irep in xrange(5):
+    for _irep in range(5):
         # combined computation of density and gradient
         gga = mol.obasis.compute_grid_gga_dm(dm_full, points)
 
@@ -753,7 +753,7 @@ def check_gga_fock(fn):
     """
     mol = IOData.from_file(fn)
 
-    for _irep in xrange(5):
+    for _irep in range(5):
         # random integration grid
         points = np.random.uniform(-5, 5, (100, 3))
         weights = np.random.uniform(1, 2, 100)
@@ -816,7 +816,7 @@ def check_mgga_evaluation(fn):
     mol = IOData.from_file(fn)
     dm_full = mol.get_dm_full()
 
-    for _irep in xrange(5):
+    for _irep in range(5):
         # combined computation of density and gradient
         mgga = mol.obasis.compute_grid_mgga_dm(dm_full, points)
 
@@ -857,7 +857,7 @@ def check_mgga_fock(fn):
     """
     mol = IOData.from_file(fn)
 
-    for _irep in xrange(5):
+    for _irep in range(5):
         # random integration grid
         points = np.random.uniform(-5, 5, (100, 3))
         weights = np.random.uniform(1, 2, 100)

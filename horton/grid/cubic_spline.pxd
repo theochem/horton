@@ -19,10 +19,11 @@
 #
 # --
 
+#cython: language_level=3
 
 from libc.stdint cimport int64_t
 
-cimport rtransform
+cimport horton.grid.rtransform as rtransform
 
 cdef extern from "horton/grid/cubic_spline.h":
     void tridiagsym_solve(double* diag_mid, double* diag_up, double* right, double* solution, int n)

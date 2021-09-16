@@ -30,7 +30,7 @@ from horton.test.common import get_random_cell, numpy_seed
 
 def test_grid_integrate():
     npoint = 10
-    grid = IntGrid(np.random.normal(0, 1, (npoint,3)), np.random.normal(0, 1, npoint))
+    grid = IntGrid(np.random.normal(0, 1, (npoint, 3)), np.random.normal(0, 1, npoint))
     pot = np.random.normal(0, 1, npoint)
     dens = np.random.normal(0, 1, npoint)
 
@@ -53,7 +53,7 @@ def test_grid_integrate():
 def test_grid_integrate_segments():
     npoint = 10
     segments = np.array([2, 5, 3])
-    grid = IntGrid(np.random.normal(0, 1, (npoint,3)), np.random.normal(0, 1, npoint))
+    grid = IntGrid(np.random.normal(0, 1, (npoint, 3)), np.random.normal(0, 1, npoint))
     pot = np.random.normal(0, 1, npoint)
     dens = np.random.normal(0, 1, npoint)
 
@@ -83,13 +83,13 @@ def test_grid_integrate_segments():
 
 def test_grid_integrate_cartesian_moments():
     npoint = 10
-    grid = IntGrid(np.random.normal(0, 1, (npoint,3)), np.random.normal(0, 1, npoint))
+    grid = IntGrid(np.random.normal(0, 1, (npoint, 3)), np.random.normal(0, 1, npoint))
     dens = np.random.normal(0, 1, npoint)
 
     center = np.random.normal(0, 1, 3)
-    x = grid.points[:,0]-center[0]
-    y = grid.points[:,1]-center[1]
-    z = grid.points[:,2]-center[2]
+    x = grid.points[:, 0]-center[0]
+    y = grid.points[:, 1]-center[1]
+    z = grid.points[:, 2]-center[2]
 
     ints = grid.integrate(dens, center=center, lmax=2, mtype=1)
     assert ints.shape == (10,)
@@ -105,13 +105,13 @@ def test_grid_integrate_cartesian_moments():
 def test_grid_integrate_cartesian_moments_segments():
     npoint = 10
     segments = np.array([2, 5, 3])
-    grid = IntGrid(np.random.normal(0, 1, (npoint,3)), np.random.normal(0, 1, npoint))
+    grid = IntGrid(np.random.normal(0, 1, (npoint, 3)), np.random.normal(0, 1, npoint))
     dens = np.random.normal(0, 1, npoint)
 
     center = np.random.normal(0, 1, 3)
-    x = grid.points[:,0]-center[0]
-    y = grid.points[:,1]-center[1]
-    z = grid.points[:,2]-center[2]
+    x = grid.points[:, 0]-center[0]
+    y = grid.points[:, 1]-center[1]
+    z = grid.points[:, 2]-center[2]
 
     ints = grid.integrate(dens, center=center, lmax=2, mtype=1, segments=segments)
     assert ints.shape == (3, 10)
@@ -127,13 +127,13 @@ def test_grid_integrate_cartesian_moments_segments():
 
 def test_grid_integrate_pure_moments():
     npoint = 10
-    grid = IntGrid(np.random.normal(0, 1, (npoint,3)), np.random.normal(0, 1, npoint))
+    grid = IntGrid(np.random.normal(0, 1, (npoint, 3)), np.random.normal(0, 1, npoint))
     dens = np.random.normal(0, 1, npoint)
 
     center = np.random.normal(0, 1, 3)
-    x = grid.points[:,0]-center[0]
-    y = grid.points[:,1]-center[1]
-    z = grid.points[:,2]-center[2]
+    x = grid.points[:, 0]-center[0]
+    y = grid.points[:, 1]-center[1]
+    z = grid.points[:, 2]-center[2]
     r2 = x*x+y*y+z*z
 
     ints = grid.integrate(dens, center=center, lmax=2, mtype=2)
@@ -150,13 +150,13 @@ def test_grid_integrate_pure_moments():
 def test_grid_integrate_pure_moments_segments():
     npoint = 10
     segments = np.array([2, 5, 3])
-    grid = IntGrid(np.random.normal(0, 1, (npoint,3)), np.random.normal(0, 1, npoint))
+    grid = IntGrid(np.random.normal(0, 1, (npoint, 3)), np.random.normal(0, 1, npoint))
     dens = np.random.normal(0, 1, npoint)
 
     center = np.random.normal(0, 1, 3)
-    x = grid.points[:,0]-center[0]
-    y = grid.points[:,1]-center[1]
-    z = grid.points[:,2]-center[2]
+    x = grid.points[:, 0]-center[0]
+    y = grid.points[:, 1]-center[1]
+    z = grid.points[:, 2]-center[2]
     r2 = x*x+y*y+z*z
 
     ints = grid.integrate(dens, center=center, lmax=2, mtype=2, segments=segments)
@@ -173,13 +173,13 @@ def test_grid_integrate_pure_moments_segments():
 
 def test_grid_integrate_radial_moments():
     npoint = 10
-    grid = IntGrid(np.random.normal(0, 1, (npoint,3)), np.random.normal(0, 1, npoint))
+    grid = IntGrid(np.random.normal(0, 1, (npoint, 3)), np.random.normal(0, 1, npoint))
     dens = np.random.normal(0, 1, npoint)
 
     center = np.random.normal(0, 1, 3)
-    x = grid.points[:,0]-center[0]
-    y = grid.points[:,1]-center[1]
-    z = grid.points[:,2]-center[2]
+    x = grid.points[:, 0]-center[0]
+    y = grid.points[:, 1]-center[1]
+    z = grid.points[:, 2]-center[2]
     r = np.sqrt(x*x+y*y+z*z)
 
     ints = grid.integrate(dens, center=center, lmax=2, mtype=3)
@@ -208,7 +208,7 @@ def test_dot_multi():
 def test_eval_spline_grid_simplest():
     npoint = 10
     boxsize = 2.0
-    points = np.random.normal(0, boxsize, (npoint,3))
+    points = np.random.normal(0, boxsize, (npoint, 3))
     #points = np.hstack([np.arange(0.0, 0.9001, 0.1).reshape(-1,1)]*3)
     g = IntGrid(points, np.random.normal(0, 1.0, npoint))
     cs = get_cosine_spline()
@@ -223,10 +223,10 @@ def test_eval_spline_grid_simplest():
 
 def test_eval_spline_grid_3d_random():
     npoint = 10
-    for i in xrange(10):
+    for i in range(10):
         cell = get_random_cell(1.0, 3)
         rvecs = cell.rvecs
-        points = np.dot(np.random.normal(-2, 3, (npoint,3)), rvecs)
+        points = np.dot(np.random.normal(-2, 3, (npoint, 3)), rvecs)
         g = IntGrid(points, np.random.normal(0, 1.0, npoint))
         cs = get_cosine_spline()
 
@@ -244,10 +244,10 @@ def test_eval_spline_grid_2d_random():
     npoint = 10
     cs = get_cosine_spline()
 
-    for i in xrange(10):
+    for i in range(10):
         cell = get_random_cell(1.0, 2)
         rvecs = cell.rvecs
-        points = np.dot(np.random.normal(-2, 3, (npoint,2)), rvecs) + np.random.normal(-3, 3, (npoint,3))
+        points = np.dot(np.random.normal(-2, 3, (npoint, 2)), rvecs) + np.random.normal(-3, 3, (npoint, 3))
         g = IntGrid(points, np.random.normal(0, 1.0, npoint))
 
         output1 = np.zeros(npoint)
@@ -264,10 +264,10 @@ def test_eval_spline_grid_1d_random():
     npoint = 10
     cs = get_cosine_spline()
 
-    for i in xrange(10):
+    for i in range(10):
         cell = get_random_cell(1.0, 1)
         rvecs = cell.rvecs
-        points = np.random.normal(-3, 3, (npoint,3))
+        points = np.random.normal(-3, 3, (npoint, 3))
         g = IntGrid(points, np.random.normal(0, 1.0, npoint))
 
         output1 = np.zeros(npoint)
@@ -284,9 +284,9 @@ def test_eval_spline_grid_0d_random():
     npoint = 10
     cs = get_cosine_spline()
 
-    for i in xrange(10):
+    for i in range(10):
         cell = Cell(None)
-        points = np.random.normal(-1, 1, (npoint,3))
+        points = np.random.normal(-1, 1, (npoint, 3))
         g = IntGrid(points, np.random.normal(0, 1.0, npoint))
 
         center = np.random.uniform(-1, 1, 3)
@@ -304,10 +304,10 @@ def test_eval_spline_grid_add_random():
     npoint = 10
     cs = get_cosine_spline()
 
-    for irep in xrange(10):
+    for irep in range(10):
         with numpy_seed(irep):
             cell = get_random_cell(1.0, irep % 4)
-            points = np.random.normal(-2, 3, (npoint,3))
+            points = np.random.normal(-2, 3, (npoint, 3))
             g = IntGrid(points, np.random.normal(0, 1.0, npoint))
             center1 = np.random.uniform(-2, 2, 3)
             center2 = np.random.uniform(-2, 2, 3)
@@ -344,9 +344,9 @@ def test_density_decomposition_n2():
     checks = {}
 
     work = np.zeros((atgrid.size, (lmaxmax+1)**2), float)
-    work[:,0] = z/r
-    work[:,1] = x/r
-    work[:,2] = y/r
+    work[:, 0] = z/r
+    work[:, 1] = x/r
+    work[:, 2] = y/r
     fill_pure_polynomials(work, lmaxmax)
 
     # create decompositions of the Becke AIM density of the first atom
@@ -358,11 +358,11 @@ def test_density_decomposition_n2():
     tmp /= np.sqrt(4*np.pi)
     checks[0] = tmp.copy()
     counter = 0
-    for l in xrange(1, lmaxmax+1):
-        for m in xrange(-l, l+1):
+    for l in range(1, lmaxmax+1):
+        for m in range(-l, l+1):
             output = np.zeros(atgrid.size)
             atgrid.eval_spline(splines[counter+1], mol.coordinates[0], output)
-            output *= work[:,counter]/np.sqrt(4*np.pi)*np.sqrt(2*l+1)
+            output *= work[:, counter]/np.sqrt(4*np.pi)*np.sqrt(2*l+1)
             tmp += output
             counter += 1
         checks[l] = tmp.copy()
@@ -370,7 +370,7 @@ def test_density_decomposition_n2():
 
     # reconstruct the atom at different levels of accuarcy
     last_error = None
-    for lmax in xrange(0, lmaxmax+1):
+    for lmax in range(0, lmaxmax+1):
         output = np.zeros(atgrid.size)
         atgrid.eval_decomposition(splines[:(lmax+1)**2], mol.coordinates[0], output)
         if lmax in checks:
@@ -394,7 +394,7 @@ def test_density_decomposition_n2():
     # Contribution from p and higher should be zero.
     # This tested by computing all and comparing to contribution from s
     # (with proper scale factor).
-    for lmax in xrange(0, lmaxmax+1):
+    for lmax in range(0, lmaxmax+1):
         tmp = np.zeros(nucgrid.size)
         nucgrid.eval_decomposition(splines[:(lmax+1)**2], mol.coordinates[0], tmp)
         np.testing.assert_almost_equal(tmp[0], tmp_s[0]/np.sqrt(4*np.pi))

@@ -36,7 +36,7 @@ def load_h5(item):
        item
             A HD5 Dataset or group, or a filename of an HDF5 file
     '''
-    if isinstance(item, basestring):
+    if isinstance(item, str):
         with LockedH5File(item, 'r') as f:
             return load_h5(f)
     elif isinstance(item, h5.Dataset):
@@ -45,17 +45,20 @@ def load_h5(item):
             return np.array(item)
         else:
             # convert to a scalar
-            return item[()]
+            scalar = item[()]
+            return scalar.decode("utf-8") if isinstance(scalar, bytes) else scalar
     elif isinstance(item, h5.Group):
         class_name = item.attrs.get('class')
         if class_name is None:
             # assuming that an entire dictionary must be read.
             result = {}
-            for key, subitem in item.iteritems():
+            for key, subitem in item.items():
                 result[key] = load_h5(subitem)
             return result
         else:
             # special constructor. the class is found with the imp module
+            if type(class_name) is bytes or type(class_name) is np.bytes_:
+                class_name = class_name.decode("utf-8")
             cls = __import__('horton', fromlist=[class_name]).__dict__[class_name]
             return cls.from_hdf5(item)
 
@@ -71,24 +74,24 @@ def dump_h5(grp, data):
             an instance of a HORTON class that has a ``to_hdf5`` method. The
             dictionary my contain numpy arrays
     '''
-    if isinstance(grp, basestring):
+    if isinstance(grp, str):
         with LockedH5File(grp, 'w') as f:
             dump_h5(f, data)
     elif isinstance(data, dict):
-        for key, value in data.iteritems():
+        for key, value in data.items():
             # Simply overwrite old data
             if key in grp:
                 del grp[key]
-            if isinstance(value, int) or isinstance(value, float) or isinstance(value, np.ndarray) or isinstance(value, basestring):
+            if isinstance(value, int) or isinstance(value, float) or isinstance(value, np.ndarray) or isinstance(value, str):
                 grp[key] = value
             else:
                 subgrp = grp.require_group(key)
                 dump_h5(subgrp, value)
     else:
         # clear the group if anything was present
-        for key in grp.keys():
+        for key in list(grp.keys()):
             del grp[key]
-        for key in grp.attrs.keys():
+        for key in list(grp.attrs.keys()):
             del grp.attrs[key]
         data.to_hdf5(grp)
         # The following is needed to create object of the right type when

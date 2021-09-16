@@ -92,7 +92,7 @@ class AtomicGrid(IntGrid):
         radii = self._rgrid.radii
         rweights = self._rgrid.weights
 
-        for i in xrange(nsphere):
+        for i in range(nsphere):
             nll = self._nlls[i]
             my_points = points[offset:offset+nll]
             my_weights = weights[offset:offset+nll]
@@ -260,10 +260,10 @@ class AtomicGrid(IntGrid):
         results = []
         counter = 0
         lmaxs = self.lmaxs
-        for l in xrange(0, lmax+1):
+        for l in range(0, lmax+1):
             mask = lmaxs < 2*l
-            for m in xrange(-l,l+1):
-                f = angular_ints[:,counter].copy()
+            for m in range(-l, l+1):
+                f = angular_ints[:, counter].copy()
                 f *= np.sqrt(4*np.pi*(2*l+1)) # proper norm for spherical harmonics
                 f[mask] = 0 # mask out unreliable results
                 results.append(CubicSpline(f, rtransform=self.rgrid.rtransform))
@@ -278,8 +278,8 @@ def get_rotation_matrix(axis, angle):
     c = np.cos(angle)
     s = np.sin(angle)
     return np.array([
-        [x*x*(1-c)+c  , x*y*(1-c)-z*s, x*z*(1-c)+y*s],
-        [x*y*(1-c)+z*s, y*y*(1-c)+c  , y*z*(1-c)-x*s],
+        [x*x*(1-c)+c, x*y*(1-c)-z*s, x*z*(1-c)+y*s],
+        [x*y*(1-c)+z*s, y*y*(1-c)+c, y*z*(1-c)-x*s],
         [x*z*(1-c)-y*s, y*z*(1-c)+x*s, z*z*(1-c)+c  ],
     ])
 
@@ -356,7 +356,7 @@ class AtomicGridSpec(object):
                   the most appropriate grid can be selected, depending on the
                   effective core charge.
         '''
-        if isinstance(definition, basestring):
+        if isinstance(definition, str):
             self.name = definition
             self._init_members_from_string(definition)
         elif isinstance(definition, tuple):
@@ -371,7 +371,7 @@ class AtomicGridSpec(object):
     @classmethod
     def from_hdf5(cls, grp):
         records = []
-        for ds in grp.itervalues():
+        for ds in grp.values():
             rtransform = RTransform.from_string(ds.attrs['rtransform'])
             records.append((
                 ds.attrs['number'], ds.attrs['pseudo_number'],
@@ -415,7 +415,7 @@ class AtomicGridSpec(object):
         rgrid, nlls = members
         nlls = _normalize_nlls(nlls, rgrid.size)
         # Assign this grid specification or each element
-        self.members = dict((number, [(number, rgrid, nlls)]) for number in xrange(1, 119))
+        self.members = dict((number, [(number, rgrid, nlls)]) for number in range(1, 119))
 
     def _init_members_from_list(self, members):
         self.members = {}
@@ -423,7 +423,7 @@ class AtomicGridSpec(object):
             nlls = _normalize_nlls(nlls, rgrid.size)
             l = self.members.setdefault(number, [])
             l.append((pseudo_number, rgrid, nlls))
-        for l in self.members.itervalues():
+        for l in self.members.values():
             l.sort()
 
     _simple_names = {

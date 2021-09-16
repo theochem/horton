@@ -22,7 +22,7 @@
 """Generate list of functionals in documentation."""
 
 
-from cStringIO import StringIO
+from io import StringIO
 import json
 import os
 
@@ -80,31 +80,31 @@ def main():
 
     s = StringIO()
 
-    print >> s, '.. _ref_functionals:'
-    print >> s
-    print >> s, 'LibXC Functionals'
-    print >> s, '#################'
-    print >> s
-    print >> s, 'The following functionals are available in HORTON through `LibXC'
-    print >> s, '<http://www.tddft.org/programs/octopus/wiki/index.php/Libxc>`_ %s.' % \
-        libxc_version
-    print >> s, '[lehtola2018]_'
-    print >> s
+    print('.. _ref_functionals:', file=s)
+    print(file=s)
+    print('LibXC Functionals', file=s)
+    print('#################', file=s)
+    print(file=s)
+    print('The following functionals are available in HORTON through `LibXC', file=s)
+    print('<http://www.tddft.org/programs/octopus/wiki/index.php/Libxc>`_ %s.' % \
+        libxc_version, file=s)
+    print('[lehtola2018]_', file=s)
+    print(file=s)
     for key in keys:
         try:
             w = ULibXCWrapper(key)
-            print >> s, '**{}**: {}'.format(key, w.name)
-            print >> s
+            print('**{}**: {}'.format(key, w.name), file=s)
+            print(file=s)
             for ref, doi, _biblio in w.refs:
-                print >> s, ' | {}'.format(ref),
+                print(' | {}'.format(ref), end=' ', file=s)
                 if len(doi) > 0:
-                    print >> s, ' https://doi.org/{}'.format(doi)
+                    print(' https://doi.org/{}'.format(doi), file=s)
                 else:
-                    print >> s
-            print >> s
+                    print(file=s)
+            print(file=s)
         except ValueError:
             # A bug in libxc ...
-            print 'FAILED to load functional', key
+            print('FAILED to load functional', key)
 
     write_if_changed('tech_ref_functionals.rst', s.getvalue())
 

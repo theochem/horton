@@ -205,8 +205,8 @@ def contract_direct(op, dm):
     """
     if op.ndim == 3:
         # Cholesky decomposition
-        tmp = np.tensordot(op, dm, axes=([(1,2),(1,0)]))
-        return np.tensordot(op, tmp, [0,0])
+        tmp = np.tensordot(op, dm, axes=([(1, 2), (1, 0)]))
+        return np.tensordot(op, tmp, [0, 0])
     elif op.ndim == 4:
         # Normal case
         return np.einsum('abcd,bd->ac', op, dm)
@@ -353,8 +353,8 @@ def contract_exchange(op, dm):
     """
     if op.ndim == 3:
         # Cholesky decomposition
-        tmp = np.tensordot(op, dm, axes=([1,1]))
-        return np.tensordot(op, tmp, ([0,2],[0,2]))
+        tmp = np.tensordot(op, dm, axes=([1, 1]))
+        return np.tensordot(op, tmp, ([0, 2], [0, 2]))
     elif op.ndim == 4:
         return np.einsum('abcd,cb->ad', op, dm)
     else:

@@ -88,7 +88,7 @@ class DoxygenTrapdoorProgram(TrapdoorProgram):
         """
         # Get version
         command = ['doxygen', '--version']
-        print 'USING              : doxygen', run_command(command, verbose=False)[0].strip()
+        print('USING              : doxygen', run_command(command, verbose=False)[0].strip())
 
         # Call doxygen in the doc subdirectory, mute output because it only confuses
         command = ['doxygen', self.doxyconf_file]

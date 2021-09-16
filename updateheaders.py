@@ -117,13 +117,13 @@ def main():
     f.close()
 
     for sdir in source_dirs:
-        print 'Scanning', sdir
+        print('Scanning', sdir)
         for fn in glob(sdir + '/*.*'):
             if not os.path.isfile(fn):
                 continue
             for pattern, fixer in fixers:
                 if fnmatch(fn, pattern):
-                    print 'Fixing  ', fn
+                    print('Fixing  ', fn)
                     with open(fn) as f:
                         lines = f.readlines()
                     fixer(fn, lines, header_lines)

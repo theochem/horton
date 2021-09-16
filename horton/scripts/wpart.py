@@ -38,7 +38,7 @@ __all__ = ['wpart_schemes', 'wpart_slow_analysis']
 def get_wpart_schemes():
     """Return a dictionary with all wpart schemes"""
     wpart_schemes = {}
-    for o in vars(horton.part).itervalues():
+    for o in vars(horton.part).values():
         if isinstance(o, type) and issubclass(o, WPart) and o.name is not None:
             wpart_schemes[o.name] = o
     return wpart_schemes
@@ -69,7 +69,7 @@ def wpart_slow_analysis(wpart, mol):
     # much space.
     wpart.do_partitioning()
     npure = get_npure_cumul(wpart.lmax)
-    for index in xrange(wpart.natom):
+    for index in range(wpart.natom):
         if log.do_medium:
             log('Computing overlap matrices for atom %i.' % index)
 
@@ -87,8 +87,8 @@ def wpart_slow_analysis(wpart, mol):
         # Convert the weight functions to AIM overlap operators.
         counter = 0
         overlap_operators = {}
-        for l in xrange(wpart.lmax + 1):
-            for m in xrange(-l, l + 1):
+        for l in range(wpart.lmax + 1):
+            for m in range(-l, l + 1):
                 if counter > 0:
                     tmp = at_weights * work[:, counter - 1]
                 else:
@@ -102,11 +102,11 @@ def wpart_slow_analysis(wpart, mol):
     # Correct the s-type overlap operators such that the sum is exactly
     # equal to the total overlap.
     error_overlap = mol.obasis.compute_overlap()
-    for index in xrange(wpart.natom):
+    for index in range(wpart.natom):
         atom_overlap = wpart.cache.load('overlap_operators', index)['olp_00000']
         error_overlap -= atom_overlap
     error_overlap /= wpart.natom
-    for index in xrange(wpart.natom):
+    for index in range(wpart.natom):
         atom_overlap = wpart.cache.load('overlap_operators', index)['olp_00000']
         atom_overlap += error_overlap
 
@@ -114,8 +114,8 @@ def wpart_slow_analysis(wpart, mol):
     #   * outer loop: s, pz, px, py, ...
     #   * inner loop: atoms
     operators = []
-    for ipure in xrange(npure):
-        for iatom in xrange(wpart.natom):
+    for ipure in range(npure):
+        for iatom in range(wpart.natom):
             operators.append(wpart.cache.load('overlap_operators', iatom)['olp_%05i' % ipure])
 
     # B) Compute Wiberg bond orders from the first-order density matrix

@@ -20,12 +20,10 @@
 # --
 '''Minimal Basis Iterative Stockholder (MBIS) partitioning'''
 
-
 import numpy as np
 from horton.log import log, biblio
 from horton.part.stockholder import StockholderWPart
 from horton.part.iterstock import IterativeProatomMixin
-
 
 __all__ = ['MBISWPart']
 
@@ -37,42 +35,42 @@ def _get_nshell(number):
 
 def _get_initial_mbis_propars(number):
     nshell = _get_nshell(number)
-    propars = np.zeros(2*nshell, float)
-    S0 = 2.0*number
+    propars = np.zeros(2 * nshell, float)
+    S0 = 2.0 * number
     if nshell > 1:
         S1 = 2.0
-        alpha = (S1/S0)**(1.0/(nshell-1))
+        alpha = (S1 / S0) ** (1.0 / (nshell - 1))
     else:
         alpha = 1.0
     nel_in_shell = np.array([2.0, 8.0, 8.0, 18.0, 18.0, 32.0, 32.0])
-    for ishell in xrange(nshell):
-        propars[2*ishell] = nel_in_shell[ishell]
-        propars[2*ishell+1] = S0*alpha**ishell
+    for ishell in range(nshell):
+        propars[2 * ishell] = nel_in_shell[ishell]
+        propars[2 * ishell + 1] = S0 * alpha ** ishell
     propars[-2] = number - propars[:-2:2].sum()
     return propars
 
 
 def _opt_mbis_propars(rho, propars, rgrid, threshold):
-    assert len(propars)%2 == 0
-    nshell = len(propars)/2
+    assert len(propars) % 2 == 0
+    nshell = len(propars) // 2
     r = rgrid.radii
     terms = np.zeros((nshell, len(r)), float)
     oldpro = None
-    for irep in xrange(1000):
+    for irep in range(1000):
         # compute the contributions to the pro-atom
-        for ishell in xrange(nshell):
-            N = propars[2*ishell]
-            S = propars[2*ishell+1]
-            terms[ishell] = (N*S**3/(8*np.pi))*np.exp(-S*r)
+        for ishell in range(nshell):
+            N = propars[2 * ishell]
+            S = propars[2 * ishell + 1]
+            terms[ishell] = (N * S ** 3 / (8 * np.pi)) * np.exp(-S * r)
         pro = terms.sum(axis=0)
         # transform to partitions
-        terms *= rho/pro
+        terms *= rho / pro
         # the partitions and the updated parameters
-        for ishell in xrange(nshell):
+        for ishell in range(nshell):
             m0 = rgrid.integrate(terms[ishell])
             m1 = rgrid.integrate(terms[ishell], r)
-            propars[2*ishell] = m0
-            propars[2*ishell+1] = 3*m0/m1
+            propars[2 * ishell] = m0
+            propars[2 * ishell + 1] = 3 * m0 / m1
         # check for convergence
         if oldpro is None:
             change = 1e100
@@ -130,26 +128,26 @@ class MBISWPart(IterativeProatomMixin, StockholderWPart):
         r = rgrid.radii
         y = np.zeros(len(r), float)
         d = np.zeros(len(r), float)
-        my_propars = propars[self._ranges[iatom]:self._ranges[iatom+1]]
-        for ishell in xrange(self._nshells[iatom]):
-            N, S = my_propars[2*ishell:2*ishell+2]
-            f = (N*S**3/(8*np.pi))*np.exp(-S*r)
+        my_propars = propars[self._ranges[iatom]:self._ranges[iatom + 1]]
+        for ishell in range(self._nshells[iatom]):
+            N, S = my_propars[2 * ishell:2 * ishell + 2]
+            f = (N * S ** 3 / (8 * np.pi)) * np.exp(-S * r)
             y += f
-            d += -S*f
+            d += -S * f
         return y, d
 
     def _init_propars(self):
         IterativeProatomMixin._init_propars(self)
         self._ranges = [0]
         self._nshells = []
-        for iatom in xrange(self.natom):
+        for iatom in range(self.natom):
             nshell = _get_nshell(self.numbers[iatom])
-            self._ranges.append(self._ranges[-1]+2*nshell)
+            self._ranges.append(self._ranges[-1] + 2 * nshell)
             self._nshells.append(nshell)
         ntotal = self._ranges[-1]
         propars = self.cache.load('propars', alloc=ntotal, tags='o')[0]
-        for iatom in xrange(self.natom):
-            propars[self._ranges[iatom]:self._ranges[iatom+1]] = _get_initial_mbis_propars(self.numbers[iatom])
+        for iatom in range(self.natom):
+            propars[self._ranges[iatom]:self._ranges[iatom + 1]] = _get_initial_mbis_propars(self.numbers[iatom])
         return propars
 
     def _update_propars_atom(self, iatom):
@@ -161,7 +159,7 @@ class MBISWPart(IterativeProatomMixin, StockholderWPart):
         spherical_average = np.clip(atgrid.get_spherical_average(at_weights, dens), 1e-100, np.inf)
 
         # assign as new propars
-        my_propars = self.cache.load('propars')[self._ranges[iatom]:self._ranges[iatom+1]]
+        my_propars = self.cache.load('propars')[self._ranges[iatom]:self._ranges[iatom + 1]]
         my_propars[:] = _opt_mbis_propars(spherical_average, my_propars.copy(), rgrid, self._threshold)
 
         # compute the new charge
@@ -175,10 +173,10 @@ class MBISWPart(IterativeProatomMixin, StockholderWPart):
         core_charges = []
         valence_charges = []
         valence_widths = []
-        for iatom in xrange(self.natom):
-            my_propars = propars[self._ranges[iatom]:self._ranges[iatom+1]]
+        for iatom in range(self.natom):
+            my_propars = propars[self._ranges[iatom]:self._ranges[iatom + 1]]
             valence_charges.append(-my_propars[-2])
-            valence_widths.append(1.0/my_propars[-1])
+            valence_widths.append(1.0 / my_propars[-1])
         valence_charges = np.array(valence_charges)
         valence_widths = np.array(valence_widths)
         core_charges = self._cache.load('charges') - valence_charges

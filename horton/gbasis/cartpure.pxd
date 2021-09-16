@@ -19,6 +19,7 @@
 #
 # --
 
+#cython: language_level=3
 
 cdef extern from "horton/gbasis/cartpure.h":
     void cart_to_pure_low(double *work_cart, double* work_pure, long shell_type,

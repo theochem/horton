@@ -20,7 +20,6 @@
 # --
 """Occupation number models"""
 
-
 import numpy as np
 
 from horton.exceptions import ElectronCountError
@@ -28,7 +27,6 @@ from horton.quadprog import find_1d_root
 from horton.constants import boltzmann
 from horton.log import biblio
 from horton.utils import doc_inherit
-
 
 __all__ = [
     'FixedOccModel', 'AufbauOccModel', 'AufbauSpinOccModel', 'FermiOccModel',
@@ -83,7 +81,7 @@ class FixedOccModel(OccModel):
     def check_dms(self, overlap, *dms, **kwargs):
         eps = kwargs.pop('eps', 1e-4)
         if len(kwargs) > 0:
-            raise TypeError('Unexpected keyword arguments: %s' % kwargs.keys())
+            raise TypeError('Unexpected keyword arguments: %s' % list(kwargs.keys()))
         if len(dms) != len(self.occ_arrays):
             raise TypeError('The number of density matrices is incorrect.')
         for dm, occ_array in zip(dms, self.occ_arrays):
@@ -118,7 +116,8 @@ class AufbauOccModel(OccModel):
             raise TypeError('Expected %i Orbitals objects, got %i.' % (len(self.nocc), len(orbs)))
         for orb, nocc in zip(orbs, self.noccs):
             if orb.nfn < nocc:
-                raise ElectronCountError('The number of orbitals must not be lower than the number of alpha or beta electrons.')
+                raise ElectronCountError(
+                    'The number of orbitals must not be lower than the number of alpha or beta electrons.')
             # It is assumed that the orbitals are sorted from low to high energy.
             if nocc == int(nocc):
                 orb.occupations[:nocc] = 1.0
@@ -132,7 +131,7 @@ class AufbauOccModel(OccModel):
     def check_dms(self, overlap, *dms, **kwargs):
         eps = kwargs.pop('eps', 1e-4)
         if len(kwargs) > 0:
-            raise TypeError('Unexpected keyword arguments: %s' % kwargs.keys())
+            raise TypeError('Unexpected keyword arguments: %s' % list(kwargs.keys()))
         if len(dms) != len(self.noccs):
             raise TypeError('The number of density matrices is incorrect.')
         for dm, nocc in zip(dms, self.noccs):
@@ -141,6 +140,7 @@ class AufbauOccModel(OccModel):
 
 class AufbauSpinOccModel(OccModel):
     '''This Aufbau model only applies to unrestricted wavefunctions'''
+
     def __init__(self, nel):
         '''
            **Arguments:**
@@ -170,12 +170,13 @@ class AufbauSpinOccModel(OccModel):
     def check_dms(self, overlap, *dms, **kwargs):
         eps = kwargs.pop('eps', 1e-4)
         if len(kwargs) > 0:
-            raise TypeError('Unexpected keyword arguments: %s' % kwargs.keys())
+            raise TypeError('Unexpected keyword arguments: %s' % list(kwargs.keys()))
         assert abs(sum(np.einsum('ab,ba', overlap, dm) for dm in dms) - self.nel) < eps
 
 
 class FermiOccModel(AufbauOccModel):
     '''Fermi smearing electron occupation model'''
+
     def __init__(self, *noccs, **kwargs):
         r'''
            **Arguments:**
@@ -213,7 +214,7 @@ class FermiOccModel(AufbauOccModel):
         temperature = kwargs.pop('temperature', 300)
         eps = kwargs.pop('eps', 1e-8)
         if len(kwargs) > 0:
-            raise TypeError('Unknown keyword arguments: %s' % kwargs.keys())
+            raise TypeError('Unknown keyword arguments: %s' % list(kwargs.keys()))
         if temperature <= 0:
             raise ValueError('The temperature must be strictly positive')
         if eps <= 0:
@@ -225,25 +226,25 @@ class FermiOccModel(AufbauOccModel):
 
     @doc_inherit(OccModel)
     def assign(self, *orbs):
-        beta = 1.0/self.temperature/boltzmann
+        beta = 1.0 / self.temperature / boltzmann
         for orb, nocc in zip(orbs, self.noccs):
             def get_occ(mu):
                 occ = np.zeros(orb.nfn)
                 mask = orb.energies < mu
-                e = np.exp(beta*(orb.energies[mask] - mu))
-                occ[mask] = 1.0/(e + 1.0)
+                e = np.exp(beta * (orb.energies[mask] - mu))
+                occ[mask] = 1.0 / (e + 1.0)
                 mask = ~mask
-                e = np.exp(-beta*(orb.energies[mask] - mu))
-                occ[mask] = e/(1.0 + e)
+                e = np.exp(-beta * (orb.energies[mask] - mu))
+                occ[mask] = e / (1.0 + e)
                 return occ
 
             def error(mu):
                 return nocc - get_occ(mu).sum()
 
-            mu0 = orb.energies[orb.nfn/2]
+            mu0 = orb.energies[orb.nfn // 2]
             error0 = error(mu0)
-            delta = 0.1*(1 - 2*(error0 < 0))
-            for i in xrange(100):
+            delta = 0.1 * (1 - 2 * (error0 < 0))
+            for i in range(100):
                 mu1 = mu0 + delta
                 error1 = error(mu1)
                 if error1 == 0 or ((error0 > 0) ^ (error1 > 0)):

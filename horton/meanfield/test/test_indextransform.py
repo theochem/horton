@@ -26,6 +26,7 @@ from nose.tools import assert_raises
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.meanfield.indextransform import _parse_four_index_transform_orbs
 
+
 def test_parse_index_transform_orbs():
     assert _parse_four_index_transform_orbs(0, 1, 2, 3) == (0, 1, 2, 3)
     assert _parse_four_index_transform_orbs(0, None, None, None) == (0, 0, 0, 0)
@@ -116,7 +117,7 @@ def check_core_active(mol, basis_str, ncore, nactive):
 
     # Decide how to occupy the orbitals
     assert mol.numbers.sum() % 2 == 0
-    nocc = mol.numbers.sum()/2
+    nocc = mol.numbers.sum() // 2
     assert ncore + nactive > nocc
 
     enucnuc = compute_nucnuc(mol.coordinates, mol.pseudo_numbers)
@@ -127,7 +128,7 @@ def check_core_active(mol, basis_str, ncore, nactive):
         one, two, enucnuc, orb_alpha1, ncore, nactive)
     # C1) Verify the RHF energy using the active space integrals
     energy2, orb_alpha2 = helper_hf(
-        np.identity(len(one_small)), ecore, one_small, two_small, nocc-ncore)
+        np.identity(len(one_small)), ecore, one_small, two_small, nocc - ncore)
     np.testing.assert_almost_equal(energy1, energy2)
 
     # B2) Get integrals for the active space, using einsum transformation
@@ -135,7 +136,7 @@ def check_core_active(mol, basis_str, ncore, nactive):
         one, two, enucnuc, orb_alpha1, ncore, nactive, indextrans='einsum')
     # C2) Verify the RHF energy using the active space integrals
     energy2, orb_alpha2 = helper_hf(
-        np.identity(len(one_small)), ecore, one_small, two_small, nocc-ncore)
+        np.identity(len(one_small)), ecore, one_small, two_small, nocc - ncore)
     np.testing.assert_almost_equal(energy1, energy2)
 
 
@@ -222,7 +223,7 @@ def check_core_active_cholesky(mol, basis_str, ncore, nactive):
 
     # Decide how to occupy the orbitals
     assert mol.numbers.sum() % 2 == 0
-    nocc = mol.numbers.sum()/2
+    nocc = mol.numbers.sum() // 2
     assert ncore + nactive > nocc
 
     energy1, orb_alpha1 = helper_hf_cholesky(olp, enucnuc, one, two_vecs, nocc)
@@ -232,7 +233,7 @@ def check_core_active_cholesky(mol, basis_str, ncore, nactive):
         one, two_vecs, enucnuc, orb_alpha1, ncore, nactive)
     # C1) Verify the RHF energy using the active space integrals
     energy2, orb_alpha2 = helper_hf_cholesky(
-        np.identity(len(one_small)), ecore, one_small, two_vecs_small, nocc-ncore)
+        np.identity(len(one_small)), ecore, one_small, two_vecs_small, nocc - ncore)
     np.testing.assert_almost_equal(energy1, energy2)
 
     # B2) Get integrals for the active space, using einsum transformation
@@ -240,7 +241,7 @@ def check_core_active_cholesky(mol, basis_str, ncore, nactive):
         one, two_vecs, enucnuc, orb_alpha1, ncore, nactive, indextrans='einsum')
     # C2) Verify the RHF energy using the active space integrals
     energy2, orb_alpha2 = helper_hf_cholesky(
-        np.identity(len(one_small)), ecore, one_small, two_vecs_small, nocc-ncore)
+        np.identity(len(one_small)), ecore, one_small, two_vecs_small, nocc - ncore)
     np.testing.assert_almost_equal(energy1, energy2)
 
 

@@ -94,7 +94,7 @@ def test_molgrid_attrs_subgrid():
     assert mg.k == 3
     assert mg.random_rotate
 
-    for i in xrange(2):
+    for i in range(2):
         atgrid = mg.subgrids[i]
         assert isinstance(atgrid, AtomicGrid)
         assert atgrid.size == 100*110
@@ -141,7 +141,7 @@ def test_molgrid_hdf5():
     mg1 = BeckeMolGrid(coordinates, numbers, None, (rgrid, 110), k=2, random_rotate=False, mode='keep')
 
     # run the routines that need testing
-    with h5.File('horton.grid.test.test_molgrid.test_molgrid_hdf5', driver='core', backing_store=False) as f:
+    with h5.File('horton.grid.test.test_molgrid.test_molgrid_hdf5', "w", driver='core', backing_store=False) as f:
         mg1.to_hdf5(f)
         mg2 = BeckeMolGrid.from_hdf5(f)
 

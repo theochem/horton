@@ -40,7 +40,8 @@ def test_data_files():
     # This test only makes sense if ran inside the source tree. The purpose is
     # to detect mistakes in the development process.
     if context.data_dir == os.path.abspath('data/') and os.path.isdir('.git'):
-        lines = subprocess.check_output(['git', 'ls-files', '--others', '--exclude-standard', 'data']).split('\n')
+        lines = subprocess.check_output(['git', 'ls-files', '--others', '--exclude-standard', 'data'])\
+            .decode("utf-8").split('\n')
         for line in lines:
             line = line.strip()
             if len(line) != 0:
@@ -63,7 +64,7 @@ def test_shebang():
     for fn_py in iter_py_files(context.data_dir):
         if os.access(fn_py, os.X_OK):
             with open(fn_py) as f:
-                if f.next() != '#!/usr/bin/env python\n':
+                if next(f) != '#!/usr/bin/env python\n':
                     bad.append(fn_py)
 
     # Loop over all py files in scripts, if testing from the development root:
@@ -71,13 +72,13 @@ def test_shebang():
         for fn_py in iter_py_files('scripts'):
             assert os.access(fn_py, os.X_OK), 'Py Files in scripts/ must be executable.'
             with open(fn_py) as f:
-                if f.next() != '#!/usr/bin/env python\n':
+                if next(f) != '#!/usr/bin/env python\n':
                     bad.append(fn_py)
 
     if len(bad) > 0:
-        print 'The following files have an incorrect shebang line:'
+        print('The following files have an incorrect shebang line:')
         for fn in bad:
-            print '   ', fn
+            print('   ', fn)
         raise AssertionError('Some Python scripts have an incorrect shebang line.')
 
 
@@ -93,7 +94,7 @@ def test_do_not_use_iodata():
             continue
         packages['horton.%s' % subpackage] = []
     # find modules
-    for package, modules in packages.iteritems():
+    for package, modules in packages.items():
         stub = package.replace('.', '/')
         for fn in sorted(glob('%s/*.py' % stub) + glob('%s/*.so' % stub)):
             module = fn.split('/')[-1][:-3]
@@ -101,7 +102,7 @@ def test_do_not_use_iodata():
                 continue
             modules.append(module)
     # try to import IOData
-    for package, modules in packages.iteritems():
+    for package, modules in packages.items():
         for module in modules:
             m = importlib.import_module('%s.%s' % (package, module))
             with assert_raises(AttributeError):

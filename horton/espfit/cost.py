@@ -92,10 +92,10 @@ class ESPCost(object):
         if self.natom < len(self._A):
             # Set up a system of equations where all charges are fixed and the
             # remaining parameters are solved for.
-            A = self._A[self.natom:,self.natom:]
-            B = self._B[self.natom:] - np.dot(charges, self._A[:self.natom,self.natom:])
+            A = self._A[self.natom:, self.natom:]
+            B = self._B[self.natom:] - np.dot(charges, self._A[:self.natom, self.natom:])
             C = self._C \
-                + np.dot(np.dot(charges, self._A[:self.natom,:self.natom]), charges) \
+                + np.dot(np.dot(charges, self._A[:self.natom, :self.natom]), charges) \
                 - 2*np.dot(self._B[:self.natom], charges)
             x = np.linalg.solve(A, B)
             return C - np.dot(B, x)
@@ -126,7 +126,7 @@ class ESPCost(object):
         A.ravel()[::len(A)+1][:self.natom] += ridge*np.diag(A)[:self.natom].mean()
         # construct preconditioned matrices
         norms = np.diag(A)**0.5
-        A = A/norms/norms.reshape(-1,1)
+        A = A/norms/norms.reshape(-1, 1)
         B = self._B/norms
 
         x = np.linalg.solve(A, B)
@@ -189,7 +189,7 @@ def setup_weights(coordinates, numbers, grid, dens=None, near=None, far=None):
         assert (rho.shape == grid.shape).all()
         multiply_dens_mask(rho, lnrho0, sigma, weights)
     if near is not None:
-        for i in xrange(natom):
+        for i in range(natom):
             pair = near.get(numbers[i])
             if pair is None:
                 pair = near.get(0)

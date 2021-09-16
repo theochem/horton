@@ -119,12 +119,12 @@ def _counter_to_free(counter, free):
             An output array with booleans to store the bits.
     '''
     power = 1
-    for j in xrange(len(free)):
+    for j in range(len(free)):
         free[j] = (counter & power) != 0
         power *= 2
 
 
-def find_1d_root(fn, (x0, y0), (x2, y2), eps):
+def find_1d_root(fn, xxx_todo_changeme, xxx_todo_changeme1, eps):
     '''Find the root of a 1D function
 
        **Arguments:**
@@ -138,7 +138,8 @@ def find_1d_root(fn, (x0, y0), (x2, y2), eps):
        eps
             The allowed error on the function.
     '''
-    # we want y0 < 0 and y2 > 0
+    (x0, y0) = xxx_todo_changeme
+    (x2, y2) = xxx_todo_changeme1
     if y2 < 0:
         x0, y0, x2, y2 = x2, y2, x0, y0
     assert y0 < 0
@@ -177,7 +178,7 @@ def solve_safe(a, b):
         # that selects the least-norm solution in case of trouble.
         u, s, vt = np.linalg.svd(a, full_matrices=False)
         rank = (s != 0).sum()
-        u = u[:,:rank]
+        u = u[:, :rank]
         s = s[:rank]
         vt = vt[:rank]
         assert s.min() > 0
@@ -332,7 +333,7 @@ def solve_constrained(a, b, r=None, s=None, eps=1e-10):
     if evals is None:
         return x0
     x_diag = np.zeros(b_diag.shape)
-    for i in xrange(len(x_diag)):
+    for i in range(len(x_diag)):
         if evals[i] != 0:
             x_diag[i] = b_diag[i]/evals[i]
     if x0 is None:
@@ -587,9 +588,9 @@ class QPSolver(object):
             nfree = self._nfree
             assert nfree >= self.nl # more constraints than free params does not make sense
             # Slice the matrices an keep them as attributes for later
-            self._a_free = self.a[free,:][:,free]
+            self._a_free = self.a[free,:][:, free]
             self._b_free = self.b[free]
-            self._r_free = self.r[:,free] if self.nl > 0 else None
+            self._r_free = self.r[:, free] if self.nl > 0 else None
             self._s_free = self.s if self.nl > 0 else None
         return self._a_free, self._b_free, self._r_free, self._s_free
 
@@ -709,7 +710,7 @@ class QPSolver(object):
         '''
         best = None
         free = np.zeros(self.nx, dtype=bool)
-        for counter in xrange(1, 2**self.nx):
+        for counter in range(1, 2**self.nx):
             _counter_to_free(counter, free)
             if free.sum() < self.nl:
                 # skip overdetermined constraints
@@ -785,7 +786,7 @@ class QPSolver(object):
         cost = self.compute_cost(x)
 
         # iterative part
-        for counter in xrange(maxiter):
+        for counter in range(maxiter):
             # check for convergence
             gradient, rmsd_free, rmsd_frozen, rmsd_neg = self.get_rmsds(x)
             if (rmsd_free < self.eps) and (rmsd_frozen < self.eps) and (rmsd_neg < self.eps):
@@ -806,7 +807,7 @@ class QPSolver(object):
             # that is violated, if any. only consider violations in this test
             tmin = 1.0
             imin = None
-            for i in xrange(self.nx):
+            for i in range(self.nx):
                 if free[i] and new_x[i] < 0:
                     t = x[i]/(x[i] - new_x[i])
                     if tmin > t:
@@ -846,24 +847,24 @@ class QPSolver(object):
                 An solution vector (that causes problems).
         '''
         def _print_array(ar):
-            print '    np.array(['
+            print('    np.array([')
             for row in ar:
-                print '        [%s],' % (', '.join(repr(v) for v in row))
-            print '    ]),'
+                print('        [%s],' % (', '.join(repr(v) for v in row)))
+            print('    ]),')
 
         def _print_vector(ve):
-            print '    np.array([%s]),' % (', '.join(repr(v) for v in ve))
+            print('    np.array([%s]),' % (', '.join(repr(v) for v in ve)))
 
-        print '#'*80
-        print 'qps = QPSolver('
+        print('#'*80)
+        print('qps = QPSolver(')
         _print_array(self.a)
         _print_vector(self.b)
         if self.nl > 0:
             _print_array(self.r)
             _print_vector(self.s)
         else:
-            print 'None, None,'
-        print ')'
+            print('None, None,')
+        print(')')
         if x is not None:
-            print 'x = np.array([%s])' % (', '.join(repr(v) for v in x))
-        print '#'*80
+            print('x = np.array([%s])' % (', '.join(repr(v) for v in x)))
+        print('#'*80)

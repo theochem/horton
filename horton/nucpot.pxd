@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
+#cython: language_level=3
 
 cdef extern from "horton/nucpot.h":
     void compute_grid_nucpot(double* coordinates, double* charges, long natom,

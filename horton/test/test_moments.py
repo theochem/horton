@@ -45,7 +45,7 @@ def test_get_ncart_cumul():
 def test_get_cartesian_powers():
     lmax = 4
     cartesian_powers = get_cartesian_powers(lmax)
-    assert issubclass(cartesian_powers.dtype.type, int)
+    assert np.issubdtype(cartesian_powers.dtype, np.int)
     assert cartesian_powers.shape == (get_ncart_cumul(lmax), 3)
     assert (cartesian_powers[0] == [0, 0, 0]).all()
     assert (cartesian_powers[1] == [1, 0, 0]).all()
@@ -57,7 +57,7 @@ def test_get_cartesian_powers():
     assert (cartesian_powers[19] == [0, 0, 3]).all()
     assert (cartesian_powers[-1] == [0, 0, 4]).all()
 
-    for lmax in xrange(4):
+    for lmax in range(4):
         tmp = get_cartesian_powers(lmax)
         assert tmp.shape == (get_ncart_cumul(lmax), 3)
         assert (tmp == cartesian_powers[:len(tmp)]).all()
@@ -69,14 +69,14 @@ def test_rotate_cartesian_moments_pentagon_mult():
         rmat = get_rotation_matrix(axis, np.pi/mult)
         m0 = get_pentagon_moments()
         m1 = get_pentagon_moments()
-        for i in xrange(mult):
+        for i in range(mult):
             m1 = rotate_cartesian_moments_all(rmat, m1)
             m1 = rotate_cartesian_moments_all(rmat, m1)
         assert abs(m0 - m1).max() < 1e-10
 
 
 def test_rotate_cartesian_moments_pentagon_general():
-    for i in xrange(10):
+    for i in range(10):
         rmat = get_random_rotation()
         m0 = get_pentagon_moments()
         m1 = get_pentagon_moments(rmat)
@@ -85,21 +85,21 @@ def test_rotate_cartesian_moments_pentagon_general():
 
 
 def test_rotate_cartesian_moments_random_mult():
-    for i in xrange(10):
+    for i in range(10):
         coordinates = np.random.normal(0, 1, (10, 3))
         for mult in 2, 3, 4, 5:
             axis = np.random.normal(0, 1, 3)
             rmat = get_rotation_matrix(axis, np.pi/mult)
             m0 = get_point_moments(coordinates)
             m1 = get_point_moments(coordinates)
-            for i in xrange(mult):
+            for i in range(mult):
                 m1 = rotate_cartesian_moments_all(rmat, m1)
                 m1 = rotate_cartesian_moments_all(rmat, m1)
             assert abs(m0 - m1).max() < 1e-10
 
 
 def test_rotate_cartesian_moments_random_general():
-    for i in xrange(10):
+    for i in range(10):
         coordinates = np.random.normal(0, 1, (10, 3))
         rmat = get_random_rotation()
         m0 = get_point_moments(coordinates)
@@ -133,10 +133,10 @@ def test_fill_cartesian_polynomials():
     output = np.zeros(get_ncart_cumul(4)-1)
     output[:3] = np.random.normal(0, 1, 3)
     assert fill_cartesian_polynomials(output, 0) == -1
-    for l in xrange(1, 5):
+    for l in range(1, 5):
         assert fill_cartesian_polynomials(output, l) == get_ncart_cumul(l-1)-1
         nrow = get_ncart_cumul(l)-1
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             px, py, pz = cps[irow+1]
             check = output[0]**px * output[1]**py * output[2]**pz
             assert abs(output[irow] - check) < 1e-10
@@ -199,11 +199,11 @@ def test_fill_pure_polynomials():
         x*y*(x**2-y**2)*35**0.5/2,
     ])
     assert fill_pure_polynomials(output, 0) == -1
-    for l in xrange(1, 5):
+    for l in range(1, 5):
         assert fill_pure_polynomials(output, l) == get_npure_cumul(l-1)-1
         nrow = get_npure_cumul(l)-1
         #print l, nrow
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             #print irow, output[irow], expected[irow]
             assert abs(output[irow] - expected[irow]) < 1e-10
         #print
@@ -219,7 +219,7 @@ def test_fill_pure_polynomials_array():
     lmax = 4
     npoint = 10
     work = np.zeros( (npoint, (lmax+1)**2-1) )
-    work[:,:3] = np.random.normal(0, 1, (npoint, 3))
+    work[:, :3] = np.random.normal(0, 1, (npoint, 3))
     fill_pure_polynomials(work, lmax)
     for row in work:
         tmp = row.copy()
@@ -239,24 +239,24 @@ def test_ortho_and_norm_pure():
 
         lmax = 5
         work = np.zeros((nll, (lmax+1)**2-1))
-        work[:,0] = points[:,2]
-        work[:,1] = points[:,0]
-        work[:,2] = points[:,1]
+        work[:, 0] = points[:, 2]
+        work[:, 1] = points[:, 0]
+        work[:, 2] = points[:, 1]
         fill_pure_polynomials(work, lmax)
 
         # see if we reproduce racah's norm with the pure polynomials
         counter = 0
-        for l in xrange(1, lmax+1):
-            for m in xrange(-l, l+1):
-                num_norm = np.dot(weights, work[:,counter]*work[:,counter])
+        for l in range(1, lmax+1):
+            for m in range(-l, l+1):
+                num_norm = np.dot(weights, work[:, counter]*work[:, counter])
                 norm = 4*np.pi/(2*l+1)*radius**(2*l)
                 assert abs(num_norm - norm) < 1e-10
                 counter += 1
 
         # also test orthogonality
-        for counter0 in xrange(counter):
-            for counter1 in xrange(counter0):
-                tmp = np.dot(weights, work[:,counter0]*work[:,counter1])
+        for counter0 in range(counter):
+            for counter1 in range(counter0):
+                tmp = np.dot(weights, work[:, counter0]*work[:, counter1])
                 assert abs(tmp) < 1e-10
 
 

@@ -21,7 +21,7 @@
 # --
 
 
-keep_fields = set([
+keep_fields = {
     "Charge", "Multiplicity", "Number of electrons",
     "Number of alpha electrons", "Number of beta electrons",
     "Number of basis functions", "Number of independent functions",
@@ -39,7 +39,7 @@ keep_fields = set([
     "Mulliken Charges", "Dipole Moment", "Quadrupole Moment",
     "Real atomic weights",
     "Cartesian Gradient", "Cartesian Force Constants",
-])
+}
 
 def strip(fn):
     # a list with all lines that we'd like to keep
@@ -72,7 +72,7 @@ def strip(fn):
     # print stuff back into the same file
     f = file(fn, "w")
     for line in lines:
-        print >> f, line
+        print(line, file=f)
     f.close()
 
 
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     fns_fchk = sys.argv[1:]
     for fn in fns_fchk:
         if fn.endswith(".fchk"):
-            print "Stripping", fn
+            print("Stripping", fn)
             strip(fn)
         else:
-            print "Skipping", fn, "(wrong extension)"
+            print("Skipping", fn, "(wrong extension)")

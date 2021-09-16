@@ -36,10 +36,11 @@ import os
 import sys
 import resource
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from horton.context import context
-import horton
+
+# import horton
 
 
 __all__ = ['log', 'timer', 'biblio']
@@ -139,8 +140,10 @@ class ScreenLog(object):
         level : int
             The desired level of output.
         """
+
         def decorator(fn):
             """Return a wrapped function in which the log level is set to the desired value."""
+
             @wraps(fn)
             def wrapper(*args, **kwargs):
                 """The wrapper."""
@@ -151,7 +154,9 @@ class ScreenLog(object):
                 finally:
                     self.set_level(old_level)
                 return result
+
             return wrapper
+
         return decorator
 
     def __call__(self, *words):
@@ -167,15 +172,15 @@ class ScreenLog(object):
             self.print_header()
 
         # Check for alignment code '&'
-        pos = s.find(u'&')
+        pos = s.find('&')
         if pos == -1:
-            lead = u''
+            lead = ''
             rest = s
         else:
             lead = s[:pos] + ' '
-            rest = s[pos+1:]
+            rest = s[pos + 1:]
         width = self.width - len(lead)
-        if width < self.width/2:
+        if width < self.width / 2:
             raise ValueError('The lead may not exceed half the width of the terminal.')
 
         # Break and print the line
@@ -191,10 +196,10 @@ class ScreenLog(object):
                     rest = rest[pos:].lstrip()
             else:
                 current = rest
-                rest = u''
-            print >> self._file, u'%s%s' % (lead, current)
+                rest = ''
+            print('%s%s' % (lead, current), file=self._file)
             if first:
-                lead = u' '*len(lead)
+                lead = ' ' * len(lead)
                 first = False
 
         self._last_blank = False
@@ -205,7 +210,7 @@ class ScreenLog(object):
         See `__call__` for more details.
         """
         self.blank()
-        text = '!WARNING!&'+' '.join(w for w in words)
+        text = '!WARNING!&' + ' '.join(w for w in words)
         self(text)
         self.blank()
 
@@ -217,7 +222,7 @@ class ScreenLog(object):
         char : str
             The line consists a repetition of this character.
         """
-        self(char*self.width)
+        self(char * self.width)
 
     def center(self, *words, **kwargs):
         """Print centered text, optionally with an edge surrounding the text.
@@ -234,14 +239,14 @@ class ScreenLog(object):
         else:
             raise TypeError('Too many keyword arguments. Should be at most one.')
         s = ' '.join(w for w in words)
-        if len(s) + 2*len(edge) > self.width:
+        if len(s) + 2 * len(edge) > self.width:
             raise ValueError('Line too long. center method does not support wrapping.')
-        self('%s%s%s' % (edge, s.center(self.width-2*len(edge)), edge))
+        self('%s%s%s' % (edge, s.center(self.width - 2 * len(edge)), edge))
 
     def blank(self):
         """Print a blank line."""
         if not self._last_blank:
-            print >> self._file
+            print(file=self._file)
             self._last_blank = True
 
     def deflist(self, l):
@@ -274,16 +279,18 @@ class ScreenLog(object):
 
     def print_header(self):
         """Print the first screen output."""
+
         # Suppress any logging as soon as an exception is not caught.
         def excepthook_wrapper(type, value, traceback):
             """Silence the logger (as soon as an exception is raised)."""
             self.set_level(self.silent)
             sys.__excepthook__(type, value, traceback)
+
         sys.excepthook = excepthook_wrapper
 
         if self.do_warning and not self._active:
             self._active = True
-            print >> self._file, self.head_banner
+            print(self.head_banner, file=self._file)
             self._print_basic_info()
 
     def print_footer(self):
@@ -293,7 +300,7 @@ class ScreenLog(object):
             self._print_basic_info()
             self.timer._stop('Total')
             self.timer.report(self)
-            print >> self._file, self.foot_banner
+            print(self.foot_banner, file=self._file)
 
     def _print_basic_info(self):
         """Print basic runtime info."""
@@ -338,9 +345,9 @@ class ProgressBar(object):
         """Increment the progress bar counter."""
         self.count += inc
         if not self.silent:
-            new_nchar = (self.count*self.width)/self.niter
+            new_nchar = (self.count * self.width) // self.niter
             if new_nchar > self.nchar:
-                self.f.write('>'*(new_nchar - self.nchar))
+                self.f.write('>' * (new_nchar - self.nchar))
                 self.f.flush()
                 self.nchar = new_nchar
             if self.count == self.niter:
@@ -367,7 +374,7 @@ class Timer(object):
         """Mark start of a function."""
         if self._depth == 0:
             assert self._start is None
-            self._start = time.clock()
+            self._start = time.perf_counter()
         self._depth += 1
 
     def stop(self):
@@ -376,7 +383,7 @@ class Timer(object):
             assert self._start is not None
             self._depth -= 1
         if self._depth == 0:
-            self.cpu += time.clock() - self._start
+            self.cpu += time.perf_counter() - self._start
             self._start = None
 
 
@@ -468,14 +475,18 @@ class TimerGroup(object):
                 # Slow code inside...
                 pass
         """
+
         def decorator(fn):
             """Decorator that adds timer to function."""
+
             @wraps(fn)
             def wrapper(*args, **kwargs):
                 """Wrap function with timer."""
                 with self.section(label):
                     return fn(*args, **kwargs)
+
             return wrapper
+
         return decorator
 
     def _start(self, label):
@@ -522,7 +533,7 @@ class TimerGroup(object):
     def get_max_own_cpu(self):
         """Return the CPU time of the slowest part of the code."""
         result = None
-        for part in self.parts.itervalues():
+        for part in self.parts.values():
             if result is None or result < part.own.cpu:
                 result = part.own.cpu
         return result
@@ -536,17 +547,17 @@ class TimerGroup(object):
             A logger to use for writing the screen output.
         """
         max_own_cpu = self.get_max_own_cpu()
-        #if max_own_cpu == 0.0:
+        # if max_own_cpu == 0.0:
         #    return
         log.blank()
         log('Overview of CPU time usage.')
         log.hline()
         log('Label             Total      Own')
         log.hline()
-        bar_width = log.width-33
-        for label, timer in sorted(self.parts.iteritems()):
+        bar_width = log.width - 33
+        for label, timer in sorted(self.parts.items()):
             if max_own_cpu > 0:
-                cpu_bar = "W"*int(timer.own.cpu/max_own_cpu*bar_width)
+                cpu_bar = "W" * int(timer.own.cpu / max_own_cpu * bar_width)
             else:
                 cpu_bar = ""
             log('%14s %8.1f %8.1f %s' % (
@@ -610,7 +621,7 @@ class Reference(object):
         if self.kind == 'article':
             url = self.get_url()
             if len(url) > 0:
-                url = '; `%s <%s>`_' % (url, url[:8] + urllib.quote(url[8:]))
+                url = '; `%s <%s>`_' % (url, url[:8] + urllib.parse.quote(url[8:]))
             return '"%s", %s; *%s* **%s** (v. %s pp. %s)%s' % (
                 self.tags['title'],
                 self.tags['author'].replace(' and', ';'), self.tags['journal'],
@@ -646,8 +657,8 @@ class Biblio(object):
                     continue
                 if line.startswith('@'):
                     assert current is None
-                    kind = line[line.find('@')+1:line.find('{')]
-                    key = line[line.find('{')+1:line.find(',')]
+                    kind = line[line.find('@') + 1:line.find('{')]
+                    key = line[line.find('{') + 1:line.find(',')]
                     current = Reference(kind, key)
                 elif line == '}':
                     assert current is not None
@@ -655,7 +666,7 @@ class Biblio(object):
                     current = None
                 elif current is not None:
                     tag = line[:line.find('=')].strip()
-                    value = line[line.find('=')+1:].strip()
+                    value = line[line.find('=') + 1:].strip()
                     assert value[0] == '{'
                     assert value[-2:] == '},' or value[-1] == '}'
                     if value[-1] == '}':
@@ -682,8 +693,6 @@ class Biblio(object):
         reasons = self._cited.setdefault(key, set([]))
         reasons.add(reason)
 
-
-
     def reset(self):
         """Clear the list of references to be cited."""
         self._cited = {}
@@ -694,7 +703,7 @@ class Biblio(object):
             log('When you use this computation for the preparation of a scientific',
                 'publication, cite the following references:')
             log.hline()
-            for key, reasons in sorted(self._cited.iteritems()):
+            for key, reasons in sorted(self._cited.items()):
                 log(self._records[key].format_text())
                 log.blank()
                 for reason in reasons:
@@ -728,8 +737,7 @@ head_banner = """\
          computation. Useful numerical output may be written to a checkpoint
          file and is accessible through the Python scripting interface.
 
-================================================================================""" % (horton.__version__)
-
+================================================================================""" % ("2.1.0")  # (horton.__version__)
 
 foot_banner = """
 ================================================================================
@@ -737,9 +745,10 @@ foot_banner = """
 / )--( \ End of the HORTON program.
 \|  \ |/
  |_||_|  Thank you for using HORTON %s! See you soon!
-================================================================================""" % (horton.__version__)
+================================================================================""" % ("2.1.0")  # (horton.__version__)
 
 timer = TimerGroup()
 biblio = Biblio(context.get_fn('references.bib'))
-log = ScreenLog('HORTON', horton.__version__, head_banner, foot_banner, timer, biblio)
+# log = ScreenLog('HORTON', horton.__version__, head_banner, foot_banner, timer, biblio)
+log = ScreenLog('HORTON', "2.1.0", head_banner, foot_banner, timer, biblio)
 atexit.register(log.print_footer)

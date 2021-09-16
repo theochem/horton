@@ -64,8 +64,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'HORTON'
-copyright = u'2011-2015, The HORTON Development Team'
+project = 'HORTON'
+copyright = '2011-2015, The HORTON Development Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -203,8 +203,8 @@ htmlhelp_basename = 'HORTONdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'horton.tex', u'HORTON Documentation',
-   u'The HORTON Development Team', 'manual'),
+  ('index', 'horton.tex', 'HORTON Documentation',
+   'The HORTON Development Team', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -236,8 +236,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'horton', u'HORTON Documentation',
-     [u'The HORTON Development Team'], 1)
+    ('index', 'horton', 'HORTON Documentation',
+     ['The HORTON Development Team'], 1)
 ]
 
 # -- Custom HORTON-specific settings -------------------------------------------

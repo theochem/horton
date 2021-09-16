@@ -65,10 +65,10 @@ def just_once(fn):
     def wrapper(instance):
         if not hasattr(instance, '_done_just_once'):
             raise TypeError('Missing hidden _done_just_once. Forgot to call JustOnceClass.__init__()?')
-        if fn.func_name in instance._done_just_once:
+        if fn.__name__ in instance._done_just_once:
             return
         fn(instance)
-        instance._done_just_once.add(fn.func_name)
+        instance._done_just_once.add(fn.__name__)
     wrapper.__doc__ = fn.__doc__
     return wrapper
 
@@ -205,10 +205,10 @@ class Cache(object):
         dealloc = kwargs.pop('dealloc', False)
         tags = kwargs.pop('tags', None)
         if len(kwargs) > 0:
-            raise TypeError('Unexpected arguments: %s' % kwargs.keys())
+            raise TypeError('Unexpected arguments: %s' % list(kwargs.keys()))
         # actual work
         tags = _normalize_tags(tags)
-        for key, item in self._store.items():
+        for key, item in list(self._store.items()):
             if len(tags) == 0 or len(item.tags & tags) > 0:
                 self.clear_item(key, dealloc=dealloc)
 
@@ -223,7 +223,7 @@ class Cache(object):
         key = _normalize_key(key)
         dealloc = kwargs.pop('dealloc', False)
         if len(kwargs) > 0:
-            raise TypeError('Unexpected arguments: %s' % kwargs.keys())
+            raise TypeError('Unexpected arguments: %s' % list(kwargs.keys()))
         item = self._store.get(key)
         if item is None:
             return
@@ -277,7 +277,7 @@ class Cache(object):
         if tags is not None and alloc is None:
             raise TypeError('The tags argument is only allowed when the alloc argument is present.')
         if len(kwargs) > 0:
-            raise TypeError('Unknown optional arguments: %s' % kwargs.keys())
+            raise TypeError('Unknown optional arguments: %s' % list(kwargs.keys()))
 
         # get the item from the store and decide what to do
         item = self._store.get(key)
@@ -344,7 +344,7 @@ class Cache(object):
         '''
         tags = kwargs.pop('tags', None)
         if len(kwargs) > 0:
-            raise TypeError('Unknown optional arguments: %s' % kwargs.keys())
+            raise TypeError('Unknown optional arguments: %s' % list(kwargs.keys()))
         if len(args) < 2:
             raise TypeError('At least two arguments are required: key1 and value.')
         key = _normalize_key(args[:-1])
@@ -353,7 +353,7 @@ class Cache(object):
         self._store[key] = item
 
     def __len__(self):
-        return sum(item.valid for item in self._store.itervalues())
+        return sum(item.valid for item in self._store.values())
 
     def __getitem__(self, key):
         return self.load(key)
@@ -362,25 +362,25 @@ class Cache(object):
         return self.dump(key, value)
 
     def __iter__(self):
-        return self.iterkeys()
+        return iter(self.keys())
 
-    def iterkeys(self, tags=None):
+    def keys(self, tags=None):
         '''Iterate over the keys of all valid items in the cache.'''
         tags = _normalize_tags(tags)
-        for key, item in self._store.iteritems():
+        for key, item in self._store.items():
             if item.valid and (len(tags) == 0 or len(item.tags & tags) > 0):
                 yield key
 
-    def itervalues(self, tags=None):
+    def values(self, tags=None):
         '''Iterate over the values of all valid items in the cache.'''
         tags = _normalize_tags(tags)
-        for item in self._store.itervalues():
+        for item in self._store.values():
             if item.valid and (len(tags) == 0 or len(item.tags & tags) > 0):
                 yield item.value
 
-    def iteritems(self, tags=None):
+    def items(self, tags=None):
         '''Iterate over all valid items in the cache.'''
         tags = _normalize_tags(tags)
-        for key, item in self._store.iteritems():
+        for key, item in self._store.items():
             if item.valid and (len(tags) == 0 or len(item.tags & tags) > 0):
                 yield key, item.value

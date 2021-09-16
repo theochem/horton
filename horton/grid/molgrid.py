@@ -102,7 +102,7 @@ class BeckeMolGrid(IntGrid):
         self._mode = mode
 
         # allocate memory for the grid
-        size = sum(agspec.get_size(self.numbers[i], self.pseudo_numbers[i]) for i in xrange(natom))
+        size = sum(agspec.get_size(self.numbers[i], self.pseudo_numbers[i]) for i in range(natom))
         points = np.zeros((size, 3), float)
         weights = np.zeros(size, float)
         self._becke_weights = np.ones(size, float)
@@ -124,7 +124,7 @@ class BeckeMolGrid(IntGrid):
         if log.do_medium:
             log('Preparing Becke-Lebedev molecular integration grid.')
         pb = log.progress(natom)
-        for i in xrange(natom):
+        for i in range(natom):
             atsize = agspec.get_size(self.numbers[i], self.pseudo_numbers[i])
             atgrid = AtomicGrid(
                 self.numbers[i], self.pseudo_numbers[i],

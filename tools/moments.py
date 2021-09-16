@@ -29,9 +29,9 @@ def write_cart_poly_code(f):
     cps = get_cartesian_powers(7)
     cps = [tuple(row) for row in cps[1:]] # chop of the s function
 
-    print >>f, "    // Shell l=0"
-    print >>f, "    if (lmax <= 0) return -1;"
-    print >>f
+    print("    // Shell l=0", file=f)
+    print("    if (lmax <= 0) return -1;", file=f)
+    print(file=f)
 
 
     last_shell = 0
@@ -40,7 +40,7 @@ def write_cart_poly_code(f):
     for px, py, pz in cps:
         shell = px+py+pz
         if shell > last_shell:
-            print >>f, "    // Shell l=%i" % shell
+            print("    // Shell l=%i" % shell, file=f)
             begin = end
             last_shell = shell
 
@@ -59,14 +59,14 @@ def write_cart_poly_code(f):
             else:
                 symbols = ["output[0]"]*px + ["output[1]"]*py + ["output[2]"]*pz
                 formula = "*".join(symbols)
-            print >>f, "    output[%i] = %s;" % (end, formula)
+            print("    output[%i] = %s;" % (end, formula), file=f)
         end += 1
 
         if end >= begin+get_ncart(shell):
-            print >>f, "    if (lmax <= %i) return %i;" % (shell, begin)
-            print >>f
+            print("    if (lmax <= %i) return %i;" % (shell, begin), file=f)
+            print(file=f)
 
-    print >> f, '    throw std::domain_error("Encountered lmax > 7.");'
+    print('    throw std::domain_error("Encountered lmax > 7.");', file=f)
 
 
 def write_cart_rotation_code(f):
@@ -74,14 +74,14 @@ def write_cart_rotation_code(f):
     from sympy import Symbol, Wild, Add, Mul, Integer
 
 
-    R = [Symbol('R_%d' % i) for i in xrange(9)]
+    R = [Symbol('R_%d' % i) for i in range(9)]
     x = Symbol('x')
     y = Symbol('y')
     z = Symbol('z')
 
     lmax = 4
     cartesian_powers = [tuple(row) for row in get_cartesian_powers(lmax)]
-    print cartesian_powers
+    print(cartesian_powers)
     ncart = len(cartesian_powers)
 
 
@@ -97,10 +97,10 @@ def write_cart_rotation_code(f):
             return int(d[p])
 
     icart = 0
-    for ishell in xrange(lmax+1):
+    for ishell in range(lmax+1):
         shell_rules = []
         transforms.append(shell_rules)
-        for ifn in xrange(((ishell+1)*(ishell+2))/2):
+        for ifn in range(((ishell+1)*(ishell+2))/2):
             px0, py0, pz0 = cartesian_powers[icart]
             rules = []
             shell_rules.append(rules)
@@ -109,7 +109,7 @@ def write_cart_rotation_code(f):
                 *(R[3]*x + R[4]*y + R[5]*z)**py0
                 *(R[6]*x + R[7]*y + R[8]*z)**pz0
             ).expand()
-            print poly
+            print(poly)
 
             if isinstance(poly, Add):
                 terms = poly.args
@@ -120,7 +120,7 @@ def write_cart_rotation_code(f):
                 px1 = get_power(term, x)
                 py1 = get_power(term, y)
                 pz1 = get_power(term, z)
-                prs = [get_power(term, R[i]) for i in xrange(9)]
+                prs = [get_power(term, R[i]) for i in range(9)]
                 col = cartesian_powers.index((px1, py1, pz1)) - cartesian_powers.index((px1+py1+pz1, 0, 0))
                 assert col >= 0
                 coeff = 1
@@ -137,8 +137,8 @@ def write_cart_rotation_code(f):
     def format_rule(rule):
         l = [rule[0], rule[1]]
         prs = rule[2]
-        for j in xrange(9):
-            for p in xrange(prs[j]):
+        for j in range(9):
+            for p in range(prs[j]):
                 l.append(j)
             #if prs[j] > 0:
             #    l.append(j)
@@ -146,20 +146,20 @@ def write_cart_rotation_code(f):
         return '[%s]' % (', '.join('%2i' % i for i in l))
 
 
-    print >> f, 'cartesian_transforms = ['
+    print('cartesian_transforms = [', file=f)
     for shell_rules in transforms:
-        print >> f, '  ['
+        print('  [', file=f)
         for rules in shell_rules:
             if len(rules) == 1:
-                print >> f, '    [%s],' % format_rule(rules[0])
+                print('    [%s],' % format_rule(rules[0]), file=f)
             else:
                 rules = sorted(rules)
-                print >> f, '    [%s,' % format_rule(rules[0])
+                print('    [%s,' % format_rule(rules[0]), file=f)
                 for rule in rules[1:-1]:
-                    print >> f, '     %s,' % format_rule(rule)
-                print >> f, '     %s],' % format_rule(rules[-1])
-        print >> f, '  ],'
-    print >> f, ']'
+                    print('     %s,' % format_rule(rule), file=f)
+                print('     %s],' % format_rule(rules[-1]), file=f)
+        print('  ],', file=f)
+    print(']', file=f)
 
 
 if __name__ == "__main__":

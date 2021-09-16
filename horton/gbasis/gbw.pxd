@@ -18,8 +18,10 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>
 #
 # --
-cimport gbasis
-cimport ints
+#cython: language_level=3
+
+cimport horton.gbasis.gbasis as gbasis
+cimport horton.gbasis.ints as ints
 
 cdef extern from "horton/gbasis/gbw.h":
     cdef cppclass GB4IntegralWrapper:

@@ -67,7 +67,7 @@ def parse_wnear(args):
     if args is None:
         return
     result = {}
-    if isinstance(args, basestring):
+    if isinstance(args, str):
         args = [args]
     for arg in args:
         words = arg.split(':')
@@ -136,7 +136,7 @@ def load_rho(coordinates, numbers, fn_cube, ref_ugrid, stride, chop):
         proatomdb = ProAtomDB.from_refatoms(numbers, max_cation=0, max_anion=0, agspec='fine')
         # Construct the pro-density
         rho = np.zeros(ref_ugrid.shape)
-        for i in xrange(natom):
+        for i in range(natom):
             spline = proatomdb.get_spline(numbers[i])
             ref_ugrid.eval_spline(spline, coordinates[i], rho)
     else:
@@ -184,9 +184,9 @@ def max_at_edge(weights, pbc):
         result = max(result, weights[0,:,:].max())
         result = max(result, weights[-1,:,:].max())
     if pbc[1] == 0:
-        result = max(result, weights[:,0,:].max())
-        result = max(result, weights[:,-1,:].max())
+        result = max(result, weights[:, 0,:].max())
+        result = max(result, weights[:, -1,:].max())
     if pbc[2] == 0:
-        result = max(result, weights[:,:,0].max())
-        result = max(result, weights[:,:,-1].max())
+        result = max(result, weights[:,:, 0].max())
+        result = max(result, weights[:,:, -1].max())
     return result

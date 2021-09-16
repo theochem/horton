@@ -24,8 +24,8 @@ def main(fns_fchk):
         A list of paths to formatted checkpoint files to be reproduced.
     """
     np.set_printoptions(suppress=True, linewidth=100)
-    print '                            Case             HORTON                G09        H-G  H converged'
-    print '----------------------------------------------------------------------------------------------'
+    print('                            Case             HORTON                G09        H-G  H converged')
+    print('----------------------------------------------------------------------------------------------')
     for fn_fchk in fns_fchk:
         # Get stuff from g09.
         mol = IOData.from_file(fn_fchk)
@@ -85,8 +85,8 @@ def main(fns_fchk):
             prefix = 'r'
         else:
             prefix = 'u'
-        print '%s %30s  % 15.10e  % 15.10e  %+9.4f  %s' % (
-            prefix, fn_fchk, horton_energy, g09_energy, error, niter)
+        print('%s %30s  % 15.10e  % 15.10e  %+9.4f  %s' % (
+            prefix, fn_fchk, horton_energy, g09_energy, error, niter))
 
         if debug:
             check_cubic_wrapper(ham, dms_g09, dms, do_plot=True)

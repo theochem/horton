@@ -138,7 +138,7 @@ def check_interpol_hf(ham, orbs, olp, kin, na, occ_model):
     npt = len(alphas)
     energies_approx = np.zeros(npt)
     energies_hf = np.zeros(npt)
-    for ipt in xrange(npt):
+    for ipt in range(npt):
         x[0] = 1-alphas[ipt]
         x[1] = alphas[ipt]
         energies_approx[ipt] = np.dot(x, 0.5*np.dot(b, x)-e)

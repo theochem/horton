@@ -24,8 +24,8 @@
    This module uses sympy for the symbolic manipulations.
 """
 
-
 from sympy import sqrt, Symbol, pi, S, Add, cos, sin, Wild
+
 try:
     from sympy.mpmath import fac, fac2, binomial
 except ImportError:
@@ -35,36 +35,36 @@ import numpy as np
 
 
 def get_cart_dof(l):
-    return ((l+1)*(l+2))/2
+    return ((l + 1) * (l + 2)) // 2
 
 
 def get_pure_dof(l):
-    return 2*l+1
+    return 2 * l + 1
 
 
 def get_cart_orb_norm(alpha, nx, ny, nz):
     """Returns the norm of a Cartesian gaussian funcion"""
     return sqrt(
-        int(fac2(2*nx-1)*fac2(2*ny-1)*fac2(2*nz-1))
-        /(2*alpha/pi)**(3/S(2))
-        /(4*alpha)**(nx+ny+nz)
+        int(fac2(2 * nx - 1) * fac2(2 * ny - 1) * fac2(2 * nz - 1))
+        / (2 * alpha / pi) ** (3 / S(2))
+        / (4 * alpha) ** (nx + ny + nz)
     )
 
 
 def get_pure_orb_norm(alpha, l):
     """Returns the norm of a pure gaussian funcion"""
     return sqrt(
-        int(fac2(2*l-1))
-        /(2*alpha/pi)**(3/S(2))
-        /(4*alpha)**l
+        int(fac2(2 * l - 1))
+        / (2 * alpha / pi) ** (3 / S(2))
+        / (4 * alpha) ** l
     )
 
 
 def iter_cartesian_powers(order):
     """Iterate over Cartesian powers in `alphabetical` order"""
-    for nx in xrange(order,-1,-1):
-        for ny in xrange(order-nx,-1,-1):
-            yield nx, ny, order-nx-ny
+    for nx in range(order, -1, -1):
+        for ny in range(order - nx, -1, -1):
+            yield nx, ny, order - nx - ny
 
 
 def get_cart_orb_polys(shell, alpha, xyz):
@@ -85,7 +85,7 @@ def get_cart_orb_polys(shell, alpha, xyz):
     x, y, z = xyz
     result = []
     for nx, ny, nz in iter_cartesian_powers(shell):
-        result.append(x**nx*y**n*z**nz/get_cart_orb_norm(alpha, nx, ny, nz))
+        result.append(x ** nx * y ** n * z ** nz / get_cart_orb_norm(alpha, nx, ny, nz))
     return result
 
 
@@ -106,43 +106,44 @@ def get_pure_orb_polys(shell, alpha, xyz):
     """
     norm = get_pure_orb_norm(alpha, shell)
     x, y, z = xyz
-    polys = get_solid_harmonics(shell, sqrt(x*x+y*y+z*z), x, y, z)
+    polys = get_solid_harmonics(shell, sqrt(x * x + y * y + z * z), x, y, z)
     result = []
     for poly in polys:
-        result.append((poly/norm).expand())
+        result.append((poly / norm).expand())
     return result
 
 
 def get_solid_harmonics(l, r, x, y, z):
     def get_pi(l, m):
         terms = []
-        for k in xrange((l-m)/2+1):
-            factor = (-1)**k*int(binomial(l,k)*binomial(2*l-2*k,l)*fac(l-2*k))/S(2**l*int(fac(l-2*k-m)))
-            terms.append(factor*r**(2*k)*z**(l-2*k-m))
+        for k in range((l - m) // 2 + 1):
+            factor = (-1) ** k * int(binomial(l, k) * binomial(2 * l - 2 * k, l) * fac(l - 2 * k)) / S(
+                2 ** l * int(fac(l - 2 * k - m)))
+            terms.append(factor * r ** (2 * k) * z ** (l - 2 * k - m))
         return Add(*terms)
 
     def get_a(m):
         terms = []
-        for p in xrange(m+1):
-            factor = int(binomial(m, p))*cos((m-p)*pi/S(2))
-            terms.append(factor*x**p*y**(m-p))
+        for p in range(m + 1):
+            factor = int(binomial(m, p)) * cos((m - p) * pi / S(2))
+            terms.append(factor * x ** p * y ** (m - p))
         return Add(*terms)
 
     def get_b(m):
         terms = []
-        for p in xrange(m+1):
-            factor = int(binomial(m, p))*sin((m-p)*pi/S(2))
-            terms.append(factor*x**p*y**(m-p))
+        for p in range(m + 1):
+            factor = int(binomial(m, p)) * sin((m - p) * pi / S(2))
+            terms.append(factor * x ** p * y ** (m - p))
         return Add(*terms)
 
     result = []
-    for m in xrange(l+1):
+    for m in range(l + 1):
         if m == 0:
-            result.append(get_pi(l, m)*get_a(m))
+            result.append(get_pi(l, m) * get_a(m))
         else:
-            factor = sqrt(2*int(fac(l-m))/S(int(fac(l+m))))
-            result.append(factor*get_pi(l, m)*get_a(m))
-            result.append(factor*get_pi(l, m)*get_b(m))
+            factor = sqrt(2 * int(fac(l - m)) / S(int(fac(l + m))))
+            result.append(factor * get_pi(l, m) * get_a(m))
+            result.append(factor * get_pi(l, m) * get_b(m))
 
     return result
 
@@ -153,12 +154,12 @@ def get_poly_conversion(shell):
     x = Symbol("x")
     y = Symbol("y")
     z = Symbol("z")
-    xyz = (x,y,z)
+    xyz = (x, y, z)
 
     def get_power(term, base):
         p = Wild("p")
         c = Wild("c")
-        d = term.match(c*base**p)
+        d = term.match(c * base ** p)
         if d is None:
             return 0
         else:
@@ -180,21 +181,21 @@ def get_poly_conversion(shell):
             py = get_power(term, y)
             pz = get_power(term, z)
             key = (px, py, pz)
-            value = term.subs({x:1,y:1,z:1})
+            value = term.subs({x: 1, y: 1, z: 1})
             coeffs[key] = value
         for i_in, key in enumerate(iter_cartesian_powers(shell)):
             cart_wfn_norm = get_cart_orb_norm(alpha, key[0], key[1], key[2])
-            lcs[i_out,i_in] = coeffs.get(key, 0)*cart_wfn_norm
+            lcs[i_out, i_in] = coeffs.get(key, 0) * cart_wfn_norm
     return lcs
 
 
 def iter_labels(l):
     m = 0
-    yield 'C_%i^%i' % (l,m)
-    for counter in xrange(l):
+    yield 'C_%i^%i' % (l, m)
+    for counter in range(l):
         m += 1
-        yield 'C_%i^%i' % (l,m)
-        yield 'S_%i^%i' % (l,m)
+        yield 'C_%i^%i' % (l, m)
+        yield 'S_%i^%i' % (l, m)
 
 
 def run_print_solid_harmonics():
@@ -204,13 +205,13 @@ def run_print_solid_harmonics():
     z = Symbol("z")
     xyz = (x, y, z)
 
-    print
-    print '.. math::'
-    for shell in xrange(5):
+    print()
+    print('.. math::')
+    for shell in range(5):
         il = iter_labels(shell)
         for poly in get_solid_harmonics(shell, r, x, y, z):
-            label = il.next()
-            print '    %s(x,y,z) & = %s \\\\' % (label, latex(poly))#.replace('$',''))
+            label = next(il)
+            print('    %s(x,y,z) & = %s \\\\' % (label, latex(poly)))  # .replace('$',''))
 
 
 def run_print_transformations_latex():
@@ -219,28 +220,28 @@ def run_print_transformations_latex():
     z = Symbol("z")
     xyz = (x, y, z)
 
-    print
-    print '.. math::'
-    for shell in xrange(5):
+    print()
+    print('.. math::')
+    for shell in range(5):
         lcs = get_poly_conversion(shell)
         npure, ncart = lcs.shape
-        print '   ', r'\left(\begin{array}{c}'
-        print '   ', r' \\ '.join(['X(%s)' % label for label in iter_labels(shell)])
-        print '   ', r'\end{array}\right)'
-        print '    &='
-        print '   ', r'\left(\begin{array}{%s}' % ('c'*ncart)
-        for ipure in xrange(npure):
-            print '   ', r' & '.join([latex(lcs[ipure, icart]) for icart in xrange(ncart)]), r'\\'
-        print '   ', r'\end{array}\right)'
-        print '   ', r'\left(\begin{array}{c}'
+        print('   ', r'\left(\begin{array}{c}')
+        print('   ', r' \\ '.join(['X(%s)' % label for label in iter_labels(shell)]))
+        print('   ', r'\end{array}\right)')
+        print('    &=')
+        print('   ', r'\left(\begin{array}{%s}' % ('c' * ncart))
+        for ipure in range(npure):
+            print('   ', r' & '.join([latex(lcs[ipure, icart]) for icart in range(ncart)]), r'\\')
+        print('   ', r'\end{array}\right)')
+        print('   ', r'\left(\begin{array}{c}')
         els = []
         for nx, ny, nz in iter_cartesian_powers(shell):
-            spoly = 'x'*nx+'y'*ny+'z'*nz
+            spoly = 'x' * nx + 'y' * ny + 'z' * nz
             if spoly == '': spoly = '1'
             els.append('X(%s)' % spoly)
-        print '   ', r' \\ '.join(els)
-        print '   ', r'\end{array}\right)'
-        print r'    \\'
+        print('   ', r' \\ '.join(els))
+        print('   ', r'\end{array}\right)')
+        print(r'    \\')
 
 
 def strip_zero(s):
@@ -258,24 +259,24 @@ def run_print_transformations_c():
     nshell = 10
     sizes = []
 
-    print
-    for shell in xrange(nshell):
-        print 'const static type_sparse_el cptf%i[] = {' % shell
+    print()
+    for shell in range(nshell):
+        print('const static type_sparse_el cptf%i[] = {' % shell)
         lcs = get_poly_conversion(shell)
         npure, ncart = lcs.shape
         size = 0
-        for ipure in xrange(npure):
-            for icart in xrange(ncart):
-                val = lcs[ipure,icart].evalf(20)
+        for ipure in range(npure):
+            for icart in range(ncart):
+                val = lcs[ipure, icart].evalf(20)
                 if val != 0:
                     val = strip_zero(str(val))
-                    print '    {%2i, %2i, %s},' % (ipure, icart, val)
-                    size +=1
-        print '};'
+                    print('    {%2i, %2i, %s},' % (ipure, icart, val))
+                    size += 1
+        print('};')
         sizes.append(size)
-    print 'const static type_sparse_tf cptf[MAX_CON_TYPE+1] = {'
-    print '    %s' % (', '.join('{%i, cptf%i}' % (sizes[shell], shell) for shell in xrange(nshell)))
-    print '};'
+    print('const static type_sparse_tf cptf[MAX_CON_TYPE+1] = {')
+    print('    %s' % (', '.join('{%i, cptf%i}' % (sizes[shell], shell) for shell in range(nshell))))
+    print('};')
 
 
 def run_print_transformations_python():
@@ -286,24 +287,24 @@ def run_print_transformations_python():
 
     nshell = 5
 
-    print
-    for shell in xrange(nshell):
-        print 'tf = np.array(['
+    print()
+    for shell in range(nshell):
+        print('tf = np.array([')
         lcs = get_poly_conversion(shell)
         npure, ncart = lcs.shape
         size = 0
-        for ipure in xrange(npure):
+        for ipure in range(npure):
             vals = []
-            for icart in xrange(ncart):
-                val = lcs[ipure,icart].evalf(20)
+            for icart in range(ncart):
+                val = lcs[ipure, icart].evalf(20)
                 val = strip_zero(str(val))
                 vals.append(val)
-            print '    [%s],' % (', '.join(vals))
-        print '])'
+            print('    [%s],' % (', '.join(vals)))
+        print('])')
 
 
 if __name__ == "__main__":
-    #run_print_solid_harmonics()
-    #run_print_transformations_latex()
-    #run_print_transformations_c()
+    # run_print_solid_harmonics()
+    # run_print_transformations_latex()
+    # run_print_transformations_c()
     run_print_transformations_python()

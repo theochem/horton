@@ -13,7 +13,7 @@ radius = spacing/(2*np.sin(np.pi/natom))
 # Define the coordinates and elements.
 coordinates = np.zeros((natom, 3))
 numbers = np.ones(natom, dtype=int)  # must be integers
-for iatom in xrange(natom):
+for iatom in range(natom):
     angle = (2*np.pi/natom)*iatom
     coordinates[iatom, 0] = radius*np.cos(angle)
     coordinates[iatom, 1] = radius*np.sin(angle)

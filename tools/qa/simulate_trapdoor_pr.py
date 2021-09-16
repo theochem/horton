@@ -59,7 +59,7 @@ class Log(object):
     def __call__(self, message, indent=4):
         """Print a message on screen."""
         if self.verbose:
-            print '/%s/ %s%s' % (self._name, ' ' * indent, message)
+            print('/%s/ %s%s' % (self._name, ' ' * indent, message))
 
     def set_level(self, verbose):
         """Set the verbosity of the logger object.
@@ -122,10 +122,10 @@ def main():
                 repo, script, qaworkdir, args.skip_ancestor, args.rebuild,
                 args.trapdoor_args, args.ancestor)
         if retcode != 0:
-            print >> sys.stderr, '\033[91m' + "ERROR in tests. Please inspect log carefully" \
-                + '\033[0m'
+            print('\033[91m' + "ERROR in tests. Please inspect log carefully" \
+                + '\033[0m', file=sys.stderr)
         else:
-            print '\033[92m' + "OK. All tests passed" + '\033[0m'
+            print('\033[92m' + "OK. All tests passed" + '\033[0m')
     finally:
         roll_back(repo, orig_head_name, merge_head_name)
 
@@ -240,7 +240,7 @@ def make_temporary_merge(repo, merge_head_name):
     repo.index.merge_tree(repo.heads.master, base=merge_base)
     log('Check if merge went well.')
     unmerged_blobs = repo.index.unmerged_blobs()
-    for _path, list_of_blobs in unmerged_blobs.iteritems():
+    for _path, list_of_blobs in unmerged_blobs.items():
         for (stage, _blob) in list_of_blobs:
             # Now we can check each stage to see whether there were any conflicts
             if stage != 0:

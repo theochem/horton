@@ -20,7 +20,6 @@
 # --
 '''Pro-atom databases'''
 
-
 import os
 import h5py as h5, numpy as np
 
@@ -31,7 +30,6 @@ from horton.grid.radial import RadialGrid
 from horton.io.lockedh5 import LockedH5File
 from horton.log import log, timer
 from horton.io.iodata import IOData
-
 
 __all__ = ['ProAtomRecord', 'ProAtomDB']
 
@@ -109,7 +107,7 @@ class ProAtomRecord(object):
         # Derive the number of electrions and the charge
         overlap = obasis.compute_overlap()
         nel = np.einsum('ab,ba', overlap, dm_full)
-        assert abs(nel - int(np.round(nel))) < 1e-4 # only integer nel are supported
+        assert abs(nel - int(np.round(nel))) < 1e-4  # only integer nel are supported
         nel = int(np.round(nel))
         charge = pseudo_number - nel
 
@@ -239,7 +237,7 @@ class ProAtomRecord(object):
         '''
         if other.number == self._number:
             if other.population < self.population and \
-               other.energy < self.energy:
+                    other.energy < self.energy:
                 self._safe = False
             if other.population == self.population - 1:
                 self._ipot_energy = other.energy - self.energy
@@ -255,24 +253,24 @@ class ProAtomRecord(object):
         '''
         # compute the running integral of the density (popint)
         radii = self.rgrid.radii
-        tmp = (4*np.pi) * radii**2 * self.rho * self.rgrid.rtransform.get_deriv()
+        tmp = (4 * np.pi) * radii ** 2 * self.rho * self.rgrid.rtransform.get_deriv()
         popint = tmp.cumsum()
         # find the radii
         indexes = popint.searchsorted(populations)
         result = []
-        for i in xrange(len(populations)):
+        for i in range(len(populations)):
             index = indexes[i]
             if index == len(popint):
                 result.append(radii[-1])
             else:
                 # linear interpolation
-                x = (populations[i] - popint[index])/(popint[index-1] - popint[index])
-                result.append(x*radii[index-1]+(1-x)*radii[index])
+                x = (populations[i] - popint[index]) / (popint[index - 1] - popint[index])
+                result.append(x * radii[index - 1] + (1 - x) * radii[index])
         return indexes, result
 
     def get_moment(self, order):
         '''Return the integral of rho*r**order'''
-        return self.rgrid.integrate(self.rho, self.rgrid.radii**order)
+        return self.rgrid.integrate(self.rho, self.rgrid.radii ** order)
 
     def chop(self, npoint):
         '''Reduce the proatom to the given number of radial grid points.'''
@@ -286,7 +284,8 @@ class ProAtomRecord(object):
                 self.charge == other.charge and
                 self.energy == other.energy and
                 (self.rho == other.rho).all() and
-                ((self.deriv is None and other.deriv is None) or (self.deriv is not None and other.deriv is not None and self.deriv == other.deriv).all()) and
+                ((self.deriv is None and other.deriv is None) or (
+                        self.deriv is not None and other.deriv is not None and self.deriv == other.deriv).all()) and
                 self.rgrid == other.rgrid and
                 self.pseudo_number == other.pseudo_number and
                 self.ipot_energy == other.ipot_energy)
@@ -314,9 +313,9 @@ class ProAtomDB(object):
         for r in records:
             l = _map.setdefault((r.number, r.charge), [])
             l.append(r)
-        for key, l in _map.iteritems():
+        for key, l in _map.items():
             l.sort(key=(lambda r: r.energy))
-        records = [l[0] for l in _map.itervalues()]
+        records = [l[0] for l in _map.values()]
 
         # Store attribtues
         self._records = records
@@ -349,8 +348,8 @@ class ProAtomDB(object):
         if log.do_medium:
             log('Initialized: %s' % self)
             log.deflist([
-                ('Numbers', self._rgrid_map.keys()),
-                ('Records', self._map.keys()),
+                ('Numbers', list(self._rgrid_map.keys())),
+                ('Records', list(self._map.keys())),
             ])
             log.blank()
 
@@ -359,8 +358,7 @@ class ProAtomDB(object):
 
     def get_numbers(self):
         '''Return the element numbers present in the database'''
-        result = self._rgrid_map.keys()
-        result.sort()
+        result = sorted(list(self._rgrid_map.keys()))
         return result
 
     def get_charges(self, number, safe=False):
@@ -463,7 +461,7 @@ class ProAtomDB(object):
         '''
         if isinstance(filename, h5.Group):
             records = load_proatom_records_h5_group(filename)
-        elif isinstance(filename, basestring):
+        elif isinstance(filename, str):
             if filename.endswith('.h5'):
                 records = load_proatom_records_h5_file(filename)
             elif filename.endswith('.atdens'):
@@ -486,7 +484,7 @@ class ProAtomDB(object):
                 h5.Group object.
         '''
         # parse the argument
-        if isinstance(filename, basestring):
+        if isinstance(filename, str):
             f = LockedH5File(filename, 'w')
             do_close = True
         elif isinstance(filename, h5.Group):
@@ -556,26 +554,26 @@ class ProAtomDB(object):
             else:
                 deriv = None
             if combine == 'linear':
-                for charge, coeff in parameters.iteritems():
+                for charge, coeff in parameters.items():
                     if coeff != 0.0:
                         record = self.get_record(number, charge)
-                        rho += coeff*record.rho
+                        rho += coeff * record.rho
                         if do_deriv and record.deriv is not None and deriv is not None:
-                            deriv += coeff*record.deriv
+                            deriv += coeff * record.deriv
                         else:
                             deriv = None
             elif combine == 'geometric':
-                for charge, coeff in parameters.iteritems():
+                for charge, coeff in parameters.items():
                     if coeff != 0.0:
                         record = self.get_record(number, charge)
-                        rho += coeff*np.log(record.rho)
+                        rho += coeff * np.log(record.rho)
                         if do_deriv and record.deriv is not None and deriv is not None:
-                            deriv += coeff*record.deriv/record.rho
+                            deriv += coeff * record.deriv / record.rho
                         else:
                             deriv = None
                 rho = np.exp(rho)
                 if do_deriv and deriv is not None:
-                    deriv = rho*deriv
+                    deriv = rho * deriv
             else:
                 raise ValueError('Combine argument "%s" not supported.' % combine)
             if not isinstance(rho, np.ndarray):
@@ -619,8 +617,8 @@ class ProAtomDB(object):
             npoint = 0
             for charge in self.get_charges(number, safe=True):
                 r = self.get_record(number, charge)
-                nel = r.pseudo_number-charge
-                npoint = max(npoint, r.compute_radii([nel-nel_lost])[0][0]+1)
+                nel = r.pseudo_number - charge
+                npoint = max(npoint, r.compute_radii([nel - nel_lost])[0][0] + 1)
             for charge in self.get_charges(number):
                 r = self.get_record(number, charge)
                 r.chop(npoint)
@@ -645,7 +643,7 @@ class ProAtomDB(object):
                 r = self.get_record(number, charge)
                 nel_before = rgrid.integrate(r.rho)
                 nel_integer = r.pseudo_number - charge
-                r.rho[:] *= nel_integer/nel_before
+                r.rho[:] *= nel_integer / nel_before
                 nel_after = rgrid.integrate(r.rho)
                 if log.do_medium:
                     log('%4i     %+3i    %15.8e   %15.8e' % (
@@ -656,7 +654,7 @@ class ProAtomDB(object):
 def load_proatom_records_h5_group(f):
     '''Load proatom records from the given HDF5 group'''
     records = []
-    for grp in f.itervalues():
+    for grp in f.values():
         assert isinstance(grp, h5.Group)
         if 'deriv' in grp:
             deriv = grp['deriv'][:]
@@ -683,10 +681,11 @@ def load_proatom_records_h5_file(filename):
 
 def load_proatom_records_atdens(filename):
     '''Load proatom records from the given atdens file file'''
+
     def read_numbers(f, npoint):
         numbers = []
         while len(numbers) < npoint:
-            words = f.next().replace('D', 'E').split()
+            words = next(f).replace('D', 'E').split()
             for word in words:
                 numbers.append(float(word))
         return np.array(numbers)
@@ -695,19 +694,19 @@ def load_proatom_records_atdens(filename):
     records = []
     with open(filename) as f:
         # load the radii
-        words = f.next().split()
+        words = next(f).split()
         assert words[0] == 'RADII'
         npoint = int(words[1])
         radii = read_numbers(f, npoint)
         # Construct a radial grid
         r1 = radii[1]
         r2 = radii[-1]
-        rtf = ExpRTransform(r1, r2, npoint-1)
+        rtf = ExpRTransform(r1, r2, npoint - 1)
         rgrid = RadialGrid(rtf)
         # load the proatoms
         while True:
             try:
-                words = f.next().split()
+                words = next(f).split()
                 number = int(words[0])
                 population = int(words[1])
                 charge = number - population
