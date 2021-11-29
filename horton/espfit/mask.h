@@ -20,8 +20,8 @@
 
 // UPDATELIBDOCTITLE: Computation of weights for ESP cost functions
 
-#ifndef HORTON_ESPFIT_MASK
-#define HORTON_ESPFIT_MASK
+#ifndef ESPFIT_MASK
+#define ESPFIT_MASK
 
 #include "horton/cell.h"
 #include "horton/grid/uniform.h"
