@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # HORTON: Helpful Open-source Research TOol for N-fermion systems.
-# Copyright (C) 2011-2017 The HORTON Development Team
+# Copyright (C) 2011-2022 The HORTON Development Team
 #
 # This file is part of HORTON.
 #
@@ -34,7 +34,7 @@ def transform_git_date(s):
 def get_releaseinfo():
     """Retrieve release info from git and also write releaseinfo.json."""
     # Default values in case the git commands don't work
-    version = '2.1.0'
+    version = '2.3.0'
     describe = '%s-nogit' % version
     release_date = '??? ??, ????'
     doc_release_date = release_date

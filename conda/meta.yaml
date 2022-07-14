@@ -28,6 +28,7 @@ requirements:
     - matplotlib
     - libxc
     - libint
+    - pip
   run:
     - python
     - numpy

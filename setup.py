@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # HORTON: Helpful Open-source Research TOol for N-fermion systems.
-# Copyright (C) 2011-2017 The HORTON Development Team
+# Copyright (C) 2011-2022 The HORTON Development Team
 #
 # This file is part of HORTON.
 #
@@ -399,7 +399,7 @@ for e in ext_modules:
 
 setup(
     name='horton',
-    version='2.1.0',
+    version='2.3.0',
     description='HORTON: Helpful Open-source Research TOol for N-fermion systems.',
     author='Toon Verstraelen',
     author_email='Toon.Verstraelen@UGent.be',
