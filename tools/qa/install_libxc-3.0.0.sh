@@ -10,7 +10,11 @@ if [ ! -d "${CACHED}/${NAMEVER}/lib" ]; then
     cd ${QAWORKDIR}
     mkdir -p depbuild
     cd depbuild
-    curl -OL "http://www.tddft.org/programs/libxc/down.php?file=${VER}/${NAMEVER}.tar.gz"
+    if [ "$VER" = "3.0.0" ]; then
+        curl -OL "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/libxc/3.0.0-1build1/libxc_3.0.0.orig.tar.gz"
+    else
+        curl -OL "http://www.tddft.org/programs/libxc/down.php?file=${VER}/${NAMEVER}.tar.gz"
+    fi
     tar -xzf ${NAMEVER}.tar.gz
     cd ${NAMEVER}
     echo "Actual build and install. This may take a while."

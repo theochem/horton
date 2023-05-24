@@ -48,3 +48,6 @@ qaworkdir
 
 # Ignore Pycharm
 .idea
+
+*.egg-info/
+record.txt
