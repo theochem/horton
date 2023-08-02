@@ -1,0 +1,49 @@
+cff-version: 1.2.0
+title: >-
+  HORTON: Helpful Open-source Research TOol for N-fermion
+  systems
+message: >-
+  If you use this software, please cite it as Toon
+  Verstraelen, Pawel Tecmer, Farnaz Heidar-Zadeh, Cristina
+  E. González-Espinoza, Matthew Chan, Taewon D. Kim,
+  Katharina Boguslawski, Stijn Fias, Steven Vandenbrande,
+  Diego Berrocal, and Paul W. Ayers HORTON 2.1.1,
+  http://theochem.github.com/horton/, 2017.
+type: software
+authors:
+  - affiliation: Tecmer
+    given-names: Toon
+    family-names: Verstraelen
+  - affiliation: Ames Laboratory
+    given-names: Ryan
+    family-names: M. Richard
+  - affiliation: Argonne National Laboratory
+    given-names: Colleen
+    family-names: Bertoni
+  - affiliation: Ames Laboratory
+    given-names: Jeffery
+    family-names: S. Boschen
+  - affiliation: Argonne National Laboratory
+    given-names: Kristopher
+    family-names: Keipert
+  - affiliation: MolSSI Software Scientist
+    given-names: Benjamin
+    family-names: Pritchard
+  - affiliation: Virginia Tech
+    given-names: Edward
+    family-names: F. Valeev
+  - affiliation: >-
+      Brookhaven National Laboratory and Stony Brook
+      University
+    given-names: Robert
+    family-names: J. Harrison
+  - affiliation: Lawrence Berkeley National Laboratory
+    given-names: Wibe
+    family-names: A. de Jong
+  - affiliation: Iowa State University and Ames Laboratory
+    given-names: Theresa
+    family-names: L. Windus
+repository-code: 'https://github.com/theochem/horton'
+url: 'http://theochem.github.io/horton/2.1.1'
+license: GPL-3.0
+version: 2.1.1
