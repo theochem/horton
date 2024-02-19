@@ -74,7 +74,7 @@ def typecheck_geo(coordinates=None, numbers=None, pseudo_numbers=None,
         if need_coordinates:
             raise TypeError('Coordinates can not be None.')
     else:
-        if coordinates.shape != (natom, 3) or not np.issubdtype(coordinates.dtype, np.float):
+        if coordinates.shape != (natom, 3) or not np.issubdtype(coordinates.dtype, np.float64):
             raise TypeError('The argument centers must be a float array with shape (natom,3).')
 
     # Typecheck numbers

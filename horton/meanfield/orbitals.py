@@ -473,7 +473,7 @@ class Orbitals(object):
 
         The attributes ``energies`` and ``occupations`` are also reordered.
         """
-        if not (swaps.shape[1] == 2 and swaps.ndim == 2 and np.issubdtype(swaps.dtype, np.int)):
+        if not (swaps.shape[1] == 2 and swaps.ndim == 2 and np.issubdtype(swaps.dtype, np.int64)):
             raise TypeError('The argument swaps has the wrong shape/type.')
         for iswap in range(len(swaps)):
             index0, index1 = swaps[iswap]
