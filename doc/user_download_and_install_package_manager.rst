@@ -38,6 +38,28 @@ as follows:
 
     nosetests -v horton
 
+Conda
+=====
+
+Conda is a package manager for scientific applications in Python. It supports multiple operating systems. HORTON has been packaged
+in the conda-forge repository. You can install the miniforge version of conda from https://github.com/conda-forge/miniforge. 
+
+You may install HORTON as follows:
+
+.. code-block:: bash
+    # We recommend using mamba to install faster
+    conda install mamba
+
+    # Please install HORTON into a clean environment
+    conda create -n horton2
+    conda activate horton2
+
+    # Install HORTON
+    mamba install horton 
+
+_If you have installed a different distribution of conda (e.g. miniconda, anaconda), please make sure to add conda-forge as a 
+source repository or use `-c conda-forge` when installing packages._
+
 
 MacPorts
 ========

@@ -19,21 +19,16 @@
     :
     : --
 
+Making a conda-forge release
+############################
 
-.. _user_download_and_install:
+Conda-forge is the recommended way to make a HORTON release.
 
-Download and Installation
-#########################
+If you have a commit you wish to release, please take the following steps:
 
-We support installing HORTON via package managers. If you wish to build it manually, please look at the source code and read 
-the RST files.
-
-.. toctree::
-   :maxdepth: 3
-
-   user_download_and_install_package_manager
-..    user_download_and_install_linux
-..    user_download_and_install_mac
-..    user_download_and_install_windows
-..    user_download_and_install_setup_cfg
-..    user_download_and_install_troubleshooting
+1. Tag commit and push to github. This should build a tarball release.
+2. Make a fork of the conda-forge feedstock: https://github.com/conda-forge/horton-feedstock.  
+3. Update `recipe/meta.yml` to reflect the new version. Drop the build number back to 0. Be sure to update 
+   the sha256 hash and version as well.
+4. PR against the official conda-forge feedstock. Monitor the CI for failures.
+5. If all checks pass, notify the maintainers. 

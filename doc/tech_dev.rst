@@ -33,3 +33,4 @@ Developer Documentation
    tech_dev_examples
    tech_dev_citing_papers
    tech_dev_cython
+   tech_dev_conda_forge
