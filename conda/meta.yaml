@@ -20,14 +20,14 @@ requirements:
     - make
     - git
   host:
-    - python 3.8
+    - python
     - numpy
     - scipy
     - cython
     - h5py
     - matplotlib
     - libxc
-    - libint
+    - libint <2.8
     - pip
   run:
     - python
@@ -36,7 +36,7 @@ requirements:
     - h5py
     - matplotlib
     - libxc
-    - libint
+    - libint <2.8
     - cython
 test:
   requires:
