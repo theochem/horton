@@ -20,8 +20,8 @@
 
 // UPDATELIBDOCTITLE: Computation of ESP cost functions
 
-#ifndef HORTON_ESPFIT_ELECTROSTATICS_H
-#define HORTON_ESPFIT_ELECTROSTATICS_H
+#ifndef ESPFIT_ELECTROSTATICS_H
+#define ESPFIT_ELECTROSTATICS_H
 
 #include "horton/cell.h"
 #include "horton/grid/uniform.h"
