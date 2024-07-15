@@ -46,8 +46,16 @@ setup.cfg
 .coverage
 qaworkdir
 
-# Ignore Pycharm
+# Ignore IDE files
 .idea
+.vscode
 
+# Ignore virtual environments
+.envrc
+.env
+venv
+
+
+# Ignore build files
 *.egg-info/
 record.txt
