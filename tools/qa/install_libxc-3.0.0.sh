@@ -15,7 +15,7 @@ if [ ! -d "${CACHED}/${NAMEVER}/lib" ]; then
     else
         curl -OL "http://www.tddft.org/programs/libxc/down.php?file=${VER}/${NAMEVER}.tar.gz"
     fi
-    tar -xzf ${NAMEVER}.tar.gz
+    tar -xzf libxc_${VER}.orig.tar.gz
     cd ${NAMEVER}
     echo "Actual build and install. This may take a while."
     (CFLAGS='-fPIC' CPPFLAGS='-fPIC' FCCPP=-ffreestanding ./configure --prefix=${CACHED}/${NAMEVER} && make install)
