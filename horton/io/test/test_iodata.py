@@ -32,7 +32,7 @@ def test_typecheck():
     assert not hasattr(m, 'numbers')
     m = IOData(numbers=np.array([2, 3]), coordinates=np.array([[1, 2, 3], [2, 3, 1]]))
     m = IOData(numbers=np.array([2.0, 3.0]), pseudo_numbers=np.array([1, 1]), coordinates=np.array([[1, 2, 3], [2, 3, 1]]))
-    assert np.issubdtype(m.numbers.dtype, np.int)
+    assert np.issubdtype(m.numbers.dtype, np.int64)
     assert np.issubdtype(m.pseudo_numbers.dtype, np.floating)
     assert hasattr(m, 'numbers')
     del m.numbers
