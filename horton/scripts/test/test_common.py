@@ -21,7 +21,7 @@
 
 
 import h5py as h5, argparse, numpy as np, os
-from nose.tools import assert_raises
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.scripts.common import *
@@ -42,7 +42,7 @@ def test_iter_elements():
     assert list(iter_elements('2,6-8,10')) == [2, 6, 7, 8, 10]
     assert list(iter_elements('10,6-8,2')) == [10, 6, 7, 8, 2]
     assert list(iter_elements('6-8,2')) == [6, 7, 8, 2]
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         list(iter_elements('8-6,2')) == [2]
 
 

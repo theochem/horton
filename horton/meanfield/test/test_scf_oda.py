@@ -22,8 +22,8 @@
 
 import numpy as np
 
-from nose.tools import assert_raises
-from nose.plugins.attrib import attr
+import pytest
+
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf, \
@@ -44,28 +44,28 @@ def test_water_cs_hfs():
     check_water_cs_hfs(ODASCFSolver(threshold=1e-6))
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_n2_cs_hfs():
     check_n2_cs_hfs(ODASCFSolver(threshold=1e-6))
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_h3_os_hfs():
     check_h3_os_hfs(ODASCFSolver(threshold=1e-6))
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_co_cs_pbe():
     check_co_cs_pbe(ODASCFSolver(threshold=1e-5))
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_h3_os_pbe():
     check_h3_os_pbe(ODASCFSolver(threshold=1e-6))
 
 
 def test_vanadium_sc_hf():
-    with assert_raises(NoSCFConvergence):
+    with pytest.raises(NoSCFConvergence):
         check_vanadium_sc_hf(ODASCFSolver(threshold=1e-10, maxiter=10))
 
 
@@ -144,13 +144,13 @@ def test_check_dm():
     olp = np.identity(2)
 
     op1 = np.dot(v*[-0.1, 0.5], v.T)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         check_dm(op1, olp)
     op1 = np.dot(v*[0.1, 1.5], v.T)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         check_dm(op1, olp)
     op1 = np.dot(v*[-0.1, 1.5], v.T)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         check_dm(op1, olp)
     op1 = np.dot(v*[0.1, 0.5], v.T)
     check_dm(op1, olp)

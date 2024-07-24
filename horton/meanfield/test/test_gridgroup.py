@@ -21,7 +21,7 @@
 """Test horton/meanfield/gridgroup.py."""
 
 
-from nose.tools import assert_raises
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -66,14 +66,14 @@ def test_gridgroup_exceptions():
 
     # restricted case
     rgg = RGridGroup(mol.obasis, grid, [go])
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         rgg._update_grid_basics(cache, 'alpha')
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         rgg._get_potentials(cache)
 
     # unrestricted case
     ugg = UGridGroup(mol.obasis, grid, [go])
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         ugg._update_grid_basics(cache, 'alpha')
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         ugg._get_potentials(cache)

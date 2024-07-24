@@ -21,8 +21,8 @@
 
 
 import numpy as np
-from nose.plugins.attrib import attr
-from nose.tools import assert_raises
+
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.test.common import check_delta
@@ -84,16 +84,16 @@ def check_functional_deriv(fn, comp, dm_method, fock_method):
 
 
 def test_exceptions():
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         grid_fn = GB1DMGridDensityFn(-1)
 
     center = np.array([-0.1, 0.6, -0.3])
     point = np.array([0.5, -0.2, 0.7])
 
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         grid_fn = GB1DMGridDensityFn(2)
         grid_fn.reset(-3, center, point)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         grid_fn = GB1DMGridDensityFn(2)
         grid_fn.reset(3, center, point)
 
@@ -504,17 +504,17 @@ def test_dm_kinetic_h3_321g():
     check_dm_kinetic('test/h3_pbe_321g.fchk', 5e-5)
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_dm_kinetic_co_ccpv5z_cart():
     check_dm_kinetic('test/co_ccpv5z_cart_hf_g03.fchk', 4e-4)
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_dm_kinetic_co_ccpv5z_pure():
     check_dm_kinetic('test/co_ccpv5z_pure_hf_g03.fchk', 4e-4)
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_kinetic_functional_deriv():
     check_functional_deriv('test/n2_hfs_sto3g.fchk', 0, GOBasis.compute_grid_kinetic_dm,
                            GOBasis.compute_grid_kinetic_fock)

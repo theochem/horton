@@ -20,7 +20,7 @@
 # --
 
 import numpy as np
-from nose.tools import assert_raises
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 

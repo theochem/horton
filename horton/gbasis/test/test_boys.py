@@ -21,7 +21,7 @@
 
 
 import numpy as np
-from nose.tools import assert_raises
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -515,7 +515,7 @@ def test_boys_functions():
 
 def test_boys_domain_error():
     for m, t in (-1, 0.0), (get_max_shell_type() * 4 + 1, 0.0), (5, -1):
-        with assert_raises(ValueError):
+        with pytest.raises(ValueError):
             boys_function(m, t)
 
 

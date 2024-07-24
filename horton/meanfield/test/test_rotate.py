@@ -21,12 +21,13 @@
 
 
 import numpy as np
-from nose.plugins.attrib import attr
+import pytest
+
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_rotation_energy():
     mol = IOData.from_file(context.get_fn('test/he_spdf_orbital.fchk'))
     kin = mol.obasis.compute_kinetic()

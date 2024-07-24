@@ -21,7 +21,7 @@
 
 
 import numpy as np
-from nose.tools import assert_raises
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -144,16 +144,16 @@ def test_allocation():
     assert issubclass(ar1.dtype.type, float)
     assert 'egg' in c
     assert 'bar' not in c
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         c.load('egg', alloc=10)
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         c.load('egg', alloc=(10, 5))
     ar1[:] = 1.0
     c.clear()
     assert 'egg' not in c
     assert (ar1[:] == 0.0).all()
     # try to load it, while it is no longer valid
-    with assert_raises(KeyError):
+    with pytest.raises(KeyError):
         ar2 = c.load('egg')
     # properly load it anew
     ar2, new = c.load('egg', alloc=(5, 10))
@@ -180,43 +180,43 @@ def test_default():
     assert c.load('egg', default=6) == 5
     c.clear()
     assert c.load('egg', default=6) == 6
-    with assert_raises(KeyError):
+    with pytest.raises(KeyError):
         c.load('egg')
     c.clear()
     assert c.load('egg', default=None) == None
-    with assert_raises(KeyError):
+    with pytest.raises(KeyError):
         c.load('egg')
     # with arrays
     c.dump('floep', np.array([3.1, 5.1]))
     assert (c.load('floep', default=3) == np.array([3.1, 5.1])).all()
     c.clear()
     assert c.load('floep', default=3) == 3
-    with assert_raises(KeyError):
+    with pytest.raises(KeyError):
         c.load('floep')
 
 
 def test_basic_exceptions():
     c = Cache()
-    with assert_raises(KeyError):
+    with pytest.raises(KeyError):
         c.load('boo')
     c.dump('bar', np.zeros(4, float))
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         c.load('bar', alloc=5)
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         c.load()
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         c.load('foo', sadfj=4)
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         c.load('foo', alloc=3, sdasffd=0)
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         c.load('foo', alloc=3, default=0)
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         c.load('foo', jgfjg=3, default=0)
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         c.dump()
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         c.dump('one')
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         c.clear_item()
 
 
@@ -275,13 +275,13 @@ def test_tags():
     c = Cache()
     c.dump('a', 5, tags='ab')
     # In a normal load call, the tags should not be allowed
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         assert c.load('a', tags='a') == 5
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         assert c.load('a', tags='ab') == 5
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         assert c.load('a', tags='abc') == 5
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         assert c.load('b', default=5, tags='abc') == 5
     # clear with other tags
     c.clear(tags='cd')
@@ -295,19 +295,19 @@ def test_tags():
     tmp2, new = c.load('tmp', alloc=5, tags='qw')
     assert not new
     assert tmp1 is tmp2
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         c.load('tmp', alloc=5, tags='w')
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         c.load('tmp', alloc=5, tags='aw')
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         c.load('tmp', alloc=5, tags='ab')
     c.clear()
     tmp3, new = c.load('tmp', alloc=5, tags='qw')
     assert new
     assert tmp1 is tmp3
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         c.load('tmp', alloc=5, tags='w')
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         c.load('tmp', alloc=5, tags='aw')
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         c.load('tmp', alloc=5, tags='ab')

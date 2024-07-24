@@ -21,8 +21,8 @@
 
 
 import numpy as np
-from nose.tools import assert_raises
-from nose.plugins.attrib import attr
+import pytest
+
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.quadprog import FeasibilityError, BoundedError, ConvergenceError, \
@@ -238,7 +238,7 @@ def test_qps_infeasible():
     s =  np.random.normal(0.0, 1.0, nl)
     qps = QPSolver(a, b, r, s)
     free = np.array([False, False, True, True])
-    with assert_raises(FeasibilityError):
+    with pytest.raises(FeasibilityError):
         qps.solve(free)
 
 
@@ -253,7 +253,7 @@ def test_qps_infeasible_radius():
     center = np.random.normal(0, 1, nx)
     qps = QPSolver(a, b, r, s)
     free = np.array([False, False, True, True])
-    with assert_raises(FeasibilityError):
+    with pytest.raises(FeasibilityError):
         x = qps.solve_radius(free, center, 0.1)
         qps.check_feasible(x)
 
@@ -370,7 +370,7 @@ def test_brute_simple():
     qps.check_solution(x)
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_brute_local_posdef():
     for counter in range(100):
         # A large eps is used because some random problems are very ill-behaved.
@@ -412,7 +412,7 @@ def test_brute_local_posdef():
                 raise
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_brute_local():
     for counter in range(100):
         # A large eps is used because some random problems are very ill-behaved.
@@ -497,7 +497,7 @@ def test_brute_case2():
         ]),
         np.array([-0.57685125471751075, -1.2399862660238066]),
     )
-    with assert_raises(FeasibilityError):
+    with pytest.raises(FeasibilityError):
         cost, x = qps.find_brute()
 
 
@@ -538,7 +538,7 @@ def test_brute_case4():
         ]),
         np.array([-0.75113559150400466]),
     )
-    with assert_raises(BoundedError):
+    with pytest.raises(BoundedError):
         cost, x = qps.find_brute()
 
 
@@ -574,7 +574,7 @@ def test_brute_case6():
         np.zeros((0, 6)),
         np.array([]),
     )
-    with assert_raises(BoundedError):
+    with pytest.raises(BoundedError):
         cost, x = qps.find_brute()
 
 
@@ -725,7 +725,7 @@ def test_local_case4():
         np.array([-0.33651216328153544]),
     )
     guess = np.array([1.4532630642344062, 0.72265262030217081, 0.065281886690390367, 0.1839421913168558, 0.20535723808514028, 0.03429655200129661])
-    with assert_raises(ConvergenceError):
+    with pytest.raises(ConvergenceError):
         qps.find_local(guess, 1.0)
 
 

@@ -21,8 +21,8 @@
 
 
 import numpy as np
-from nose.tools import assert_raises
-from nose.plugins.attrib import attr
+import pytest
+
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -205,9 +205,9 @@ def test_cell_quartz():
 
     # Test domain errors
     for i in -1, 4, 245:
-        with assert_raises(ValueError):
+        with pytest.raises(ValueError):
             cell.get_rspacing(i)
-        with assert_raises(ValueError):
+        with pytest.raises(ValueError):
             cell.get_gspacing(i)
 
 
@@ -253,7 +253,7 @@ def setup_ranges_rcut(nvec):
     return cell, origin, center, rcut, ranges_begin, ranges_end, ranges_low, ranges_high
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_ranges_rcut_3d():
     counter = 0
     while True:
@@ -373,5 +373,5 @@ def test_from_parameters3():
 
 
 def test_no_initvoid():
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         cell = Cell(initvoid=True)

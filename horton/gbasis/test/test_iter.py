@@ -21,7 +21,7 @@
 
 
 import numpy as np
-from nose.tools import assert_raises
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -141,9 +141,9 @@ def test_iter_pow2_l2l1():
 
 
 def test_iter_pow2_raise():
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         ip2 = IterPow2(-1, 1)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         ip2 = IterPow2(1, -1)
 
 

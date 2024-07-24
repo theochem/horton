@@ -21,7 +21,7 @@
 """Tests for CP2K ATOM output reader."""
 
 
-from nose.tools import assert_raises
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.test.common import truncated_file
@@ -181,18 +181,18 @@ def test_carbon_sc_pp_uncontracted():
 def test_errors():
     fn_test = context.get_fn('test/carbon_sc_pp_uncontracted.cp2k.out')
     with truncated_file('horton.io.test.test_cp2k.test_errors', fn_test, 0, 0) as fn:
-        with assert_raises(IOError):
+        with pytest.raises(IOError):
             IOData.from_file(fn)
     with truncated_file('horton.io.test.test_cp2k.test_errors', fn_test, 107, 10) as fn:
-        with assert_raises(IOError):
+        with pytest.raises(IOError):
             IOData.from_file(fn)
     with truncated_file('horton.io.test.test_cp2k.test_errors', fn_test, 357, 10) as fn:
-        with assert_raises(IOError):
+        with pytest.raises(IOError):
             IOData.from_file(fn)
     with truncated_file('horton.io.test.test_cp2k.test_errors', fn_test, 405, 10) as fn:
-        with assert_raises(IOError):
+        with pytest.raises(IOError):
             IOData.from_file(fn)
     fn_test = context.get_fn('test/carbon_gs_pp_uncontracted.cp2k.out')
     with truncated_file('horton.io.test.test_cp2k.test_errors', fn_test, 456, 10) as fn:
-        with assert_raises(IOError):
+        with pytest.raises(IOError):
             IOData.from_file(fn)

@@ -21,14 +21,15 @@
 
 
 import numpy as np
-from nose.plugins.attrib import attr
+import pytest
+
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 from horton.test.common import get_random_cell
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_pair_ewald3d_invariance_rcut():
     np.random.seed(0)
     alpha_scale = 4.5

@@ -22,7 +22,7 @@
 
 import json
 import numpy as np
-from nose.tools import assert_raises
+import pytest
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
@@ -95,7 +95,7 @@ def test_gb2integral_exceptions():
     gb2i = GB2OverlapIntegral(2)
     r = np.random.uniform(-1, 1, 3)
     for st0, st1 in (-3, 0), (3, 0), (0, -3), (0, 3):
-        with assert_raises(ValueError):
+        with pytest.raises(ValueError):
             gb2i.reset(st0, st1, r, r)
 
 

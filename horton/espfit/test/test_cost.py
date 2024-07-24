@@ -22,7 +22,8 @@
 
 import numpy as np
 import h5py as h5
-from nose.plugins.attrib import attr
+import pytest
+
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -310,7 +311,7 @@ def test_esp_cost_solve_regularized():
         assert abs(gradient[10:]).max() < 1e-10
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_compare_cubetools():
     # Load structure from cube file
     fn_cube = context.get_fn('test/jbw_coarse_aedens.cube')

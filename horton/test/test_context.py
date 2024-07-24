@@ -22,7 +22,7 @@
 
 import os, subprocess, importlib
 from glob import glob
-from nose.tools import assert_raises
+import pytest
 
 from horton import context
 
@@ -105,5 +105,5 @@ def test_do_not_use_iodata():
     for package, modules in packages.items():
         for module in modules:
             m = importlib.import_module('%s.%s' % (package, module))
-            with assert_raises(AttributeError):
+            with pytest.raises(AttributeError):
                 m.IOData

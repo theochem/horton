@@ -22,8 +22,8 @@
 
 import numpy as np
 import os
-from nose.tools import assert_raises
-from nose.plugins.attrib import attr
+import pytest
+
 
 from horton import *  # pylint: disable=wildcard-import, unused-wildcard-import
 
@@ -35,7 +35,7 @@ def test_shell_nbasis():
     assert get_shell_nbasis( 1) == 3
     assert get_shell_nbasis( 2) == 6
     assert get_shell_nbasis( 3) == 10
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         get_shell_nbasis(-1)
 
 
@@ -64,49 +64,49 @@ def test_gobasis_consistency():
 
     # The center indexes in the shell_map are out of range.
     shell_map[0] = 2
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     shell_map[0] = 0
 
     # The size of the array shell_types does not match the sum of nprims.
     shell_types = np.array([1, 1])
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     shell_types = np.array([1, 1, 0, -2, -2, 0, 1])
 
     # The elements of nprims should be at least 1.
     nprims[1] = 0
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     nprims[1] = 3
 
     # The size of the array alphas does not match the sum of nprims.
     alphas = np.random.uniform(-1, 1, 2)
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     alphas = np.random.uniform(-1, 1, nprims.sum())
 
     # Encountered the nonexistent shell_type -1.
     shell_types[1] = -1
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     shell_types[1] = 1
 
     # The size of con_coeffs does not match nprims.
     con_coeffs = np.random.uniform(-1, 1, 3)
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     con_coeffs = np.random.uniform(-1, 1, nprims.sum())
 
     # Exceeding the maximym shell type (above):
     shell_types[0] = get_max_shell_type()+1
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     shell_types[0] = 2
 
     # Exceeding the maximym shell type (below):
     shell_types[0] = -get_max_shell_type()-1
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         i2 = GOBasis(centers, shell_map, nprims, shell_types, alphas, con_coeffs)
     shell_types[0] = 2
 
@@ -340,7 +340,7 @@ def test_grid_lih_321g_hf_esp_some_points():
     check_grid_esp('test/li_h_3-21G_hf_g09.fchk', ref, 1e-8)
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_grid_co_ccpv5z_cart_hf_esp_some_points():
     ref = np.array([  # from cubegen
         [ 0.0,  0.0,  0.0,  10.69443507172],
@@ -357,7 +357,7 @@ def test_grid_co_ccpv5z_cart_hf_esp_some_points():
     check_grid_esp('test/co_ccpv5z_cart_hf_g03.fchk', ref, 1e-3)
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_grid_co_ccpv5z_pure_hf_esp_some_points():
     ref = np.array([  # from cubegen
         [ 0.0,  0.0,  0.0,  10.69443507172],
@@ -441,7 +441,7 @@ def test_concatenate2():
 
 
 def test_abstract():
-    with assert_raises(NotImplementedError):
+    with pytest.raises(NotImplementedError):
         centers = np.zeros((1, 3), float)
         shell_map = np.zeros(2, int)
         nprims = np.array([1, 2])

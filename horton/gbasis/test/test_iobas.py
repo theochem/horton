@@ -21,7 +21,7 @@
 
 
 import numpy as np
-from nose.tools import assert_raises
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -154,11 +154,11 @@ def test_gobasis_contraction():
     gbc1, gbc2 = gbc.get_segmented_bcs()
     assert not gbc1.is_generalized()
     assert not gbc2.is_generalized()
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         gbc1.get_segmented_bcs()
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         gbc2.get_segmented_bcs()
-    with assert_raises(NotImplementedError):
+    with pytest.raises(NotImplementedError):
         gbc.normalize()
 
 
@@ -183,8 +183,8 @@ def test_dump_basis_atom_map_gbs():
 
 def test_exceptions():
     gobf = GOBasisFamily('Random name', filename='randomname.foobareggspam')
-    with assert_raises(IOError):
+    with pytest.raises(IOError):
         gobf.load()
     gobf = GOBasisFamily('Random name', basis_atom_map={})
-    with assert_raises(IOError):
+    with pytest.raises(IOError):
         gobf.dump('randomname.foobareggspam')

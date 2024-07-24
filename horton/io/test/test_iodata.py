@@ -21,7 +21,7 @@
 
 
 import numpy as np
-from nose.tools import assert_raises
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -38,22 +38,22 @@ def test_typecheck():
     del m.numbers
     assert not hasattr(m, 'numbers')
     m = IOData(cube_data=np.array([[[1, 2], [2, 3], [3, 2]]]), coordinates=np.array([[1, 2, 3]]))
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         IOData(coordinates=np.array([[1, 2], [2, 3]]))
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         IOData(numbers=np.array([[1, 2], [2, 3]]))
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         IOData(numbers=np.array([2, 3]), pseudo_numbers=np.array([1]))
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         IOData(numbers=np.array([2, 3]), coordinates=np.array([[1, 2, 3]]))
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         IOData(cube_data=np.array([[1, 2], [2, 3], [3, 2]]), coordinates=np.array([[1, 2, 3]]))
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         IOData(cube_data=np.array([1, 2]))
 
 
 def test_unknown_format():
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         IOData.from_file('foo.unknown_file_extension')
 
 

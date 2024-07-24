@@ -20,8 +20,7 @@
 # --
 
 
-from nose.tools import assert_raises
-from nose.plugins.skip import SkipTest
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.meanfield.test.common import check_interpolation, \
@@ -235,12 +234,10 @@ def test_dot_hessian_o3lyp_cs():
     mol, _olp, _kin, _na, ham = setup_o3lyp_cs()
     check_dot_hessian(ham, mol.dm_alpha)
 
-
-def test_dot_hessian_o3lyp_cs_polynomial():
-    raise SkipTest("We should use more robust tests for derivatives.")
-    # mol, olp, kin, na, ham = setup_o3lyp_cs()
-    # check_dot_hessian_polynomial(olp, kin+na, ham, [mol.orb_alpha], is_hf=False, extent=0.00001)
-
+#@pytest.mark.skip(reason="We should use more robust tests for derivatives.")
+#def test_dot_hessian_o3lyp_cs_polynomial():
+#    # mol, olp, kin, na, ham = setup_o3lyp_cs()
+#    # check_dot_hessian_polynomial(olp, kin+na, ham, [mol.orb_alpha], is_hf=False, extent=0.00001)
 
 def test_dot_hessian_o3lyp_cs_cache():
     mol, _olp, _kin, _na, ham = setup_o3lyp_cs()
@@ -432,7 +429,7 @@ def test_info():
 
 
 def test_info_nonexisting():
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         RLibXCWrapper('lda_foobar')
 
 

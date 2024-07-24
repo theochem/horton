@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from nose.tools import assert_raises
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf, \
@@ -38,7 +38,7 @@ def test_lih_os_hf():
 
 
 def test_vanadium_sc_hf():
-    with assert_raises(NoSCFConvergence):
+    with pytest.raises(NoSCFConvergence):
         check_vanadium_sc_hf(PlainSCFSolver(threshold=1e-10, maxiter=10))
 
 
@@ -51,7 +51,7 @@ def test_lih_os_hf_level_shift():
 
 
 def test_vanadium_sc_hf_level_shift():
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         check_vanadium_sc_hf(PlainSCFSolver(threshold=1e-10, level_shift=-0.1))
 
 
@@ -75,5 +75,5 @@ def test_hf_water_321g_mistake():
     ]
     ham = REffHam(terms)
     scf_solver = PlainSCFSolver()
-    with assert_raises(AssertionError):
+    with pytest.raises(AssertionError):
         scf_solver(ham, olp, occ_model, orb_alpha)

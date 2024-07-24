@@ -21,7 +21,7 @@
 # --
 
 
-from nose.tools import assert_raises
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -40,7 +40,7 @@ def test_becke_n2_hfs_sto3g():
     bp.do_charges()
     assert abs(bp['charges']).max() < 1e-4
     bp.clear()
-    with assert_raises(KeyError):
+    with pytest.raises(KeyError):
         bp['charges']
     bp.do_charges()
     assert abs(bp['populations'] - 7).max() < 1e-4

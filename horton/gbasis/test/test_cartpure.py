@@ -21,8 +21,8 @@
 
 
 import numpy as np
-from nose.tools import assert_raises
-from nose.plugins.attrib import attr
+import pytest
+
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -157,17 +157,17 @@ def test_gb2_overlap_integral_class():
 def test_cart_pure_domain():
     work_cart = np.random.normal(0, 1, (3, 70))
     work_pure = np.random.normal(0, 1, (3, 70))
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=get_max_shell_type()+1, nant=1, npost=1)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=-1, nant=1, npost=1)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=3, nant=0, npost=1)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         cart_to_pure_low(work_cart.reshape(-1), work_pure.reshape(-1), shell_type=3, nant=1, npost=0)
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_cart_pure_water_ccpvdz_hf():
     fn_fchk_pure = context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk')
     fn_log_pure = fn_fchk_pure[:-5] + '.log'

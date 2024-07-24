@@ -22,7 +22,8 @@
 
 import numpy as np
 import os
-from nose.plugins.attrib import attr
+import pytest
+
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.test.common import check_script, tmpdir
@@ -46,7 +47,7 @@ def test_wfar():
     assert parse_wfar('4.2:0.3') == (4.2*angstrom, 0.3*angstrom)
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_scripts():
     # Generate some random system with random esp data
     natom = 5

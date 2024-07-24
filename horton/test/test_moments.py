@@ -21,7 +21,7 @@
 
 
 import numpy as np
-from nose.tools import assert_raises
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -142,9 +142,9 @@ def test_fill_cartesian_polynomials():
             assert abs(output[irow] - check) < 1e-10
         assert (output[nrow:] == 0).all()
 
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         fill_cartesian_polynomials(output, 5)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         fill_cartesian_polynomials(output[:get_ncart_cumul(4)-2], 4)
 
 
@@ -209,9 +209,9 @@ def test_fill_pure_polynomials():
         #print
         assert (output[nrow:] == 0).all()
 
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         fill_cartesian_polynomials(output, 5)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         fill_cartesian_polynomials(output[:get_ncart_cumul(4)-2], 4)
 
 

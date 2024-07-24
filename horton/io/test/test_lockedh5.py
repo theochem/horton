@@ -20,7 +20,7 @@
 # --
 
 
-from nose.tools import assert_raises
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -36,7 +36,7 @@ def test_locked1():
 
 def test_locked2():
     # test error handling in h5.File constructor
-    with assert_raises(IOError):
+    with pytest.raises(IOError):
         with tmpdir('horton.scripts.test.test_common.test_locked2') as dn:
             with LockedH5File('%s/foo.h5' % dn, mode='r', wait=0.1, count=3) as f:
                 pass
@@ -44,14 +44,14 @@ def test_locked2():
 
 def test_locked3():
     # test error handling in h5.File constructor
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         with LockedH5File('horton.scripts.test.test_common.test_locked3.h5', driver='fubar', wait=0.1, count=3) as f:
             pass
 
 
 def test_locked4():
     # test error handling of wrong driver
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         with tmpdir('horton.scripts.test.test_common.test_locked4') as dn:
             with LockedH5File('%s/foo.h5' % dn, "w", driver='core') as f:
                 pass
@@ -59,7 +59,7 @@ def test_locked4():
 
 def test_locked5():
     # test error handling in with clause
-    with assert_raises(RuntimeError):
+    with pytest.raises(RuntimeError):
         with tmpdir('horton.scripts.test.test_common.test_locked5') as dn:
             with LockedH5File('%s/foo.h5' % dn, "w") as f:
                 raise RuntimeError

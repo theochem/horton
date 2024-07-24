@@ -21,7 +21,7 @@
 
 
 import numpy as np
-from nose.tools import assert_raises
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -215,7 +215,7 @@ def test_hyperbolic_properties():
 
 
 def test_exception_string():
-    with assert_raises(TypeError):
+    with pytest.raises(TypeError):
         RTransform.from_string('Fubar A 5')
 
 
@@ -225,9 +225,9 @@ def test_identiy_string():
     rtf2 = RTransform.from_string(s)
     assert rtf1.npoint == rtf2.npoint
 
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         RTransform.from_string('IdentityRTransform A')
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         RTransform.from_string('IdentityRTransform A 5 .1')
 
     rtf3 = RTransform.from_string('IdentityRTransform 8')
@@ -244,9 +244,9 @@ def test_linear_string():
     assert rtf1.npoint == rtf2.npoint
     assert rtf1.alpha == rtf2.alpha
 
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         RTransform.from_string('LinearRTransform A 5')
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         RTransform.from_string('LinearRTransform A 5 .1')
 
     rtf3 = RTransform.from_string('LinearRTransform -1.0 12.15643216847 77')
@@ -265,9 +265,9 @@ def test_exp_string():
     assert rtf1.npoint == rtf2.npoint
     assert rtf1.alpha == rtf2.alpha
 
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         RTransform.from_string('ExpRTransform A 5')
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         RTransform.from_string('ExpRTransform A 5 .1')
 
     rtf3 = RTransform.from_string('ExpRTransform 1.0 12.15643216847 5')
@@ -286,9 +286,9 @@ def test_power_string():
     assert rtf1.power == rtf2.power
     assert rtf1.npoint == rtf2.npoint
 
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         RTransform.from_string('PowerRTransform A 5')
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         RTransform.from_string('PowerRTransform A 5 .1')
 
     rtf3 = RTransform.from_string('PowerRTransform 0.02154 12.15643216847 5')
@@ -306,9 +306,9 @@ def test_hyperbolic_string():
     assert rtf1.b == rtf2.b
     assert rtf1.npoint == rtf2.npoint
 
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         RTransform.from_string('HyperbolicRTransform A 5')
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         RTransform.from_string('HyperbolicRTransform A 5 .1')
 
     rtf3 = RTransform.from_string('HyperbolicRTransform 0.01 0.02315479 5')
@@ -319,54 +319,54 @@ def test_hyperbolic_string():
 
 def test_identity_bounds():
     for npoint in -1, 0, 1:
-        with assert_raises(ValueError):
+        with pytest.raises(ValueError):
             IdentityRTransform(npoint)
 
 
 def test_linear_bounds():
     for npoint in -1, 0, 1:
-        with assert_raises(ValueError):
+        with pytest.raises(ValueError):
             LinearRTransform(-0.5, 0.99, npoint)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         LinearRTransform(1.1, 0.9, 50)
 
 
 def test_exp_bounds():
     for npoint in -1, 0, 1:
-        with assert_raises(ValueError):
+        with pytest.raises(ValueError):
             ExpRTransform(0.1, 1.0, npoint)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         ExpRTransform(-0.1, 1.0, 50)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         ExpRTransform(0.1, -1.0, 50)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         ExpRTransform(1.1, 0.9, 50)
 
 
 def test_power_bounds():
     for npoint in -1, 0, 1:
-        with assert_raises(ValueError):
+        with pytest.raises(ValueError):
             PowerRTransform(1.0, 2.0, npoint)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         PowerRTransform(-1.0, 2.0, 50)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         PowerRTransform(0.1, -2.0, 50)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         PowerRTransform(1.0, 1.1, 50)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         PowerRTransform(1.1, 1.0, 50)
 
 
 def test_hyperbolic_bounds():
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         HyperbolicRTransform(0, 1.0/450, 450)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         HyperbolicRTransform(-0.1, 1.0/450, 450)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         HyperbolicRTransform(0.4, 1.0, 450)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         HyperbolicRTransform(0.4, 0.5, 3)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         HyperbolicRTransform(0.2, 0.0, 450)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         HyperbolicRTransform(0.2, -1.0, 450)

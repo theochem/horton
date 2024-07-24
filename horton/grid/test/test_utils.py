@@ -20,7 +20,7 @@
 # --
 
 
-from nose.tools import assert_raises
+import pytest
 import numpy as np
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
@@ -36,5 +36,5 @@ def test_dot_multi():
         d2 = dot_multi(a, b)
         assert abs(d1 - d2) < 1e-10
 
-    with assert_raises(AssertionError):
+    with pytest.raises(AssertionError):
         dot_multi(np.arange(5.0), np.arange(10.0))

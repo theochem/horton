@@ -21,7 +21,8 @@
 
 
 import numpy as np
-from nose.plugins.attrib import attr
+import pytest
+
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.part.test.common import check_names, check_proatom_splines, \
@@ -124,25 +125,25 @@ def test_hirshfeld_msa_hf_lan_local():
     check_msa_hf_lan('h', expecting, local=True)
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_hirshfeld_msa_hf_lan_global():
     expecting = np.array([0.56175431, -0.30002709, -0.28602105, -0.28335086, -0.26832878,  0.13681904,  0.14535691,  0.14206876,  0.15097682])
     check_msa_hf_lan('h', expecting, local=False)
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_hirshfeld_i_msa_hf_lan_local():
     expecting = np.array([1.14305602, -0.52958298, -0.51787452, -0.51302759, -0.50033981, 0.21958586, 0.23189187, 0.22657354, 0.23938904])
     check_msa_hf_lan('hi', expecting, local=True)
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_hirshfeld_i_msa_hf_lan_global():
     expecting = np.array([1.14305602, -0.52958298, -0.51787452, -0.51302759, -0.50033981, 0.21958586, 0.23189187, 0.22657354, 0.23938904])
     check_msa_hf_lan('hi', expecting, local=False)
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_is_msa_hf_lan():
     expecting = np.array([1.1721364, -0.5799622, -0.5654549, -0.5599638, -0.5444145, 0.2606699, 0.2721848, 0.2664377, 0.2783666]) # from HiPart
     check_msa_hf_lan('is', expecting, needs_padb=False)

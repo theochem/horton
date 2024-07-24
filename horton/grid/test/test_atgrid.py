@@ -21,7 +21,7 @@
 
 
 import os, shutil, numpy as np, h5py as h5
-from nose.tools import assert_raises
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -33,7 +33,7 @@ def test_normalize_nlls():
     assert (_normalize_nlls(6, 10) == np.array([6]*10)).all()
     assert (_normalize_nlls([6], 10) == np.array([6]*10)).all()
     assert (_normalize_nlls([6, 6, 6], 3) == np.array([6]*3)).all()
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         _normalize_nlls([6, 6, 6], 4)
 
 
@@ -59,7 +59,7 @@ def test_agspec_tuple2():
     assert rgrid is rgrid0
     assert (nlls0 == [6, 14, 26, 6]).all()
 
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         agspec = AtomicGridSpec((rgrid, [6, 14, 26, 6, 6]))
 
 
@@ -102,7 +102,7 @@ def test_agspec_string():
 
 
 def test_agspec_wrong_string():
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         AtomicGridSpec('power:0.001:10.0:20')
 
 

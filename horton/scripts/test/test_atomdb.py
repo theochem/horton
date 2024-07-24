@@ -21,7 +21,8 @@
 
 
 import os, shutil
-from nose.plugins.attrib import attr
+import pytest
+
 
 from horton.context import context
 from horton.periodic import periodic
@@ -137,7 +138,7 @@ def make_fake_run_script(program, dn):
         print('echo "Foo"', file=f)
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_script_convert_cp2k():
     with tmpdir('horton.scripts.test.test_atomdb.test_script_convert_cp2k') as dn:
         copy_atom_output('atom_op2.cp2k.out', 8, +2, 3, dn, 'atom.cp2k.out')
@@ -158,7 +159,7 @@ def test_script_convert_cp2k():
         assert padb.get_rgrid(8).size == 71
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_script_convert_g09():
     with tmpdir('horton.scripts.test.test_atomdb.test_script_convert_g09') as dn:
         copy_atom_output('atom_014_013_hf_lan.fchk', 14, +1, 2, dn, 'atom.fchk')
@@ -174,7 +175,7 @@ def test_script_convert_g09():
         assert padb.get_rgrid(14).size == 49
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_script_convert_g03():
     with tmpdir('horton.scripts.test.test_atomdb.test_script_convert_g03') as dn:
         copy_atom_output('atom_001_001_hf_sto3g.fchk', 1,  0, 2, dn, 'atom.fchk')

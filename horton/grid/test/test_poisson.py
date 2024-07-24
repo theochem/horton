@@ -22,12 +22,13 @@
 
 from scipy.special import erf
 import numpy as np
-from nose.plugins.attrib import attr
+import pytest
+
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_solve_poisson_becke_n2():
     mol = IOData.from_file(context.get_fn('test/n2_hfs_sto3g.fchk'))
     lmaxmax = 4

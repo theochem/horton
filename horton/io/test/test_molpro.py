@@ -22,7 +22,8 @@
 
 import os
 import numpy as np
-from nose.plugins.attrib import attr
+import pytest
+
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -134,7 +135,7 @@ def test_dump_load_fcidimp_consistency_mo_water_sto3g():
     check_dump_load_fcidimp_consistency_mo(context.get_fn('test/h2o_sto3g.fchk'))
 
 
-@attr('slow')
+@pytest.mark.slow
 def test_dump_load_fcidimp_consistency_mo_water_ccpvdz():
     check_dump_load_fcidimp_consistency_mo(context.get_fn('test/water_ccpvdz_pure_hf_g03.fchk'))
 

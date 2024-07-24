@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from nose.tools import assert_raises
+import pytest
 
 from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from horton.meanfield.test.common import check_hf_cs_hf, check_lih_os_hf, \
@@ -60,7 +60,7 @@ def test_h3_os_pbe():
 
 
 def test_vanadium_sc_hf():
-    with assert_raises(NoSCFConvergence):
+    with pytest.raises(NoSCFConvergence):
         check_vanadium_sc_hf(CDIISSCFSolver(threshold=1e-10, maxiter=10))
 
 
