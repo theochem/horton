@@ -23,8 +23,8 @@
 try:
     from sympy import S, sqrt
 except ImportError:
-    from nose.plugins.skip import SkipTest
-    raise SkipTest
+    import pytest
+    pytest.skip(allow_module_level=True)
 
 from .harmonics import get_poly_conversion
 
