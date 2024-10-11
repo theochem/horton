@@ -1,5 +1,4 @@
 # Never check in binary files!
-*.h5
 *.bz2
 *.gz
 *.png
