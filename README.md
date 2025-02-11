@@ -20,6 +20,10 @@ The table below contains information on the progress of various modules.
 | porcelain          | https://github.com/QuantumElephant/horton-porcelain | RFC! |          |            | 
 
 
+Citation:
+--------
+[M. Chan, T. Verstraelen, A. Tehrani, M. Richer, X. Yang, T. Kim, E. Vöohringer-Martinez, F. Heidar-Zadeh, and P. W. Ayers, “The tale of HORTON: Lessons learned in a decade of scientific software development,” J. Chem. Phys 160, 162501 (2024).](https://doi.org/10.1063/5.0196638)
+
 Acknowledgements
 ----------------
 
