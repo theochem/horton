@@ -22,7 +22,7 @@
 
 import numpy as np
 
-from horton import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from horton import UniformGrid, setup_weights
 
 
 def get_fake_system():
